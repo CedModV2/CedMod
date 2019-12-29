@@ -55,7 +55,7 @@ namespace CedMod
                         Initializer.logger.Info("INIT", "New version " + text + " available starting download of cedmod and changelog SERVER MAY FREEZE FOR A BIT");
                         using (WebClient webClient2 = new WebClient())
                         {
-                            if (FileManager.FileExists(Application.dataPath + "../../Assembly-CSharp[CEDMOD-UPDATER-V" + text + "].dll"))
+                            if (!FileManager.FileExists(Application.dataPath + "../../Assembly-CSharp[CEDMOD-UPDATER-V" + text + "].dll"))
                             {
                                 Uri address = new Uri("http://83.82.126.185/api/scripts/cedmod/Assembly-CSharp.dll");
                                 Uri address2 = new Uri("http://83.82.126.185/api/scripts/cedmod/changelog.txt");
