@@ -274,7 +274,7 @@ public class MTFRespawn : NetworkBehaviour
     {
       // ISSUE: cast to a reference type
       // ISSUE: explicit reference operation
-      ^(int&) ref letter = 0;
+      (int) ref letter = 0;
       number = 0;
     }
     else
