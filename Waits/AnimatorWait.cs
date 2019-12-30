@@ -1,41 +1,21 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: Waits.AnimatorWait
-// Assembly: Assembly-CSharp, Version=1.2.3.4, Culture=neutral, PublicKeyToken=null
-// MVID: 4FF70443-CA06-4035-B3D1-98CFA9EE67BF
-// Assembly location: D:\steamgames\steamapps\common\SCP Secret Laboratory Dedicated Server\SCPSL_Data\Managed\Assembly-CSharp.dll
-
-using MEC;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using MEC;
 using UnityEngine;
 
 namespace Waits
 {
-  public class AnimatorWait : Wait
-  {
-    public Animator animator;
-
-    public override IEnumerator<float> _Run()
+    // Token: 0x020003BD RID: 957
+    public class AnimatorWait : Wait
     {
-      // ISSUE: reference to a compiler-generated field
-      int num = this.<1__>state;
-      AnimatorWait animatorWait = this;
-      if (num != 0)
-      {
-        if (num != 1)
-          return false;
-        // ISSUE: reference to a compiler-generated field
-        this.<1__>state = -1;
-        return false;
-      }
-      // ISSUE: reference to a compiler-generated field
-      this.<1__>state = -1;
-      // ISSUE: reference to a compiler-generated field
-      // ISSUE: reference to a compiler-generated method
-      this.<2__>current = Timing.WaitUntilFalse(new Func<bool>(animatorWait.<_Run>b__1_0));
-      // ISSUE: reference to a compiler-generated field
-      this.<1__>state = 1;
-      return true;
+        // Token: 0x060017F5 RID: 6133 RVA: 0x00018F11 File Offset: 0x00017111
+        public override IEnumerator<float> _Run()
+        {
+            yield return Timing.WaitUntilFalse(() => this.animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f);
+            yield break;
+        }
+
+        // Token: 0x0400194D RID: 6477
+        public Animator animator;
     }
-  }
 }

@@ -1024,19 +1024,19 @@ namespace GameCore
             {
                 yield return Timing.WaitForSeconds(1f);
             }
-            using (UnityWebRequest www2 = UnityWebRequest.Get(CentralServer.StandardUrl + "v2/publickey.php"))
+            using (UnityWebRequest www = UnityWebRequest.Get(CentralServer.StandardUrl + "v2/publickey.php"))
             {
-                yield return Timing.WaitUntilDone(www2.SendWebRequest());
+                yield return Timing.WaitUntilDone(www.SendWebRequest());
                 try
                 {
-                    if (!string.IsNullOrEmpty(www2.error))
+                    if (!string.IsNullOrEmpty(www.error))
                     {
-                        Console.AddLog("Can't refresh central server public key - " + www2.error, Color.red, false);
+                        Console.AddLog("Can't refresh central server public key - " + www.error, Color.red, false);
                         yield break;
                     }
                     try
                     {
-                        PublicKeyResponse publicKeyResponse = JsonSerialize.FromJson<PublicKeyResponse>(www2.downloadHandler.text);
+                        PublicKeyResponse publicKeyResponse = JsonSerialize.FromJson<PublicKeyResponse>(www.downloadHandler.text);
                         if (!ECDSA.Verify(publicKeyResponse.key, publicKeyResponse.signature, CentralServerKeyCache.MasterKey))
                         {
                             Console.AddLog("Can't refresh central server public key - invalid signature!", Color.red, false);
