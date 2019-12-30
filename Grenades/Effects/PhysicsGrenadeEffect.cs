@@ -14,7 +14,6 @@ namespace Grenades.Effects
 {
   public class PhysicsGrenadeEffect : GrenadeEffect
   {
-        private const int V = 1__;
         public float force = 4f;
     public float radius = 10.8f;
     public float lift = 10.8f;
@@ -30,13 +29,14 @@ namespace Grenades.Effects
 
     protected override IEnumerator<float> _Play()
     {
-      // ISSUE: reference to a compiler-generated field
-      int num = this.< V > state;
+            int V = 0;
+            // ISSUE: reference to a compiler-generated field
+            int num = this.< V > state;
       PhysicsGrenadeEffect physicsGrenadeEffect = this;
       if (num != 0)
         return false;
       // ISSUE: reference to a compiler-generated field
-      this.< V > State = -1;
+      this.< V > state = -1;
       Vector3 position = physicsGrenadeEffect.transform.position;
       foreach (Collider collider in Physics.OverlapSphere(position, physicsGrenadeEffect.radius))
       {

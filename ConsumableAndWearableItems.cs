@@ -151,7 +151,12 @@ public class ConsumableAndWearableItems : NetworkBehaviour
     };
   }
 
-  [Server]
+    private bool d__24(int v)
+    {
+        throw new NotImplementedException();
+    }
+
+    [Server]
   private void SendRpc(ConsumableAndWearableItems.HealAnimation animation, int mid)
   {
     if (!NetworkServer.active)
