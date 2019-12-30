@@ -1,4 +1,3 @@
 ﻿[*.cs]
 
 # CS1001: Identifier expected
-dotnet_diagnostic.CS1001.severity = none

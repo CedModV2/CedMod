@@ -165,9 +165,10 @@ public class Scp106PlayerScript : NetworkBehaviour
             Debug.LogWarning("[Server] function 'System.Collections.Generic.IEnumerator`1<System.Single> Scp106PlayerScript::_ContainAnimation(CharacterClassManager)' called on client");
             return null;
         }
-        Scp106PlayerScript.< _ContainAnimation > d__32 < _ContainAnimation > d__ = new Scp106PlayerScript.< _ContainAnimation > d__32(0);
+        bool d__ = false;
+        Scp106PlayerScript._ContainAnimation > d__32 < _ContainAnimation > d__ = new Scp106PlayerScript(< _ContainAnimation > d__32(0));
 
-        < _ContainAnimation > d__.<> 4__this = this;
+        < _ContainAnimation > d__.< 4__>this = this;
 
         < _ContainAnimation > d__.ccm = ccm;
         return < _ContainAnimation > d__;
@@ -225,7 +226,7 @@ public class Scp106PlayerScript : NetworkBehaviour
       return (IEnumerator<float>) null;
     }
         // ISSUE: object of a compiler-generated type is created
-        return (IEnumerator<float>)new Scp106PlayerScript.<_DoTeleportAnimation> __37(0);
+        return (IEnumerator<float>)new Scp106PlayerScript(<_DoTeleportAnimation> __37(0));
     {
       <4__>this = this;
     };
