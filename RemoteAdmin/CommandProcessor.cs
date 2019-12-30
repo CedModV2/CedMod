@@ -2748,7 +2748,7 @@ label_958:
                 if (num1 == player.GetComponent<QueryProcessor>().PlayerId)
                 {
                   // ISSUE: reference to a compiler-generated method
-                  switch (\u003CPrivateImplementationDetails\u003E.ComputeStringHash(programName))
+                  switch (<PrivateImplementationDetails>.ComputeStringHash(programName))
                   {
                     case 329200923:
                       if (programName == "UNMUTE")

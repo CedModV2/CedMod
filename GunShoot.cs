@@ -4,6 +4,7 @@
 // MVID: 4FF70443-CA06-4035-B3D1-98CFA9EE67BF
 // Assembly location: D:\steamgames\steamapps\common\SCP Secret Laboratory Dedicated Server\SCPSL_Data\Managed\Assembly-CSharp.dll
 
+using RemoteAdmin;
 using UnityEngine;
 
 public class GunShoot : MonoBehaviour
@@ -50,43 +51,43 @@ public class GunShoot : MonoBehaviour
       return;
     string name = hit.collider.sharedMaterial.name;
     // ISSUE: reference to a compiler-generated method
-    switch (\u003CPrivateImplementationDetails\u003E.ComputeStringHash(name))
+    switch (<PrivateImplementationDetails>.ComputeStringHash(name))
     {
       case 81868168:
         if (!(name == "Wood"))
-          break;
+        break;
         this.SpawnDecal(hit, this.woodHitEffect);
         break;
       case 329707512:
         if (!(name == "WaterFilledExtinguish"))
-          break;
+        break;
         this.SpawnDecal(hit, this.waterLeakExtinguishEffect);
         this.SpawnDecal(hit, this.metalHitEffect);
         break;
       case 970575400:
         if (!(name == "WaterFilled"))
-          break;
+        break;
         this.SpawnDecal(hit, this.waterLeakEffect);
         this.SpawnDecal(hit, this.metalHitEffect);
         break;
       case 1044434307:
         if (!(name == "Sand"))
-          break;
+        break;
         this.SpawnDecal(hit, this.sandHitEffect);
         break;
       case 1842662042:
         if (!(name == "Stone"))
-          break;
+        break;
         this.SpawnDecal(hit, this.stoneHitEffect);
         break;
       case 2840670588:
         if (!(name == "Metal"))
-          break;
+        break;
         this.SpawnDecal(hit, this.metalHitEffect);
         break;
       case 3966976176:
         if (!(name == "Character"))
-          break;
+        break;
         this.SpawnDecal(hit, this.fleshHitEffects[Random.Range(0, this.fleshHitEffects.Length)]);
         break;
       case 4022181330:

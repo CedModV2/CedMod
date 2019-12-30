@@ -165,10 +165,10 @@ public class Scp106PlayerScript : NetworkBehaviour
       Debug.LogWarning((object) "[Server] function 'System.Collections.Generic.IEnumerator`1<System.Single> Scp106PlayerScript::_ContainAnimation(CharacterClassManager)' called on client");
       return (IEnumerator<float>) null;
     }
-    // ISSUE: object of a compiler-generated type is created
-    return (IEnumerator<float>) new Scp106PlayerScript.\u003C_ContainAnimation\u003Ed__32(0)
+        // ISSUE: object of a compiler-generated type is created
+        return (IEnumerator<float>)new Scp106PlayerScript.< _ContainAnimation > __32(0)
     {
-      \u003C\u003E4__this = this,
+      <>4__this = this,
       ccm = ccm
     };
   }
@@ -224,10 +224,10 @@ public class Scp106PlayerScript : NetworkBehaviour
       Debug.LogWarning((object) "[Server] function 'System.Collections.Generic.IEnumerator`1<System.Single> Scp106PlayerScript::_DoTeleportAnimation()' called on client");
       return (IEnumerator<float>) null;
     }
-    // ISSUE: object of a compiler-generated type is created
-    return (IEnumerator<float>) new Scp106PlayerScript.\u003C_DoTeleportAnimation\u003Ed__37(0)
+        // ISSUE: object of a compiler-generated type is created
+        return (IEnumerator<float>)new Scp106PlayerScript.< _DoTeleportAnimation > __37(0)
     {
-      \u003C\u003E4__this = this
+      <>4__this = this
     };
   }
 
@@ -572,12 +572,12 @@ public class Scp106PlayerScript : NetworkBehaviour
   private IEnumerator<float> StalkCoroutine(Broadcast bc)
   {
     // ISSUE: reference to a compiler-generated field
-    int num = this.\u003C\u003E1__state;
+    int num = this.<>1__state;
     Scp106PlayerScript scp106PlayerScript = this;
     if (num != 0)
       return false;
     // ISSUE: reference to a compiler-generated field
-    this.\u003C\u003E1__state = -1;
+    this.<>1__state = -1;
     List<GameObject> gameObjectList = new List<GameObject>();
     foreach (GameObject player in PlayerManager.players)
     {

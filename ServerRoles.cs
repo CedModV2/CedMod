@@ -356,12 +356,12 @@ public class ServerRoles : NetworkBehaviour
   private IEnumerator<float> _RequestRoleFromServer(string token)
   {
     // ISSUE: reference to a compiler-generated field
-    int num = this.\u003C\u003E1__state;
+    int num = this.<>1__state;
     ServerRoles serverRoles = this;
     if (num != 0)
       return false;
     // ISSUE: reference to a compiler-generated field
-    this.\u003C\u003E1__state = -1;
+    this.<>1__state = -1;
     if (!serverRoles._ccm.IsVerified && string.IsNullOrEmpty(serverRoles._ccm.UserId) || CentralAuth.ValidatePartialAuthToken(token, serverRoles._ccm.SaltedUserId, serverRoles.GetComponent<NicknameSync>().MyNick, serverRoles._ccm.AuthTokenSerial, "Badge request") == null)
       return false;
     serverRoles._globalBadgeUnconfirmed = token;
@@ -372,12 +372,12 @@ public class ServerRoles : NetworkBehaviour
   private IEnumerator<float> SetPublicTokenOnServer(string token)
   {
     // ISSUE: reference to a compiler-generated field
-    int num = this.\u003C\u003E1__state;
+    int num = this.<>1__state;
     ServerRoles serverRoles = this;
     if (num != 0)
       return false;
     // ISSUE: reference to a compiler-generated field
-    this.\u003C\u003E1__state = -1;
+    this.<>1__state = -1;
     if (!serverRoles._ccm.IsVerified && string.IsNullOrEmpty(serverRoles._ccm.UserId))
       return false;
     Dictionary<string, string> dict = CentralAuth.ValidatePartialAuthToken(token, serverRoles._ccm.SaltedUserId, serverRoles.GetComponent<NicknameSync>().MyNick, serverRoles._ccm.AuthTokenSerial, "Public player info");

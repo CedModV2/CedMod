@@ -144,9 +144,9 @@ public class ConsumableAndWearableItems : NetworkBehaviour
       return (IEnumerator<float>) null;
     }
     // ISSUE: object of a compiler-generated type is created
-    return (IEnumerator<float>) new ConsumableAndWearableItems.\u003CUseMedicalItem\u003Ed__24(0)
+    return (IEnumerator<float>) new ConsumableAndWearableItems.<UseMedicalItem>d__24(0)
     {
-      \u003C\u003E4__this = this,
+      <>4__this = this,
       mid = mid
     };
   }

@@ -670,7 +670,7 @@ public class Scp079PlayerScript : NetworkBehaviour
     List<string> stringList = ConfigFile.ServerConfig.GetStringList("scp079_door_blacklist") ?? new List<string>();
     string s = strArray[0];
     // ISSUE: reference to a compiler-generated method
-    switch (\u003CPrivateImplementationDetails\u003E.ComputeStringHash(s))
+    switch (<PrivateImplementationDetails>.ComputeStringHash(s))
     {
       case 762402896:
         if (!(s == "ELEVATORTELEPORT"))

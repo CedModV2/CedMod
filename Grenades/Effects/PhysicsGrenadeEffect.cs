@@ -29,12 +29,12 @@ namespace Grenades.Effects
     protected override IEnumerator<float> _Play()
     {
       // ISSUE: reference to a compiler-generated field
-      int num = this.\u003C\u003E1__state;
+      int num = this.<>1__state;
       PhysicsGrenadeEffect physicsGrenadeEffect = this;
       if (num != 0)
         return false;
       // ISSUE: reference to a compiler-generated field
-      this.\u003C\u003E1__state = -1;
+      this.<>1__state = -1;
       Vector3 position = physicsGrenadeEffect.transform.position;
       foreach (Collider collider in Physics.OverlapSphere(position, physicsGrenadeEffect.radius))
       {
