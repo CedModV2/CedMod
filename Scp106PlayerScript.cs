@@ -17,7 +17,8 @@ using UnityEngine;
 
 public class Scp106PlayerScript : NetworkBehaviour
 {
-  [Header("Balance")]
+    private const int V = 0f;
+    [Header("Balance")]
   [SerializeField]
   private float captureCooldown = 2f;
   [Header("Player Properties")]
@@ -166,12 +167,14 @@ public class Scp106PlayerScript : NetworkBehaviour
             return null;
         }
         bool d__ = false;
-        Scp106PlayerScript._ContainAnimation > d__32 < _ContainAnimation > d__ = new Scp106PlayerScript.< _ContainAnimation > d__32(0);
+        Scp106PlayerScript._ContainAnimation > d__ < _ContainAnimation > d__ = new Scp106PlayerScript._ContainAnimation(0);
+        Scp106PlayerScript scp106PlayerScript1 = this;
+        Scp106PlayerScript scp106PlayerScript = scp106PlayerScript1;
+        bool v = _ContainAnimation > d__.<V>
+        v > scp106PlayerScript = scp106PlayerScript;
 
-        < _ContainAnimation > d__.< 4__>this = this;
-
-        < _ContainAnimation > d__.ccm = ccm;
-        return < _ContainAnimation > d__;
+        _ContainAnimation > d__.ccm = ccm;
+        return _ContainAnimation > d__;
     }
 
     [ClientRpc]
@@ -226,9 +229,9 @@ public class Scp106PlayerScript : NetworkBehaviour
       return (IEnumerator<float>) null;
     }
         // ISSUE: object of a compiler-generated type is created
-        return (IEnumerator<float>)new Scp106PlayerScript.<_DoTeleportAnimation> __37(0);
+        return (IEnumerator<float>)new Scp106PlayerScript._DoTeleportAnimation(0);
     {
-      <4__>this = this;
+      V > this = this;
     };
   }
 
