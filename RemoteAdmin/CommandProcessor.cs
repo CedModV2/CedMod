@@ -2748,7 +2748,7 @@ label_958:
                 if (num1 == player.GetComponent<QueryProcessor>().PlayerId)
                 {
                   // ISSUE: reference to a compiler-generated method
-                  switch (<PrivateImplementationDetails>.ComputeStringHash(programName))
+                  switch (PrivateImplementationDetails.ComputeStringHash(programName))
                   {
                     case 329200923:
                       if (programName == "UNMUTE")
@@ -2814,7 +2814,7 @@ label_958:
                       }
                       else
                         goto default;
-                    case 1630279262:
+                    case 1630279262U:
                       if (programName == "IUNMUTE")
                       {
                         MuteHandler.RevokePersistantMute("ICOM-" + player.GetComponent<CharacterClassManager>().UserId);
