@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Serialization;
+using RemoteAdmin;
 
 public class Scp079PlayerScript : NetworkBehaviour
 {
@@ -541,12 +542,12 @@ public class Scp079PlayerScript : NetworkBehaviour
     NetworkWriterPool.Recycle(writer);
   }
 
-  public Scp079PlayerScript()
-  {
-    this.InitSyncObject((SyncObject) this.lockedDoors);
-  }
+    public Scp079PlayerScript()
+    {
+        InitSyncObject(lockedDoors);
+    }
 
-  static Scp079PlayerScript()
+    static Scp079PlayerScript()
   {
     NetworkBehaviour.RegisterCommandDelegate(typeof (Scp079PlayerScript), "CmdInteract", new NetworkBehaviour.CmdDelegate(Scp079PlayerScript.InvokeCmdCmdInteract));
     NetworkBehaviour.RegisterCommandDelegate(typeof (Scp079PlayerScript), "CmdResetDoors", new NetworkBehaviour.CmdDelegate(Scp079PlayerScript.InvokeCmdCmdResetDoors));
@@ -657,239 +658,244 @@ public class Scp079PlayerScript : NetworkBehaviour
   }
 
   public void CallCmdInteract(string command, GameObject target)
-  {
-    if (!this._interactRateLimit.CanExecute(true) || !this.iAm079)
-      return;
-    GameCore.Console.AddDebugLog("SCP079", "Command received from a client: " + command, MessageImportance.LessImportant, false);
-    if (!command.Contains(":"))
-      return;
-    string[] strArray = command.Split(':');
-    this.RefreshCurrentRoom();
-    if (!this.CheckInteractableLegitness(this.currentRoom, this.currentZone, target, true))
-      return;
-    List<string> stringList = ConfigFile.ServerConfig.GetStringList("scp079_door_blacklist") ?? new List<string>();
-    string s = strArray[0];
-    // ISSUE: reference to a compiler-generated method
-    switch (<PrivateImplementationDetails>.ComputeStringHash(s))
     {
-      case 762402896:
-        if (!(s == "ELEVATORTELEPORT"))
-          break;
-        float manaFromLabel1 = this.GetManaFromLabel("Elevator Teleport", this.abilities);
-        if ((double) manaFromLabel1 > (double) this.curMana)
-        {
-          this.RpcNotEnoughMana(manaFromLabel1, this.curMana);
-          break;
-        }
-        Camera079 camera079 = (Camera079) null;
-        foreach (Scp079Interactable nearbyInteractable in this.nearbyInteractables)
-        {
-          if (nearbyInteractable.type == Scp079Interactable.InteractableType.ElevatorTeleport)
-            camera079 = nearbyInteractable.optionalObject.GetComponent<Camera079>();
-        }
-        if (!((UnityEngine.Object) camera079 != (UnityEngine.Object) null))
-          break;
-        this.RpcSwitchCamera(camera079.cameraId, false);
-        this.Mana -= manaFromLabel1;
-        this.AddInteractionToHistory(target, strArray[0], true);
-        break;
-      case 1024196740:
-        if (!(s == "TESLA"))
-          break;
-        float manaFromLabel2 = this.GetManaFromLabel("Tesla Gate Burst", this.abilities);
-        if ((double) manaFromLabel2 > (double) this.curMana)
-        {
-          this.RpcNotEnoughMana(manaFromLabel2, this.curMana);
-          break;
-        }
-        GameObject go1 = GameObject.Find(this.currentZone + "/" + this.currentRoom + "/Gate");
-        if (!((UnityEngine.Object) go1 != (UnityEngine.Object) null))
-          break;
-        go1.GetComponent<TeslaGate>().RpcInstantBurst();
-        this.AddInteractionToHistory(go1, strArray[0], true);
-        this.Mana -= manaFromLabel2;
-        break;
-      case 1881799010:
-        if (!(s == "SPEAKER"))
-          break;
-        string name = this.currentZone + "/" + this.currentRoom + "/Scp079Speaker";
-        GameObject go2 = GameObject.Find(name);
-        float manaFromLabel3 = this.GetManaFromLabel("Speaker Start", this.abilities);
-        if ((double) manaFromLabel3 * 1.5 > (double) this.curMana)
-        {
-          this.RpcNotEnoughMana(manaFromLabel3, this.curMana);
-          break;
-        }
-        if (!((UnityEngine.Object) go2 != (UnityEngine.Object) null))
-          break;
-        this.Mana -= manaFromLabel3;
-        this.Speaker = name;
-        this.AddInteractionToHistory(go2, strArray[0], true);
-        break;
-      case 2214547930:
-        if (!(s == "LOCKDOWN") || AlphaWarheadController.Host.inProgress)
-          break;
-        float manaFromLabel4 = this.GetManaFromLabel("Room Lockdown", this.abilities);
-        if ((double) manaFromLabel4 > (double) this.curMana)
-        {
-          this.RpcNotEnoughMana(manaFromLabel4, this.curMana);
-          break;
-        }
-        if ((UnityEngine.Object) GameObject.Find(this.currentZone + "/" + this.currentRoom) != (UnityEngine.Object) null)
-        {
-          List<Scp079Interactable> scp079InteractableList = new List<Scp079Interactable>();
-          foreach (Scp079Interactable allInteractable in Interface079.singleton.allInteractables)
-          {
-            foreach (Scp079Interactable.ZoneAndRoom currentZonesAndRoom in allInteractable.currentZonesAndRooms)
-            {
-              if (currentZonesAndRoom.currentRoom == this.currentRoom && currentZonesAndRoom.currentZone == this.currentZone && ((double) allInteractable.transform.position.y - 100.0 < (double) this.currentCamera.transform.position.y && !scp079InteractableList.Contains(allInteractable)))
-                scp079InteractableList.Add(allInteractable);
-            }
-          }
-          GameObject go3 = (GameObject) null;
-          foreach (Scp079Interactable scp079Interactable in scp079InteractableList)
-          {
-            switch (scp079Interactable.type)
-            {
-              case Scp079Interactable.InteractableType.Door:
-                if (scp079Interactable.GetComponent<Door>().destroyed)
-                {
-                  GameCore.Console.AddDebugLog("SCP079", "Lockdown can't initiate, one of the doors were destroyed.", MessageImportance.LessImportant, false);
-                  return;
-                }
-                continue;
-              case Scp079Interactable.InteractableType.Lockdown:
-                go3 = scp079Interactable.gameObject;
-                continue;
-              default:
-                continue;
-            }
-          }
-          if (scp079InteractableList.Count == 0 || (UnityEngine.Object) go3 == (UnityEngine.Object) null)
-          {
-            GameCore.Console.AddDebugLog("SCP079", "This room can't be locked down.", MessageImportance.LessImportant, false);
-            break;
-          }
-          foreach (Scp079Interactable scp079Interactable in scp079InteractableList)
-          {
-            if (scp079Interactable.type == Scp079Interactable.InteractableType.Door)
-            {
-              Door component = scp079Interactable.GetComponent<Door>();
-              if (component.locked || (double) component.scp079Lockdown > -2.5)
-                return;
-              if (component.isOpen)
-                component.ChangeState(false);
-              component.scp079Lockdown = 10f;
-            }
-          }
-          this.RpcFlickerLights(this.currentRoom, this.currentZone, 8f);
-          this.AddInteractionToHistory(go3, strArray[0], true);
-          this.Mana -= this.GetManaFromLabel("Room Lockdown", this.abilities);
-          break;
-        }
-        GameCore.Console.AddDebugLog("SCP079", "Room couldn't be specified.", MessageImportance.Normal, false);
-        break;
-      case 3114290502:
-        if (!(s == "DOORLOCK") || AlphaWarheadController.Host.inProgress)
-          break;
-        if ((UnityEngine.Object) target == (UnityEngine.Object) null)
-        {
-          GameCore.Console.AddDebugLog("SCP079", "The door lock command requires a target.", MessageImportance.LessImportant, false);
-          break;
-        }
-        Door component1 = target.GetComponent<Door>();
-        if ((UnityEngine.Object) component1 == (UnityEngine.Object) null)
-          break;
-        // ISSUE: explicit non-virtual call
-        // ISSUE: explicit non-virtual call
-        if (stringList != null && __nonvirtual (stringList.Count) > 0 && (stringList != null && __nonvirtual (stringList.Contains(component1.DoorName))))
-          GameCore.Console.AddDebugLog("SCP079", "Door access denied by the server.", MessageImportance.LeastImportant, false);
-        if ((UnityEngine.Object) component1.sound_checkpointWarning != (UnityEngine.Object) null)
-          break;
-        float manaFromLabel5 = this.GetManaFromLabel("Door Lock Minimum", this.abilities);
-        if ((double) manaFromLabel5 > (double) this.curMana)
-        {
-          this.RpcNotEnoughMana(manaFromLabel5, this.curMana);
-          break;
-        }
-        if (component1.locked)
-          break;
-        string str = component1.transform.parent.name + "/" + component1.transform.name;
-        if (!this.lockedDoors.Contains(str))
-          this.lockedDoors.Add(str);
-        component1.LockBy079();
-        this.AddInteractionToHistory(component1.gameObject, strArray[0], true);
-        this.Mana -= this.GetManaFromLabel("Door Lock Start", this.abilities);
-        break;
-      case 3149585726:
-        if (!(s == "ELEVATORUSE"))
-          break;
-        float manaFromLabel6 = this.GetManaFromLabel("Elevator Use", this.abilities);
-        if ((double) manaFromLabel6 > (double) this.curMana)
-        {
-          this.RpcNotEnoughMana(manaFromLabel6, this.curMana);
-          break;
-        }
-        string empty = string.Empty;
-        if (strArray.Length > 1)
-          empty = strArray[1];
-        foreach (Lift lift in UnityEngine.Object.FindObjectsOfType<Lift>())
-        {
-          if (lift.elevatorName == empty && lift.UseLift())
-          {
-            this.Mana -= manaFromLabel6;
-            bool flag = false;
-            foreach (Lift.Elevator elevator in lift.elevators)
-            {
-              this.AddInteractionToHistory(elevator.door.GetComponentInParent<Scp079Interactable>().gameObject, strArray[0], !flag);
-              flag = true;
-            }
-          }
-        }
-        break;
-      case 3406927017:
-        if (!(s == "DOOR") || AlphaWarheadController.Host.inProgress)
-          break;
-        if ((UnityEngine.Object) target == (UnityEngine.Object) null)
-        {
-          GameCore.Console.AddDebugLog("SCP079", "The door command requires a target.", MessageImportance.LessImportant, false);
-          break;
-        }
-        Door component2 = target.GetComponent<Door>();
-        if ((UnityEngine.Object) component2 == (UnityEngine.Object) null)
-          break;
-        // ISSUE: explicit non-virtual call
-        // ISSUE: explicit non-virtual call
-        if (stringList != null && __nonvirtual (stringList.Count) > 0 && (stringList != null && __nonvirtual (stringList.Contains(component2.DoorName))))
-        {
-          GameCore.Console.AddDebugLog("SCP079", "Door access denied by the server.", MessageImportance.LeastImportant, false);
-          break;
-        }
-        float manaFromLabel7 = this.GetManaFromLabel("Door Interaction " + (string.IsNullOrEmpty(component2.permissionLevel) ? "DEFAULT" : component2.permissionLevel), this.abilities);
-        if ((double) manaFromLabel7 > (double) this.curMana)
-        {
-          GameCore.Console.AddDebugLog("SCP079", "Not enough mana.", MessageImportance.LeastImportant, false);
-          this.RpcNotEnoughMana(manaFromLabel7, this.curMana);
-          break;
-        }
-        if ((UnityEngine.Object) component2 != (UnityEngine.Object) null && component2.ChangeState079())
-        {
-          this.Mana -= manaFromLabel7;
-          this.AddInteractionToHistory(target, strArray[0], true);
-          GameCore.Console.AddDebugLog("SCP079", "Door state changed.", MessageImportance.LeastImportant, false);
-          break;
-        }
-        GameCore.Console.AddDebugLog("SCP079", "Door state failed to change.", MessageImportance.LeastImportant, false);
-        break;
-      case 3613866178:
-        if (!(s == "STOPSPEAKER"))
-          break;
-        this.Speaker = string.Empty;
-        break;
+        if (!this._interactRateLimit.CanExecute(true) || !this.iAm079)
+            return;
+        GameCore.Console.AddDebugLog("SCP079", "Command received from a client: " + command, MessageImportance.LessImportant, false);
+        if (!command.Contains(":"))
+            return;
+        string[] strArray = command.Split(':');
+        this.RefreshCurrentRoom();
+        if (!this.CheckInteractableLegitness(this.currentRoom, this.currentZone, target, true))
+            return;
+        List<string> stringList = ConfigFile.ServerConfig.GetStringList("scp079_door_blacklist") ?? new List<string>();
+        string s = strArray[0];
+        // ISSUE: reference to a compiler-generated method
+        NewMethod(target, strArray, stringList, s);
     }
-  }
 
-  public void CallCmdResetDoors()
+    private void NewMethod(GameObject target, string[] strArray, List<string> stringList, string s)
+    {
+        switch (PrivateImplementationDetails.ComputeStringHash(s))
+        {
+            case 762402896:
+                if (!(s == "ELEVATORTELEPORT"))
+                    break;
+                float manaFromLabel1 = this.GetManaFromLabel("Elevator Teleport", this.abilities);
+                if ((double)manaFromLabel1 > (double)this.curMana)
+                {
+                    this.RpcNotEnoughMana(manaFromLabel1, this.curMana);
+                    break;
+                }
+                Camera079 camera079 = (Camera079)null;
+                foreach (Scp079Interactable nearbyInteractable in this.nearbyInteractables)
+                {
+                    if (nearbyInteractable.type == Scp079Interactable.InteractableType.ElevatorTeleport)
+                        camera079 = nearbyInteractable.optionalObject.GetComponent<Camera079>();
+                }
+                if (!((UnityEngine.Object)camera079 != (UnityEngine.Object)null))
+                    break;
+                this.RpcSwitchCamera(camera079.cameraId, false);
+                this.Mana -= manaFromLabel1;
+                this.AddInteractionToHistory(target, strArray[0], true);
+                break;
+            case 1024196740:
+                if (!(s == "TESLA"))
+                    break;
+                float manaFromLabel2 = this.GetManaFromLabel("Tesla Gate Burst", this.abilities);
+                if ((double)manaFromLabel2 > (double)this.curMana)
+                {
+                    this.RpcNotEnoughMana(manaFromLabel2, this.curMana);
+                    break;
+                }
+                GameObject go1 = GameObject.Find(this.currentZone + "/" + this.currentRoom + "/Gate");
+                if (!((UnityEngine.Object)go1 != (UnityEngine.Object)null))
+                    break;
+                go1.GetComponent<TeslaGate>().RpcInstantBurst();
+                this.AddInteractionToHistory(go1, strArray[0], true);
+                this.Mana -= manaFromLabel2;
+                break;
+            case 1881799010:
+                if (!(s == "SPEAKER"))
+                    break;
+                string name = this.currentZone + "/" + this.currentRoom + "/Scp079Speaker";
+                GameObject go2 = GameObject.Find(name);
+                float manaFromLabel3 = this.GetManaFromLabel("Speaker Start", this.abilities);
+                if ((double)manaFromLabel3 * 1.5 > (double)this.curMana)
+                {
+                    this.RpcNotEnoughMana(manaFromLabel3, this.curMana);
+                    break;
+                }
+                if (!((UnityEngine.Object)go2 != (UnityEngine.Object)null))
+                    break;
+                this.Mana -= manaFromLabel3;
+                this.Speaker = name;
+                this.AddInteractionToHistory(go2, strArray[0], true);
+                break;
+            case 2214547930:
+                if (!(s == "LOCKDOWN") || AlphaWarheadController.Host.inProgress)
+                    break;
+                float manaFromLabel4 = this.GetManaFromLabel("Room Lockdown", this.abilities);
+                if ((double)manaFromLabel4 > (double)this.curMana)
+                {
+                    this.RpcNotEnoughMana(manaFromLabel4, this.curMana);
+                    break;
+                }
+                if ((UnityEngine.Object)GameObject.Find(this.currentZone + "/" + this.currentRoom) != (UnityEngine.Object)null)
+                {
+                    List<Scp079Interactable> scp079InteractableList = new List<Scp079Interactable>();
+                    foreach (Scp079Interactable allInteractable in Interface079.singleton.allInteractables)
+                    {
+                        foreach (Scp079Interactable.ZoneAndRoom currentZonesAndRoom in allInteractable.currentZonesAndRooms)
+                        {
+                            if (currentZonesAndRoom.currentRoom == this.currentRoom && currentZonesAndRoom.currentZone == this.currentZone && ((double)allInteractable.transform.position.y - 100.0 < (double)this.currentCamera.transform.position.y && !scp079InteractableList.Contains(allInteractable)))
+                                scp079InteractableList.Add(allInteractable);
+                        }
+                    }
+                    GameObject go3 = (GameObject)null;
+                    foreach (Scp079Interactable scp079Interactable in scp079InteractableList)
+                    {
+                        switch (scp079Interactable.type)
+                        {
+                            case Scp079Interactable.InteractableType.Door:
+                                if (scp079Interactable.GetComponent<Door>().destroyed)
+                                {
+                                    GameCore.Console.AddDebugLog("SCP079", "Lockdown can't initiate, one of the doors were destroyed.", MessageImportance.LessImportant, false);
+                                    return;
+                                }
+                                continue;
+                            case Scp079Interactable.InteractableType.Lockdown:
+                                go3 = scp079Interactable.gameObject;
+                                continue;
+                            default:
+                                continue;
+                        }
+                    }
+                    if (scp079InteractableList.Count == 0 || (UnityEngine.Object)go3 == (UnityEngine.Object)null)
+                    {
+                        GameCore.Console.AddDebugLog("SCP079", "This room can't be locked down.", MessageImportance.LessImportant, false);
+                        break;
+                    }
+                    foreach (Scp079Interactable scp079Interactable in scp079InteractableList)
+                    {
+                        if (scp079Interactable.type == Scp079Interactable.InteractableType.Door)
+                        {
+                            Door component = scp079Interactable.GetComponent<Door>();
+                            if (component.locked || (double)component.scp079Lockdown > -2.5)
+                                return;
+                            if (component.isOpen)
+                                component.ChangeState(false);
+                            component.scp079Lockdown = 10f;
+                        }
+                    }
+                    this.RpcFlickerLights(this.currentRoom, this.currentZone, 8f);
+                    this.AddInteractionToHistory(go3, strArray[0], true);
+                    this.Mana -= this.GetManaFromLabel("Room Lockdown", this.abilities);
+                    break;
+                }
+                GameCore.Console.AddDebugLog("SCP079", "Room couldn't be specified.", MessageImportance.Normal, false);
+                break;
+            case 3114290502:
+                if (!(s == "DOORLOCK") || AlphaWarheadController.Host.inProgress)
+                    break;
+                if ((UnityEngine.Object)target == (UnityEngine.Object)null)
+                {
+                    GameCore.Console.AddDebugLog("SCP079", "The door lock command requires a target.", MessageImportance.LessImportant, false);
+                    break;
+                }
+                Door component1 = target.GetComponent<Door>();
+                if ((UnityEngine.Object)component1 == (UnityEngine.Object)null)
+                    break;
+                // ISSUE: explicit non-virtual call
+                // ISSUE: explicit non-virtual call
+                if (stringList != null && __nonvirtual(stringList.Count) > 0 && (stringList != null && __nonvirtual(stringList.Contains(component1.DoorName))))
+                    GameCore.Console.AddDebugLog("SCP079", "Door access denied by the server.", MessageImportance.LeastImportant, false);
+                if ((UnityEngine.Object)component1.sound_checkpointWarning != (UnityEngine.Object)null)
+                    break;
+                float manaFromLabel5 = this.GetManaFromLabel("Door Lock Minimum", this.abilities);
+                if ((double)manaFromLabel5 > (double)this.curMana)
+                {
+                    this.RpcNotEnoughMana(manaFromLabel5, this.curMana);
+                    break;
+                }
+                if (component1.locked)
+                    break;
+                string str = component1.transform.parent.name + "/" + component1.transform.name;
+                if (!this.lockedDoors.Contains(str))
+                    this.lockedDoors.Add(str);
+                component1.LockBy079();
+                this.AddInteractionToHistory(component1.gameObject, strArray[0], true);
+                this.Mana -= this.GetManaFromLabel("Door Lock Start", this.abilities);
+                break;
+            case 3149585726:
+                if (!(s == "ELEVATORUSE"))
+                    break;
+                float manaFromLabel6 = this.GetManaFromLabel("Elevator Use", this.abilities);
+                if ((double)manaFromLabel6 > (double)this.curMana)
+                {
+                    this.RpcNotEnoughMana(manaFromLabel6, this.curMana);
+                    break;
+                }
+                string empty = string.Empty;
+                if (strArray.Length > 1)
+                    empty = strArray[1];
+                foreach (Lift lift in UnityEngine.Object.FindObjectsOfType<Lift>())
+                {
+                    if (lift.elevatorName == empty && lift.UseLift())
+                    {
+                        this.Mana -= manaFromLabel6;
+                        bool flag = false;
+                        foreach (Lift.Elevator elevator in lift.elevators)
+                        {
+                            this.AddInteractionToHistory(elevator.door.GetComponentInParent<Scp079Interactable>().gameObject, strArray[0], !flag);
+                            flag = true;
+                        }
+                    }
+                }
+                break;
+            case 3406927017:
+                if (!(s == "DOOR") || AlphaWarheadController.Host.inProgress)
+                    break;
+                if ((UnityEngine.Object)target == (UnityEngine.Object)null)
+                {
+                    GameCore.Console.AddDebugLog("SCP079", "The door command requires a target.", MessageImportance.LessImportant, false);
+                    break;
+                }
+                Door component2 = target.GetComponent<Door>();
+                if ((UnityEngine.Object)component2 == (UnityEngine.Object)null)
+                    break;
+                // ISSUE: explicit non-virtual call
+                // ISSUE: explicit non-virtual call
+                if (stringList != null && __nonvirtual(stringList.Count) > 0 && (stringList != null && __nonvirtual(stringList.Contains(component2.DoorName))))
+                {
+                    GameCore.Console.AddDebugLog("SCP079", "Door access denied by the server.", MessageImportance.LeastImportant, false);
+                    break;
+                }
+                float manaFromLabel7 = this.GetManaFromLabel("Door Interaction " + (string.IsNullOrEmpty(component2.permissionLevel) ? "DEFAULT" : component2.permissionLevel), this.abilities);
+                if ((double)manaFromLabel7 > (double)this.curMana)
+                {
+                    GameCore.Console.AddDebugLog("SCP079", "Not enough mana.", MessageImportance.LeastImportant, false);
+                    this.RpcNotEnoughMana(manaFromLabel7, this.curMana);
+                    break;
+                }
+                if ((UnityEngine.Object)component2 != (UnityEngine.Object)null && component2.ChangeState079())
+                {
+                    this.Mana -= manaFromLabel7;
+                    this.AddInteractionToHistory(target, strArray[0], true);
+                    GameCore.Console.AddDebugLog("SCP079", "Door state changed.", MessageImportance.LeastImportant, false);
+                    break;
+                }
+                GameCore.Console.AddDebugLog("SCP079", "Door state failed to change.", MessageImportance.LeastImportant, false);
+                break;
+            case 3613866178:
+                if (!(s == "STOPSPEAKER"))
+                    break;
+                this.Speaker = string.Empty;
+                break;
+        }
+    }
+
+    public void CallCmdResetDoors()
   {
     if (!this._interactRateLimit.CanExecute(true))
       return;

@@ -30,9 +30,10 @@ namespace Waits
       }
       // ISSUE: reference to a compiler-generated field
       this.<1__>state = -1;
-      // ISSUE: reference to a compiler-generated field
-      // ISSUE: reference to a compiler-generated method
-      this.<2__>current = Timing.WaitUntilFalse(new Func<bool>(audioSourceWait.< _Run\ >__1_0));
+            int __1_0 = 0;
+            // ISSUE: reference to a compiler-generated field
+            // ISSUE: reference to a compiler-generated method
+            this.<2__>current = Timing.WaitUntilFalse(new Func<bool>(audioSourceWait.<_Run\> __1_0));
       // ISSUE: reference to a compiler-generated field
       this.<1__>state = 1;
       return true;

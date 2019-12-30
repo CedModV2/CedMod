@@ -225,9 +225,9 @@ public class Scp106PlayerScript : NetworkBehaviour
       return (IEnumerator<float>) null;
     }
         // ISSUE: object of a compiler-generated type is created
-        return (IEnumerator<float>)new Scp106PlayerScript.< _DoTeleportAnimation > __37(0);
+        return (IEnumerator<float>)new Scp106PlayerScript.<_DoTeleportAnimation> __37(0);
     {
-      <>4__this = this;
+      <4__>this = this;
     };
   }
 

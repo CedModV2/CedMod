@@ -25,7 +25,7 @@ namespace Waits
         if (num != 1)
           return false;
         // ISSUE: reference to a compiler-generated field
-        this.<>1__state = -1;
+        this.<1__>state = -1;
         return false;
       }
       // ISSUE: reference to a compiler-generated field
