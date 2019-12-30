@@ -136,19 +136,15 @@ public class ConsumableAndWearableItems : NetworkBehaviour
   }
 
   [Server]
-  private IEnumerator<float> UseMedicalItem(int mid)
+  public IEnumerator<float> UseMedicalItem(int mid)
   {
     if (!NetworkServer.active)
     {
       Debug.LogWarning((object) "[Server] function 'System.Collections.Generic.IEnumerator`1<System.Single> ConsumableAndWearableItems::UseMedicalItem(System.Int32)' called on client");
-      return (IEnumerator<float>) null;
+      return null;
     }
         // ISSUE: object of a compiler-generated type is created
-        return (IEnumerator<float>)new ConsumableAndWearableItems.<UseMedicalItem> d__24(0);
-    {
-     <4__>.this = this;
-      mid = mid;
-    };
+    return (IEnumerator<float>)new ConsumableAndWearableItems.UseMedicalItem(0);
   }
 
     private bool d__24(int v)
