@@ -1,53 +1,49 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: Grenades.Effects.PhysicsGrenadeEffect
-// Assembly: Assembly-CSharp, Version=1.2.3.4, Culture=neutral, PublicKeyToken=null
-// MVID: 4FF70443-CA06-4035-B3D1-98CFA9EE67BF
-// Assembly location: D:\steamgames\steamapps\common\SCP Secret Laboratory Dedicated Server\SCPSL_Data\Managed\Assembly-CSharp.dll
-
-using MEC;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using MEC;
 using UnityEngine;
-using static UnityEngine.Random;
 
 namespace Grenades.Effects
 {
-  public class PhysicsGrenadeEffect : GrenadeEffect
-  {
-        private const int V = 1__;
-        public float force = 4f;
-    public float radius = 10.8f;
-    public float lift = 10.8f;
-    [NonSerialized]
-    public List<Rigidbody> ignoredRigidbodies;
-
-    protected override void Awake()
+    // Token: 0x0200049F RID: 1183
+    public class PhysicsGrenadeEffect : GrenadeEffect
     {
-      base.Awake();
-      this.playSegment = Segment.FixedUpdate;
-      this.ignoredRigidbodies = new List<Rigidbody>();
-    }
-
-    protected override IEnumerator<float> _Play()
-    {
-      // ISSUE: reference to a compiler-generated field
-      int num = this.< V > state;
-      PhysicsGrenadeEffect physicsGrenadeEffect = this;
-      if (num != 0)
-        return false;
-      // ISSUE: reference to a compiler-generated field
-      this.< V > State = -1;
-      Vector3 position = physicsGrenadeEffect.transform.position;
-      foreach (Collider collider in Physics.OverlapSphere(position, physicsGrenadeEffect.radius))
-      {
-        Rigidbody attachedRigidbody = collider.attachedRigidbody;
-        if (!((UnityEngine.Object) attachedRigidbody == (UnityEngine.Object) null) && !physicsGrenadeEffect.ignoredRigidbodies.Contains(attachedRigidbody))
+        // Token: 0x06001B7E RID: 7038 RVA: 0x0001AE85 File Offset: 0x00019085
+        protected override void Awake()
         {
-          physicsGrenadeEffect.ignoredRigidbodies.Add(attachedRigidbody);
-          attachedRigidbody.AddExplosionForce(physicsGrenadeEffect.force, position, physicsGrenadeEffect.radius, physicsGrenadeEffect.lift, ForceMode.Impulse);
+            base.Awake();
+            this.playSegment = Segment.FixedUpdate;
+            this.ignoredRigidbodies = new List<Rigidbody>();
         }
-      }
-      return false;
+
+        // Token: 0x06001B7F RID: 7039 RVA: 0x0001AE9F File Offset: 0x0001909F
+        protected override IEnumerator<float> _Play()
+        {
+            Vector3 position = base.transform.position;
+            Collider[] array = Physics.OverlapSphere(position, this.radius);
+            for (int i = 0; i < array.Length; i++)
+            {
+                Rigidbody attachedRigidbody = array[i].attachedRigidbody;
+                if (!(attachedRigidbody == null) && !this.ignoredRigidbodies.Contains(attachedRigidbody))
+                {
+                    this.ignoredRigidbodies.Add(attachedRigidbody);
+                    attachedRigidbody.AddExplosionForce(this.force, position, this.radius, this.lift, ForceMode.Impulse);
+                }
+            }
+            yield break;
+        }
+
+        // Token: 0x04001CE0 RID: 7392
+        public float force = 4f;
+
+        // Token: 0x04001CE1 RID: 7393
+        public float radius = 10.8f;
+
+        // Token: 0x04001CE2 RID: 7394
+        public float lift = 10.8f;
+
+        // Token: 0x04001CE3 RID: 7395
+        [NonSerialized]
+        public List<Rigidbody> ignoredRigidbodies;
     }
-  }
 }
