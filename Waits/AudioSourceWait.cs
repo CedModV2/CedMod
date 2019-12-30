@@ -18,23 +18,23 @@ namespace Waits
     public override IEnumerator<float> _Run()
     {
       // ISSUE: reference to a compiler-generated field
-      int num = this.<>1__state;
+      int num = this.<1__>state;
       AudioSourceWait audioSourceWait = this;
       if (num != 0)
       {
         if (num != 1)
           return false;
         // ISSUE: reference to a compiler-generated field
-        this.<>1__state = -1;
+        this.<1__>state = -1;
         return false;
       }
       // ISSUE: reference to a compiler-generated field
-      this.<>1__state = -1;
+      this.<1__>state = -1;
       // ISSUE: reference to a compiler-generated field
       // ISSUE: reference to a compiler-generated method
-      this.<>2__current = Timing.WaitUntilFalse(new Func<bool>(audioSourceWait.<_Run\>__1_0));
+      this.<2__>current = Timing.WaitUntilFalse(new Func<bool>(audioSourceWait.< _Run\ >__1_0));
       // ISSUE: reference to a compiler-generated field
-      this.<>1__state = 1;
+      this.<1__>state = 1;
       return true;
     }
   }

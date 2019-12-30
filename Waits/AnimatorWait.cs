@@ -18,7 +18,7 @@ namespace Waits
     public override IEnumerator<float> _Run()
     {
       // ISSUE: reference to a compiler-generated field
-      int num = this.<>1__state;
+      int num = this.<1__>state;
       AnimatorWait animatorWait = this;
       if (num != 0)
       {
@@ -29,12 +29,12 @@ namespace Waits
         return false;
       }
       // ISSUE: reference to a compiler-generated field
-      this.<>1__state = -1;
+      this.<1__>state = -1;
       // ISSUE: reference to a compiler-generated field
       // ISSUE: reference to a compiler-generated method
-      this.<>2__current = Timing.WaitUntilFalse(new Func<bool>(animatorWait.<_Run>b__1_0));
+      this.<2__>current = Timing.WaitUntilFalse(new Func<bool>(animatorWait.<_Run>b__1_0));
       // ISSUE: reference to a compiler-generated field
-      this.<>1__state = 1;
+      this.<1__>state = 1;
       return true;
     }
   }

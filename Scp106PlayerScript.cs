@@ -166,10 +166,10 @@ public class Scp106PlayerScript : NetworkBehaviour
       return (IEnumerator<float>) null;
     }
         // ISSUE: object of a compiler-generated type is created
-        return (IEnumerator<float>)new Scp106PlayerScript.< _ContainAnimation > __32(0)
+        return (IEnumerator<float>)new Scp106PlayerScript.< _ContainAnimation > __32(0);
     {
-      <>4__this = this,
-      ccm = ccm
+      <4__>this = this;
+      ccm = ccm;
     };
   }
 
@@ -225,9 +225,9 @@ public class Scp106PlayerScript : NetworkBehaviour
       return (IEnumerator<float>) null;
     }
         // ISSUE: object of a compiler-generated type is created
-        return (IEnumerator<float>)new Scp106PlayerScript.< _DoTeleportAnimation > __37(0)
+        return (IEnumerator<float>)new Scp106PlayerScript.< _DoTeleportAnimation > __37(0);
     {
-      <>4__this = this
+      <>4__this = this;
     };
   }
 
@@ -572,12 +572,12 @@ public class Scp106PlayerScript : NetworkBehaviour
   private IEnumerator<float> StalkCoroutine(Broadcast bc)
   {
     // ISSUE: reference to a compiler-generated field
-    int num = this.<>1__state;
+    int num = this.<1__>state;
     Scp106PlayerScript scp106PlayerScript = this;
     if (num != 0)
       return false;
     // ISSUE: reference to a compiler-generated field
-    this.<>1__state = -1;
+    this.<1__>state = -1;
     List<GameObject> gameObjectList = new List<GameObject>();
     foreach (GameObject player in PlayerManager.players)
     {

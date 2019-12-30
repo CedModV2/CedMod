@@ -8,6 +8,7 @@ using MEC;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.Random;
 
 namespace Grenades.Effects
 {
@@ -29,12 +30,12 @@ namespace Grenades.Effects
     protected override IEnumerator<float> _Play()
     {
       // ISSUE: reference to a compiler-generated field
-      int num = this.<>1__state;
+      int num = this.<1__>state;
       PhysicsGrenadeEffect physicsGrenadeEffect = this;
       if (num != 0)
         return false;
       // ISSUE: reference to a compiler-generated field
-      this.<>1__state = -1;
+      this.<1__>State = -1;
       Vector3 position = physicsGrenadeEffect.transform.position;
       foreach (Collider collider in Physics.OverlapSphere(position, physicsGrenadeEffect.radius))
       {

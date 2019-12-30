@@ -143,11 +143,11 @@ public class ConsumableAndWearableItems : NetworkBehaviour
       Debug.LogWarning((object) "[Server] function 'System.Collections.Generic.IEnumerator`1<System.Single> ConsumableAndWearableItems::UseMedicalItem(System.Int32)' called on client");
       return (IEnumerator<float>) null;
     }
-    // ISSUE: object of a compiler-generated type is created
-    return (IEnumerator<float>) new ConsumableAndWearableItems.<UseMedicalItem>d__24(0)
+        // ISSUE: object of a compiler-generated type is created
+        return (IEnumerator<float>)new ConsumableAndWearableItems.< UseMedicalItem > d__24(0);
     {
-      <>4__this = this,
-      mid = mid
+      <4__>this = this;
+      mid = mid;
     };
   }
 
