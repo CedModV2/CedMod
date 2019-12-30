@@ -17,7 +17,7 @@ using UnityEngine;
 
 public class Scp106PlayerScript : NetworkBehaviour
 {
-    private const int V = 0f;
+    private const int V = 0;
     [Header("Balance")]
   [SerializeField]
   private float captureCooldown = 2f;
@@ -166,15 +166,12 @@ public class Scp106PlayerScript : NetworkBehaviour
             Debug.LogWarning("[Server] function 'System.Collections.Generic.IEnumerator`1<System.Single> Scp106PlayerScript::_ContainAnimation(CharacterClassManager)' called on client");
             return null;
         }
-        bool d__ = false;
-        Scp106PlayerScript._ContainAnimation > d__ < _ContainAnimation > d__ = new Scp106PlayerScript._ContainAnimation(0);
-        Scp106PlayerScript scp106PlayerScript1 = this;
-        Scp106PlayerScript scp106PlayerScript = scp106PlayerScript1;
-        bool v = _ContainAnimation > d__.<V>
-        v > scp106PlayerScript = scp106PlayerScript;
+        Scp106PlayerScript.< _ContainAnimation > d__32 < _ContainAnimation > d__ = new Scp106PlayerScript.< _ContainAnimation > d__32(0);
 
-        _ContainAnimation > d__.ccm = ccm;
-        return _ContainAnimation > d__;
+        < _ContainAnimation > d__.<> 4__this = this;
+
+        < _ContainAnimation > d__.ccm = ccm;
+        return < _ContainAnimation > d__;
     }
 
     [ClientRpc]
