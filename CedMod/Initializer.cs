@@ -19,6 +19,8 @@ namespace CedMod
             }));
             Initializer.logger.Info("INIT", "For the best experience use MultiAdmin");
             Initializer.logger.Info("Credits", "Used community releases: NeonMod By RogerFK.");
+            Initializer.logger.Info("Credits", "Thanks to ced777ric for doing the fun stuff");
+            Initializer.logger.Info("Credits", "Thanks to Tree Man for helping fix the decompiler generated issues");
             Initializer.logger.Info("INIT", "Checking for updated");
             Initializer.UpdateCheck();
         }
