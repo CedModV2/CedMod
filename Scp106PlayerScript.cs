@@ -166,7 +166,7 @@ public class Scp106PlayerScript : NetworkBehaviour
             return null;
         }
         bool d__ = false;
-        Scp106PlayerScript._ContainAnimation > d__32 < _ContainAnimation > d__ = new Scp106PlayerScript(< _ContainAnimation > d__32(0));
+        Scp106PlayerScript._ContainAnimation > d__32 < _ContainAnimation > d__ = new Scp106PlayerScript.< _ContainAnimation > d__32(0);
 
         < _ContainAnimation > d__.< 4__>this = this;
 
@@ -226,7 +226,7 @@ public class Scp106PlayerScript : NetworkBehaviour
       return (IEnumerator<float>) null;
     }
         // ISSUE: object of a compiler-generated type is created
-        return (IEnumerator<float>)new Scp106PlayerScript(<_DoTeleportAnimation> __37(0));
+        return (IEnumerator<float>)new Scp106PlayerScript.<_DoTeleportAnimation> __37(0);
     {
       <4__>this = this;
     };

@@ -453,6 +453,7 @@
     <Compile Include="UBER_MaterialPresetCollectionReference.cs" />
     <Compile Include="UBER_MouseOrbit_DynamicDistance.cs" />
     <Compile Include="UBER_applyLightForDeferred.cs" />
+    <Compile Include="UseMedicalItem.cs" />
     <Compile Include="VolumetricLight.cs" />
     <Compile Include="VolumetricLightRenderer.cs" />
     <Compile Include="MovingStatus.cs" />
