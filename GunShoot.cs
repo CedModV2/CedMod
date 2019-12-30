@@ -50,8 +50,8 @@ public class GunShoot : MonoBehaviour
     if (!((Object) hit.collider.sharedMaterial != (Object) null))
       return;
     string name = hit.collider.sharedMaterial.name;
-    // ISSUE: reference to a compiler-generated method
-    switch (<PrivateImplementationDetails>.ComputeStringHash(name))
+        // ISSUE: reference to a compiler-generated method
+        switch (PrivateImplementationDetails.ComputeStringHash(name))
     {
       case 81868168:
         if (!(name == "Wood"))
