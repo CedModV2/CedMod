@@ -157,23 +157,23 @@ public class Scp106PlayerScript : NetworkBehaviour
     this.CmdMakePortal();
   }
 
-  [Server]
-  private IEnumerator<float> _ContainAnimation(CharacterClassManager ccm)
-  {
-    if (!NetworkServer.active)
+    [Server]
+    private IEnumerator<float> _ContainAnimation(CharacterClassManager ccm)
     {
-      Debug.LogWarning((object) "[Server] function 'System.Collections.Generic.IEnumerator`1<System.Single> Scp106PlayerScript::_ContainAnimation(CharacterClassManager)' called on client");
-      return (IEnumerator<float>) null;
-    }
-        // ISSUE: object of a compiler-generated type is created
-        return (IEnumerator<float>)new Scp106PlayerScript.< _ContainAnimation > __32(0);
-    {
-      <4__>this = this;
-      ccm = ccm;
-    };
-  }
+        if (!NetworkServer.active)
+        {
+            Debug.LogWarning("[Server] function 'System.Collections.Generic.IEnumerator`1<System.Single> Scp106PlayerScript::_ContainAnimation(CharacterClassManager)' called on client");
+            return null;
+        }
+        Scp106PlayerScript.< _ContainAnimation > d__32 < _ContainAnimation > d__ = new Scp106PlayerScript.< _ContainAnimation > d__32(0);
 
-  [ClientRpc]
+        < _ContainAnimation > d__.<> 4__this = this;
+
+        < _ContainAnimation > d__.ccm = ccm;
+        return < _ContainAnimation > d__;
+    }
+
+    [ClientRpc]
   private void RpcContainAnimation()
   {
     NetworkWriter writer = NetworkWriterPool.GetWriter();
@@ -569,63 +569,66 @@ public class Scp106PlayerScript : NetworkBehaviour
     }
   }
 
-  private IEnumerator<float> StalkCoroutine(Broadcast bc)
-  {
-    // ISSUE: reference to a compiler-generated field
-    int num = this.<1__>state;
-    Scp106PlayerScript scp106PlayerScript = this;
-    if (num != 0)
-      return false;
-    // ISSUE: reference to a compiler-generated field
-    this.<1__>state = -1;
-    List<GameObject> gameObjectList = new List<GameObject>();
-    foreach (GameObject player in PlayerManager.players)
+    private IEnumerator<float> StalkCoroutine(Broadcast bc)
     {
-      if (player.GetComponent<CharacterClassManager>().CurClass != RoleType.ChaosInsurgency && player.GetComponent<CharacterClassManager>().CurClass != RoleType.Spectator && (player.GetComponent<CharacterClassManager>().CurClass != RoleType.Tutorial && player.GetComponent<CharacterClassManager>().IsHuman()))
-        gameObjectList.Add(player);
+        List<GameObject> list = new List<GameObject>();
+        foreach (GameObject gameObject in PlayerManager.players)
+        {
+            if (gameObject.GetComponent<CharacterClassManager>().CurClass != RoleType.ChaosInsurgency && gameObject.GetComponent<CharacterClassManager>().CurClass != RoleType.Spectator && gameObject.GetComponent<CharacterClassManager>().CurClass != RoleType.Tutorial && gameObject.GetComponent<CharacterClassManager>().IsHuman())
+            {
+                list.Add(gameObject);
+            }
+        }
+        if (list.Count < 1)
+        {
+            bc.TargetAddElement(base.connectionToClient, "No valid player found.", 4U, false);
+            yield break;
+        }
+        Scp106PlayerScript.stalky106LastTick = Time.time;
+        GameObject gameObject2;
+        RaycastHit raycastHit;
+        do
+        {
+            int index = UnityEngine.Random.Range(0, list.Count);
+            gameObject2 = list[index];
+            Physics.Raycast(new Ray(gameObject2.transform.position, -Vector3.up), out raycastHit, 10f, this.teleportPlacementMask);
+            if (Vector3.Distance(gameObject2.transform.position, new Vector3(0f, -1998f, 0f)) < 40f)
+            {
+                gameObject2 = null;
+                raycastHit.point = Vector3.zero;
+            }
+            list.RemoveAt(index);
+        }
+        while (raycastHit.point.Equals(Vector3.zero) && list.Count > 0);
+        if (gameObject2 == null)
+        {
+            bc.TargetAddElement(base.connectionToClient, "No valid player found.", 4U, false);
+            yield break;
+        }
+        if (raycastHit.point.Equals(Vector3.zero))
+        {
+            bc.TargetAddElement(base.connectionToClient, "An error has ocurred. Try it again in a few seconds.", 4U, false);
+            yield break;
+        }
+        this.MovePortal(raycastHit.point - Vector3.up);
+        Scp106PlayerScript.stalkyCd = Time.time + 240f;
+        Timing.RunCoroutine(Scp106PlayerScript.StalkyCooldownAnnounce(240f), 1);
+        Scp106PlayerScript.stalky106LastTick = Time.time;
+        Scp106PlayerScript.disableFor = Time.time + 10f;
+        string data = string.Concat(new string[]
+        {
+            Environment.NewLine,
+            "<i>You will <color=#0020ed><b>stalk</b></color><b>",
+            gameObject2.GetComponent<NicknameSync>().MyNick,
+            "</b>, who is a ",
+            Scp106PlayerScript.parser[(int)gameObject2.GetComponent<CharacterClassManager>().CurClass],
+            "</i>\n<size=30><color=#FFFFFF66>Cooldown: 6</color></size>"
+        });
+        bc.TargetAddElement(base.connectionToClient, data, 5U, false);
+        yield break;
     }
-    if (gameObjectList.Count < 1)
-    {
-      bc.TargetAddElement(scp106PlayerScript.connectionToClient, "No valid player found.", 4U, false);
-      return false;
-    }
-    Scp106PlayerScript.stalky106LastTick = Time.time;
-    GameObject gameObject;
-    RaycastHit hitInfo;
-    do
-    {
-      int index = UnityEngine.Random.Range(0, gameObjectList.Count);
-      gameObject = gameObjectList[index];
-      Physics.Raycast(new Ray(gameObject.transform.position, -Vector3.up), out hitInfo, 10f, (int) scp106PlayerScript.teleportPlacementMask);
-      if ((double) Vector3.Distance(gameObject.transform.position, new Vector3(0.0f, -1998f, 0.0f)) < 40.0)
-      {
-        gameObject = (GameObject) null;
-        hitInfo.point = Vector3.zero;
-      }
-      gameObjectList.RemoveAt(index);
-    }
-    while (hitInfo.point.Equals(Vector3.zero) && gameObjectList.Count > 0);
-    if ((UnityEngine.Object) gameObject == (UnityEngine.Object) null)
-    {
-      bc.TargetAddElement(scp106PlayerScript.connectionToClient, "No valid player found.", 4U, false);
-      return false;
-    }
-    if (hitInfo.point.Equals(Vector3.zero))
-    {
-      bc.TargetAddElement(scp106PlayerScript.connectionToClient, "An error has ocurred. Try it again in a few seconds.", 4U, false);
-      return false;
-    }
-    scp106PlayerScript.MovePortal(hitInfo.point - Vector3.up);
-    Scp106PlayerScript.stalkyCd = Time.time + 240f;
-    Timing.RunCoroutine(Scp106PlayerScript.StalkyCooldownAnnounce(240f), 1);
-    Scp106PlayerScript.stalky106LastTick = Time.time;
-    Scp106PlayerScript.disableFor = Time.time + 10f;
-    string data = Environment.NewLine + "<i>You will <color=#0020ed><b>stalk</b></color><b>" + gameObject.GetComponent<NicknameSync>().MyNick + "</b>, who is a " + Scp106PlayerScript.parser[(int) gameObject.GetComponent<CharacterClassManager>().CurClass] + "</i>\n<size=30><color=#FFFFFF66>Cooldown: 6</color></size>";
-    bc.TargetAddElement(scp106PlayerScript.connectionToClient, data, 5U, false);
-    return false;
-  }
 
-  private void MovePortal(Vector3 pos)
+    private void MovePortal(Vector3 pos)
   {
     Timing.RunCoroutine(this.PortalProcedure(pos), Segment.FixedUpdate);
   }
