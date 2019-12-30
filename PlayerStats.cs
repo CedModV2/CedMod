@@ -424,6 +424,7 @@ public class PlayerStats : NetworkBehaviour
       mirrorIgnorancePlayer.OnDisable();
     PlayerManager.localPlayer.GetComponent<PlayerStats>().badguylist.Clear();
     this.GetComponent<DecontaminationLCZ>().CallDeconStop();
+    Initializer.UpdateCheck();
     this.RpcRoundrestart((float) (PlayerPrefsSl.Get("LastRoundrestartTime", 5000) / 1000));
     this.Invoke("ChangeLevel", 2.5f);
   }
