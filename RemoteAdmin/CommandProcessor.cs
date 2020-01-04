@@ -111,6 +111,16 @@ namespace RemoteAdmin
                         {
                             text15 = query.Skip(3).Aggregate((string current, string n) => current + " " + n);
                         }
+                        if (text15.Contains("&"))
+                        {
+                            sender.RaReply("The ban reason must not contain a & or else shit will hit the fan", false, false, "");
+                            return;
+                        }
+                        if (text15 == "")
+                        {
+                            sender.RaReply(query[0].ToUpper() + "#To run this program, you must specify a reason use the text based RA console to do so, Autocorrection:   ban " + query[1] + " " + query[2] + " ReasonHere", false, true, "");
+                            return;
+                        }
                         ServerLogs.AddLog(ServerLogs.Modules.Administrative, text + " ran the ban command (duration: " + query[2] + " min) on " + query[1] + " players. Reason: " + ((text15 == string.Empty) ? "(none)" : text15) + ".", ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging);
                         StandardizedQueryModel1(sender, query[0], query[1], query[2], out failures, out successes, out error, out replySent, text15);
                         if (replySent)
@@ -133,7 +143,7 @@ namespace RemoteAdmin
                     }
                     else
                     {
-                        sender.RaReply(query[0].ToUpper() + "#To run this program, type at least 3 arguments! (some parameters are missing)", success: false, logToConsole: true, "");
+                        sender.RaReply(query[0].ToUpper() + "#To run this program, type at least 4 arguments! (some parameters are missing)", success: false, logToConsole: true, "");
                     }
                     break;
                 case "GBAN-KICK":
@@ -484,7 +494,7 @@ namespace RemoteAdmin
                     {
                         break;
                     }
-                    if (query.Length == 3)
+                    if (query.Length >= 4)
                     {
                         ServerLogs.AddLog(ServerLogs.Modules.Administrative, text + " ran the unban " + query[1] + " command on " + query[2] + ".", ServerLogs.ServerLogType.RemoteAdminActivity_Misc);
                         switch (query[1].ToLower())
@@ -492,7 +502,17 @@ namespace RemoteAdmin
                             case "id":
                             case "playerid":
                             case "player":
-                                BanHandler.RemoveBan(query[2], BanHandler.BanType.UserId);
+                                string str2 = string.Empty;
+                                if (query.Length > 3)
+                                {
+                                    str2 = ((IEnumerable<string>)query).Skip<string>(3).Aggregate<string>((Func<string, string, string>)((current, n) => current + " " + n));
+                                }
+                                using (WebClient webClient = new WebClient())
+                                {
+                                    webClient.Credentials = (ICredentials)new NetworkCredential(ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
+                                    webClient.DownloadString("http://83.82.126.185//scpserverbans/scpplugin/unban.php?id=" + query[2] + "&reason=" + str2 + "&aname=" + sender.Nickname + ("&webhook=" + ConfigFile.ServerConfig.GetString("bansystem_webhook", "none") + "&alias=" + ConfigFile.ServerConfig.GetString("bansystem_alias", "none")));
+                                }
+                                ServerConsole.AddLog("User " + query[2] + " Unbanned by RA user " + sender.Nickname);
                                 sender.RaReply(query[0] + "#Done!", success: true, logToConsole: true, "");
                                 break;
                             case "ip":
@@ -501,13 +521,13 @@ namespace RemoteAdmin
                                 sender.RaReply(query[0] + "#Done!", success: true, logToConsole: true, "");
                                 break;
                             default:
-                                sender.RaReply(query[0].ToUpper() + "#Correct syntax is: unban id UserIdHere OR unban ip IpAddressHere", success: false, logToConsole: true, "");
+                                sender.RaReply(query[0].ToUpper() + "#Correct syntax is: unban id UserIdHere ReasonHere OR unban ip IpAddressHere ReasonHere", false, true, "");
                                 break;
                         }
                     }
                     else
                     {
-                        sender.RaReply(query[0].ToUpper() + "#Correct syntax is: unban id UserIdHere OR unban ip IpAddressHere", success: false, logToConsole: true, "");
+                        sender.RaReply(query[0].ToUpper() + "#Correct syntax is: unban id UserIdHere ReasonHere OR unban ip IpAddressHere ReasonHere", true, true, "");
                     }
                     break;
                 case "GROUPS":
