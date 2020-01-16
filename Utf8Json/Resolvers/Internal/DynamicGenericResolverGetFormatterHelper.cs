@@ -107,16 +107,16 @@ namespace Utf8Json.Resolvers.Internal
         {
           Type genericTypeDefinition = ((Type) typeInfo).GetGenericTypeDefinition();
           bool flag = IntrospectionExtensions.GetTypeInfo(genericTypeDefinition).IsNullable();
-          Type type = flag ? ((Type) typeInfo).get_GenericTypeArguments()[0] : (Type) null;
+          Type type = flag ? ((Type) typeInfo).GenericTypeArguments[0] : (Type) null; 
           if (genericTypeDefinition == typeof (KeyValuePair<,>))
-            return DynamicGenericResolverGetFormatterHelper.CreateInstance(typeof (KeyValuePairFormatter<,>), ((Type) typeInfo).get_GenericTypeArguments(), (object[]) Array.Empty<object>());
+            return DynamicGenericResolverGetFormatterHelper.CreateInstance(typeof (KeyValuePairFormatter<,>), ((Type) typeInfo).GenericTypeArguments, (object[]) Array.Empty<object>());
           if (flag && IntrospectionExtensions.GetTypeInfo(type).IsConstructedGenericType() && type.GetGenericTypeDefinition() == typeof (KeyValuePair<,>))
             return DynamicGenericResolverGetFormatterHelper.CreateInstance(typeof (NullableFormatter<>), new Type[1]
             {
               type
             }, (object[]) Array.Empty<object>());
           if (genericTypeDefinition == typeof (ArraySegment<>))
-            return ((Type) typeInfo).get_GenericTypeArguments()[0] == typeof (byte) ? (object) ByteArraySegmentFormatter.Default : DynamicGenericResolverGetFormatterHelper.CreateInstance(typeof (ArraySegmentFormatter<>), ((Type) typeInfo).get_GenericTypeArguments(), (object[]) Array.Empty<object>());
+            return ((Type) typeInfo).GenericTypeArguments[0] == typeof (byte) ? (object) ByteArraySegmentFormatter.Default : DynamicGenericResolverGetFormatterHelper.CreateInstance(typeof (ArraySegmentFormatter<>), ((Type) typeInfo).get_GenericTypeArguments(), (object[]) Array.Empty<object>());
           if (flag && IntrospectionExtensions.GetTypeInfo(type).IsConstructedGenericType() && type.GetGenericTypeDefinition() == typeof (ArraySegment<>))
           {
             if (type == typeof (ArraySegment<byte>))
