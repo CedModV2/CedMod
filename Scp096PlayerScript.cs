@@ -179,9 +179,8 @@ public class Scp096PlayerScript : NetworkBehaviour
       vector3 = this.camera.transform.position - transform.position;
       Vector3 normalized1 = vector3.normalized;
       RaycastHit raycastHit;
-      ref RaycastHit local = ref raycastHit;
       int layerMask = (int) this.layerMask;
-      if (!Physics.Raycast(position, normalized1, out local, 20f, layerMask) || raycastHit.collider.gameObject.layer != 24 || !((Object) raycastHit.collider.GetComponentInParent<Scp096PlayerScript>() == (Object) this))
+      if (!Physics.Raycast(position, normalized1, out raycastHit, 20f, layerMask) || raycastHit.collider.gameObject.layer != 24 || !((Object) raycastHit.collider.GetComponentInParent<Scp096PlayerScript>() == (Object) this))
         return;
       if (this.neonScp096Rework)
       {
