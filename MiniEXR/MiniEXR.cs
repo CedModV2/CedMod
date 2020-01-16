@@ -19,7 +19,7 @@ namespace MiniEXR
       uint _channels,
       float[] _rgbaArray)
     {
-      File.WriteAllBytes(_filePath, MiniEXR.MiniEXR.MiniEXRWrite(_width, _height, _channels, _rgbaArray));
+      File.WriteAllBytes(_filePath, MiniEXR.MiniEXRWrite(_width, _height, _channels, _rgbaArray));
     }
 
     public static void MiniEXRWrite(
@@ -28,7 +28,7 @@ namespace MiniEXR
       uint _height,
       Color[] _colorArray)
     {
-      File.WriteAllBytes(_filePath, MiniEXR.MiniEXR.MiniEXRWrite(_width, _height, _colorArray));
+      File.WriteAllBytes(_filePath, MiniEXR.MiniEXRWrite(_width, _height, _colorArray));
     }
 
     private static byte[] MiniEXRWrite(uint _width, uint _height, Color[] _colorArray)
@@ -40,7 +40,7 @@ namespace MiniEXR
         _rgbaArray[index * 3 + 1] = _colorArray[index].g;
         _rgbaArray[index * 3 + 2] = _colorArray[index].b;
       }
-      return MiniEXR.MiniEXR.MiniEXRWrite(_width, _height, 3U, _rgbaArray);
+      return MiniEXR.MiniEXRWrite(_width, _height, 3U, _rgbaArray);
     }
 
     private static byte[] MiniEXRWrite(
