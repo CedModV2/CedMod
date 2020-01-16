@@ -161,17 +161,13 @@ public class Scp106PlayerScript : NetworkBehaviour
     [Server]
     private IEnumerator<float> _ContainAnimation(CharacterClassManager ccm)
     {
-        if (!NetworkServer.active)
-        {
-            Debug.LogWarning("[Server] function 'System.Collections.Generic.IEnumerator`1<System.Single> Scp106PlayerScript::_ContainAnimation(CharacterClassManager)' called on client");
-            return null;
-        }
-        Scp106PlayerScript.< _ContainAnimation > d__32 < _ContainAnimation > d__ = new Scp106PlayerScript.< _ContainAnimation > d__32(0);
-
-        < _ContainAnimation > d__.<> 4__this = this;
-
-        < _ContainAnimation > d__.ccm = ccm;
-        return < _ContainAnimation > d__;
+        RpcContainAnimation();
+        for (int i = 0; i < 900; i++)
+        { yield return 0f; }
+        goingViaThePortal = true;
+        for (int i = 0; (float)i < 175f; i++)
+        { yield return 0f; } Kill(ccm);
+        goingViaThePortal = false;
     }
 
     [ClientRpc]
