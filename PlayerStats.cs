@@ -691,10 +691,10 @@ public class PlayerStats : NetworkBehaviour
   public struct HitInfo : IEquatable<PlayerStats.HitInfo>
   {
     public float Amount;
-    public readonly int Tool;
-    public readonly int Time;
-    public readonly string Attacker;
-    public readonly int PlyId;
+    public int Tool;
+    public int Time;
+    public string Attacker;
+    public int PlyId;
 
     public HitInfo(float amnt, string attackerName, DamageTypes.DamageType weapon, int attackerId)
     {
