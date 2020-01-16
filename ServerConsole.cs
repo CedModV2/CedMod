@@ -557,19 +557,19 @@ public class ServerConsole : MonoBehaviour, IDisposable
   {
     float result1;
     int result2;
-    switch (((IReadOnlyCollection<string>) args).get_Count())
+    switch (((IReadOnlyCollection<string>) args).Count())
     {
       case 2:
-        string s1 = this.NameFormatter.ProcessExpression(args.get_Item(1));
+        string s1 = this.NameFormatter.ProcessExpression(args.ElementAt(1));
         if (!float.TryParse(s1, out result1))
           throw new CommandInputException("value", (object) s1, "Could not parse.");
         result2 = 0;
         break;
       case 3:
-        string s2 = this.NameFormatter.ProcessExpression(args.get_Item(1));
+        string s2 = this.NameFormatter.ProcessExpression(args.ElementAt(1));
         if (!float.TryParse(s2, out result1))
           throw new CommandInputException("value", (object) s2, "Could not parse.");
-        string s3 = this.NameFormatter.ProcessExpression(args.get_Item(1));
+        string s3 = this.NameFormatter.ProcessExpression(args.ElementAt(1));
         if (!int.TryParse(s3, out result2))
           throw new CommandInputException("precision", (object) s3, "Could not parse.");
         break;
