@@ -8,12 +8,12 @@ using Mirror;
 
 public class SyncListUshort : SyncList<ushort>
 {
-  public override void SerializeItem(NetworkWriter writer, ushort item)
+  protected override void SerializeItem(NetworkWriter writer, ushort item)
   {
     writer.WriteUInt16(item);
   }
 
-  public override ushort DeserializeItem(NetworkReader reader)
+  protected override ushort DeserializeItem(NetworkReader reader)
   {
     return reader.ReadUInt16();
   }

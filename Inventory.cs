@@ -545,12 +545,12 @@ public class Inventory : NetworkBehaviour
       this[index] = syncItemInfo;
     }
 
-    public override void SerializeItem(NetworkWriter writer, Inventory.SyncItemInfo item)
+    protected override void SerializeItem(NetworkWriter writer, Inventory.SyncItemInfo item)
     {
       GeneratedNetworkCode._WriteSyncItemInfo_Inventory(writer, item);
     }
 
-    public override Inventory.SyncItemInfo DeserializeItem(NetworkReader reader)
+    protected override Inventory.SyncItemInfo DeserializeItem(NetworkReader reader)
     {
       return GeneratedNetworkCode._ReadSyncItemInfo_Inventory(reader);
     }
