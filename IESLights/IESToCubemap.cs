@@ -128,13 +128,13 @@ namespace IESLights
       }
     }
 
+
     private void CreateCubemap(int resolution, out Cubemap cubemap)
     {
-      ref Cubemap local = ref cubemap;
-      Cubemap cubemap1 = new Cubemap(resolution, TextureFormat.ARGB32, false);
-      cubemap1.filterMode = FilterMode.Trilinear;
-      local = cubemap1;
-      this.GetComponent<Camera>().RenderToCubemap(cubemap);
+        cubemap = new Cubemap(resolution, TextureFormat.ARGB32, false);
+        cubemap.filterMode = FilterMode.Trilinear;
+
+        this.GetComponent<Camera>().RenderToCubemap(cubemap);
     }
   }
 }
