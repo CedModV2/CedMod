@@ -46,15 +46,16 @@ namespace Utils.ConfigHandler
       }
     }
 
-    public ConfigEntry(string key, T defaultValue = null, bool inherit = true, string name = null, string description = null)
+    public ConfigEntry(string key, T defaultValue = default(T), bool inherit = true, string name = null, string description = null)
       : base(key, inherit, name, description)
     {
       this.Default = defaultValue;
     }
 
-    public ConfigEntry(string key, T defaultValue = null, string name = null, string description = null)
+    public ConfigEntry(string key, T defaultValue = default(T), string name = null, string description = null)
       : this(key, defaultValue, true, name, description)
     {
+        this.Default = defaultValue;
     }
   }
 }

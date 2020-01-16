@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 
-internal class UseMedicalItem : IEnumerator<float>
+internal class UseMedicalItem
 {
     private bool v;
 
