@@ -141,7 +141,7 @@ public static class Misc
   {
     try
     {
-      return RuntimeInformation.get_FrameworkDescription();
+      return Environment.Version.ToString();
     }
     catch
     {
