@@ -1988,7 +1988,7 @@ label_4:
   {
     if (!this._commandRateLimit.CanExecute(true))
       return;
-    this.TargetDeathScreen(this.connectionToClient, this.GetComponent<PlayerStats>().LastHitInfo);
+    this.TargetDeathScreen(this.connectionToClient, this.GetComponent<PlayerStats>().lastHitInfo);
   }
 
   protected static void InvokeRpcRpcPlaceBlood(NetworkBehaviour obj, NetworkReader reader)
