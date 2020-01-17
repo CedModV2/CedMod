@@ -6,7 +6,10 @@
 
 using System;
 using System.Reflection;
+using Utf8Json;
 using Utf8Json.Formatters;
+using Utf8Json.Internal;
+using Utf8Json.Resolvers.Internal;
 
 namespace Utf8Json.Resolvers.Internal
 {
@@ -29,23 +32,24 @@ namespace Utf8Json.Resolvers.Internal
 
       static FormatterCache()
       {
-        TypeInfo typeInfo1 = IntrospectionExtensions.GetTypeInfo(typeof (T));
-        if (typeInfo1.IsNullable())
-        {
-          TypeInfo typeInfo2 = IntrospectionExtensions.GetTypeInfo(((Type) typeInfo1).get_GenericTypeArguments()[0]);
-          if (!((Type) typeInfo2).IsEnum)
-            return;
-          object formatterDynamic = EnumDefaultResolver.Instance.GetFormatterDynamic(typeInfo2.AsType());
-          if (formatterDynamic == null)
-            return;
-          EnumDefaultResolver.FormatterCache<T>.formatter = (IJsonFormatter<T>) Activator.CreateInstance(typeof (StaticNullableFormatter<>).MakeGenericType(typeInfo2.AsType()), formatterDynamic);
-        }
-        else
-        {
-          if (!typeof (T).IsEnum)
-            return;
-          EnumDefaultResolver.FormatterCache<T>.formatter = (IJsonFormatter<T>) new EnumFormatter<T>(true);
-        }
+          TypeInfo typeInfo = typeof(T).GetTypeInfo();
+          if (typeInfo.IsNullable())
+          {
+              typeInfo = typeInfo.GenericTypeArguments[0].GetTypeInfo();
+              if (typeInfo.IsEnum)
+              {
+                  object formatterDynamic = Instance.GetFormatterDynamic(typeInfo.AsType());
+                  if (formatterDynamic != null)
+                  {
+                      formatter = (IJsonFormatter<T>) Activator.CreateInstance(
+                          typeof(StaticNullableFormatter<>).MakeGenericType(typeInfo.AsType()), formatterDynamic);
+                  }
+              }
+          }
+          else if (typeof(T).IsEnum)
+          {
+              formatter = new EnumFormatter<T>(serializeByName: true);
+          }
       }
     }
   }

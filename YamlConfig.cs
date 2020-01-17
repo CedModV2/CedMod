@@ -690,8 +690,8 @@ public class YamlConfig : ConfigRegister
       {
         if (toMerge.IsList(key))
         {
-          foreach (M0 m0 in toMerge.StringListToText(key, toMerge.GetStringList(key)))
-            Enumerable.Append<string>((IEnumerable<M0>) this.RawData, m0);
+            foreach (string item in toMerge.StringListToText(key, toMerge.GetStringList(key)))
+                RawData.Append(item);
         }
         else
           this.SetString(key, toMerge.GetRawString(key));

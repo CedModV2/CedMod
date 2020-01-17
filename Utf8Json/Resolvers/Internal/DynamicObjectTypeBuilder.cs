@@ -69,18 +69,18 @@ namespace Utf8Json.Resolvers.Internal
       Func<string, string> nameMutator,
       bool excludeNull)
     {
-      TypeInfo typeInfo1 = IntrospectionExtensions.GetTypeInfo(typeof (T));
-      if (typeInfo1.IsNullable())
+        TypeInfo typeInfo = typeof(T).GetTypeInfo();
+      if (typeInfo.IsNullable())
       {
-        TypeInfo typeInfo2 = IntrospectionExtensions.GetTypeInfo(((Type) typeInfo1).get_GenericTypeArguments()[0]);
-        object formatterDynamic = selfResolver.GetFormatterDynamic(typeInfo2.AsType());
+          typeInfo = typeInfo.GenericTypeArguments[0].GetTypeInfo();
+        object formatterDynamic = selfResolver.GetFormatterDynamic(typeInfo.AsType());
         if (formatterDynamic == null)
           return (object) null;
         return (object) (IJsonFormatter<T>) Activator.CreateInstance(typeof (StaticNullableFormatter<>).MakeGenericType(typeInfo2.AsType()), formatterDynamic);
       }
-      if (IntrospectionExtensions.GetTypeInfo(typeof (Exception)).IsAssignableFrom(typeInfo1))
+      if (IntrospectionExtensions.GetTypeInfo(typeof (Exception)).IsAssignableFrom(typeInfo))
         return DynamicObjectTypeBuilder.BuildAnonymousFormatter(typeof (T), nameMutator, excludeNull, false, true);
-      if (typeInfo1.IsAnonymous() || DynamicObjectTypeBuilder.TryGetInterfaceEnumerableElementType(typeof (T), out Type _))
+      if (typeInfo.IsAnonymous() || DynamicObjectTypeBuilder.TryGetInterfaceEnumerableElementType(typeof (T), out Type _))
         return DynamicObjectTypeBuilder.BuildAnonymousFormatter(typeof (T), nameMutator, excludeNull, false, false);
       TypeInfo typeInfo3 = DynamicObjectTypeBuilder.BuildType(assembly, typeof (T), nameMutator, excludeNull);
       return (Type) typeInfo3 == (Type) null ? (object) null : (object) (IJsonFormatter<T>) Activator.CreateInstance(typeInfo3.AsType());

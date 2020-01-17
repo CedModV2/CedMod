@@ -20,7 +20,7 @@ using UnityEngine;
 public class PlayerStats : NetworkBehaviour
 {
   private static Lift[] _lifts = new Lift[0];
-  public PlayerStats.HitInfo lastHitInfo = new PlayerStats.HitInfo(0.0f, "NONE", DamageTypes.None, 0);
+  public PlayerStats.HitInfo LastHitInfo = new PlayerStats.HitInfo(0.0f, "NONE", DamageTypes.None, 0);
   internal List<string> badguylist = new List<string>();
   public Transform[] grenadePoints;
   public CharacterClassManager ccm;
@@ -215,7 +215,7 @@ public class PlayerStats : NetworkBehaviour
       return false;
     if (this.isLocalPlayer && info.PlyId != go.GetComponent<QueryProcessor>().PlayerId)
       RoundSummary.Damages += (double) component1.health < (double) info.Amount ? component1.health : info.Amount;
-    if (this.lastHitInfo.Attacker == "ARTIFICIALDEGEN")
+    if (this.LastHitInfo.Attacker == "ARTIFICIALDEGEN")
     {
       component1.unsyncedArtificialHealth -= info.Amount;
       if ((double) component1.unsyncedArtificialHealth < 0.0)
@@ -241,7 +241,7 @@ public class PlayerStats : NetworkBehaviour
         component1.health -= info.Amount;
       if ((double) component1.health < 0.0)
         component1.health = 0.0f;
-      component1.lastHitInfo = info;
+      component1.LastHitInfo = info;
     }
     if ((double) component1.health < 1.0 && component2.CurClass != RoleType.Spectator)
     {
@@ -370,7 +370,7 @@ public class PlayerStats : NetworkBehaviour
     return flag1;
   }
 
-  [TargetRpc]
+    [TargetRpc]
   public void TargetAchieve(NetworkConnection conn, string key)
   {
     NetworkWriter writer = NetworkWriterPool.GetWriter();

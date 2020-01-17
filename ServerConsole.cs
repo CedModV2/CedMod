@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using UnityEngine;
+using Utf8Json.Resolvers.Internal;
 using Utils.CommandInterpolation;
 
 public class ServerConsole : MonoBehaviour, IDisposable
@@ -547,7 +548,28 @@ public class ServerConsole : MonoBehaviour, IDisposable
     Func<string, (bool success, TArg value)> parse,
     Func<TArg, TArg, TResult> comparison)
   {
-    // ISSUE: unable to decompile the method.
+      if (args.Count != 3)
+      {
+          throw new CommandInputException("args", args, "Invalid argument. Use " + source + ",[value A],[value B]");
+      }
+      string arg = NameFormatter.ProcessExpression(args[1]);
+      (bool, TArg) valueTuple = parse(arg);
+      bool item = valueTuple.Item1;
+      TArg item2 = valueTuple.Item2;
+      if (!item)
+      {
+          throw new CommandInputException("value A", args[1], "Could not parse.");
+      }
+      string text = NameFormatter.ProcessExpression(args[2]);
+      (bool, TArg) valueTuple2 = parse(text);
+      bool item3 = valueTuple2.Item1;
+      TArg item4 = valueTuple.Item2;
+      if (!item3)
+      {
+          throw new CommandInputException("Value B", text, "Could not parse.");
+      }
+      return comparison(item2, item4).ToString();
+
   }
 
   private string StandardizedFloatRound(

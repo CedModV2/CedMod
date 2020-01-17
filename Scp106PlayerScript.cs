@@ -233,7 +233,7 @@ public class Scp106PlayerScript : NetworkBehaviour
           }
           if (AlphaWarheadController.Host.detonated && base.transform.position.y < 800f)
           {
-              GetComponent<PlayerStats>().HurtPlayer(new PlayerStats().lastHitInfo(9000f, "WORLD", DamageTypes.Nuke, 0),
+              GetComponent<PlayerStats>().HurtPlayer(new PlayerStats().LastHitInfo(9000f, "WORLD", DamageTypes.Nuke, 0),
                   base.gameObject);
           }
           goingViaThePortal = false;
