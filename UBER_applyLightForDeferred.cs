@@ -36,7 +36,7 @@ public class UBER_applyLightForDeferred : MonoBehaviour
       if (this.lightForSelfShadowing.type == LightType.Directional)
       {
         for (int index = 0; index < this._renderer.sharedMaterials.Length; ++index)
-          this._renderer.sharedMaterials[index].SetVector("_WorldSpaceLightPosCustom", (Vector4) -this.lightForSelfShadowing.transform.forward);
+          this._renderer.sharedMaterials[index].SetVector("_WorldSpaceLightPosCustom", (Vector4) (-this.lightForSelfShadowing.transform.forward));
       }
       else
       {
@@ -45,7 +45,7 @@ public class UBER_applyLightForDeferred : MonoBehaviour
       }
     }
     else if (this.lightForSelfShadowing.type == LightType.Directional)
-      Shader.SetGlobalVector("_WorldSpaceLightPosCustom", (Vector4) -this.lightForSelfShadowing.transform.forward);
+      Shader.SetGlobalVector("_WorldSpaceLightPosCustom", (Vector4) (-this.lightForSelfShadowing.transform.forward));
     else
       Shader.SetGlobalVector("_WorldSpaceLightPosCustom", new Vector4(this.lightForSelfShadowing.transform.position.x, this.lightForSelfShadowing.transform.position.y, this.lightForSelfShadowing.transform.position.z, 1f));
   }
