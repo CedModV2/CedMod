@@ -170,7 +170,7 @@ namespace Utf8Json.Internal.DoubleConversion
       if (self == '+' || self == '-')
       {
         sign = self == '-';
-        Iterator iterator = Iterator.op_Increment(self);
+        Iterator iterator = self++;
         Iterator current = iterator;
         if (!StringToDoubleConverter.AdvanceToNonspace(ref current, end) || !flag4 && iterator != current)
           return double.NaN;
