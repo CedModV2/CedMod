@@ -1,21 +1,19 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: Utils.ConfigHandler.InheritableConfigRegister
-// Assembly: Assembly-CSharp, Version=1.2.3.4, Culture=neutral, PublicKeyToken=null
-// MVID: 4FF70443-CA06-4035-B3D1-98CFA9EE67BF
-// Assembly location: D:\steamgames\steamapps\common\SCP Secret Laboratory Dedicated Server\SCPSL_Data\Managed\Assembly-CSharp.dll
-
+﻿// Utils.ConfigHandler.InheritableConfigRegister
 using System.Collections.Generic;
+using Utils.ConfigHandler;
 
-namespace Utils.ConfigHandler
+public abstract class InheritableConfigRegister : ConfigRegister
 {
-  public abstract class InheritableConfigRegister : ConfigRegister
-  {
-    protected InheritableConfigRegister(ConfigRegister parentConfigRegister = null)
+    public ConfigRegister ParentConfigRegister
     {
-      this.ParentConfigRegister = parentConfigRegister;
+        get;
+        protected set;
     }
 
-    public ConfigRegister ParentConfigRegister { get; protected set; }
+    protected InheritableConfigRegister(ConfigRegister parentConfigRegister = null)
+    {
+        ParentConfigRegister = parentConfigRegister;
+    }
 
     public abstract bool ShouldInheritConfigEntry(ConfigEntry configEntry);
 
@@ -23,24 +21,34 @@ namespace Utils.ConfigHandler
 
     public override void UpdateConfigValue(ConfigEntry configEntry)
     {
-      if (configEntry != null && configEntry.Inherit && (this.ParentConfigRegister != null && this.ShouldInheritConfigEntry(configEntry)))
-        this.ParentConfigRegister.UpdateConfigValue(configEntry);
-      else
-        this.UpdateConfigValueInheritable(configEntry);
+        if (configEntry != null && configEntry.Inherit && ParentConfigRegister != null && ShouldInheritConfigEntry(configEntry))
+        {
+            ParentConfigRegister.UpdateConfigValue(configEntry);
+        }
+        else
+        {
+            UpdateConfigValueInheritable(configEntry);
+        }
     }
 
     public ConfigRegister[] GetConfigRegisterHierarchy(bool highestToLowest = true)
     {
-      List<ConfigRegister> configRegisterList = new List<ConfigRegister>();
-      for (ConfigRegister configRegister = (ConfigRegister) this; configRegister != null && !configRegisterList.Contains(configRegister); configRegister = inheritableConfigRegister.ParentConfigRegister)
-      {
-        configRegisterList.Add(configRegister);
-        if (!(configRegister is InheritableConfigRegister inheritableConfigRegister))
-          break;
-      }
-      if (highestToLowest)
-        configRegisterList.Reverse();
-      return configRegisterList.ToArray();
+        List<ConfigRegister> list = new List<ConfigRegister>();
+        ConfigRegister configRegister = this;
+        while (configRegister != null && !list.Contains(configRegister))
+        {
+            list.Add(configRegister);
+            InheritableConfigRegister inheritableConfigRegister;
+            if ((inheritableConfigRegister = (configRegister as InheritableConfigRegister)) == null)
+            {
+                break;
+            }
+            configRegister = inheritableConfigRegister.ParentConfigRegister;
+        }
+        if (highestToLowest)
+        {
+            list.Reverse();
+        }
+        return list.ToArray();
     }
-  }
 }

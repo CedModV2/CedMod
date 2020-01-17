@@ -114,7 +114,9 @@ internal static class DynamicObjectTypeBuilder
 
 		public static readonly MethodInfo TypeGetField = ExpressionUtility.GetMethodInfo((Type t) => t.GetField(null, BindingFlags.Default));
 
-		public static readonly MethodInfo GetCustomAttributeJsonFormatterAttribute = ExpressionUtility.GetMethodInfo(() => ((MemberInfo)null).GetCustomAttribute<JsonFormatterAttribute>(inherit: false));
+		public static readonly MethodInfo GetCustomAttributeJsonFormatterAttribute =
+            ExpressionUtility.GetMethodInfo(() =>
+                ((MemberInfo) null).GetCustomAttribute<JsonFormatterAttribute>(false));
 
 		public static readonly MethodInfo ActivatorCreateInstance = ExpressionUtility.GetMethodInfo(() => Activator.CreateInstance((Type)null, (object[])null));
 
@@ -850,8 +852,7 @@ internal static class DynamicObjectTypeBuilder
 			if (info.BestmatchConstructor != null)
 			{
 				MetaMember[] constructorParameters = info.ConstructorParameters;
-				MetaMember[] array = constructorParameters;
-				foreach (MetaMember item2 in array)
+				foreach (MetaMember item2 in constructorParameters)
 				{
 					DeserializeInfo deserializeInfo = members.First((DeserializeInfo x) => x.MemberInfo == item2);
 					il.EmitLdloc(deserializeInfo.LocalField);
@@ -868,26 +869,28 @@ internal static class DynamicObjectTypeBuilder
 			{
 				il.EmitStloc(localBuilder);
 			}
-			foreach (DeserializeInfo item3 in members.Where((DeserializeInfo x) => x.MemberInfo != null && x.MemberInfo.IsWritable))
 			{
-				if (isSideEffectFreeType)
+				foreach (DeserializeInfo item3 in members.Where((DeserializeInfo x) => x.MemberInfo != null && x.MemberInfo.IsWritable))
 				{
-					il.Emit(OpCodes.Dup);
-					il.EmitLdloc(item3.LocalField);
-					item3.MemberInfo.EmitStoreValue(il);
+					if (isSideEffectFreeType)
+					{
+						il.Emit(OpCodes.Dup);
+						il.EmitLdloc(item3.LocalField);
+						item3.MemberInfo.EmitStoreValue(il);
+					}
+					else
+					{
+						Label label = il.DefineLabel();
+						il.EmitLdloc(item3.IsDeserializedField);
+						il.Emit(OpCodes.Brfalse, label);
+						il.EmitLdloc(localBuilder);
+						il.EmitLdloc(item3.LocalField);
+						item3.MemberInfo.EmitStoreValue(il);
+						il.MarkLabel(label);
+					}
 				}
-				else
-				{
-					Label label = il.DefineLabel();
-					il.EmitLdloc(item3.IsDeserializedField);
-					il.Emit(OpCodes.Brfalse, label);
-					il.EmitLdloc(localBuilder);
-					il.EmitLdloc(item3.LocalField);
-					item3.MemberInfo.EmitStoreValue(il);
-					il.MarkLabel(label);
-				}
+				return localBuilder;
 			}
-			return localBuilder;
 		}
 		LocalBuilder localBuilder2 = il.DeclareLocal(type);
 		if (info.BestmatchConstructor == null)
@@ -897,9 +900,8 @@ internal static class DynamicObjectTypeBuilder
 		}
 		else
 		{
-			MetaMember[] constructorParameters2 = info.ConstructorParameters;
-			MetaMember[] array2 = constructorParameters2;
-			foreach (MetaMember item in array2)
+			MetaMember[] constructorParameters = info.ConstructorParameters;
+			foreach (MetaMember item in constructorParameters)
 			{
 				DeserializeInfo deserializeInfo2 = members.First((DeserializeInfo x) => x.MemberInfo == item);
 				il.EmitLdloc(deserializeInfo2.LocalField);
@@ -976,8 +978,7 @@ internal static class DynamicObjectTypeBuilder
 	private static bool TryGetInterfaceEnumerableElementType(Type type, out Type elementType)
 	{
 		Type[] interfaces = type.GetInterfaces();
-		Type[] array = interfaces;
-		foreach (Type type2 in array)
+		foreach (Type type2 in interfaces)
 		{
 			if (type2.IsGenericType && type2.GetGenericTypeDefinition() == typeof(IEnumerable<>))
 			{

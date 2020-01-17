@@ -1,142 +1,169 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: Utf8Json.Internal.Emit.MetaType
-// Assembly: Assembly-CSharp, Version=1.2.3.4, Culture=neutral, PublicKeyToken=null
-// MVID: 4FF70443-CA06-4035-B3D1-98CFA9EE67BF
-// Assembly location: D:\steamgames\steamapps\common\SCP Secret Laboratory Dedicated Server\SCPSL_Data\Managed\Assembly-CSharp.dll
-
+﻿// Utf8Json.Internal.Emit.MetaType
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using Utf8Json;
+using Utf8Json.Internal;
+using Utf8Json.Internal.Emit;
 
-namespace Utf8Json.Internal.Emit
+internal class MetaType
 {
-  internal class MetaType
-  {
-    public Type Type { get; private set; }
+	public Type Type
+	{
+		get;
+		private set;
+	}
 
-    public bool IsClass { get; private set; }
+	public bool IsClass
+	{
+		get;
+		private set;
+	}
 
-    public bool IsStruct
-    {
-      get
-      {
-        return !this.IsClass;
-      }
-    }
+	public bool IsStruct => !IsClass;
 
-    public bool IsConcreteClass { get; private set; }
+	public bool IsConcreteClass
+	{
+		get;
+		private set;
+	}
 
-    public ConstructorInfo BestmatchConstructor { get; internal set; }
+	public ConstructorInfo BestmatchConstructor
+	{
+		get;
+		internal set;
+	}
 
-    public MetaMember[] ConstructorParameters { get; internal set; }
+	public MetaMember[] ConstructorParameters
+	{
+		get;
+		internal set;
+	}
 
-    public MetaMember[] Members { get; internal set; }
+	public MetaMember[] Members
+	{
+		get;
+		internal set;
+	}
 
-    public MetaType(Type type, Func<string, string> nameMutetor, bool allowPrivate)
-    {
-      TypeInfo typeInfo = IntrospectionExtensions.GetTypeInfo(type);
-      bool flag = ((Type) typeInfo).IsClass || ((Type) typeInfo).IsInterface || ((Type) typeInfo).IsAbstract;
-      this.Type = type;
-      Dictionary<string, MetaMember> source1 = new Dictionary<string, MetaMember>();
-      foreach (PropertyInfo allProperty in type.GetAllProperties())
-      {
-        if (allProperty.GetIndexParameters().Length == 0 && CustomAttributeExtensions.GetCustomAttribute<IgnoreDataMemberAttribute>((MemberInfo) allProperty, true) == null)
-        {
-          DataMemberAttribute customAttribute = (DataMemberAttribute) CustomAttributeExtensions.GetCustomAttribute<DataMemberAttribute>((MemberInfo) allProperty, true);
-          string name = customAttribute == null || customAttribute.Name == null ? nameMutetor(allProperty.Name) : customAttribute.Name;
-          MetaMember metaMember = new MetaMember(allProperty, name, allowPrivate);
-          if (metaMember.IsReadable || metaMember.IsWritable)
-          {
-            if (source1.ContainsKey(metaMember.Name))
-              throw new InvalidOperationException("same (custom)name is in type. Type:" + type.Name + " Name:" + metaMember.Name);
-            source1.Add(metaMember.Name, metaMember);
-          }
-        }
-      }
-      foreach (FieldInfo allField in type.GetAllFields())
-      {
-        if (CustomAttributeExtensions.GetCustomAttribute<IgnoreDataMemberAttribute>((MemberInfo) allField, true) == null && CustomAttributeExtensions.GetCustomAttribute<CompilerGeneratedAttribute>((MemberInfo) allField, true) == null && (!allField.IsStatic && !allField.Name.StartsWith("<")))
-        {
-          DataMemberAttribute customAttribute = (DataMemberAttribute) CustomAttributeExtensions.GetCustomAttribute<DataMemberAttribute>((MemberInfo) allField, true);
-          string name = customAttribute == null || customAttribute.Name == null ? nameMutetor(allField.Name) : customAttribute.Name;
-          MetaMember metaMember = new MetaMember(allField, name, allowPrivate);
-          if (metaMember.IsReadable || metaMember.IsWritable)
-          {
-            if (source1.ContainsKey(metaMember.Name))
-              throw new InvalidOperationException("same (custom)name is in type. Type:" + type.Name + " Name:" + metaMember.Name);
-            source1.Add(metaMember.Name, metaMember);
-          }
-        }
-      }
-      ConstructorInfo ctor = typeInfo.get_DeclaredConstructors().Where<ConstructorInfo>((Func<ConstructorInfo, bool>) (x => x.IsPublic)).SingleOrDefault<ConstructorInfo>((Func<ConstructorInfo, bool>) (x => CustomAttributeExtensions.GetCustomAttribute<SerializationConstructorAttribute>((MemberInfo) x, false) != null));
-      List<MetaMember> metaMemberList = new List<MetaMember>();
-      IEnumerator<ConstructorInfo> ctorEnumerator = (IEnumerator<ConstructorInfo>) null;
-      if (ctor == (ConstructorInfo) null)
-      {
-        ctorEnumerator = typeInfo.get_DeclaredConstructors().Where<ConstructorInfo>((Func<ConstructorInfo, bool>) (x => x.IsPublic)).OrderByDescending<ConstructorInfo, int>((Func<ConstructorInfo, int>) (x => x.GetParameters().Length)).GetEnumerator();
-        if (ctorEnumerator.MoveNext())
-          ctor = ctorEnumerator.Current;
-      }
-      if (ctor != (ConstructorInfo) null)
-      {
-        ILookup<string, KeyValuePair<string, MetaMember>> lookup = source1.ToLookup<KeyValuePair<string, MetaMember>, string, KeyValuePair<string, MetaMember>>((Func<KeyValuePair<string, MetaMember>, string>) (x => x.Key), (Func<KeyValuePair<string, MetaMember>, KeyValuePair<string, MetaMember>>) (x => x), (IEqualityComparer<string>) StringComparer.OrdinalIgnoreCase);
-        do
-        {
-          metaMemberList.Clear();
-          int num = 0;
-          foreach (ParameterInfo parameter in ctor.GetParameters())
-          {
-            IEnumerable<KeyValuePair<string, MetaMember>> source2 = lookup[parameter.Name];
-            switch (source2.Count<KeyValuePair<string, MetaMember>>())
-            {
-              case 0:
-                ctor = (ConstructorInfo) null;
-                break;
-              case 1:
-                MetaMember metaMember = source2.First<KeyValuePair<string, MetaMember>>().Value;
-                if (parameter.ParameterType == metaMember.Type && metaMember.IsReadable)
-                {
-                  metaMemberList.Add(metaMember);
-                  ++num;
-                  break;
-                }
-                ctor = (ConstructorInfo) null;
-                break;
-              default:
-                if (ctorEnumerator != null)
-                {
-                  ctor = (ConstructorInfo) null;
-                  break;
-                }
-                throw new InvalidOperationException("duplicate matched constructor parameter name:" + type.FullName + " parameterName:" + parameter.Name + " paramterType:" + parameter.ParameterType.Name);
-            }
-          }
-        }
-        while (MetaType.TryGetNextConstructor(ctorEnumerator, ref ctor));
-      }
-      this.IsClass = flag;
-      this.IsConcreteClass = flag && (!((Type) typeInfo).IsAbstract && !((Type) typeInfo).IsInterface);
-      this.BestmatchConstructor = ctor;
-      this.ConstructorParameters = metaMemberList.ToArray();
-      this.Members = source1.Values.ToArray<MetaMember>();
-    }
+	public MetaType(Type type, Func<string, string> nameMutetor, bool allowPrivate)
+	{
+		TypeInfo typeInfo = type.GetTypeInfo();
+		bool flag = typeInfo.IsClass || typeInfo.IsInterface || typeInfo.IsAbstract;
+		Type = type;
+		Dictionary<string, MetaMember> dictionary = new Dictionary<string, MetaMember>();
+		foreach (PropertyInfo allProperty in type.GetAllProperties())
+		{
+			if (allProperty.GetIndexParameters().Length == 0 && allProperty.GetCustomAttribute<IgnoreDataMemberAttribute>(inherit: true) == null)
+			{
+				DataMemberAttribute customAttribute = allProperty.GetCustomAttribute<DataMemberAttribute>(inherit: true);
+				string name = (customAttribute != null && customAttribute.Name != null) ? customAttribute.Name : nameMutetor(allProperty.Name);
+				MetaMember metaMember = new MetaMember(allProperty, name, allowPrivate);
+				if (metaMember.IsReadable || metaMember.IsWritable)
+				{
+					if (dictionary.ContainsKey(metaMember.Name))
+					{
+						throw new InvalidOperationException("same (custom)name is in type. Type:" + type.Name + " Name:" + metaMember.Name);
+					}
+					dictionary.Add(metaMember.Name, metaMember);
+				}
+			}
+		}
+		foreach (FieldInfo allField in type.GetAllFields())
+		{
+			if (allField.GetCustomAttribute<IgnoreDataMemberAttribute>(inherit: true) == null && allField.GetCustomAttribute<CompilerGeneratedAttribute>(inherit: true) == null && !allField.IsStatic && !allField.Name.StartsWith("<"))
+			{
+				DataMemberAttribute customAttribute2 = allField.GetCustomAttribute<DataMemberAttribute>(inherit: true);
+				string name2 = (customAttribute2 != null && customAttribute2.Name != null) ? customAttribute2.Name : nameMutetor(allField.Name);
+				MetaMember metaMember2 = new MetaMember(allField, name2, allowPrivate);
+				if (metaMember2.IsReadable || metaMember2.IsWritable)
+				{
+					if (dictionary.ContainsKey(metaMember2.Name))
+					{
+						throw new InvalidOperationException("same (custom)name is in type. Type:" + type.Name + " Name:" + metaMember2.Name);
+					}
+					dictionary.Add(metaMember2.Name, metaMember2);
+				}
+			}
+		}
+		ConstructorInfo ctor = typeInfo.DeclaredConstructors.Where((ConstructorInfo x) => x.IsPublic).SingleOrDefault((ConstructorInfo x) => x.GetCustomAttribute<SerializationConstructorAttribute>(inherit: false) != null);
+		List<MetaMember> list = new List<MetaMember>();
+		IEnumerator<ConstructorInfo> enumerator3 = null;
+		if (ctor == null)
+		{
+			enumerator3 = (from x in typeInfo.DeclaredConstructors
+						   where x.IsPublic
+						   orderby x.GetParameters().Length descending
+						   select x).GetEnumerator();
+			if (enumerator3.MoveNext())
+			{
+				ctor = enumerator3.Current;
+			}
+		}
+		if (ctor != null)
+		{
+			ILookup<string, KeyValuePair<string, MetaMember>> lookup = dictionary.ToLookup((KeyValuePair<string, MetaMember> x) => x.Key, (KeyValuePair<string, MetaMember> x) => x, StringComparer.OrdinalIgnoreCase);
+			do
+			{
+				list.Clear();
+				int num = 0;
+				ParameterInfo[] parameters = ctor.GetParameters();
+				foreach (ParameterInfo parameterInfo in parameters)
+				{
+					IEnumerable<KeyValuePair<string, MetaMember>> source = lookup[parameterInfo.Name];
+					switch (source.Count())
+					{
+						default:
+							if (enumerator3 != null)
+							{
+								ctor = null;
+								break;
+							}
+							throw new InvalidOperationException("duplicate matched constructor parameter name:" + type.FullName + " parameterName:" + parameterInfo.Name + " paramterType:" + parameterInfo.ParameterType.Name);
+						case 1:
+							{
+								MetaMember value = source.First().Value;
+								if (parameterInfo.ParameterType == value.Type && value.IsReadable)
+								{
+									list.Add(value);
+									num++;
+								}
+								else
+								{
+									ctor = null;
+								}
+								break;
+							}
+						case 0:
+							ctor = null;
+							break;
+					}
+				}
+			}
+			while (TryGetNextConstructor(enumerator3, ref ctor));
+		}
+		IsClass = flag;
+		IsConcreteClass = (flag && !typeInfo.IsAbstract && !typeInfo.IsInterface);
+		BestmatchConstructor = ctor;
+		ConstructorParameters = list.ToArray();
+		Members = dictionary.Values.ToArray();
+	}
 
-    private static bool TryGetNextConstructor(
-      IEnumerator<ConstructorInfo> ctorEnumerator,
-      ref ConstructorInfo ctor)
-    {
-      if (ctorEnumerator == null || ctor != (ConstructorInfo) null)
-        return false;
-      if (ctorEnumerator.MoveNext())
-      {
-        ctor = ctorEnumerator.Current;
-        return true;
-      }
-      ctor = (ConstructorInfo) null;
-      return false;
-    }
-  }
+	private static bool TryGetNextConstructor(IEnumerator<ConstructorInfo> ctorEnumerator, ref ConstructorInfo ctor)
+	{
+		if (ctorEnumerator == null || ctor != null)
+		{
+			return false;
+		}
+		if (ctorEnumerator.MoveNext())
+		{
+			ctor = ctorEnumerator.Current;
+			return true;
+		}
+		ctor = null;
+		return false;
+	}
 }
