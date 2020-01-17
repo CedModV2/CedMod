@@ -216,16 +216,28 @@ public class Scp106PlayerScript : NetworkBehaviour
   [Server]
   private IEnumerator<float> _DoTeleportAnimation()
   {
-    if (!NetworkServer.active)
-    {
-      Debug.LogWarning((object) "[Server] function 'System.Collections.Generic.IEnumerator`1<System.Single> Scp106PlayerScript::_DoTeleportAnimation()' called on client");
-      return (IEnumerator<float>) null;
-    }
-        // ISSUE: object of a compiler-generated type is created
-        return (IEnumerator<float>)new Scp106PlayerScript._DoTeleportAnimation(0);
-    {
-      V > this = this;
-    };
+      if (!(portalPrefab == null) && goingViaThePortal)
+      {
+          Vector3 pos = portalPrefab.transform.position + Vector3.up * 1.5f;
+          RpcTeleportAnimation();
+          goingViaThePortal = true;
+          PlyMovementSync pms = GetComponent<PlyMovementSync>();
+          for (int i = 0; (float) i < 175f; i++)
+          {
+              yield return 0f;
+          }
+          pms.OverridePosition(pos, 0f);
+          for (int i = 0; (float) i < 175f; i++);
+          {
+              yield return 0f;
+          }
+          if (AlphaWarheadController.Host.detonated && base.transform.position.y < 800f)
+          {
+              GetComponent<PlayerStats>().HurtPlayer(new PlayerStats().lastHitInfo(9000f, "WORLD", DamageTypes.Nuke, 0),
+                  base.gameObject);
+          }
+          goingViaThePortal = false;
+      }
   }
 
   [ClientRpc]

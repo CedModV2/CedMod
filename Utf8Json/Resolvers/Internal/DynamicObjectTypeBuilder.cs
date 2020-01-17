@@ -13,9 +13,11 @@ using System.Reflection.Emit;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Utf8Json;
 using Utf8Json.Formatters;
 using Utf8Json.Internal;
 using Utf8Json.Internal.Emit;
+using Utf8Json.Resolvers.Internal;
 
 namespace Utf8Json.Resolvers.Internal
 {
