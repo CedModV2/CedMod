@@ -15,6 +15,11 @@ jobs:
         dotnet-version: 2.2.108
     - name: Build with dotnet
       run: dotnet build --configuration Release
+    - name: Upload math result for job 1
+      uses: actions/upload-artifact@v1
+      with:
+          name: CedMod
+          path: CedMod.dll
     - name: Download build result for job 1
       uses: actions/download-artifact@v1
       with:
