@@ -13,6 +13,6 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 2.2.108
-        path: build/sCedMod.dll
+        path: build/CedMod.dll
     - name: Build with dotnet
       run: dotnet build --configuration Release
