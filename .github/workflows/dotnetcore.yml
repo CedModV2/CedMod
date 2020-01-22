@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: CedModBuild
-      uses: actions/setup-dotnet@v1
+      uses: actions/download-artifact@v1
       with:
         dotnet-version: 2.2.108
         path: build/CedMod.dll
