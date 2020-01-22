@@ -156,6 +156,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>move D:\Projects\CedMod\Assembly-CSharp\bin\Debug\CedMod.dll C:\Users\cedric.000\AppData\Roaming\Plugins\CedMod.dll</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>
