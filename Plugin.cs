@@ -28,7 +28,7 @@ namespace CedMod
                 Commands = new Commands(this);
                 Events.RemoteAdminCommandEvent += Commands.OnCommand;
                 Events.RoundEndEvent += Commands.OnRoundEnd;
-                Info($"Sample plugin loaded. c:");
+                Info($"CedMod has loaded. c:");
             }
             catch (Exception e)
             {
