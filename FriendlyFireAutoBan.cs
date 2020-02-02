@@ -12,17 +12,19 @@ namespace CedMod
 {
     public class FriendlyFireAutoBan
     {
+        public static bool AdminDisabled = false;
         private readonly Plugin plugin;
         public FriendlyFireAutoBan(Plugin plugin) => this.plugin = plugin;
-        public void OnRoundEnd()
+        public void OnRoundStart()
         {
             badguylist.Clear();
+            AdminDisabled = false;
         }
 
         static List<string> badguylist = new List<string>();
         public static void FFA(CharacterClassManager victim, CharacterClassManager killer)
         {
-            if (GameCore.ConfigFile.ServerConfig.GetBool("ffa_enable", false) && RoundSummary.RoundInProgress())
+            if (GameCore.ConfigFile.ServerConfig.GetBool("ffa_enable", false) && RoundSummary.RoundInProgress() && !AdminDisabled)
             {
                 bool flag = false;
                 Team team = victim.Classes.SafeGet(victim.CurClass).team;
@@ -136,12 +138,18 @@ namespace CedMod
                                     " exeeded teamkill limit"
                                     }));
                                     BanSystem.Ban(killer.gameObject, GameCore.ConfigFile.ServerConfig.GetInt("ffa_banduration", 4320), "Server.Module.FriendlyFireAutoban", GameCore.ConfigFile.ServerConfig.GetString("ffa_banreason", "You have teamkilled too many people"));
-                                    RemoteAdmin.QueryProcessor.Localplayer.GetComponent<BanPlayer>().BanUser(killer.gameObject, GameCore.ConfigFile.ServerConfig.GetInt("ffa_banduration", 4320), GameCore.ConfigFile.ServerConfig.GetString("ffa_banreason", "You have teamkilled too many people"), "Server.Module.FriendlyFireAutoban");
                                     RemoteAdmin.QueryProcessor.Localplayer.GetComponent<Broadcast>().RpcAddElement("<size=25><b><color=yellow>user: </color></b><color=red>" + killer.gameObject.GetComponent<NicknameSync>().MyNick + "</color><color=yellow><b> got banned for teamkilling, dont be like this user please</b></color></size>", 20U, false);
                                 }
                             }
                         }
                     }
+                }
+            }
+            else
+            {
+                if (AdminDisabled)
+                {
+                    RemoteAdmin.QueryProcessor.Localplayer.GetComponent<Broadcast>().TargetAddElement(victim.gameObject.GetComponent<NetworkIdentity>().connectionToClient, "<size=25><b><color=yellow>You have been teamkilled but FriendlyFireAutoban is disabled by an admin, reports regarding this teamkill will not be handled</color></b></size>", 20U, false);
                 }
             }
         }

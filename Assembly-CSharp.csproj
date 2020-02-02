@@ -150,6 +150,7 @@
     <Compile Include="CedMod.INIT\Initializer.cs" />
     <Compile Include="CedMod.Logging\Logger.cs" />
     <Compile Include="BanSystem.cs" />
+    <Compile Include="Commands.cs" />
     <Compile Include="FriendlyFireAutoBan.cs" />
     <Compile Include="PlayerJoinBC.cs" />
     <Compile Include="Plugin.cs" />

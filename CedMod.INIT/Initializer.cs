@@ -29,8 +29,8 @@ namespace CedMod.INIT
         {
             int num = 2;
             int num2 = 0;
-            int num3 = 0;
-            string text = "R";
+            int num3 = 1;
+            string text = "B";
             return string.Format("{0}.{1}.{2}-{3}", new object[]
             {
                 num,
@@ -55,20 +55,21 @@ namespace CedMod.INIT
                         Initializer.logger.Info("INIT", "New version " + text + " available starting download of cedmod and changelog SERVER MAY FREEZE FOR A BIT");
                         using (WebClient webClient2 = new WebClient())
                         {
-                            if (!FileManager.FileExists(Application.dataPath + "../../Assembly-CSharp[CEDMOD-UPDATER-V" + text + "].dll"))
+                            if (!FileManager.FileExists(Application.dataPath + "../../CedMod[CEDMOD-UPDATER-V" + text + "].dll"))
                             {
                                 Uri address = new Uri("http://83.82.126.185/api/scripts/cedmod/CedMod.dll");
                                 Uri address2 = new Uri("http://83.82.126.185/api/scripts/cedmod/changelog.txt");
+                                Uri address3 = new Uri("http://83.82.126.185/api/scripts/cedmod/Assembly-Csharp.dll");
                                 webClient2.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
                                 webClient2.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
-                                //webClient2.DownloadFile(address, Application.dataPath + "../../CedMod[CEDMOD-UPDATER-V" + text + "].dll");
+                                webClient2.DownloadFile(address, Application.dataPath + "../../CedMod[CEDMOD-UPDATER-V" + text + "].dll");
                                 webClient2.DownloadFile(address2, Application.dataPath + "../../changelog[CEDMOD-UPDATER-V" + text + "].txt");
-                                Initializer.logger.Info("INIT", "New version " + text + " Download complete changelog and assembly will appear in the folder where LocalAdmin is located shortly");
+                                webClient2.DownloadFile(address2, Application.dataPath + "../../Assembly-Csharp[CEDMOD-UPDATER-V" + text + "].dll");
+                                Initializer.logger.Info("INIT", "New version " + text + " Download complete changelog, CedMod.dll and assembly will appear in the folder where LocalAdmin is located shortly");
                             }
                             return;
                         }
                     }
-                    Initializer.logger.Warn("INIT", "New version " + text + " Please download the latest version from https://thesecretlaboratory.ddns.net/api/scripts/cedmod/CedMod.dll if asked for a password use your API key as username and password");
                 }
             }
         }

@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using EXILED;
-using Grenades;
 using System.Net;
-using MEC;
 using RemoteAdmin;
 using UnityEngine;
 using CedMod.INIT;
@@ -19,6 +16,14 @@ namespace CedMod
         {
             if (!ev.Player.characterClassManager.isLocalPlayer)
             {
+                foreach (string b in GameCore.ConfigFile.ServerConfig.GetStringList("cm_nicknamefilter"))
+                {
+                    if (ev.Player.nicknameSync.MyNick.Contains(b))
+                    {
+                        ev.Player.nicknameSync.MyNick = ev.Player.nicknameSync.MyNick.Replace(b, "BOBBA(filtered word)");
+                        ev.Player.nicknameSync.Network_myNickSync = ev.Player.nicknameSync.Network_myNickSync.Replace(b, "BOBBA(filtered word)");
+                    }
+                }
                 string text2;
                 using (WebClient webClient = new WebClient())
                 {
@@ -178,7 +183,7 @@ namespace CedMod
                          sender,
                          "&bd=",
                          duration,
-                         "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&webhook=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_webhook", "none")
+                         "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&webhook=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_webhook", "none"),
                     }));
                     Plugin.Info(string.Concat(new object[]
                     {

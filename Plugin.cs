@@ -9,6 +9,7 @@ namespace CedMod
         public BanSystem BanSystemEvents;
         public PlayerJoinBC PlayerJoinBCEvents;
         public FriendlyFireAutoBan FFAEvents;
+        public Commands Commands;
 
         public override void OnEnable()
         {
@@ -23,7 +24,10 @@ namespace CedMod
                 PlayerJoinBCEvents = new PlayerJoinBC(this);
                 Events.PlayerJoinEvent += PlayerJoinBCEvents.OnPlayerJoin;
                 FFAEvents = new FriendlyFireAutoBan(this);
-                Events.RoundEndEvent += FFAEvents.OnRoundEnd;
+                Events.RoundStartEvent += FFAEvents.OnRoundStart;
+                Commands = new Commands(this);
+                Events.RemoteAdminCommandEvent += Commands.OnCommand;
+                Events.RoundEndEvent += Commands.OnRoundEnd;
                 Info($"Sample plugin loaded. c:");
             }
             catch (Exception e)
@@ -38,9 +42,13 @@ namespace CedMod
             Events.RemoteAdminCommandEvent -= BanSystemEvents.OnCommand;
             Events.PlayerJoinEvent -= BanSystemEvents.OnPlayerJoin;
             Events.PlayerJoinEvent -= PlayerJoinBCEvents.OnPlayerJoin;
-            Events.RoundEndEvent -= FFAEvents.OnRoundEnd;
+            Events.RoundStartEvent -= FFAEvents.OnRoundStart;
+            Events.RemoteAdminCommandEvent -= Commands.OnCommand;
+            Events.RoundEndEvent -= Commands.OnRoundEnd;
             BanSystemEvents = null;
             PlayerJoinBCEvents = null;
+            FFAEvents = null;
+            Commands = null;
         }
 
         public override void OnReload()
