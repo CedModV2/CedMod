@@ -127,6 +127,7 @@ namespace CedMod
                         component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
                         component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
                         component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
+                        component.GodMode = false;
                     }
                     return;
             }
