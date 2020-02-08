@@ -3,6 +3,7 @@ using Mirror;
 using RemoteAdmin;
 using System.Collections.Generic;
 using System;
+using EXILED.Extensions;
 using UnityEngine;
 using MEC;
 
@@ -15,8 +16,10 @@ namespace CedMod
         public void OnRoundEnd()
         {
             IsEnabled = false;
+            EventEnabled = false;
             Timing.KillCoroutines("LightsOut");
         }
+        public static bool EventEnabled = false;
         public void OnCommand(ref RACommandEvent ev)
         {
             string[] Command = ev.Command.Split(new char[]
@@ -30,18 +33,18 @@ namespace CedMod
                     if (Command.Length < 4)
                     {
                         ev.Sender.RaReply(Command[0].ToUpper() + "#Usage: PBC <PLAYER> <TIME> <MESSAGE>", false, true, "");
-                        return;
+                        break;
                     }
                     uint durationPbc;
                     if (!CheckPermissions(ev.Sender, Command[0], PlayerPermissions.Broadcasting, "", true))
                     {
                         ev.Sender.RaReply(Command[0].ToUpper() + "#No perms to PBC bro.", false, true, "");
-                        return;
+                        break;
                     }
                     if (!uint.TryParse(Command[2], out durationPbc) || durationPbc < 1u)
                     {
                         ev.Sender.RaReply(Command[0].ToUpper() + "#Argument after the name must be a positive integer.", false, true, "");
-                        return;
+                        break;
                     }
                     string pbcText = Command[3];
                     for (int i = 4; i < Command.Length; i++)
@@ -62,25 +65,25 @@ namespace CedMod
                             ServerLogs.ServerLogType.RemoteAdminActivity_Misc);
                     }
                     ev.Sender.RaReply(Command[0].ToUpper() + "#PBC command sent.", true, true, "");
-                    return;
+                    break;
                 case "LIGHTSOUT":
                     ev.Allow = false;
                     if (Command.Length < 2)
                     {
                         ev.Sender.RaReply(Command[0].ToUpper() + "#Usage: LightsOut <OnlyHeavy>", false, true, "");
-                        return;
+                        break;
                     }
                     if (!CheckPermissions(ev.Sender, Command[0], PlayerPermissions.FacilityManagement, "", true))
                     {
                         ev.Sender.RaReply(Command[0].ToUpper() + "#No perms to LightsOut bro.", false, true, "");
-                        return;
+                        break;
                     }
                     if (IsEnabled == false)
                     {
                         IsEnabled = true;
                         Timing.RunCoroutine(LightsOut(Convert.ToBoolean(Command[1])), "LightsOut");
                         ev.Sender.RaReply(Command[0].ToUpper() + "#Lights have been turned off", true, true, "");
-                        return;
+                        break;
                     }
                     else
                     {
@@ -89,17 +92,17 @@ namespace CedMod
                             IsEnabled = false;
                             Timing.KillCoroutines("LightsOut");
                             ev.Sender.RaReply(Command[0].ToUpper() + "#Lights have been turned on", true, true, "");
-                            return;
+                            break;
                         }
                     }
                     ev.Sender.RaReply(Command[0].ToUpper() + "#Something went wrong", false, true, "");
-                    return;
+                    break;
                 case "DISABLEFFA":
                     ev.Allow = false;
                     if (!CheckPermissions(ev.Sender, Command[0], PlayerPermissions.FacilityManagement, "", true))
                     {
                         ev.Sender.RaReply(Command[0].ToUpper() + "#No perms to DisableFFA bro.", false, true, "");
-                        return;
+                        break;
                     }
                     FriendlyFireAutoBan.AdminDisabled = !FriendlyFireAutoBan.AdminDisabled;
                     if (FriendlyFireAutoBan.AdminDisabled)
@@ -110,26 +113,48 @@ namespace CedMod
                     {
                         ev.Sender.RaReply(Command[0].ToUpper() + "#FFA is now Enabled FFA wil reset at round end unless FFA is disabled", true, true, "");
                     }
-                    return;
+                    break;
                 case "STUITER":
                     ev.Allow = false;
                     if (!CheckPermissions(ev.Sender, Command[0], PlayerPermissions.FacilityManagement, "", true))
                     {
                         ev.Sender.RaReply(Command[0].ToUpper() + "#No perms to Stuiter bro.", false, true, "");
-                        return;
+                        break;
                     }
-                    foreach (GameObject player in PlayerManager.players)
+                    switch (Command[1].ToUpper())
                     {
-                        CharacterClassManager component = player.GetComponent<CharacterClassManager>();
-                        component.SetClassID(RoleType.Tutorial);
-                        component.GetComponent<PlayerStats>().health = 100;
-                        component.GetComponent<Inventory>().items.Clear();
-                        component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
-                        component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
-                        component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
-                        component.GodMode = false;
+                        case "ALL":
+                            foreach (GameObject player in PlayerManager.players)
+                            {
+                                CharacterClassManager component = player.GetComponent<CharacterClassManager>();
+                                component.SetClassID(RoleType.Tutorial);
+                                component.GetComponent<PlayerStats>().health = 100;
+                                component.GetComponent<Inventory>().items.Clear();
+                                component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
+                                component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
+                                component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
+                                component.GodMode = false;
+                            }
+                            break;
+                        case "SPEC":
+                        default:
+                            foreach (GameObject player in PlayerManager.players)
+                            {
+                                CharacterClassManager component = player.GetComponent<CharacterClassManager>();
+                                if (component.CurClass == RoleType.Tutorial)
+                                {
+                                    component.SetClassID(RoleType.Tutorial);
+                                    component.GetComponent<PlayerStats>().health = 100;
+                                    component.GetComponent<Inventory>().items.Clear();
+                                    component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
+                                    component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
+                                    component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
+                                    component.GodMode = false;
+                                }
+                            }
+                            break;
                     }
-                    return;
+                   break;
             }
         }
         public bool IsEnabled = false;
