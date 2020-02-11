@@ -214,6 +214,15 @@ namespace CedMod
                     }));
                 }
             }
+            else
+            {
+                if (duration <= 0)
+                {
+                    string text3;
+                    text3 = " Reason: " + reason;
+                    ServerConsole.Disconnect(player, text3);
+                }
+            }
         }
         private static bool CheckPermissions(CommandSender sender, string queryZero, PlayerPermissions perm, string replyScreen = "", bool reply = true)
         {
