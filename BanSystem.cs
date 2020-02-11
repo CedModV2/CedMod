@@ -185,7 +185,7 @@ namespace CedMod
                          duration,
                          "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&webhook=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_webhook", "none"),
                     }));
-                    Plugin.Info(string.Concat(new object[]
+                    Log.Info(string.Concat(new object[]
                     {
                          "User: ",
                          player.GetComponent<CharacterClassManager>().UserId,
@@ -196,14 +196,14 @@ namespace CedMod
                          " duration: ",
                          duration
                     }));
-                    Plugin.Info("BANSYSTEM: Response from ban API: " + text);
+                    Log.Info("BANSYSTEM: Response from ban API: " + text);
                     ServerConsole.Disconnect(player, text);
                 }
             }
             catch (WebException ex)
             {
                 HttpWebResponse httpWebResponse = (HttpWebResponse)ex.Response;
-                Plugin.Error("BANSYSTEM: " + string.Concat(new object[]
+                Log.Error("BANSYSTEM: " + string.Concat(new object[]
                 {
                       "An error occured: ",
                       ex.Message,
