@@ -166,15 +166,17 @@ namespace CedMod
         }
         public static void Ban(GameObject player, int duration, string sender, string reason)
         {
-            try
+            if (duration <= 0)
             {
-                string text;
-                using (WebClient webClient = new WebClient())
+                try
                 {
-                    webClient.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
-                    webClient.Headers.Add("user-agent", "Cedmod Client build: " + CedMod.INIT.Initializer.GetCedModVersion());
-                    text = webClient.DownloadString(string.Concat(new object[]
+                    string text;
+                    using (WebClient webClient = new WebClient())
                     {
+                        webClient.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
+                        webClient.Headers.Add("user-agent", "Cedmod Client build: " + CedMod.INIT.Initializer.GetCedModVersion());
+                        text = webClient.DownloadString(string.Concat(new object[]
+                        {
                          "http://83.82.126.185/scpserverbans/scpplugin/ban.php?id=",
                          player.GetComponent<CharacterClassManager>().UserId,
                          "&reason=",
@@ -184,9 +186,9 @@ namespace CedMod
                          "&bd=",
                          duration,
                          "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&webhook=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_webhook", "none"),
-                    }));
-                    Log.Info(string.Concat(new object[]
-                    {
+                        }));
+                        Log.Info(string.Concat(new object[]
+                        {
                          "User: ",
                          player.GetComponent<CharacterClassManager>().UserId,
                          " has been banned by: ",
@@ -195,21 +197,22 @@ namespace CedMod
                          reason,
                          " duration: ",
                          duration
-                    }));
-                    Log.Info("BANSYSTEM: Response from ban API: " + text);
-                    ServerConsole.Disconnect(player, text);
+                        }));
+                        Log.Info("BANSYSTEM: Response from ban API: " + text);
+                        ServerConsole.Disconnect(player, text);
+                    }
                 }
-            }
-            catch (WebException ex)
-            {
-                HttpWebResponse httpWebResponse = (HttpWebResponse)ex.Response;
-                Log.Error("BANSYSTEM: " + string.Concat(new object[]
+                catch (WebException ex)
                 {
+                    HttpWebResponse httpWebResponse = (HttpWebResponse)ex.Response;
+                    Log.Error("BANSYSTEM: " + string.Concat(new object[]
+                    {
                       "An error occured: ",
                       ex.Message,
                       " ",
                       ex.Status
-                }));
+                    }));
+                }
             }
         }
         private static bool CheckPermissions(CommandSender sender, string queryZero, PlayerPermissions perm, string replyScreen = "", bool reply = true)
