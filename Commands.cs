@@ -141,7 +141,7 @@ namespace CedMod
                             foreach (GameObject player in PlayerManager.players)
                             {
                                 CharacterClassManager component = player.GetComponent<CharacterClassManager>();
-                                if (component.CurClass == RoleType.Tutorial)
+                                if (component.CurClass == RoleType.Spectator)
                                 {
                                     component.SetClassID(RoleType.Tutorial);
                                     component.GetComponent<PlayerStats>().health = 100;
