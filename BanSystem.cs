@@ -166,7 +166,7 @@ namespace CedMod
         }
         public static void Ban(GameObject player, int duration, string sender, string reason)
         {
-            if (duration <= 0)
+            if (duration >= 1)
             {
                 try
                 {
@@ -219,7 +219,7 @@ namespace CedMod
                 if (duration <= 0)
                 {
                     string text3;
-                    text3 = " Reason: " + reason;
+                    text3 = "Reason: " + reason;
                     ServerConsole.Disconnect(player, text3);
                 }
             }
