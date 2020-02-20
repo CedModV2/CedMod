@@ -29,7 +29,7 @@ namespace CedMod.INIT
         {
             int num = 2;
             int num2 = 0;
-            int num3 = 1;
+            int num3 = 2;
             string text = "B";
             return string.Format("{0}.{1}.{2}-{3}", new object[]
             {
@@ -47,7 +47,7 @@ namespace CedMod.INIT
             {
                 webClient.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
                 webClient.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
-                string text = webClient.DownloadString("http://83.82.126.185/api/scripts/cedmod/version.txt");
+                string text = webClient.DownloadString("https://thesecretlaboratory.ddns.net/api/scripts/cedmod/version.txt");
                 if (text != Initializer.GetCedModVersion())
                 {
                     if (GameCore.ConfigFile.ServerConfig.GetBool("cm_autodownload", true))
@@ -57,9 +57,9 @@ namespace CedMod.INIT
                         {
                             if (!FileManager.FileExists(Application.dataPath + "../../CedMod[CEDMOD-UPDATER-V" + text + "].dll"))
                             {
-                                Uri address = new Uri("http://83.82.126.185/api/scripts/cedmod/CedMod.dll");
-                                Uri address2 = new Uri("http://83.82.126.185/api/scripts/cedmod/changelog.txt");
-                                Uri address3 = new Uri("http://83.82.126.185/api/scripts/cedmod/Assembly-Csharp.dll");
+                                Uri address = new Uri("https://thesecretlaboratory.ddns.net/api/scripts/cedmod/CedMod.dll");
+                                Uri address2 = new Uri("https://thesecretlaboratory.ddns.net/api/scripts/cedmod/changelog.txt");
+                                Uri address3 = new Uri("https://thesecretlaboratory.ddns.net/api/scripts/cedmod/Assembly-Csharp.dll");
                                 webClient2.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
                                 webClient2.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
                                 webClient2.DownloadFile(address, Application.dataPath + "../../CedMod[CEDMOD-UPDATER-V" + text + "].dll");

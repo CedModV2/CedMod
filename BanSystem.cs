@@ -2,9 +2,12 @@
 using System.Linq;
 using EXILED;
 using System.Net;
+using Mirror;
 using RemoteAdmin;
 using UnityEngine;
 using CedMod.INIT;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
 
 namespace CedMod
 {
@@ -14,6 +17,8 @@ namespace CedMod
         public BanSystem(Plugin plugin) => this.plugin = plugin;
         public void OnPlayerJoin(PlayerJoinEvent ev)
         {
+            ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             if (!ev.Player.characterClassManager.isLocalPlayer)
             {
                 foreach (string b in GameCore.ConfigFile.ServerConfig.GetStringList("cm_nicknamefilter"))
@@ -29,7 +34,7 @@ namespace CedMod
                 {
                     webClient.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
                     webClient.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
-                    text2 = webClient.DownloadString("http://83.82.126.185/scpserverbans/scpplugin/check.php?id=" + ev.Player.GetComponent<CharacterClassManager>().UserId + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none"));
+                    text2 = webClient.DownloadString("https://thesecretlaboratory.ddns.net/scpserverbans/scpplugin/checkV2.php?id=" + ev.Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + ev.Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none"));
                 }
                 Initializer.logger.Debug("BANSYSTEM", "Checking ban status of user: " + ev.Player.GetComponent<CharacterClassManager>().UserId + " Response from API: " + text2);
                 if (text2 == "1")
@@ -40,8 +45,10 @@ namespace CedMod
                         webClient2.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
                         string str = webClient2.DownloadString(string.Concat(new string[]
                         {
-                    "http://83.82.126.185//scpserverbans/scpplugin/unban.php?id=",
+                    "https://thesecretlaboratory.ddns.net/scpserverbans/scpplugin/unbanV2.php?id=",
                     ev.Player.GetComponent<CharacterClassManager>().UserId,
+                    "&ip=",
+                    ev.Player.GetComponent<NetworkIdentity>().connectionToClient.address,
                     "&reason=Expired&aname=Server&webhook=",
                     GameCore.ConfigFile.ServerConfig.GetString("bansystem_webhook", "none"),
                     "&alias=",
@@ -59,7 +66,7 @@ namespace CedMod
                     {
                         webClient3.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", ""), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", ""));
                         webClient3.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
-                        text3 = webClient3.DownloadString("http://83.82.126.185/scpserverbans/scpplugin/reason_request.php?id=" + ev.Player.GetComponent<CharacterClassManager>().UserId + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none"));
+                        text3 = webClient3.DownloadString("https://thesecretlaboratory.ddns.net/scpserverbans/scpplugin/reason_requestV2.php?id=" + ev.Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + ev.Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none"));
                         Initializer.logger.Debug("BANSYSTEM", "Checking ban status of user: " + ev.Player.GetComponent<CharacterClassManager>().UserId + " Response from API: " + text3);
                         if (text3 == "0")
                         {
@@ -171,14 +178,18 @@ namespace CedMod
                 try
                 {
                     string text;
+                    ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                     using (WebClient webClient = new WebClient())
                     {
                         webClient.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
                         webClient.Headers.Add("user-agent", "Cedmod Client build: " + CedMod.INIT.Initializer.GetCedModVersion());
                         text = webClient.DownloadString(string.Concat(new object[]
                         {
-                         "http://83.82.126.185/scpserverbans/scpplugin/ban.php?id=",
+                         "https://thesecretlaboratory.ddns.net/scpserverbans/scpplugin/banV2.php?id=",
                          player.GetComponent<CharacterClassManager>().UserId,
+                         "&ip=",
+                         player.GetComponent<NetworkIdentity>().connectionToClient.address,
                          "&reason=",
                          reason,
                          "&aname=",
@@ -212,7 +223,7 @@ namespace CedMod
                       " ",
                       ex.Status
                     }));
-                }
+                }//hm
             }
             else
             {
@@ -238,6 +249,20 @@ namespace CedMod
             {
                 sender.RaReply(queryZero + "#You don't have permissions to execute this command.\nMissing permission: " + perm, false, true, replyScreen);
             }
+            return false;
+        }
+        private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors error)
+        {
+            // If the certificate is a valid, signed certificate, return true.
+            if (error == System.Net.Security.SslPolicyErrors.None)
+            {
+                return true;
+            }
+
+            Console.WriteLine("X509Certificate [{0}] Policy Error: '{1}'",
+                cert.Subject,
+                error.ToString());
+
             return false;
         }
     }
