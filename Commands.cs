@@ -131,8 +131,6 @@ namespace CedMod
                                 component.GetComponent<PlayerStats>().health = 100;
                                 component.GetComponent<Inventory>().items.Clear();
                                 component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
-                                component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
-                                component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
                                 component.GodMode = false;
                             }
                             break;
@@ -146,8 +144,6 @@ namespace CedMod
                                     component.SetClassID(RoleType.Tutorial);
                                     component.GetComponent<PlayerStats>().health = 100;
                                     component.GetComponent<Inventory>().items.Clear();
-                                    component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
-                                    component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
                                     component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
                                     component.GodMode = false;
                                 }

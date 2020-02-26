@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using GameCore;
 using UnityEngine;
 
@@ -43,11 +45,13 @@ namespace CedMod.INIT
         public static void UpdateCheck()
         {
             Initializer.logger.Info("INIT", "Checking for updated");
+            ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             using (WebClient webClient = new WebClient())
             {
                 webClient.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
                 webClient.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
-                string text = webClient.DownloadString("https://thesecretlaboratory.ddns.net/api/scripts/cedmod/version.txt");
+                string text = webClient.DownloadString("https://api.cedmod.nl/api/scripts/cedmod/version.txt");
                 if (text != Initializer.GetCedModVersion())
                 {
                     if (GameCore.ConfigFile.ServerConfig.GetBool("cm_autodownload", true))
@@ -57,9 +61,9 @@ namespace CedMod.INIT
                         {
                             if (!FileManager.FileExists(Application.dataPath + "../../CedMod[CEDMOD-UPDATER-V" + text + "].dll"))
                             {
-                                Uri address = new Uri("https://thesecretlaboratory.ddns.net/api/scripts/cedmod/CedMod.dll");
-                                Uri address2 = new Uri("https://thesecretlaboratory.ddns.net/api/scripts/cedmod/changelog.txt");
-                                Uri address3 = new Uri("https://thesecretlaboratory.ddns.net/api/scripts/cedmod/Assembly-Csharp.dll");
+                                Uri address = new Uri("https://api.cedmod.nl/api/scripts/cedmod/CedMod.dll");
+                                Uri address2 = new Uri("https://api.cedmod.nl/api/scripts/cedmod/changelog.txt");
+                                Uri address3 = new Uri("https://api.cedmod.nl/api/scripts/cedmod/Assembly-Csharp.dll");
                                 webClient2.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
                                 webClient2.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
                                 webClient2.DownloadFile(address, Application.dataPath + "../../CedMod[CEDMOD-UPDATER-V" + text + "].dll");
@@ -72,6 +76,20 @@ namespace CedMod.INIT
                     }
                 }
             }
+        }
+        private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors error)
+        {
+            // If the certificate is a valid, signed certificate, return true.
+            if (error == System.Net.Security.SslPolicyErrors.None)
+            {
+                return true;
+            }
+
+            Initializer.logger.Error("INIT" ,"X509Certificate [{0}] Policy Error: '{1}'" +
+                cert.Subject +
+                error.ToString());
+
+            return false;
         }
         public static readonly CedModLogger logger = new CedModLogger();
     }

@@ -25,6 +25,7 @@ namespace CedMod
                 Events.PlayerJoinEvent += PlayerJoinBCEvents.OnPlayerJoin;
                 FFAEvents = new FriendlyFireAutoBan(this);
                 Events.RoundStartEvent += FFAEvents.OnRoundStart;
+                Events.PlayerDeathEvent += FFAEvents.Ondeath;
                 Commands = new Commands(this);
                 Events.RemoteAdminCommandEvent += Commands.OnCommand;
                 Events.RoundEndEvent += Commands.OnRoundEnd;

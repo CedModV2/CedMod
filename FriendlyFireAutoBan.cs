@@ -20,10 +20,11 @@ namespace CedMod
             badguylist.Clear();
             AdminDisabled = false;
         }
-
         static List<string> badguylist = new List<string>();
-        public static void FFA(CharacterClassManager victim, CharacterClassManager killer)
+        public void Ondeath(ref PlayerDeathEvent ev)
         {
+            CharacterClassManager victim = ev.Player.characterClassManager;
+            CharacterClassManager killer = ev.Killer.characterClassManager;
             if (GameCore.ConfigFile.ServerConfig.GetBool("ffa_enable", false) && RoundSummary.RoundInProgress() && !AdminDisabled)
             {
                 bool flag = false;
@@ -149,9 +150,13 @@ namespace CedMod
             {
                 if (AdminDisabled)
                 {
-                    RemoteAdmin.QueryProcessor.Localplayer.GetComponent<Broadcast>().TargetAddElement(victim.gameObject.GetComponent<NetworkIdentity>().connectionToClient, "<size=25><b><color=yellow>You have been teamkilled but FriendlyFireAutoban is disabled by an admin, reports regarding this teamkill will not be handled</color></b></size>", 20U, false);
+                    RemoteAdmin.QueryProcessor.Localplayer.GetComponent<Broadcast>().TargetAddElement(victim.gameObject.GetComponent<NetworkIdentity>().connectionToClient, "<size=25><b><color=yellow>You have been teamkilled but FriendlyFireAutoban is disabled by an admin, reports regarding this teamkill will not be handled</color></b></size>", 10U, false);
                 }
             }
+        }
+        public static void FFA(CharacterClassManager victim, CharacterClassManager killer)
+        {
+            
         }
         public static void FFALog(CharacterClassManager killer, CharacterClassManager victim, Team victimteam, Team killerteam)
         {
