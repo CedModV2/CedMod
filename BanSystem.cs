@@ -2,6 +2,7 @@
 using EXILED;
 using EXILED.Extensions;
 using Mirror;
+using Newtonsoft.Json;
 using RemoteAdmin;
 using System;
 using System.Linq;
@@ -150,6 +151,38 @@ namespace CedMod
                 ev.Sender.RaReply(Command[0] + "#Use the Webinterface for unbanning", false, true, "");
                 return;
             }
+            if (Command[0].ToUpper() == "priorbans")
+            {
+                ev.Allow = false;
+                if (Command.Length < 1)
+                {
+                    ev.Sender.RaReply(Command[0].ToUpper() + "#To run this program, type at least 3 arguments! (some parameters are missing)", false, true, "");
+                    return;
+                }
+                foreach (GameObject gameObject in PlayerManager.players)
+                {
+                    if (Convert.ToInt16(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId)
+                    {
+                        GetPriors(gameObject.GetComponent<ReferenceHub>());
+                    }
+                }
+            }
+            if (Command[0].ToUpper() == "priorbans")
+            {
+                ev.Allow = false;
+                if (Command.Length < 1)
+                {
+                    ev.Sender.RaReply(Command[0].ToUpper() + "#To run this program, type at least 3 arguments! (some parameters are missing)", false, true, "");
+                    return;
+                }
+                foreach (GameObject gameObject in PlayerManager.players)
+                {
+                    if (Convert.ToInt16(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId)
+                    {
+                        GetTotalBans(gameObject.GetComponent<ReferenceHub>());
+                    }
+                }
+            }
         }
         public string GetBandetails(ReferenceHub Player)
         {
@@ -222,6 +255,51 @@ namespace CedMod
                 Initializer.logger.Error("BANSYSTEN", "Unable to propperly connect to CedMod API: " + ex.Status + " | " + ex.Message);
                 LastAPIRequestSuccessfull = false;
                 return "0";
+            }
+        }
+        public static dynamic GetPriors(ReferenceHub Player)
+        {
+            ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            try
+            {
+                using (WebClient webClient = new WebClient())
+                {
+                    webClient.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
+                    webClient.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
+                    string text2 = webClient.DownloadString("https://api.cedmod.nl/scpserverbans/scpplugin/userdetails.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&priors=1");
+                    dynamic json = JsonConvert.DeserializeObject(text2);
+                    return json;
+                }
+            }
+            catch (WebException ex)
+            {
+                Console.WriteLine("BANSYSTEN Unable to propperly connect to CedMod API: " + ex.Status + " | " + ex.Message);
+                return null;
+            }
+        }
+        public static dynamic GetTotalBans(ReferenceHub Player)
+        {
+            ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            try
+            {
+                using (WebClient webClient = new WebClient())
+                {
+                    webClient.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
+                    webClient.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
+                    string text2 = webClient.DownloadString("https://api.cedmod.nl/scpserverbans/scpplugin/userdetails.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&total=1");
+                    if (text2 == "")
+                    {
+                        text2 = "0";
+                    }
+                    return text2;
+                }
+            }
+            catch (WebException ex)
+            {
+                Console.WriteLine("BANSYSTEN Unable to propperly connect to CedMod API: " + ex.Status + " | " + ex.Message);
+                return null;
             }
         }
         public static void Ban(GameObject player, int duration, string sender, string reason)
