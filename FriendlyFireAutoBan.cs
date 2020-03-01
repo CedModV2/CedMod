@@ -138,7 +138,7 @@ namespace CedMod
                                     killer.gameObject.GetComponent<CharacterClassManager>().UserId,
                                     " exeeded teamkill limit"
                                     }));
-                                    BanSystem.Ban(killer.gameObject, GameCore.ConfigFile.ServerConfig.GetInt("ffa_banduration", 4320), "Server.Module.FriendlyFireAutoban", GameCore.ConfigFile.ServerConfig.GetString("ffa_banreason", "You have teamkilled too many people"));
+                                    BanSystem.Ban(killer.gameObject, GameCore.ConfigFile.ServerConfig.GetInt("ffa_banduration", 4320), "Server.Module.FriendlyFireAutoban", GameCore.ConfigFile.ServerConfig.GetString("ffa_banreason", "You have teamkilled too many people"), false);
                                     RemoteAdmin.QueryProcessor.Localplayer.GetComponent<Broadcast>().RpcAddElement("<size=25><b><color=yellow>user: </color></b><color=red>" + killer.gameObject.GetComponent<NicknameSync>().MyNick + "</color><color=yellow><b> got banned for teamkilling, dont be like this user please</b></color></size>", 20U, false);
                                 }
                             }

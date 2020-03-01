@@ -302,12 +302,16 @@ namespace CedMod
                 return null;
             }
         }
-        public static void Ban(GameObject player, int duration, string sender, string reason)
+        public static void Ban(GameObject player, int duration, string sender, string reason, bool bc = true)
         {
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             if (duration >= 1)
             {
+                if (bc)
+                {
+                    Map.Broadcast(player.GetComponent<NicknameSync>().MyNick + "Has been banned from the server", 9, false);
+                }
                 try
                 {
                     string text;
@@ -354,18 +358,18 @@ namespace CedMod
                       ex.Status,
                       " Adding to UserIDBans instead"
                     }));
-                    //long issuanceTime = TimeBehaviour.CurrentTimestamp();
-                    //long banExpieryTime = TimeBehaviour.GetBanExpieryTime((uint)duration);
-                    //BanHandler.IssueBan(new BanDetails
-                    //{
-                        //OriginalName = player.GetComponent<NicknameSync>().MyNick,
-                        //Id = player.GetComponent<CharacterClassManager>().UserId,
-                        //IssuanceTime = issuanceTime,
-                        //Expires = banExpieryTime,
-                        //Reason = reason,
-                        //Issuer = sender
-                    //}, BanHandler.BanType.UserId);
-                    //ServerConsole.Disconnect(player, reason);
+                    long issuanceTime = TimeBehaviour.CurrentTimestamp();
+                    long banExpieryTime = TimeBehaviour.GetBanExpieryTime((uint)duration);
+                    BanHandler.IssueBan(new BanDetails
+                    {
+                        OriginalName = player.GetComponent<NicknameSync>().MyNick,
+                        Id = player.GetComponent<CharacterClassManager>().UserId,
+                        IssuanceTime = issuanceTime,
+                        Expires = banExpieryTime,
+                        Reason = reason,
+                        Issuer = sender
+                    }, BanHandler.BanType.UserId);
+                    ServerConsole.Disconnect(player, reason);
                 }//hm
             }
             else
