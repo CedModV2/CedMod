@@ -9,7 +9,7 @@ namespace CedMod
         public static void BC(uint time, string msg)
         {
             foreach (ReferenceHub p in Player.GetHubs())
-                p.Broadcast(time, msg);
+                p.Broadcast(time, msg, false);
         }
     }
 }

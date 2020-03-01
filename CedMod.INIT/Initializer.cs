@@ -25,14 +25,12 @@ namespace CedMod.INIT
             Initializer.UpdateCheck();
         }
 
-
-        // Token: 0x06002508 RID: 9480 RVA: 0x000B835C File Offset: 0x000B655C
         public static string GetCedModVersion()
         {
             int num = 2;
             int num2 = 0;
-            int num3 = 2;
-            string text = "B";
+            int num3 = 3;
+            string text = "R";
             return string.Format("{0}.{1}.{2}-{3}", new object[]
             {
                 num,

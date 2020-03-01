@@ -68,10 +68,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\EXILED_Events.dll</HintPath>
     </Reference>
-    <Reference Include="EXILED_Idler">
+    <Reference Include="EXILED_Idler, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>References\EXILED_Idler.dll</HintPath>
     </Reference>
-    <Reference Include="EXILED_Permissions">
+    <Reference Include="EXILED_Permissions, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>References\EXILED_Permissions.dll</HintPath>
     </Reference>
     <Reference Include="Facepunch.Steamworks.Win64, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
