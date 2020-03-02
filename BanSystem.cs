@@ -195,6 +195,10 @@ namespace CedMod
                 {
                     GEOString = GEOString + s + "+";
                 }
+                if (GEOList != null)
+                {
+                    CustomLiteNetLib4MirrorTransport.Geoblocking = GeoblockingMode.Whitelist;
+                }
             }
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;

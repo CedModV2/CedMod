@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using EXILED;
 
 namespace CedMod
@@ -15,6 +16,17 @@ namespace CedMod
         {
             try
             {
+                string GEOString = "";
+                INIT.Initializer.logger.Warn("lel", ServerConsole.AccessRestriction.ToString());
+                List<string> GEOList = GameCore.ConfigFile.ServerConfig.GetStringList("bansystem_geo");
+                foreach (string s in GEOList)
+                {
+                    GEOString = GEOString + s + "+";
+                }
+                if (GEOList != null)
+                {
+                    ServerConsole.AccessRestriction = true;
+                }
                 Log.Debug("Initializing event handlers..");
                 //Set instance varible to a new instance, this should be nulled again in OnDisable
                 BanSystemEvents = new BanSystem(this);
@@ -30,6 +42,7 @@ namespace CedMod
                 Events.RemoteAdminCommandEvent += Commands.OnCommand;
                 Events.RoundEndEvent += Commands.OnRoundEnd;
                 Log.Info($"CedMod has loaded. c:");
+                INIT.Initializer.logger.Warn("lel", ServerConsole.AccessRestriction.ToString());
             }
             catch (Exception e)
             {
