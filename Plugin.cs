@@ -17,7 +17,6 @@ namespace CedMod
             try
             {
                 string GEOString = "";
-                INIT.Initializer.logger.Warn("lel", ServerConsole.AccessRestriction.ToString());
                 List<string> GEOList = GameCore.ConfigFile.ServerConfig.GetStringList("bansystem_geo");
                 foreach (string s in GEOList)
                 {
@@ -42,7 +41,6 @@ namespace CedMod
                 Events.RemoteAdminCommandEvent += Commands.OnCommand;
                 Events.RoundEndEvent += Commands.OnRoundEnd;
                 Log.Info($"CedMod has loaded. c:");
-                INIT.Initializer.logger.Warn("lel", ServerConsole.AccessRestriction.ToString());
             }
             catch (Exception e)
             {
