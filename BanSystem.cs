@@ -200,12 +200,11 @@ namespace CedMod
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             try
             {
-                //d
                 using (WebClient webClient3 = new WebClient())
                 {
                     webClient3.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", ""), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", ""));
                     webClient3.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
-                    string text3 = webClient3.DownloadString("https://api.cedmod.nl/scpserverbans/scpplugin/reason_requestV2test.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&geo=" + GEOString);
+                    string text3 = webClient3.DownloadString("https://api.cedmod.nl/scpserverbans/scpplugin/reason_requestV2.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&geo=" + GEOString);
                     Initializer.logger.Debug("BANSYSTEM", "Checking ban status of user: " + Player.GetComponent<CharacterClassManager>().UserId + " Response from API: " + text3);
                     if (text3 == "0")
                     {
