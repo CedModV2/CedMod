@@ -191,9 +191,13 @@ namespace CedMod
             if (usegeoifenabled)
             {
                 List<string> GEOList = GameCore.ConfigFile.ServerConfig.GetStringList("bansystem_geo");
-                foreach (string s in GEOList)
-                {
-                    GEOString = GEOString + s + "+";
+                if (GEOString == "")
+                { 
+                    foreach (string s in GEOList)
+                    {
+
+                        GEOString = GEOString + s + "+";
+                    }
                 }
                 if (GEOList != null)
                 {
