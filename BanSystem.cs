@@ -197,7 +197,7 @@ namespace CedMod
                 }
                 if (GEOList != null)
                 {
-                    CustomLiteNetLib4MirrorTransport.Geoblocking = GeoblockingMode.Whitelist;
+                    ServerConsole.AccessRestriction = true;
                 }
             }
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
