@@ -16,6 +16,7 @@ namespace CedMod
 {
     public class BanSystem
     {
+        public List<string> testusers = new List<string>();
         public bool LastAPIRequestSuccessfull = false;
         public Plugin plugin;
         public BanSystem(Plugin plugin) => this.plugin = plugin;
@@ -57,19 +58,31 @@ namespace CedMod
                         if (BanReason.StartsWith("[CEDMOD.Bansystem.Message]"))
                         {
                             Reason = BanReason;
+                            ev.Player.characterClassManager.TargetConsolePrint(ev.Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM Message from CedMod server: " + BanReason, "yellow");
+                            ServerConsole.Disconnect(ev.Player.GetComponent<CharacterClassManager>().gameObject, Reason);
                         }
                         else
                         {
                             if (BanReason.StartsWith("[CEDMOD.Bansystem.BanHandler]"))
                             {
                                 Reason = BanReason + " You can fill in a ban appeal here: " + GameCore.ConfigFile.ServerConfig.GetString("bansystem_banappealurl", "none");
+                                ev.Player.characterClassManager.TargetConsolePrint(ev.Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM Active ban: " + BanReason, "yellow");
+                                ServerConsole.Disconnect(ev.Player.GetComponent<CharacterClassManager>().gameObject, Reason);
                             }
                             else
                             {
-                                Initializer.logger.Error("BANSYSTEM", "Wait a second this message shouldn't even be possible. Something went terribly wrong");
+                                if (BanReason.StartsWith("[CEDMOD.Main.Message]"))
+                                {
+                                    ev.Player.characterClassManager.TargetConsolePrint(ev.Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM Message from CedMod server: " + BanReason, "yellow");
+                                    Initializer.logger.Info("BANSYSTEM", "Message from CedMod server: " + BanReason);
+                                }
+                                else
+                                {
+                                    Initializer.logger.Error("BANSYSTEM", "Wait a second this message shouldn't even be possible. Something went terribly wrong: " + BanReason);
+                                    ev.Player.characterClassManager.TargetConsolePrint(ev.Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM Wait a second this message shouldn't even be possible. Something went terribly wrong: " + BanReason, "green");
+                                }
                             }
                         }
-                        ServerConsole.Disconnect(ev.Player.GetComponent<CharacterClassManager>().gameObject, Reason);
                     }
                 }
             }
@@ -184,6 +197,56 @@ namespace CedMod
                     }
                 }
             }
+            if (Command[0].ToUpper() == "ENABLETEST")
+            {
+                ev.Allow = false;
+                if (Command.Length < 1)
+                {
+                    ev.Sender.RaReply(Command[0].ToUpper() + "#To run this program, type at least 1 arguments! (some parameters are missing)", false, true, "");
+                    return;
+                }
+                foreach (GameObject gameObject in PlayerManager.players)
+                {
+                    if (Convert.ToInt16(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId && !testusers.Contains(gameObject.GetComponent<CharacterClassManager>().UserId))
+                    {
+                        testusers.Add(gameObject.GetComponent<CharacterClassManager>().UserId);
+                        ev.Sender.RaReply(Command[0].ToUpper() + "#Done", true, true, "");
+                        gameObject.GetComponent<ReferenceHub>().characterClassManager.TargetConsolePrint(gameObject.GetComponent<ReferenceHub>().GetComponent<NetworkIdentity>().connectionToClient, "You have been added to the test user list from now on until you are removed you will authenticate using the Test API this may contain experimental code.", "yellow");
+                    }
+                    else
+                    {
+                        if (testusers.Contains(gameObject.GetComponent<CharacterClassManager>().UserId))
+                        {
+                            ev.Sender.RaReply(Command[0].ToUpper() + "#User already in test list", true, false, "");
+                        }
+                    }
+                }
+            }
+            if (Command[0].ToUpper() == "DISABLETEST")
+            {
+                ev.Allow = false;
+                if (Command.Length < 1)
+                {
+                    ev.Sender.RaReply(Command[0].ToUpper() + "#To run this program, type at least 1 arguments! (some parameters are missing)", false, true, "");
+                    return;
+                }
+                foreach (GameObject gameObject in PlayerManager.players)
+                {
+                    if (Convert.ToInt16(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId && testusers.Contains(gameObject.GetComponent<CharacterClassManager>().UserId))
+                    {
+                        testusers.Remove(gameObject.GetComponent<CharacterClassManager>().UserId);
+                        ev.Sender.RaReply(Command[0].ToUpper() + "#Done", true, true, "");
+                        gameObject.GetComponent<ReferenceHub>().characterClassManager.TargetConsolePrint(gameObject.GetComponent<ReferenceHub>().GetComponent<NetworkIdentity>().connectionToClient, "You have been removed from the test user list.", "green");
+                    }
+                    else
+                    {
+                        if (!testusers.Contains(gameObject.GetComponent<CharacterClassManager>().UserId))
+                        {
+                            ev.Sender.RaReply(Command[0].ToUpper() + "#User not in list", true, false, "");
+                        }
+                    }
+                }
+            }
         }
         string GEOString = "";
         public string GetBandetails(ReferenceHub Player, bool usegeoifenabled = true)
@@ -212,8 +275,18 @@ namespace CedMod
                 {
                     webClient3.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", ""), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", ""));
                     webClient3.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
-                    string text3 = webClient3.DownloadString("https://api.cedmod.nl/scpserverbans/scpplugin/reason_requestV2.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&geo=" + GEOString);
+                    string alias = GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none");
+                    if (alias.Contains(" "))
+                    {
+                        alias.Replace(" ", "");
+                    }
+                    webClient3.Headers.Add(alias, "Alias");
+                    string text3 = testusers.Contains(Player.characterClassManager.UserId)
+                        ? webClient3.DownloadString("https://test.cedmod.nl/scpserverbans/scpplugin/reason_requestV2.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&geo=" + GEOString)
+                        : webClient3.DownloadString("https://api.cedmod.nl/scpserverbans/scpplugin/reason_requestV2.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&geo=" + GEOString);
+                    string authtype = testusers.Contains(Player.characterClassManager.UserId) ? "Test API" : "Production API";
                     Initializer.logger.Debug("BANSYSTEM", "Checking ban status of user: " + Player.GetComponent<CharacterClassManager>().UserId + " Response from API: " + text3);
+                    Player.characterClassManager.TargetConsolePrint(Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM You have been authed by the CedMod: " + authtype, "green");
                     if (text3 == "0")
                     {
                         Initializer.logger.Debug("BANSYSTEM", "User is not banned");
@@ -224,7 +297,7 @@ namespace CedMod
             }
             catch (WebException ex)
             {
-                Initializer.logger.Error("BANSYSTEN", "Unable to propperly connect to CedMod API: " + ex.Status + " | " + ex.Message);
+                Initializer.logger.Error("BANSYSTEN", "Unable to properly connect to CedMod API: " + ex.Status + " | " + ex.Message);
                 LastAPIRequestSuccessfull = false;
                 return "0";
             }
@@ -239,7 +312,15 @@ namespace CedMod
                 {
                     webClient.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
                     webClient.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
-                    string text2 = webClient.DownloadString("https://api.cedmod.nl/scpserverbans/scpplugin/checkV2.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none"));
+                    string alias = GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none");
+                    if (alias.Contains(" "))
+                    {
+                        alias.Replace(" ", "");
+                    }
+                    webClient.Headers.Add(alias, "Alias");
+                    string text2 = testusers.Contains(Player.characterClassManager.UserId)
+                        ? webClient.DownloadString("https://test.cedmod.nl/scpserverbans/scpplugin/checkV2.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none"))
+                        : webClient.DownloadString("https://api.cedmod.nl/scpserverbans/scpplugin/checkV2.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none"));
                     Initializer.logger.Info("BANSYSTEM", "checking ban status for user: " + Player.GetComponent<CharacterClassManager>().UserId + " Response from API: " + text2);
                     LastAPIRequestSuccessfull = true;
                     return text2;
@@ -248,7 +329,7 @@ namespace CedMod
             catch (WebException ex)
             {
                 LastAPIRequestSuccessfull = false;
-                Initializer.logger.Error("BANSYSTEN", "Unable to propperly connect to CedMod API: " + ex.Status + " | " + ex.Message);
+                Initializer.logger.Error("BANSYSTEN", "Unable to properly connect to CedMod API: " + ex.Status + " | " + ex.Message);
                 return "0";
             }
         }
@@ -262,7 +343,15 @@ namespace CedMod
                 {
                     webClient.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
                     webClient.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
-                    string text2 = webClient.DownloadString("https://api.cedmod.nl/scpserverbans/scpplugin/unbanV2.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&reason=Expired&aname=Server&webhook=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_webhook", "none") + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none"));
+                    string alias = GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none");
+                    if (alias.Contains(" "))
+                    {
+                        alias.Replace(" ", "");
+                    }
+                    webClient.Headers.Add(alias, "Alias");
+                    string text2 = testusers.Contains(Player.characterClassManager.UserId)
+                        ? webClient.DownloadString("https://test.cedmod.nl/scpserverbans/scpplugin/unbanV2.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&reason=Expired&aname=Server&webhook=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_webhook", "none") + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none"))
+                        : webClient.DownloadString("https://api.cedmod.nl/scpserverbans/scpplugin/unbanV2.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&reason=Expired&aname=Server&webhook=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_webhook", "none") + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none"));
                     Initializer.logger.Info("BANSYSTEM", "user: " + Player.GetComponent<CharacterClassManager>().UserId + " unban, Response from API: " + text2);
                     LastAPIRequestSuccessfull = true;
                     return text2;
@@ -270,12 +359,12 @@ namespace CedMod
             }
             catch (WebException ex)
             {
-                Initializer.logger.Error("BANSYSTEN", "Unable to propperly connect to CedMod API: " + ex.Status + " | " + ex.Message);
+                Initializer.logger.Error("BANSYSTEN", "Unable to properly connect to CedMod API: " + ex.Status + " | " + ex.Message);
                 LastAPIRequestSuccessfull = false;
                 return "0";
             }
         }
-        public static object GetPriors(ReferenceHub Player)
+        public object GetPriors(ReferenceHub Player)
         {
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -285,18 +374,26 @@ namespace CedMod
                 {
                     webClient.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
                     webClient.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
-                    string text2 = webClient.DownloadString("https://api.cedmod.nl/scpserverbans/scpplugin/userdetails.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&priors=1");
+                    string alias = GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none");
+                    if (alias.Contains(" "))
+                    {
+                        alias.Replace(" ", "");
+                    }
+                    webClient.Headers.Add(alias, "Alias");
+                    string text2 = testusers.Contains(Player.characterClassManager.UserId)
+                        ? webClient.DownloadString("https://test.cedmod.nl/scpserverbans/scpplugin/userdetails.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&priors=1")
+                        : webClient.DownloadString("https://api.cedmod.nl/scpserverbans/scpplugin/userdetails.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&priors=1");
                     object json = JsonConvert.DeserializeObject(text2);
                     return json;
                 }
             }
             catch (WebException ex)
             {
-                Console.WriteLine("BANSYSTEN Unable to propperly connect to CedMod API: " + ex.Status + " | " + ex.Message);
+                Console.WriteLine("BANSYSTEN Unable to properly connect to CedMod API: " + ex.Status + " | " + ex.Message);
                 return null;
             }
         }
-        public static string GetTotalBans(ReferenceHub Player)
+        public string GetTotalBans(ReferenceHub Player)
         {
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -306,7 +403,15 @@ namespace CedMod
                 {
                     webClient.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
                     webClient.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
-                    string text2 = webClient.DownloadString("https://api.cedmod.nl/scpserverbans/scpplugin/userdetails.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&total=1");
+                    string alias = GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none");
+                    if (alias.Contains(" "))
+                    {
+                        alias.Replace(" ", "");
+                    }
+                    webClient.Headers.Add(alias, "Alias");
+                    string text2 = testusers.Contains(Player.characterClassManager.UserId)
+                        ? webClient.DownloadString("https://api.cedmod.nl/scpserverbans/scpplugin/userdetails.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&total=1")
+                        : webClient.DownloadString("https://api.cedmod.nl/scpserverbans/scpplugin/userdetails.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&total=1");
                     if (text2 == "")
                     {
                         text2 = "0";
@@ -316,7 +421,7 @@ namespace CedMod
             }
             catch (WebException ex)
             {
-                Console.WriteLine("BANSYSTEN Unable to propperly connect to CedMod API: " + ex.Status + " | " + ex.Message);
+                Console.WriteLine("BANSYSTEN Unable to properly connect to CedMod API: " + ex.Status + " | " + ex.Message);
                 return null;
             }
         }
@@ -337,6 +442,12 @@ namespace CedMod
                     {
                         webClient.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
                         webClient.Headers.Add("user-agent", "Cedmod Client build: " + CedMod.INIT.Initializer.GetCedModVersion());
+                        string alias = GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none");
+                        if (alias.Contains(" "))
+                        {
+                            alias.Replace(" ", "");
+                        }
+                        webClient.Headers.Add(alias, "Alias");
                         text = webClient.DownloadString(string.Concat(new object[]
                         {
                          "https://api.cedmod.nl/scpserverbans/scpplugin/banV2.php?id=",
