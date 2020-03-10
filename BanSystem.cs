@@ -28,7 +28,7 @@ namespace CedMod
                 {
                     foreach (string b in GameCore.ConfigFile.ServerConfig.GetStringList("cm_nicknamefilter"))
                     {
-                        if (ev.Player.nicknameSync.MyNick.Contains(b))
+                        if (ev.Player.nicknameSync.MyNick.ToUpper().Contains(b.ToUpper()))
                         {
                             ev.Player.nicknameSync.MyNick = ev.Player.nicknameSync.MyNick.Replace(b, "BOBBA(filtered word)");
                             ev.Player.nicknameSync.Network_myNickSync = ev.Player.nicknameSync.Network_myNickSync.Replace(b, "BOBBA(filtered word)");
