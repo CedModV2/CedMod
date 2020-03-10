@@ -84,7 +84,7 @@ namespace CedMod
                             }
                         }
                     }
-                    string authtype = testusers.Contains(Player.characterClassManager.UserId) ? "Test API" : "Production API";
+                    string authtype = testusers.Contains(ev.Player.characterClassManager.UserId) ? "Test API" : "Production API";
                     ev.Player.characterClassManager.TargetConsolePrint(ev.Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM You have been authed by the CedMod: " + authtype, "green");
                 }
             }
