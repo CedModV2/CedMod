@@ -15,7 +15,7 @@ jobs:
       with:
         dotnet-version: 2.2.108
     - name: Build with dotnet
-      run: dotnet build --configuration Release > CedMod-Main/CedMod.dll
+      run: dotnet build CedMod-Main --configuration Release > CedMod-Main/CedMod.dll
     - uses: actions/upload-artifact@v1
       with:
         name: CedMod.dll
