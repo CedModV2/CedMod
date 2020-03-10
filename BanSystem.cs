@@ -84,6 +84,8 @@ namespace CedMod
                             }
                         }
                     }
+                    string authtype = testusers.Contains(Player.characterClassManager.UserId) ? "Test API" : "Production API";
+                    ev.Player.characterClassManager.TargetConsolePrint(ev.Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM You have been authed by the CedMod: " + authtype, "green");
                 }
             }
         }
@@ -284,9 +286,8 @@ namespace CedMod
                     string text3 = testusers.Contains(Player.characterClassManager.UserId)
                         ? webClient3.DownloadString("https://test.cedmod.nl/scpserverbans/scpplugin/reason_requestV2.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&geo=" + GEOString)
                         : webClient3.DownloadString("https://api.cedmod.nl/scpserverbans/scpplugin/reason_requestV2.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&geo=" + GEOString);
-                    string authtype = testusers.Contains(Player.characterClassManager.UserId) ? "Test API" : "Production API";
                     Initializer.logger.Debug("BANSYSTEM", "Checking ban status of user: " + Player.GetComponent<CharacterClassManager>().UserId + " Response from API: " + text3);
-                    Player.characterClassManager.TargetConsolePrint(Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM You have been authed by the CedMod: " + authtype, "green");
+                    
                     if (text3 == "0")
                     {
                         Initializer.logger.Debug("BANSYSTEM", "User is not banned");
@@ -530,7 +531,7 @@ namespace CedMod
         private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors error)
         {
             // If the certificate is a valid, signed certificate, return true.
-            if (error == System.Net.Security.SslPolicyErrors.None)
+            if (error == SslPolicyErrors.None)
             {
                 return true;
             }
