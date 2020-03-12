@@ -444,7 +444,7 @@ namespace CedMod
             {
                 if (bc)
                 {
-                    Map.Broadcast(player.GetComponent<NicknameSync>().MyNick + "Has been banned from the server", 9, false);
+                    Map.Broadcast(player.GetComponent<NicknameSync>().MyNick + " Has been banned from the server", 9, false);
                 }
                 try
                 {
