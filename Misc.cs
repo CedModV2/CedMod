@@ -19,7 +19,6 @@ namespace CedMod
         }
         public void OnDoorAccess(ref DoorInteractionEvent ev) 
         {
-            Initializer.logger.Warn("TEST", ev.Door.name);
                 foreach (Door d in array2)
                 {
                 float y = d.transform.position.y;
