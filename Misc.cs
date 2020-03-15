@@ -24,7 +24,6 @@ namespace CedMod
                 float y = d.transform.position.y;
                 if (d.name.StartsWith("PrisonDoor") && ev.Door.name.StartsWith("PrisonDoor"))
                     {
-                    Initializer.logger.Warn("TEST", d.DoorName + "doorname:" + d.name + "evname:" + ev.Door.name + "doorname:" + ev.Door.DoorName);
                         if (GameCore.ConfigFile.ServerConfig.GetBool("cm_dclassdooropen", false) && !opened)
                         {
                             if (!d.isOpen)
