@@ -124,6 +124,7 @@ namespace CedMod
                     switch (Command[1].ToUpper())
                     {
                         case "ALL":
+                            EXILED.Extensions.Cassie.CassieMessage("xmas_bouncyballs", false, false);
                             foreach (GameObject player in PlayerManager.players)
                             {
                                 CharacterClassManager component = player.GetComponent<CharacterClassManager>();
@@ -136,6 +137,7 @@ namespace CedMod
                             break;
                         case "SPEC":
                         default:
+                            EXILED.Extensions.Cassie.CassieMessage("xmas_bouncyballs", false, false);
                             foreach (GameObject player in PlayerManager.players)
                             {
                                 CharacterClassManager component = player.GetComponent<CharacterClassManager>();
@@ -150,7 +152,29 @@ namespace CedMod
                             }
                             break;
                     }
-                   break;
+                    break;
+                case "NICK":
+                    ev.Allow = false;
+                    if (!CheckPermissions(ev.Sender, Command[0], PlayerPermissions.PlayersManagement, "", true))
+                    {
+                        ev.Sender.RaReply(Command[0].ToUpper() + "#No perms to change nick.", false, true, "");
+                        break;
+                    }
+                    if (Command[1] == "")
+                    {
+                        ev.Sender.RaReply(Command[0].ToUpper() + "No you cant set your nickname to nothing", false, true, "");
+                        break;
+                    }
+                    foreach (ReferenceHub hub in Player.GetHubs())
+                    {
+                        if (hub.nicknameSync.MyNick == ev.Sender.Nickname)
+                        {
+                            hub.nicknameSync.MyNick = Command[1];
+                            hub.name = Command[1];
+                            hub.nicknameSync.Network_myNickSync = Command[1];
+                        }
+                    }
+                    break;
             }
         }
         public bool IsEnabled = false;

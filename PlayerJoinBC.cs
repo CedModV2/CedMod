@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EXILED;
+using EXILED.Extensions;
 using Grenades;
 using System.Net;
 using MEC;
@@ -18,18 +19,17 @@ namespace CedMod
         public PlayerJoinBC(Plugin plugin) => this.plugin = plugin;
         public void OnPlayerJoin(PlayerJoinEvent ev)
         {
-            CharacterClassManager component = ev.Player.characterClassManager;
-            if (!component.isLocalPlayer)
+            if (!ev.Player.characterClassManager.isLocalPlayer)
             {
                 Initializer.logger.Info("PlayerJoin", string.Concat(new string[]
                 {
                         "Player joined: ",
-                        component.GetComponent<NicknameSync>().MyNick,
+                        ev.Player.nicknameSync.MyNick,
                         " ",
-                        component.GetComponent<CharacterClassManager>().UserId,
+                        ev.Player.characterClassManager.UserId,
                         Environment.NewLine,
                         "from IP: ",
-                        component.GetComponent<CharacterClassManager>().RequestIp
+                        ev.Player.characterClassManager.RequestIp
                    }));
                 if (GameCore.ConfigFile.ServerConfig.GetBool("cm_playerjoinbcenable", true))
                 {
@@ -61,8 +61,8 @@ namespace CedMod
                         text2 = text2.Replace("$curPlayerCount", (Convert.ToInt16(PlayerManager.players.Max())).ToString());
                         Initializer.logger.Debug("PlayerJoin", "Broadcasted message: " + text2);
                         Initializer.logger.Debug("PlayerJoin", "With Duration: " + time.ToString());
-                        Initializer.logger.Debug("PlayerJoin", "To player: " + component.GetComponent<NicknameSync>().MyNick);
-                        RemoteAdmin.QueryProcessor.Localplayer.GetComponent<Broadcast>().TargetAddElement(component.gameObject.GetComponent<NetworkIdentity>().connectionToClient, text2, time, GameCore.ConfigFile.ServerConfig.GetBool("cm_playerjoinbcmono", false));
+                        Initializer.logger.Debug("PlayerJoin", "To player: " + ev.Player.nicknameSync.MyNick);
+                        ev.Player.Broadcast(time, text2, GameCore.ConfigFile.ServerConfig.GetBool("cm_playerjoinbcmono", false));
                     }
                 }
             }

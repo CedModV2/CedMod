@@ -30,8 +30,8 @@ namespace CedMod
                     {
                         if (ev.Player.nicknameSync.MyNick.ToUpper().Contains(b.ToUpper()))
                         {
-                            ev.Player.nicknameSync.MyNick = ev.Player.nicknameSync.MyNick.Replace(b, "BOBBA(filtered word)");
-                            ev.Player.nicknameSync.Network_myNickSync = ev.Player.nicknameSync.Network_myNickSync.Replace(b, "BOBBA(filtered word)");
+                            ev.Player.nicknameSync.MyNick = ev.Player.nicknameSync.MyNick.Replace(b.ToUpper(), "BOBBA(filtered word)");
+                            ev.Player.nicknameSync.Network_myNickSync = ev.Player.nicknameSync.Network_myNickSync.Replace(b.ToUpper(), "BOBBA(filtered word)");
                         }
                     }
                     string Bancheck = CheckBanExpired(ev.Player);

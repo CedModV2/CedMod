@@ -111,7 +111,7 @@ namespace CedMod
                             killer.gameObject.GetComponent<NicknameSync>().MyNick,
                             " (",
                             killer.gameObject.GetComponent<CharacterClassManager>().UserId,
-                            ") </size></color>",
+                            "), " + killer.CurClass + " You were a " + victim.CurClass + " </size></color>" + Environment.NewLine,
                             "<size=35><b><color=yellow> Use this as a screenshot as evidence for a report</color></b></size>",
                             "<size=35><i><color=yellow> Note: if he continues to teamkill the server will ban him</color></i></size>"
                         })
@@ -126,7 +126,7 @@ namespace CedMod
                             if (enumerator.Current == killer.gameObject.GetComponent<CharacterClassManager>().UserId.ToString())
                             {
                                 num++;
-                                if (num >= GameCore.ConfigFile.ServerConfig.GetInt("ffa_ammountoftkbeforeban", 3))
+                                if (num >= GameCore.ConfigFile.ServerConfig.GetInt("ffa_ammountoftkbeforeban", 3) && num <= GameCore.ConfigFile.ServerConfig.GetInt("ffa_ammountoftkbeforeban", 3))
                                 {
                                     Initializer.logger.Info("FFA", string.Concat(new string[]
                                     {

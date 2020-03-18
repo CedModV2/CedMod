@@ -1,6 +1,4 @@
-﻿using CedMod.INIT;
-using EXILED;
-using System.Collections.Generic;
+﻿using EXILED;
 
 namespace CedMod
 {
@@ -17,7 +15,7 @@ namespace CedMod
             cassie = false;
             array2 = UnityEngine.Object.FindObjectsOfType<Door>();
         }
-        public void OnDoorAccess(ref DoorInteractionEvent ev) 
+        public void OnDoorAccess(ref DoorInteractionEvent ev) // dont ask me why i did this i was bored
         {
                 foreach (Door d in array2)
                 {
