@@ -25,8 +25,10 @@ namespace CedMod
                 {
                         "Player joined: ",
                         ev.Player.nicknameSync.MyNick,
-                        " ",
+                        " Userid: ",
                         ev.Player.characterClassManager.UserId,
+                        " PlayerID: ",
+                        ev.Player.GetPlayerId().ToString(),
                         Environment.NewLine,
                         "from IP: ",
                         ev.Player.characterClassManager.RequestIp
