@@ -94,6 +94,7 @@ namespace CedMod
         }
         public void OnCommand(ref RACommandEvent ev)
         {
+            ReferenceHub sender = ev.Sender.SenderId == "SERVER CONSOLE" || ev.Sender.SenderId == "GAME CONSOLE" ? PlayerManager.localPlayer.GetPlayer() : Player.GetPlayer(ev.Sender.SenderId);
             string[] Command = ev.Command.Split(new char[]
             {
                 ' '
@@ -251,6 +252,24 @@ namespace CedMod
                         }
                     }
                 }
+            }
+            if (Command[0].ToUpper() == "JAIL")
+            {
+                ev.Allow = false;
+                if (Command.Length < 2)
+                {
+                    return;
+                }
+                if (!sender.CheckPermission("at.jail"))
+                {
+                    return;
+                }
+                var array = Command.Where(a => a != Command[0]);
+                string filter = null;
+                foreach (string s in array)
+                    filter += s;
+                ReferenceHub target = Player.GetPlayer(filter);
+                ev.Sender.RAMessage(GetPriors(target).ToString(), true, "CedModV2");
             }
         }
         string GEOString = "";

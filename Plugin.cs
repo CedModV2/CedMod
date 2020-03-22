@@ -44,6 +44,7 @@ namespace CedMod
                 Misc = new Misc(this);
                 Events.DoorInteractEvent += Misc.OnDoorAccess;
                 Events.RoundStartEvent += Misc.OnRoundStart;
+                Events.RoundEndEvent += Misc.OnRoundEnd;
                 Log.Info($"CedMod has loaded. c:");
             }
             catch (Exception e)
