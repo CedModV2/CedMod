@@ -38,6 +38,7 @@ namespace CedMod
                 FFAEvents = new FriendlyFireAutoBan(this);
                 Events.RoundStartEvent += FFAEvents.OnRoundStart;
                 Events.PlayerDeathEvent += FFAEvents.Ondeath;
+                Events.ConsoleCommandEvent += FFAEvents.ConsoleCommand;
                 Commands = new Commands(this);
                 Events.RemoteAdminCommandEvent += Commands.OnCommand;
                 Events.RoundEndEvent += Commands.OnRoundEnd;
@@ -62,6 +63,7 @@ namespace CedMod
             Events.RoundStartEvent -= FFAEvents.OnRoundStart;
             Events.RemoteAdminCommandEvent -= Commands.OnCommand;
             Events.RoundEndEvent -= Commands.OnRoundEnd;
+            Events.ConsoleCommandEvent -= FFAEvents.ConsoleCommand;
             BanSystemEvents = null;
             PlayerJoinBCEvents = null;
             FFAEvents = null;
