@@ -12,6 +12,7 @@ namespace CedMod
         public FriendlyFireAutoBan FFAEvents;
         public Commands Commands;
         public Misc Misc;
+        public PlayerStatistics PlayerStats;
 
         public override void OnEnable()
         {
@@ -46,6 +47,9 @@ namespace CedMod
                 Events.DoorInteractEvent += Misc.OnDoorAccess;
                 Events.RoundStartEvent += Misc.OnRoundStart;
                 Events.RoundEndEvent += Misc.OnRoundEnd;
+                PlayerStats = new PlayerStatistics(this);
+                Events.RoundEndEvent += PlayerStats.OnRoundEnd;
+                Events.PlayerDeathEvent += PlayerStats.OnPlayerDeath;
                 Log.Info($"CedMod has loaded. c:");
             }
             catch (Exception e)
@@ -64,10 +68,14 @@ namespace CedMod
             Events.RemoteAdminCommandEvent -= Commands.OnCommand;
             Events.RoundEndEvent -= Commands.OnRoundEnd;
             Events.ConsoleCommandEvent -= FFAEvents.ConsoleCommand;
+            Events.RoundEndEvent -= PlayerStats.OnRoundEnd;
+            Events.PlayerDeathEvent -= PlayerStats.OnPlayerDeath;
             BanSystemEvents = null;
             PlayerJoinBCEvents = null;
             FFAEvents = null;
             Commands = null;
+            PlayerStats = null;
+
         }
 
         public override void OnReload()
