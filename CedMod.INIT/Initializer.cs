@@ -59,14 +59,14 @@ namespace CedMod.INIT
                         {
                             if (!FileManager.FileExists(Application.dataPath + "../../CedMod[CEDMOD-UPDATER-V" + text + "].dll"))
                             {
-                                Uri address = new Uri("https://api.cedmod.nl/api/scripts/cedmod/CedMod.dll");
-                                Uri address2 = new Uri("https://api.cedmod.nl/api/scripts/cedmod/changelog.txt");
-                                Uri address3 = new Uri("https://api.cedmod.nl/api/scripts/cedmod/Assembly-Csharp.dll");
-                                webClient2.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
-                                webClient2.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
-                                webClient2.DownloadFile(address, Application.dataPath + "../../CedMod[CEDMOD-UPDATER-V" + text + "].dll");
-                                webClient2.DownloadFile(address2, Application.dataPath + "../../changelog[CEDMOD-UPDATER-V" + text + "].txt");
-                                webClient2.DownloadFile(address2, Application.dataPath + "../../Assembly-Csharp[CEDMOD-UPDATER-V" + text + "].dll");
+                                //Uri address = new Uri("https://api.cedmod.nl/api/scripts/cedmod/CedMod.dll");
+                                //Uri address2 = new Uri("https://api.cedmod.nl/api/scripts/cedmod/changelog.txt");
+                                //Uri address3 = new Uri("https://api.cedmod.nl/api/scripts/cedmod/Assembly-Csharp.dll");
+                                //webClient2.Credentials = new NetworkCredential(GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"), GameCore.ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
+                                //webClient2.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
+                                //webClient2.DownloadFile(address, Application.dataPath + "../../CedMod[CEDMOD-UPDATER-V" + text + "].dll");
+                                //webClient2.DownloadFile(address2, Application.dataPath + "../../changelog[CEDMOD-UPDATER-V" + text + "].txt");
+                                //webClient2.DownloadFile(address2, Application.dataPath + "../../Assembly-Csharp[CEDMOD-UPDATER-V" + text + "].dll");
                                 Initializer.logger.Info("INIT", "New version " + text + " Download complete changelog, CedMod.dll and assembly will appear in the folder where LocalAdmin is located shortly");
                             }
                             return;

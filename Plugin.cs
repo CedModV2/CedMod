@@ -11,7 +11,6 @@ namespace CedMod
         public PlayerJoinBC PlayerJoinBCEvents;
         public FriendlyFireAutoBan FFAEvents;
         public Commands Commands;
-        public Misc Misc;
         public PlayerStatistics PlayerStats;
 
         public override void OnEnable()
@@ -43,10 +42,6 @@ namespace CedMod
                 Commands = new Commands(this);
                 Events.RemoteAdminCommandEvent += Commands.OnCommand;
                 Events.RoundEndEvent += Commands.OnRoundEnd;
-                Misc = new Misc(this);
-                Events.DoorInteractEvent += Misc.OnDoorAccess;
-                Events.RoundStartEvent += Misc.OnRoundStart;
-                Events.RoundEndEvent += Misc.OnRoundEnd;
                 PlayerStats = new PlayerStatistics(this);
                 Events.RoundEndEvent += PlayerStats.OnRoundEnd;
                 Events.PlayerDeathEvent += PlayerStats.OnPlayerDeath;

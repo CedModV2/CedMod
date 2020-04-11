@@ -33,8 +33,8 @@ namespace CedMod
                     {
                         if (ev.Player.nicknameSync.MyNick.ToUpper().Contains(b.ToUpper()))
                         {
-                            ev.Player.nicknameSync.MyNick = ev.Player.nicknameSync.MyNick.Replace(b.ToUpper(), "BOBBA(filtered word)");
-                            ev.Player.nicknameSync.Network_myNickSync = ev.Player.nicknameSync.Network_myNickSync.Replace(b.ToUpper(), "BOBBA(filtered word)");
+                            ev.Player.nicknameSync.MyNick = ev.Player.nicknameSync.MyNick.Replace(b.ToUpper(), "");
+                            ev.Player.nicknameSync.Network_myNickSync = ev.Player.nicknameSync.Network_myNickSync.Replace(b.ToUpper(), "");
                         }
                     }
                     string Bancheck = CheckBanExpired(ev.Player);
@@ -87,7 +87,7 @@ namespace CedMod
                             }
                         }
                     }
-                    string authtype = testusers.Contains(ev.Player.characterClassManager.UserId) ? "Test API" : "Production API";
+                    string authtype = testusers.Contains(ev.Player.characterClassManager.UserId) ? "Test API" : "Main API";
                     ev.Player.characterClassManager.TargetConsolePrint(ev.Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM You have been authed by the CedMod: " + authtype, "green");
                 }
             }

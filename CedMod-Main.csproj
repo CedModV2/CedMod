@@ -166,7 +166,6 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="FriendlyFireAutoBan.cs" />
     <Compile Include="PlayerStats.cs" />
-    <Compile Include="Misc.cs" />
     <Compile Include="PlayerJoinBC.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
