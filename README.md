@@ -1,2 +1,2 @@
 # CedMod
-Le CedMod Discord.
+Le CedMod plugin
