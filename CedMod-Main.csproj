@@ -44,13 +44,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\Assembly-CSharp.dll</HintPath>
-    </Reference>
     <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp_publicized">
+      <HintPath>References\Assembly-CSharp_publicized.dll</HintPath>
     </Reference>
     <Reference Include="BouncyCastle.Crypto, Version=1.8.5.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
       <SpecificVersion>False</SpecificVersion>
@@ -163,7 +162,7 @@
     <Compile Include="CedMod.Logging\Logger.cs" />
     <Compile Include="BanSystem.cs" />
     <Compile Include="Commands.cs" />
-    <Compile Include="Extensions.cs" />
+    <Compile Include="Functions.cs" />
     <Compile Include="FriendlyFireAutoBan.cs" />
     <Compile Include="PlayerStats.cs" />
     <Compile Include="PlayerJoinBC.cs" />

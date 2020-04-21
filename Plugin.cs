@@ -12,6 +12,7 @@ namespace CedMod
         public FriendlyFireAutoBan FFAEvents;
         public Commands Commands;
         public PlayerStatistics PlayerStats;
+        public FunctionsNonStatic FunctionsNonStatic;
 
         public override void OnEnable()
         {
@@ -45,6 +46,8 @@ namespace CedMod
                 PlayerStats = new PlayerStatistics(this);
                 Events.RoundEndEvent += PlayerStats.OnRoundEnd;
                 Events.PlayerDeathEvent += PlayerStats.OnPlayerDeath;
+                FunctionsNonStatic = new FunctionsNonStatic(this);
+                Events.RoundRestartEvent += FunctionsNonStatic.Roundrestart;
                 Log.Info($"CedMod has loaded. c:");
             }
             catch (Exception e)
@@ -65,11 +68,13 @@ namespace CedMod
             Events.ConsoleCommandEvent -= FFAEvents.ConsoleCommand;
             Events.RoundEndEvent -= PlayerStats.OnRoundEnd;
             Events.PlayerDeathEvent -= PlayerStats.OnPlayerDeath;
+            Events.RoundRestartEvent -= FunctionsNonStatic.Roundrestart;
             BanSystemEvents = null;
             PlayerJoinBCEvents = null;
             FFAEvents = null;
             Commands = null;
             PlayerStats = null;
+            FunctionsNonStatic = null;
 
         }
 

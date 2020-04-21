@@ -121,6 +121,11 @@ namespace CedMod
                         ev.Sender.RaReply(Command[0].ToUpper() + "#No perms to Stuiter bro.", false, true, "");
                         break;
                     }
+                    if (Command.Length < 2)
+                    {
+                        ev.Sender.RaReply(Command[0].ToUpper() + "#Usage: stuiter [spec|all]", false, true, "");
+                        break;
+                    }
                     switch (Command[1].ToUpper())
                     {
                         case "ALL":
@@ -152,6 +157,21 @@ namespace CedMod
                             }
                             break;
                     }
+                    break;
+                case "AIRSTRIKE":
+                    ev.Allow = false;
+                    if (!CheckPermissions(ev.Sender, Command[0], PlayerPermissions.FacilityManagement, "", true))
+                    {
+                        ev.Sender.RaReply(Command[0].ToUpper() + "#No perms to airbomb bro.", false, true, "");
+                        break;
+                    }
+                    if (Command.Length < 3)
+                    {
+                        ev.Sender.RaReply(Command[0].ToUpper() + "#Usage: AIRSTRIKE <delay> <duration>", false, true, "");
+                        break;
+                    }
+                    Timing.RunCoroutine(Functions.Coroutines.AirSupportBomb(Convert.ToInt16(Command[1]), Convert.ToInt16(Command[2])), "airstrike");
+                    ev.Sender.RaReply(Command[0].ToUpper() + "#Done", true, true, "");
                     break;
             }
         }
