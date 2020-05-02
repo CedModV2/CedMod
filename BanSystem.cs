@@ -12,6 +12,7 @@ using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 
@@ -25,8 +26,14 @@ namespace CedMod
         public bool LastAPIRequestSuccessfull = false;
         public Plugin plugin;
         public BanSystem(Plugin plugin) => this.plugin = plugin;
-        public void OnPlayerJoin(PlayerJoinEvent ev)
+        public void OnPlayerJoinThread(PlayerJoinEvent ev)
         {
+            Thread.CurrentThread.Name = "CedModV3 queue worker";
+            INIT.Initializer.logger.Debug("BANSYSTEM1", Thread.CurrentThread.Name.ToString());
+            if (ev.Player.GetUserId().Contains("@northwood"))
+            {
+                return;
+            }
             if (!ev.Player.gameObject.GetComponent<ServerRoles>().BypassStaff)
             {
                 if (!ev.Player.characterClassManager.isLocalPlayer)
@@ -49,7 +56,7 @@ namespace CedMod
                         {
                             ReferenceHub rh = o.GetComponent<ReferenceHub>();
                             if (rh.serverRoles.RemoteAdmin)
-                            { 
+                            {
                                 rh.Broadcast(10u, "WARNING Player: " + ev.Player.nicknameSync.MyNick + " " + ev.Player.characterClassManager.UserId + " has been recently been unbanned due to ban expiery", false);
                             }
                         }
@@ -96,6 +103,10 @@ namespace CedMod
                     ev.Player.characterClassManager.TargetConsolePrint(ev.Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM You have been authed by the CedMod: " + authtype, "green");
                 }
             }
+        }
+        public void OnPlayerJoin(PlayerJoinEvent ev)
+        {
+            Task.Factory.StartNew(() => { OnPlayerJoinThread(ev); });
         }
         public void OnCommand(ref RACommandEvent ev)
         {
@@ -148,17 +159,18 @@ namespace CedMod
                 }), ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging);
                 foreach (GameObject gameObject in PlayerManager.players)
                 {
-                    if (Convert.ToInt16(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId)
+                    if (Convert.ToInt64(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId)
                     {
                         if (!gameObject.GetComponent<ServerRoles>().BypassStaff)
                         {
-                            if (Convert.ToInt16(Command[2]) >= 1)
+                            if (Convert.ToInt64(Command[2]) >= 1)
                             {
-                                Ban(gameObject, Convert.ToInt16(Command[2]), ev.Sender.Nickname, text17);
+                                string sender1 = ev.Sender.Nickname;
+                                Task.Factory.StartNew(() => { Ban(gameObject, Convert.ToInt64(Command[2]), sender1, text17); });
                             }
                             else
                             {
-                                if (!string.IsNullOrEmpty(text17) && Convert.ToInt16(Command[2]) <= 0)
+                                if (!string.IsNullOrEmpty(text17) && Convert.ToInt32(Command[2]) <= 0)
                                 {
                                     string text3;
                                     text3 = " Reason: " + text17;
@@ -186,7 +198,7 @@ namespace CedMod
                 }
                 foreach (GameObject gameObject in PlayerManager.players)
                 {
-                    if (Convert.ToInt16(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId)
+                    if (Convert.ToInt64(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId)
                     {
                         ev.Sender.RaReply(Command[0].ToUpper() + "#" + GetPriors(gameObject.GetComponent<ReferenceHub>()).ToString(), true, true, "");
                     }
@@ -202,7 +214,7 @@ namespace CedMod
                 }
                 foreach (GameObject gameObject in PlayerManager.players)
                 {
-                    if (Convert.ToInt16(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId)
+                    if (Convert.ToInt64(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId)
                     {
                         ev.Sender.RaReply(Command[0].ToUpper() + "#" + GetTotalBans(gameObject.GetComponent<ReferenceHub>()), true, true, "");
                     }
@@ -218,7 +230,7 @@ namespace CedMod
                 }
                 foreach (GameObject gameObject in PlayerManager.players)
                 {
-                    if (Convert.ToInt16(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId && !testusers.Contains(gameObject.GetComponent<CharacterClassManager>().UserId))
+                    if (Convert.ToInt64(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId && !testusers.Contains(gameObject.GetComponent<CharacterClassManager>().UserId))
                     {
                         testusers.Add(gameObject.GetComponent<CharacterClassManager>().UserId);
                         ev.Sender.RaReply(Command[0].ToUpper() + "#Done", true, true, "");
@@ -243,7 +255,7 @@ namespace CedMod
                 }
                 foreach (GameObject gameObject in PlayerManager.players)
                 {
-                    if (Convert.ToInt16(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId && testusers.Contains(gameObject.GetComponent<CharacterClassManager>().UserId))
+                    if (Convert.ToInt64(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId && testusers.Contains(gameObject.GetComponent<CharacterClassManager>().UserId))
                     {
                         testusers.Remove(gameObject.GetComponent<CharacterClassManager>().UserId);
                         ev.Sender.RaReply(Command[0].ToUpper() + "#Done", true, true, "");
@@ -332,6 +344,7 @@ namespace CedMod
         {
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            INIT.Initializer.logger.Debug("BANSYSTEM1", Thread.CurrentThread.Name.ToString());
             try
             {
                 using (WebClient webClient = new WebClient())
@@ -461,8 +474,10 @@ namespace CedMod
                 return null;
             }
         }
-        public static void Ban(GameObject player, int duration, string sender, string reason, bool bc = true)
+        public static void Ban(GameObject player, long duration, string sender, string reason, bool bc = true)
         {
+            Thread.CurrentThread.Name = "CedModV3 queue worker";
+            INIT.Initializer.logger.Debug("BANSYSTEM4", Thread.CurrentThread.Name.ToString());
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             if (duration >= 1)
@@ -510,8 +525,8 @@ namespace CedMod
                          " duration: ",
                          duration
                         }));
+                        Log.Info("BANSYSTEM: Response from ban API: " + text);
                         var JSONObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(text);
-                        Log.Info("BANSYSTEM: Response from ban API: " + JSONObj["preformattedmessage"]);
                         ServerConsole.Disconnect(player, JSONObj["preformattedmessage"]);
                     }
                 }

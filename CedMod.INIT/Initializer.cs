@@ -27,10 +27,10 @@ namespace CedMod.INIT
 
         public static string GetCedModVersion()
         {
-            int num = 2;
+            int num = 3;
             int num2 = 0;
-            int num3 = 4;
-            string text = "R";
+            int num3 = 1;
+            string text = "B-Lag Test";
             return string.Format("{0}.{1}.{2}-{3}", new object[]
             {
                 num,

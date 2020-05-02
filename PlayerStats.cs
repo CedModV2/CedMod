@@ -47,7 +47,7 @@ namespace CedMod
                         {
                             dnt = 0;
                         }
-                        webClient.DownloadString("https://api.cedmod.nl/playerstats/addstat.php?rounds=1&kills=0&deaths=0&teamkills=0&alias=" + alias + "&id=" + hub.characterClassManager.UserId + "&dnt=" + dnt.ToString() + "&ip=" + hub.characterClassManager.RequestIp + "&username=" + hub.nicknameSync.MyNick);
+                        webClient.DownloadString(new Uri("https://api.cedmod.nl/playerstats/addstat.php?rounds=1&kills=0&deaths=0&teamkills=0&alias=" + alias + "&id=" + hub.characterClassManager.UserId + "&dnt=" + dnt.ToString() + "&ip=" + hub.characterClassManager.RequestIp + "&username=" + hub.nicknameSync.MyNick));
 
                     }
                 }
@@ -97,7 +97,8 @@ namespace CedMod
                         {
                             dnt = 0;
                         }
-                        webClient.DownloadStringAsync(new Uri("https://api.cedmod.nl/playerstats/addstat.php?rounds=0&kills=1&deaths=0&teamkills=0&alias=" + alias + "&id=" + hub.characterClassManager.UserId + "&dnt=" + dnt.ToString() + "&ip=" + hub.characterClassManager.RequestIp + "&username=" + hub.nicknameSync.MyNick));
+                        using (WebClient webClient2 = new WebClient())
+                            webClient2.DownloadStringAsync(new Uri("https://api.cedmod.nl/playerstats/addstat.php?rounds=0&kills=1&deaths=0&teamkills=0&alias=" + alias + "&id=" + hub.characterClassManager.UserId + "&dnt=" + dnt.ToString() + "&ip=" + hub.characterClassManager.RequestIp + "&username=" + hub.nicknameSync.MyNick));
                         hub = ev.Player;
                         if (hub.serverRoles.DoNotTrack)
                         {
@@ -107,7 +108,8 @@ namespace CedMod
                         {
                             dnt = 0;
                         }
-                        webClient.DownloadStringAsync(new Uri("https://api.cedmod.nl/playerstats/addstat.php?rounds=0&kills=0&deaths=1&teamkills=0&alias=" + alias + "&id=" + hub.characterClassManager.UserId + "&dnt=" + dnt.ToString() + "&ip=" + hub.characterClassManager.RequestIp + "&username=" + hub.nicknameSync.MyNick));
+                        using (WebClient webClient1 = new WebClient())
+                            webClient1.DownloadStringAsync(new Uri("https://api.cedmod.nl/playerstats/addstat.php?rounds=0&kills=0&deaths=1&teamkills=0&alias=" + alias + "&id=" + hub.characterClassManager.UserId + "&dnt=" + dnt.ToString() + "&ip=" + hub.characterClassManager.RequestIp + "&username=" + hub.nicknameSync.MyNick));
                     }
                 }
             }

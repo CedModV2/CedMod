@@ -170,7 +170,7 @@ namespace CedMod
                         ev.Sender.RaReply(Command[0].ToUpper() + "#Usage: AIRSTRIKE <delay> <duration>", false, true, "");
                         break;
                     }
-                    Timing.RunCoroutine(Functions.Coroutines.AirSupportBomb(Convert.ToInt16(Command[1]), Convert.ToInt16(Command[2])), "airstrike");
+                    Timing.RunCoroutine(Functions.Coroutines.AirSupportBomb(Convert.ToInt32(Command[1]), Convert.ToInt32(Command[2])), "airstrike");
                     ev.Sender.RaReply(Command[0].ToUpper() + "#Done", true, true, "");
                     break;
             }

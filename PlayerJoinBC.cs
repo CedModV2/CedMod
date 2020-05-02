@@ -60,7 +60,7 @@ namespace CedMod
                         {
                             text2 = text2.Replace("$B[" + text6 + "]", GameCore.ConfigFile.ServerConfig.GetBool(text6, false).ToString() ?? "");
                         }
-                        text2 = text2.Replace("$curPlayerCount", (Convert.ToInt16(PlayerManager.players.Max())).ToString());
+                        text2 = text2.Replace("$curPlayerCount", (Convert.ToInt64(PlayerManager.players.Max())).ToString());
                         Initializer.logger.Debug("PlayerJoin", "Broadcasted message: " + text2);
                         Initializer.logger.Debug("PlayerJoin", "With Duration: " + time.ToString());
                         Initializer.logger.Debug("PlayerJoin", "To player: " + ev.Player.nicknameSync.MyNick);
