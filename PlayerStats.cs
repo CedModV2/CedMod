@@ -11,6 +11,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace CedMod
@@ -20,9 +22,18 @@ namespace CedMod
         public List<CoroutineHandle> Coroutines = new List<CoroutineHandle>();
         public Plugin plugin;
         public PlayerStatistics(Plugin plugin) => this.plugin = plugin;
-        
+        public void OnPlayerDeath(ref PlayerDeathEvent ev)
+        {
+            PlayerDeathEvent ev1 = ev;
+            Task.Factory.StartNew(() => { OnPlayerDeathThread(ev1); });
+        }
         public void OnRoundEnd()
         {
+            Task.Factory.StartNew(() => { OnRoundEndThread(); });
+        }
+        public void OnRoundEndThread()
+        {
+            Thread.CurrentThread.Name = "CedModV3 queue worker";
             foreach (ReferenceHub hub in Player.GetHubs())
             {
                 using (WebClient webClient = new WebClient())
@@ -53,7 +64,7 @@ namespace CedMod
                 }
             }
         }
-        public void OnPlayerDeath(ref PlayerDeathEvent ev)
+        public void OnPlayerDeathThread(PlayerDeathEvent ev)
         {
             if (RoundSummary.RoundInProgress() && ev.Killer != ev.Player)
             {
