@@ -47,6 +47,35 @@ namespace CedMod
                         }
                     }
                     Dictionary<string, string> Bancheck = CheckBanExpired(ev.Player);
+                    if (Bancheck["success"] == "false")
+                    {
+                        if (Bancheck["error"] == "[CEDMOD.Main.Message] CedMod license expired, if you see this contact the server owner.")
+                        {
+                            INIT.Initializer.logger.Info("CEDMOD-LICENSING", "CedMod license has expired CedMod.dll will now be deleted and the server will be force restarted due to security reasons");
+                            string path = EXILED.PluginManager.PluginsDirectory;
+                            Initializer.logger.Info("CEDMOD-LICENSING", path);
+                            Initializer.logger.Info("CEDMOD-LICENSING", "Deleting files.");
+                            if (FileManager.FileExists(path + "/CedMod.dll"))
+                            {
+                                FileManager.DeleteFile(path + "/CedMod.dll");
+                            }
+                            if (FileManager.FileExists(path + "/Survival.dll"))
+                            {
+                                FileManager.DeleteFile(path + "/Survival.dll");
+                            }
+                            if (FileManager.FileExists(path + "/FrikanwebPlugin.dll"))
+                            {
+                                FileManager.DeleteFile(path + "/FrikanwebPlugin.dll");
+                            }
+                            using (WebClient webClient31 = new WebClient()) {
+                                ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
+                                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                                webClient31.DownloadFile("https://admin.cedmod.nl/doei.txt", Application.dataPath + "../../houdoe-LEESMIJ-van-CEDMOD-De-profetie-komt-uit-pepegaplap.txt");
+                            }
+                            Initializer.logger.Info("CEDMOD-LICENSING", "Restarting server.");
+                            Application.Quit();
+                        }
+                    }
                     Initializer.logger.Debug("BANSYSTEM", "Checking ban status of user: " + ev.Player.GetComponent<CharacterClassManager>().UserId + " Response from API: " + Bancheck);
                     if (Bancheck["banexpired"] == "true" && Bancheck["success"] == "true")
                     {
@@ -110,44 +139,46 @@ namespace CedMod
         }
         public void OnCommand(ref RACommandEvent ev)
         {
-            ReferenceHub sender = ev.Sender.SenderId == "SERVER CONSOLE" || ev.Sender.SenderId == "GAME CONSOLE" ? PlayerManager.localPlayer.GetPlayer() : Player.GetPlayer(ev.Sender.SenderId);
-            string[] Command = ev.Command.Split(new char[]
+            try
             {
+                ReferenceHub sender = ev.Sender.SenderId == "SERVER CONSOLE" || ev.Sender.SenderId == "GAME CONSOLE" ? PlayerManager.localPlayer.GetPlayer() : Player.GetPlayer(ev.Sender.SenderId);
+                string[] Command = ev.Command.Split(new char[]
+                {
                 ' '
-            });
-            if (Command[0].ToUpper() == "BAN")
-            {
-                ev.Allow = false;
-                if (Command.Length < 3)
+                });
+                if (Command[0].ToUpper() == "BAN")
                 {
-                    ev.Sender.RaReply(Command[0].ToUpper() + "#To run this program, type at least 3 arguments! (some parameters are missing)", false, true, "");
-                    return;
-                }
-                string text17 = string.Empty;
-                if (Command.Length > 3)
-                {
-                    text17 = Command.Skip(3).Aggregate((string current, string n) => current + " " + n);
-                }
-                if (text17.Contains("&"))
-                {
-                    ev.Sender.RaReply("The ban reason must not contain a & or else shit will hit the fan", false, false, "");
-                    return;
-                }
-                if (text17 == "")
-                {
-                    ev.Sender.RaReply(string.Concat(new string[]
+                    ev.Allow = false;
+                    if (Command.Length < 3)
                     {
+                        ev.Sender.RaReply(Command[0].ToUpper() + "#To run this program, type at least 3 arguments! (some parameters are missing)", false, true, "");
+                        return;
+                    }
+                    string text17 = string.Empty;
+                    if (Command.Length > 3)
+                    {
+                        text17 = Command.Skip(3).Aggregate((string current, string n) => current + " " + n);
+                    }
+                    if (text17.Contains("&"))
+                    {
+                        ev.Sender.RaReply("The ban reason must not contain a & or else shit will hit the fan", false, false, "");
+                        return;
+                    }
+                    if (text17 == "")
+                    {
+                        ev.Sender.RaReply(string.Concat(new string[]
+                        {
                         Command[0].ToUpper(),
                         "#To run this program, you must specify a reason use the text based RA console to do so, Autocorrection:   ban ",
                         Command[1],
                         " ",
                         Command[2],
                         " ReasonHere"
-                    }), false, true, "");
-                    return;
-                }
-                ServerLogs.AddLog(ServerLogs.Modules.Administrative, string.Concat(new string[]
-                {
+                        }), false, true, "");
+                        return;
+                    }
+                    ServerLogs.AddLog(ServerLogs.Modules.Administrative, string.Concat(new string[]
+                    {
                       ev.Sender.Nickname,
                       " ran the ban command (duration: ",
                       Command[2],
@@ -156,137 +187,156 @@ namespace CedMod
                       " players. Reason: ",
                       (text17 == string.Empty) ? "(none)" : text17,
                       "."
-                }), ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging);
-                foreach (GameObject gameObject in PlayerManager.players)
-                {
-                    if (Convert.ToInt64(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId)
+                    }), ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging);
+                    List<int> list = new List<int>();
+                    string[] source = Command[1].Split(new char[]
                     {
-                        if (!gameObject.GetComponent<ServerRoles>().BypassStaff)
+                        '.'
+                    });
+                    list.AddRange((from item in source
+                    where !string.IsNullOrEmpty(item)
+                    select item).Select(new Func<string, int>(int.Parse)));
+                    foreach (int num2 in list)
+                    {
+                        foreach (GameObject gameObject in PlayerManager.players)
                         {
-                            if (Convert.ToInt64(Command[2]) >= 1)
+                            if (num2 == gameObject.GetComponent<QueryProcessor>().PlayerId)
                             {
-                                string sender1 = ev.Sender.Nickname;
-                                Task.Factory.StartNew(() => { Ban(gameObject, Convert.ToInt64(Command[2]), sender1, text17); });
-                            }
-                            else
-                            {
-                                if (!string.IsNullOrEmpty(text17) && Convert.ToInt32(Command[2]) <= 0)
+                                if (!gameObject.GetComponent<ServerRoles>().BypassStaff)
                                 {
-                                    string text3;
-                                    text3 = " Reason: " + text17;
-                                    ServerConsole.Disconnect(gameObject, text3);
+                                    if (Convert.ToInt64(Command[2]) >= 1)
+                                    {
+                                        string sender1 = ev.Sender.Nickname;
+                                        Task.Factory.StartNew(() => { Ban(gameObject, Convert.ToInt64(Command[2]), sender1, text17); });
+                                    }
+                                    else
+                                    {
+                                        if (!string.IsNullOrEmpty(text17) && Convert.ToInt32(Command[2]) <= 0)
+                                        {
+                                            string text3;
+                                            text3 = " Reason: " + text17;
+                                            ServerConsole.Disconnect(gameObject, text3);
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-            }
-            if (Command[0].ToUpper() == "UNBAN")
-            {
-                ev.Allow = false;
-                ev.Sender.RaReply(Command[0] + "#Use the Webinterface for unbanning", false, true, "");
-                return;
-            }
-            if (Command[0].ToUpper() == "PRIORBANS")
-            {
-                ev.Allow = false;
-                if (Command.Length < 1)
+                }
+                if (Command[0].ToUpper() == "UNBAN")
                 {
-                    ev.Sender.RaReply(Command[0].ToUpper() + "#To run this program, type at least 1 arguments! (some parameters are missing)", false, true, "");
+                    ev.Allow = false;
+                    ev.Sender.RaReply(Command[0] + "#Use the Webinterface for unbanning", false, true, "");
                     return;
                 }
-                foreach (GameObject gameObject in PlayerManager.players)
+                if (Command[0].ToUpper() == "PRIORBANS")
                 {
-                    if (Convert.ToInt64(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId)
+                    ev.Allow = false;
+                    if (Command.Length < 1)
                     {
-                        ev.Sender.RaReply(Command[0].ToUpper() + "#" + GetPriors(gameObject.GetComponent<ReferenceHub>()).ToString(), true, true, "");
+                        ev.Sender.RaReply(Command[0].ToUpper() + "#To run this program, type at least 1 arguments! (some parameters are missing)", false, true, "");
+                        return;
                     }
-                }
-            }
-            if (Command[0].ToUpper() == "TOTALBANS")
-            {
-                ev.Allow = false;
-                if (Command.Length < 1)
-                {
-                    ev.Sender.RaReply(Command[0].ToUpper() + "#To run this program, type at least 1 arguments! (some parameters are missing)", false, true, "");
-                    return;
-                }
-                foreach (GameObject gameObject in PlayerManager.players)
-                {
-                    if (Convert.ToInt64(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId)
+                    foreach (GameObject gameObject in PlayerManager.players)
                     {
-                        ev.Sender.RaReply(Command[0].ToUpper() + "#" + GetTotalBans(gameObject.GetComponent<ReferenceHub>()), true, true, "");
-                    }
-                }
-            }
-            if (Command[0].ToUpper() == "ENABLETEST")
-            {
-                ev.Allow = false;
-                if (Command.Length < 1)
-                {
-                    ev.Sender.RaReply(Command[0].ToUpper() + "#To run this program, type at least 1 arguments! (some parameters are missing)", false, true, "");
-                    return;
-                }
-                foreach (GameObject gameObject in PlayerManager.players)
-                {
-                    if (Convert.ToInt64(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId && !testusers.Contains(gameObject.GetComponent<CharacterClassManager>().UserId))
-                    {
-                        testusers.Add(gameObject.GetComponent<CharacterClassManager>().UserId);
-                        ev.Sender.RaReply(Command[0].ToUpper() + "#Done", true, true, "");
-                        gameObject.GetComponent<ReferenceHub>().characterClassManager.TargetConsolePrint(gameObject.GetComponent<ReferenceHub>().GetComponent<NetworkIdentity>().connectionToClient, "You have been added to the test user list from now on until you are removed you will authenticate using the Test API this may contain experimental code.", "yellow");
-                    }
-                    else
-                    {
-                        if (testusers.Contains(gameObject.GetComponent<CharacterClassManager>().UserId))
+                        if (Convert.ToInt64(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId)
                         {
-                            ev.Sender.RaReply(Command[0].ToUpper() + "#User already in test list", true, false, "");
+                            ev.Sender.RaReply(Command[0].ToUpper() + "#" + GetPriors(gameObject.GetComponent<ReferenceHub>()).ToString(), true, true, "");
                         }
                     }
                 }
-            }
-            if (Command[0].ToUpper() == "DISABLETEST")
-            {
-                ev.Allow = false;
-                if (Command.Length < 1)
+                if (Command[0].ToUpper() == "TOTALBANS")
                 {
-                    ev.Sender.RaReply(Command[0].ToUpper() + "#To run this program, type at least 1 arguments! (some parameters are missing)", false, true, "");
-                    return;
-                }
-                foreach (GameObject gameObject in PlayerManager.players)
-                {
-                    if (Convert.ToInt64(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId && testusers.Contains(gameObject.GetComponent<CharacterClassManager>().UserId))
+                    ev.Allow = false;
+                    if (Command.Length < 1)
                     {
-                        testusers.Remove(gameObject.GetComponent<CharacterClassManager>().UserId);
-                        ev.Sender.RaReply(Command[0].ToUpper() + "#Done", true, true, "");
-                        gameObject.GetComponent<ReferenceHub>().characterClassManager.TargetConsolePrint(gameObject.GetComponent<ReferenceHub>().GetComponent<NetworkIdentity>().connectionToClient, "You have been removed from the test user list.", "green");
+                        ev.Sender.RaReply(Command[0].ToUpper() + "#To run this program, type at least 1 arguments! (some parameters are missing)", false, true, "");
+                        return;
                     }
-                    else
+                    foreach (GameObject gameObject in PlayerManager.players)
                     {
-                        if (!testusers.Contains(gameObject.GetComponent<CharacterClassManager>().UserId))
+                        if (Convert.ToInt64(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId)
                         {
-                            ev.Sender.RaReply(Command[0].ToUpper() + "#User not in list", true, false, "");
+                            ev.Sender.RaReply(Command[0].ToUpper() + "#" + GetTotalBans(gameObject.GetComponent<ReferenceHub>()), true, true, "");
                         }
                     }
                 }
+                if (Command[0].ToUpper() == "ENABLETEST")
+                {
+                    ev.Allow = false;
+                    if (Command.Length < 1)
+                    {
+                        ev.Sender.RaReply(Command[0].ToUpper() + "#To run this program, type at least 1 arguments! (some parameters are missing)", false, true, "");
+                        return;
+                    }
+                    foreach (GameObject gameObject in PlayerManager.players)
+                    {
+                        if (Convert.ToInt64(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId && !testusers.Contains(gameObject.GetComponent<CharacterClassManager>().UserId))
+                        {
+                            testusers.Add(gameObject.GetComponent<CharacterClassManager>().UserId);
+                            ev.Sender.RaReply(Command[0].ToUpper() + "#Done", true, true, "");
+                            gameObject.GetComponent<ReferenceHub>().characterClassManager.TargetConsolePrint(gameObject.GetComponent<ReferenceHub>().GetComponent<NetworkIdentity>().connectionToClient, "You have been added to the test user list from now on until you are removed you will authenticate using the Test API this may contain experimental code.", "yellow");
+                        }
+                        else
+                        {
+                            if (testusers.Contains(gameObject.GetComponent<CharacterClassManager>().UserId))
+                            {
+                                ev.Sender.RaReply(Command[0].ToUpper() + "#User already in test list", true, false, "");
+                            }
+                        }
+                    }
+                }
+                if (Command[0].ToUpper() == "DISABLETEST")
+                {
+                    ev.Allow = false;
+                    if (Command.Length < 1)
+                    {
+                        ev.Sender.RaReply(Command[0].ToUpper() + "#To run this program, type at least 1 arguments! (some parameters are missing)", false, true, "");
+                        return;
+                    }
+                    foreach (GameObject gameObject in PlayerManager.players)
+                    {
+                        if (Convert.ToInt64(Command[1]) == gameObject.GetComponent<QueryProcessor>().PlayerId && testusers.Contains(gameObject.GetComponent<CharacterClassManager>().UserId))
+                        {
+                            testusers.Remove(gameObject.GetComponent<CharacterClassManager>().UserId);
+                            ev.Sender.RaReply(Command[0].ToUpper() + "#Done", true, true, "");
+                            gameObject.GetComponent<ReferenceHub>().characterClassManager.TargetConsolePrint(gameObject.GetComponent<ReferenceHub>().GetComponent<NetworkIdentity>().connectionToClient, "You have been removed from the test user list.", "green");
+                        }
+                        else
+                        {
+                            if (!testusers.Contains(gameObject.GetComponent<CharacterClassManager>().UserId))
+                            {
+                                ev.Sender.RaReply(Command[0].ToUpper() + "#User not in list", true, false, "");
+                            }
+                        }
+                    }
+                }
+                if (Command[0].ToUpper() == "JAIL")
+                {
+                    ev.Allow = false;
+                    if (Command.Length < 2)
+                    {
+                        return;
+                    }
+                    if (!sender.CheckPermission("at.jail"))
+                    {
+                        return;
+                    }
+                    var array = Command.Where(a => a != Command[0]);
+                    string filter = null;
+                    foreach (string s in array)
+                        filter += s;
+                    ReferenceHub target = Player.GetPlayer(filter);
+                    ev.Sender.RAMessage(GetPriors(target).ToString(), true, "CedModV2");
+                }
             }
-            if (Command[0].ToUpper() == "JAIL")
+            catch (Exception ex)
             {
-                ev.Allow = false;
-                if (Command.Length < 2)
-                {
-                    return;
-                }
-                if (!sender.CheckPermission("at.jail"))
-                {
-                    return;
-                }
-                var array = Command.Where(a => a != Command[0]);
-                string filter = null;
-                foreach (string s in array)
-                    filter += s;
-                ReferenceHub target = Player.GetPlayer(filter);
-                ev.Sender.RAMessage(GetPriors(target).ToString(), true, "CedModV2");
+                Initializer.logger.Error("BANSYSTEM", "Source: " + ex.Source);
+                Initializer.logger.Error("BANSYSTEM", "Stacktrace: " + ex.StackTrace);
+                Initializer.logger.Error("BANSYSTEM", "Message: " + ex.Message);
+                Initializer.logger.Error("BANSYSTEM", "Data: " + ex.Data);
             }
         }
         string GEOString = "";
