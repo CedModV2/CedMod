@@ -371,9 +371,9 @@ namespace CedMod
                     {
                         alias.Replace(" ", "");
                     }
-                    webClient3.Headers.Add(alias, "Alias");
-                    webClient3.Headers.Add(ServerConsole.Port.ToString(), "Port");
-                    webClient3.Headers.Add(ServerConsole.Ip.ToString(), "Ip");
+                    webClient3.Headers.Add("Alias", alias);
+                    webClient3.Headers.Add("Port", ServerConsole.Port.ToString());
+                    webClient3.Headers.Add("Ip", ServerConsole.Ip.ToString());
                     var text3 = testusers.Contains(Player.characterClassManager.UserId)
                         ? webClient3.DownloadString("https://test.cedmod.nl/auth/auth.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&geo=" + GEOString)
                         : webClient3.DownloadString("https://api.cedmod.nl/auth/auth.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&geo=" + GEOString);
@@ -406,9 +406,9 @@ namespace CedMod
                     {
                         alias.Replace(" ", "");
                     }
-                    webClient.Headers.Add(alias, "Alias");
-                    webClient.Headers.Add(ServerConsole.Port.ToString(), "Port");
-                    webClient.Headers.Add(ServerConsole.Ip.ToString(), "Ip");
+                    webClient.Headers.Add("Alias", alias);
+                    webClient.Headers.Add("Port", ServerConsole.Port.ToString());
+                    webClient.Headers.Add("Ip", ServerConsole.Ip.ToString());
                     var text2 = testusers.Contains(Player.characterClassManager.UserId)
                         ? webClient.DownloadString("https://test.cedmod.nl/auth/preauth.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none"))
                         : webClient.DownloadString("https://api.cedmod.nl/auth/preauth.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none"));
@@ -440,9 +440,9 @@ namespace CedMod
                     {
                         alias.Replace(" ", "");
                     }
-                    webClient.Headers.Add(alias, "Alias");
-                    webClient.Headers.Add(ServerConsole.Port.ToString(), "Port");
-                    webClient.Headers.Add(ServerConsole.Ip.ToString(), "Ip");
+                    webClient.Headers.Add("Alias", alias);
+                    webClient.Headers.Add("Port", ServerConsole.Port.ToString());
+                    webClient.Headers.Add("Ip", ServerConsole.Ip.ToString());
                     var text2 = testusers.Contains(Player.characterClassManager.UserId)
                         ? webClient.DownloadString("https://test.cedmod.nl/banning/unban.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&reason=Expired&aname=Server&webhook=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_webhook", "none") + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none"))
                         : webClient.DownloadString("https://api.cedmod.nl/banning/unban.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&reason=Expired&aname=Server&webhook=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_webhook", "none") + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none"));
@@ -474,9 +474,9 @@ namespace CedMod
                     {
                         alias.Replace(" ", "");
                     }
-                    webClient.Headers.Add(alias, "Alias");
-                    webClient.Headers.Add(ServerConsole.Port.ToString(), "Port");
-                    webClient.Headers.Add(ServerConsole.Ip.ToString(), "Ip");
+                    webClient.Headers.Add("Alias", alias);
+                    webClient.Headers.Add("Port", ServerConsole.Port.ToString());
+                    webClient.Headers.Add("Ip", ServerConsole.Ip.ToString());
                     string text2 = testusers.Contains(Player.characterClassManager.UserId)
                         ? webClient.DownloadString("https://test.cedmod.nl/banning/userdetails.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&priors=1")
                         : webClient.DownloadString("https://api.cedmod.nl/banning/userdetails.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&priors=1");
@@ -505,9 +505,9 @@ namespace CedMod
                     {
                         alias.Replace(" ", "");
                     }
-                    webClient.Headers.Add(alias, "Alias");
-                    webClient.Headers.Add(ServerConsole.Port.ToString(), "Port");
-                    webClient.Headers.Add(ServerConsole.Ip.ToString(), "Ip");
+                    webClient.Headers.Add("Alias", alias);
+                    webClient.Headers.Add("Port", ServerConsole.Port.ToString());
+                    webClient.Headers.Add("Ip", ServerConsole.Ip.ToString());
                     string text2 = testusers.Contains(Player.characterClassManager.UserId)
                         ? webClient.DownloadString("https://api.cedmod.nl/banning/userdetails.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&total=1")
                         : webClient.DownloadString("https://api.cedmod.nl/banning/userdetails.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&total=1");
@@ -547,9 +547,9 @@ namespace CedMod
                         {
                             alias.Replace(" ", "");
                         }
-                        webClient.Headers.Add(alias, "Alias");
-                        webClient.Headers.Add(ServerConsole.Port.ToString(), "Port");
-                        webClient.Headers.Add(ServerConsole.Ip.ToString(), "Ip");
+                        webClient.Headers.Add("Alias", alias);
+                        webClient.Headers.Add("Port", ServerConsole.Port.ToString());
+                        webClient.Headers.Add("Ip", ServerConsole.Ip.ToString());
                        var text = webClient.DownloadString(string.Concat(new object[]
                         {
                          "https://api.cedmod.nl/banning/ban.php?id=",

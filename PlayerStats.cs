@@ -45,9 +45,9 @@ namespace CedMod
                     {
                         alias.Replace(" ", "");
                     }
-                    webClient.Headers.Add(alias, "Alias");
-                    webClient.Headers.Add(ServerConsole.Port.ToString(), "Port");
-                    webClient.Headers.Add(ServerConsole.Ip.ToString(), "Ip");
+                    webClient.Headers.Add("Alias", alias);
+                    webClient.Headers.Add("Port", ServerConsole.Port.ToString());
+                    webClient.Headers.Add("Ip", ServerConsole.Ip.ToString());
                     {
                         int dnt = 0;
                         if (hub.serverRoles.DoNotTrack)
@@ -80,9 +80,9 @@ namespace CedMod
                     {
                         alias.Replace(" ", "");
                     }
-                    webClient.Headers.Add(alias, "Alias");
-                    webClient.Headers.Add(ServerConsole.Port.ToString(), "Port");
-                    webClient.Headers.Add(ServerConsole.Ip.ToString(), "Ip");
+                    webClient.Headers.Add("Alias", alias);
+                    webClient.Headers.Add("Port", ServerConsole.Port.ToString());
+                    webClient.Headers.Add("Ip", ServerConsole.Ip.ToString());
                     if (IsTeamkill(ev.Player.characterClassManager, ev.Killer.characterClassManager))
                     {
                         int dnt = 0;
