@@ -48,6 +48,7 @@ namespace CedMod
                 Events.PlayerDeathEvent += PlayerStats.OnPlayerDeath;
                 FunctionsNonStatic = new FunctionsNonStatic(this);
                 Events.RoundRestartEvent += FunctionsNonStatic.Roundrestart;
+                Events.WaitingForPlayersEvent += FunctionsNonStatic.Waitingforplayers;
                 Log.Info($"CedMod has loaded. c:");
             }
             catch (Exception e)

@@ -5,6 +5,7 @@ using Mirror;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 namespace CedMod
@@ -17,10 +18,51 @@ namespace CedMod
         {
             Timing.KillCoroutines("airstrike");
         }
+        public void Waitingforplayers()
+        {
+            GameObject.Find("StartRound").transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+        }
+        public void SetScale(GameObject target, float x, float y, float z) //this code may have been yoinked
+        {
+            try
+            {
+                NetworkIdentity identity = target.GetComponent<NetworkIdentity>();
+
+
+                target.transform.localScale = new Vector3(x, y ,z);
+
+                ObjectDestroyMessage destroyMessage = new ObjectDestroyMessage();
+                destroyMessage.netId = identity.netId;
+
+
+                foreach (GameObject player in PlayerManager.players)
+                {
+                    if (player == target)
+                        continue;
+
+                    NetworkConnection playerCon = player.GetComponent<NetworkIdentity>().connectionToClient;
+
+                    playerCon.Send(destroyMessage, 0);
+
+                    object[] parameters = new object[] { identity, playerCon };
+                    typeof(NetworkServer).InvokeStaticMethod("SendSpawnMessage", parameters);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Info($"Set Scale error: {e}");
+            }
+        }
     }
     public static class Functions
     {
-
+        public static void InvokeStaticMethod(this Type type, string methodName, object[] param)
+        {
+            BindingFlags flags = BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.NonPublic |
+                                 BindingFlags.Static | BindingFlags.Public;
+            MethodInfo info = type.GetMethod(methodName, flags);
+            info?.Invoke(null, param);
+        }
         public static void BC(uint time, string msg)
         {
             foreach (ReferenceHub p in Player.GetHubs())
