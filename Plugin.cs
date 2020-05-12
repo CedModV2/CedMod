@@ -50,6 +50,7 @@ namespace CedMod
                 Events.RoundRestartEvent += FunctionsNonStatic.Roundrestart;
                 Events.WaitingForPlayersEvent += FunctionsNonStatic.Waitingforplayers;
                 Log.Info($"CedMod has loaded. c:");
+                INIT.Initializer.Setup();
             }
             catch (Exception e)
             {
