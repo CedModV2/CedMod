@@ -11,7 +11,8 @@ namespace CedMod.INIT
     // Token: 0x020006CA RID: 1738
     public class Initializer
     {
-        // Token: 0x06002507 RID: 9479 RVA: 0x000B82DC File Offset: 0x000B64DC
+        public static readonly bool TestApiOnly = true; //this is used when the version contains code that will not work with the main API and so all requests will me made to the test API
+                                                        // Token: 0x06002507 RID: 9479 RVA: 0x000B82DC File Offset: 0x000B64DC
         public static void Setup()
         {
             Initializer.logger.Info("INIT", string.Concat(new string[]
@@ -21,10 +22,13 @@ namespace CedMod.INIT
                 " Initialization"
             }));
             Initializer.logger.Info("INIT", "For the best experience use MultiAdmin");
-            Initializer.logger.Info("INIT", "Checking for updated");
+            Initializer.logger.Info("INIT", "Checking for updates");
+            if (TestApiOnly)
+            {
+                Initializer.logger.Info("INIT", "This version of CedMod is marked as Dev version and will only use the test API");
+            }
             Initializer.UpdateCheck();
         }
-        public static readonly bool TestApiOnly = true; //this is used when the version contains code that will not work with the main API and so all requests will me made to the test API
         public static string GetCedModVersion()
         {
             int num = 3;
