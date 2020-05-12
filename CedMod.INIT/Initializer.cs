@@ -24,7 +24,7 @@ namespace CedMod.INIT
             Initializer.logger.Info("INIT", "Checking for updated");
             Initializer.UpdateCheck();
         }
-
+        public static readonly bool TestApiOnly = true; //this is used when the version contains code that will not work with the main API and so all requests will me made to the test API
         public static string GetCedModVersion()
         {
             int num = 3;

