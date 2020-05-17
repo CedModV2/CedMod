@@ -136,7 +136,7 @@ namespace CedMod
         public void OnPlayerJoin(PlayerJoinEvent ev)
         {
             Task.Factory.StartNew(() => { OnPlayerJoinThread(ev); });
-            if (!RoundSummary.RoundInProgress())
+            if (!RoundSummary.RoundInProgress() && GameCore.ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true))
             {
                 MEC.Timing.RunCoroutine(Playerjoinhandle(ev));
             }

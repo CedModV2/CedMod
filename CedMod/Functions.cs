@@ -20,7 +20,10 @@ namespace CedMod
         }
         public void Waitingforplayers()
         {
-            GameObject.Find("StartRound").transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+            if (GameCore.ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true))
+            {
+                GameObject.Find("StartRound").transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+            }
         }
         public void SetScale(GameObject target, float x, float y, float z) //this code may have been yoinked
         {
