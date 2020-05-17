@@ -46,36 +46,7 @@ namespace CedMod
                         }
                     }
                     Dictionary<string, string> Bancheck = CheckBanExpired(ev.Player);
-                    if (Bancheck["success"] == "false")
-                    {
-                        if (Bancheck["error"] == "[CEDMOD.Main.Message] CedMod license expired, if you see this contact the server owner.")
-                        {
-                            INIT.Initializer.logger.Info("CEDMOD-LICENSING", "CedMod license has expired CedMod.dll will now be deleted and the server will be force restarted due to security reasons");
-                            string path = EXILED.PluginManager.PluginsDirectory;
-                            Initializer.logger.Info("CEDMOD-LICENSING", path);
-                            Initializer.logger.Info("CEDMOD-LICENSING", "Deleting files.");
-                            if (FileManager.FileExists(path + "/CedMod.dll"))
-                            {
-                                FileManager.DeleteFile(path + "/CedMod.dll");
-                            }
-                            if (FileManager.FileExists(path + "/Survival.dll"))
-                            {
-                                FileManager.DeleteFile(path + "/Survival.dll");
-                            }
-                            if (FileManager.FileExists(path + "/FrikanwebPlugin.dll"))
-                            {
-                                FileManager.DeleteFile(path + "/FrikanwebPlugin.dll");
-                            }
-                            using (WebClient webClient31 = new WebClient())
-                            {
-                                ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
-                                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                                webClient31.DownloadFile("https://admin.cedmod.nl/doei.txt", Application.dataPath + "../../houdoe-LEESMIJ-van-CEDMOD-De-profetie-komt-uit-pepegaplap.txt");
-                            }
-                            Initializer.logger.Info("CEDMOD-LICENSING", "Restarting server.");
-                            Application.Quit();
-                        }
-                    }
+                    
                     Initializer.logger.Debug("BANSYSTEM", "Checking ban status of user: " + ev.Player.GetComponent<CharacterClassManager>().UserId + " Response from API: " + Bancheck);
                     if (Bancheck["banexpired"] == "true" && Bancheck["success"] == "true")
                     {
