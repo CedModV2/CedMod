@@ -33,7 +33,9 @@ namespace CedMod
                         "from IP: ",
                         ev.Player.characterClassManager.RequestIp
                    }));
-                if (GameCore.ConfigFile.ServerConfig.GetBool("cm_playerjoinbcenable", true))
+                bool enabled = false;
+                //enabled = GameCore.ConfigFile.ServerConfig.GetBool("cm_playerjoinbcenable", true); currently borked
+                if (enabled)
                 {
                     foreach (string text in GameCore.ConfigFile.ServerConfig.GetStringList("cm_playerjoinbc"))
                     {

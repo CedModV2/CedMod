@@ -150,6 +150,11 @@ internal static class WebService
                                     Dictionary<string, string> jsonData = JsonConvert.DeserializeObject<Dictionary<string, string>>(json.ToString());
                                     Log.Info(jsonData["user"]);
                                     Log.Info(jsonData["action"]);
+                                    if (jsonData["key"] != GameCore.ConfigFile.ServerConfig.GetString("cm_plugininterface_key", "HYGutFGytfYTF&RF67fVYT"))
+                                    {
+                                        response.StatusCode = 403;
+                                        break;
+                                    }
                                     switch (jsonData["action"])
                                     {
                                         case "broadcast":
