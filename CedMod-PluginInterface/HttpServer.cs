@@ -1,82 +1,51 @@
 ﻿using EXILED;
+using EXILED.Extensions;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 using System.IO;
-using Mirror;
 using System.Net;
-using System.Text;
-using EXILED.Extensions;
-using System.Threading.Tasks;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading.Tasks;
+using UnityEngine;
 
 internal static class WebService
 {
-    /// <summary>
-    /// The port the HttpListener should listen on
-    /// </summary>
-    /// 
     public static string GetCount()
     {
         int p = 0;
         foreach (GameObject pl in PlayerManager.players)
         {
             if (!pl.GetComponent<CharacterClassManager>().isLocalPlayer)
-            p++;
+                p++;
         }
         string playersammount = p.ToString();
         return playersammount;
     }
     private static int Port = GameCore.ConfigFile.ServerConfig.GetInt("cm_port", 8000);
-
-    /// <summary>
-    /// This is the heart of the web server
-    /// </summary>
     private static readonly HttpListener Listener = new HttpListener { Prefixes = { $"http://*:{Port}/" } };
-
-    /// <summary>
-    /// A flag to specify when we need to stop
-    /// </summary>
     private static bool _keepGoing = true;
-
-    /// <summary>
-    /// Keep the task in a static variable to keep it alive
-    /// </summary>
     private static Task _mainLoop;
-
-    /// <summary>
-    /// Call this to start the web server
-    /// </summary>
     public static void StartWebServer()
     {
-        if (_mainLoop != null && !_mainLoop.IsCompleted) return; //Already started
+        if (_mainLoop != null && !_mainLoop.IsCompleted) return;
         _mainLoop = MainLoop();
     }
-
-    /// <summary>
-    /// Call this to stop the web server. It will not kill any requests currently being processed.
-    /// </summary>
     public static void StopWebServer()
     {
         _keepGoing = false;
         lock (Listener)
         {
-            //Use a lock so we don't kill a request that's currently being processed
             Listener.Stop();
         }
         try
         {
             _mainLoop.Wait();
         }
-        catch { /* je ne care pas */ }
+        catch { }
     }
-
-    /// <summary>
-    /// The main loop to handle requests into the HttpListener
-    /// </summary>
-    /// <returns></returns>
     private static async Task MainLoop()
     {
         Listener.Start();
@@ -84,7 +53,6 @@ internal static class WebService
         {
             try
             {
-                //GetContextAsync() returns when a new request come in
                 HttpListenerContext context = await Listener.GetContextAsync();
                 lock (Listener)
                 {
@@ -93,28 +61,18 @@ internal static class WebService
             }
             catch (Exception e)
             {
-                if (e is HttpListenerException) return; //this gets thrown when the listener is stopped
-                                                        //TODO: Log the exception
+                if (e is HttpListenerException) return;
             }
         }
     }
-
-    /// <summary>
-    /// Handle an incoming request
-    /// </summary>
-    /// <param name="context">The context of the incoming request</param>
     private static void ProcessRequest(HttpListenerContext context)
     {
         using (HttpListenerResponse response = context.Response)
         {
             try
             {
-                bool handled = false;
                 switch (context.Request.Url.AbsolutePath)
                 {
-                    //This is where we do different things depending on the URL
-                    //TODO: Add cases for each URL we want to respond to
-                    
                     case "/":
                         switch (context.Request.HttpMethod)
                         {
@@ -126,7 +84,7 @@ internal static class WebService
                                 }
                                 if (!File.Exists("static/index.html"))
                                 {
-                                    using (var client = new WebClient())
+                                    using (WebClient client = new WebClient())
                                     {
                                         ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
                                         ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -138,7 +96,6 @@ internal static class WebService
                                 byte[] buffer = Encoding.UTF8.GetBytes(responseBody1);
                                 response.ContentLength64 = buffer.Length;
                                 response.OutputStream.Write(buffer, 0, buffer.Length);
-                                handled = true;
                                 break;
 
                             case "POST":
@@ -148,13 +105,33 @@ internal static class WebService
                                     //Get the data that was sent to us
                                     string json = reader.ReadToEnd();
                                     Dictionary<string, string> jsonData = JsonConvert.DeserializeObject<Dictionary<string, string>>(json.ToString());
-                                    Log.Info(jsonData["user"]);
-                                    Log.Info(jsonData["action"]);
-                                    if (jsonData["key"] != GameCore.ConfigFile.ServerConfig.GetString("cm_plugininterface_key", "HYGutFGytfYTF&RF67fVYT"))
+                                    if (jsonData.ContainsKey("key") && jsonData.ContainsKey("user"))
                                     {
-                                        response.StatusCode = 403;
+                                        if (jsonData["key"] != GameCore.ConfigFile.ServerConfig.GetString("cm_plugininterface_key", "HYGutFGytfYTF&RF67fVYT") || jsonData["user"] == null)
+                                        {
+                                            Log.Warn("Unauthorized connection attempt: " + context.Request.RemoteEndPoint + " request params: " + json);
+                                            response.StatusCode = 401;
+                                            string json1 = "{'unauthorized': 'true'}";
+                                            string responseBody = JsonConvert.SerializeObject(json1);
+                                            byte[] buffer1 = Encoding.UTF8.GetBytes(responseBody);
+                                            response.ContentLength64 = buffer1.Length;
+                                            response.OutputStream.Write(buffer1, 0, buffer1.Length);
+                                            break;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Log.Warn("Unauthorized connection attempt: " + context.Request.RemoteEndPoint + " request params: " + json);
+                                        response.StatusCode = 401;
+                                        string json1 = "{'unauthorized': 'true'}";
+                                        string responseBody = JsonConvert.SerializeObject(json1);
+                                        byte[] buffer1 = Encoding.UTF8.GetBytes(responseBody);
+                                        response.ContentLength64 = buffer1.Length;
+                                        response.OutputStream.Write(buffer1, 0, buffer1.Length);
                                         break;
                                     }
+                                    Log.Info(jsonData["user"]);
+                                    Log.Info(jsonData["action"]);
                                     switch (jsonData["action"])
                                     {
                                         case "broadcast":
@@ -170,14 +147,12 @@ internal static class WebService
                                                 CharacterClassManager component = player.GetComponent<CharacterClassManager>();
                                                 if (component.UserId == jsonData["steamid"])
                                                 {
-                                                    ServerConsole.Disconnect(player,jsonData["reason"]);
+                                                    ServerConsole.Disconnect(player, jsonData["reason"]);
                                                 }
                                             }
                                             break;
                                     }
-                                    //Return 204 No Content to say we did it successfully
                                     response.StatusCode = 204;
-                                    handled = true;
                                 }
                                 break;
                         }
@@ -188,15 +163,11 @@ internal static class WebService
                         {
                             case "GET":
                                 response.ContentType = "application/json";
-                                string json = "{'players': '"+GetCount()+"'}";
+                                string json = "{'players': '" + GetCount() + "'}";
                                 string responseBody = JsonConvert.SerializeObject(json);
-                                //This is what we want to send back
-
-                                //Write it to the response stream
                                 byte[] buffer = Encoding.UTF8.GetBytes(responseBody);
                                 response.ContentLength64 = buffer.Length;
                                 response.OutputStream.Write(buffer, 0, buffer.Length);
-                                handled = true;
                                 break;
                         }
                         break;
@@ -208,7 +179,7 @@ internal static class WebService
                         }
                         if (!File.Exists("static/404.html"))
                         {
-                            using (var client = new WebClient())
+                            using (WebClient client = new WebClient())
                             {
                                 ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
                                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -216,7 +187,6 @@ internal static class WebService
                             }
                         }
                         string error404body = File.ReadAllText(@"static\404.html");
-                        //Write it to the response stream
                         byte[] buffer404 = Encoding.UTF8.GetBytes(error404body);
                         response.ContentLength64 = buffer404.Length;
                         response.OutputStream.Write(buffer404, 0, buffer404.Length);
@@ -227,20 +197,16 @@ internal static class WebService
             }
             catch (Exception e)
             {
-                //Return the exception details the client - you may or may not want to do this
                 response.StatusCode = 500;
                 response.ContentType = "application/json";
                 byte[] buffer = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(e));
                 response.ContentLength64 = buffer.Length;
                 response.OutputStream.Write(buffer, 0, buffer.Length);
-
-                //TODO: Log the exception
             }
         }
     }
     private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors error)
     {
-        // If the certificate is a valid, signed certificate, return true.
         if (error == SslPolicyErrors.None)
         {
             return true;
