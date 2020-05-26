@@ -64,12 +64,12 @@ namespace CedMod
                     Dictionary<string, string> BanReason = GetBandetails(ev.Player);
                     if (BanReason != null && LastAPIRequestSuccessfull)
                     {
-                        Initializer.logger.Info("BANSYSTEM", "user: " + ev.Player.GetComponent<CharacterClassManager>().UserId + " attempted connection with active ban disconnecting");
                         string Reason = "No reason specified please contact ced777ric#0001 on the discord of this server. This error should not be possible";
                         if (BanReason["success"] == "true" && BanReason["vpn"] == "true" && BanReason["geo"] == "false" && BanReason["isbanned"] == "false")
                         {
                             Reason = BanReason["reason"];
                             ev.Player.characterClassManager.TargetConsolePrint(ev.Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM Message from CedMod server (VPN/Proxy detected): " + BanReason, "yellow");
+                            Initializer.logger.Info("BANSYSTEM", "user: " + ev.Player.GetComponent<CharacterClassManager>().UserId + " attempted connection with blocked ASN/IP/VPN/Hosting service");
                             ServerConsole.Disconnect(ev.Player.GetComponent<CharacterClassManager>().gameObject, Reason);
                         }
                         else
@@ -78,6 +78,7 @@ namespace CedMod
                             {
                                 Reason = BanReason["reason"];
                                 ev.Player.characterClassManager.TargetConsolePrint(ev.Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM Message from CedMod server (GEO Restriction): " + BanReason, "yellow");
+                                Initializer.logger.Info("BANSYSTEM", "user: " + ev.Player.GetComponent<CharacterClassManager>().UserId + " attempted connection from blocked country");
                                 ServerConsole.Disconnect(ev.Player.GetComponent<CharacterClassManager>().gameObject, Reason);
                             }
                             else
@@ -85,6 +86,7 @@ namespace CedMod
                                 if (BanReason["success"] == "true" && BanReason["vpn"] == "false" && BanReason["geo"] == "false" && BanReason["isbanned"] == "true")
                                 {
                                     Reason = BanReason["preformattedmessage"] + " You can fill in a ban appeal here: " + GameCore.ConfigFile.ServerConfig.GetString("bansystem_banappealurl", "none");
+                                    Initializer.logger.Info("BANSYSTEM", "user: " + ev.Player.GetComponent<CharacterClassManager>().UserId + " attempted connection with active ban disconnecting");
                                     ev.Player.characterClassManager.TargetConsolePrint(ev.Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM Active ban: " + BanReason["preformattedmessage"], "yellow");
                                     ServerConsole.Disconnect(ev.Player.GetComponent<CharacterClassManager>().gameObject, Reason);
                                 }

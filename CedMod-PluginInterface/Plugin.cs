@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 using EXILED;
 
-namespace FrikanwebPlugin
+namespace CedModPluginInterface
 {
-    public class FrikanwebPlugin : EXILED.Plugin
+    public class PluginInterface : EXILED.Plugin
     {
-        public override string getName => "FrikanPlugin";
+        public override string getName => "CedModPluginInterface";
 
         // HTTP server
 
