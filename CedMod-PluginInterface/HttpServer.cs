@@ -40,11 +40,15 @@ internal static class WebService
         {
             Listener.Stop();
         }
+
         try
         {
             _mainLoop.Wait();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Log.Error(ex.StackTrace);
+        }
     }
     private static async Task MainLoop()
     {
@@ -138,7 +142,7 @@ internal static class WebService
                                             Log.Info("Broadcast recieved: " + jsonData["message"]);
                                             foreach (ReferenceHub hub in Player.GetHubs())
                                             {
-                                                hub.GetComponent<Broadcast>().TargetAddElement(hub.GetComponent<Scp049PlayerScript>().connectionToClient, jsonData["message"], Convert.ToUInt16(jsonData["duration"]), false);
+                                                //hub.GetComponent<Broadcast>().TargetAddElement(hub.GetComponent<Scp049PlayerScript>().connectionToClient, jsonData["message"], Convert.ToUInt16(jsonData["duration"]), false);
                                             }
                                             break;
                                         case "kick":

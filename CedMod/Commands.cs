@@ -16,10 +16,8 @@ namespace CedMod
         public void OnRoundEnd()
         {
             IsEnabled = false;
-            EventEnabled = false;
             Timing.KillCoroutines("LightsOut");
         }
-        public static bool EventEnabled = false;
         public void OnCommand(ref RACommandEvent ev)
         {
             string[] Command = ev.Command.Split(new char[]
@@ -28,44 +26,7 @@ namespace CedMod
             });
             switch (Command[0].ToUpper())
             {
-                case "PBC":
-                    ev.Allow = false;
-                    if (Command.Length < 4)
-                    {
-                        ev.Sender.RaReply(Command[0].ToUpper() + "#Usage: PBC <PLAYER> <TIME> <MESSAGE>", false, true, "");
-                        break;
-                    }
-                    uint durationPbc;
-                    if (!CheckPermissions(ev.Sender, Command[0], PlayerPermissions.Broadcasting, "", true))
-                    {
-                        ev.Sender.RaReply(Command[0].ToUpper() + "#No perms to PBC bro.", false, true, "");
-                        break;
-                    }
-                    if (!uint.TryParse(Command[2], out durationPbc) || durationPbc < 1u)
-                    {
-                        ev.Sender.RaReply(Command[0].ToUpper() + "#Argument after the name must be a positive integer.", false, true, "");
-                        break;
-                    }
-                    string pbcText = Command[3];
-                    for (int i = 4; i < Command.Length; i++)
-                    {
-                        pbcText = pbcText + " " + Command[i];
-                    }
-                    foreach (GameObject player in PlayerManager.players)
-                    {
-                        if (!player.GetComponent<NicknameSync>().MyNick.Contains(Command[1], StringComparison.OrdinalIgnoreCase)) continue;
-                        NetworkConnection myConn = player.GetComponent<NetworkIdentity>().connectionToClient;
-                        if (myConn == null)
-                        {
-                            continue;
-                        }
-                        QueryProcessor.Localplayer.GetComponent<Broadcast>().TargetAddElement(myConn, pbcText, durationPbc, false);
-                        ev.Sender.RaReply(Command[0].ToUpper() + "#Sent: " + pbcText + " to: " + player.GetComponent<NicknameSync>().MyNick, true, true, "");
-                        ServerLogs.AddLog(ServerLogs.Modules.DataAccess, "Broadcasted: " + pbcText + " to: " + player.GetComponent<NicknameSync>().MyNick + " by " + ev.Sender.Nickname,
-                            ServerLogs.ServerLogType.RemoteAdminActivity_Misc);
-                    }
-                    ev.Sender.RaReply(Command[0].ToUpper() + "#PBC command sent.", true, true, "");
-                    break;
+                
                 case "LIGHTSOUT":
                     ev.Allow = false;
                     if (Command.Length < 2)
@@ -81,7 +42,7 @@ namespace CedMod
                     if (IsEnabled == false)
                     {
                         IsEnabled = true;
-                        Timing.RunCoroutine(LightsOut(Convert.ToBoolean(Command[1])), "LightsOut");
+                        Timing.RunCoroutine(Functions.LightsOut(Convert.ToBoolean(Command[1])), "LightsOut");
                         ev.Sender.RaReply(Command[0].ToUpper() + "#Lights have been turned off", true, true, "");
                         break;
                     }
@@ -134,7 +95,7 @@ namespace CedMod
                             {
                                 CharacterClassManager component = player.GetComponent<CharacterClassManager>();
                                 component.SetClassID(RoleType.Tutorial);
-                                component.GetComponent<PlayerStats>().health = 100;
+                                component.GetComponent<PlayerStats>()._health = 100;
                                 component.GetComponent<Inventory>().items.Clear();
                                 component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
                                 component.GodMode = false;
@@ -149,7 +110,7 @@ namespace CedMod
                                 if (component.CurClass == RoleType.Spectator)
                                 {
                                     component.SetClassID(RoleType.Tutorial);
-                                    component.GetComponent<PlayerStats>().health = 100;
+                                    component.GetComponent<PlayerStats>()._health = 100;
                                     component.GetComponent<Inventory>().items.Clear();
                                     component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
                                     component.GodMode = false;
@@ -176,12 +137,6 @@ namespace CedMod
             }
         }
         public bool IsEnabled = false;
-        private IEnumerator<float> LightsOut(bool HeavyOnly)
-        {
-            Generator079.generators[0].RpcCustomOverchargeForOurBeautifulModCreators(9.5f, HeavyOnly);
-            yield return Timing.WaitForSeconds(10f);
-            Timing.RunCoroutine(LightsOut(Convert.ToBoolean(HeavyOnly)), "LightsOut");
-        }
         private static bool CheckPermissions(CommandSender sender, string queryZero, PlayerPermissions perm, string replyScreen = "", bool reply = true)
         {
             if (ServerStatic.IsDedicated && sender.FullPermissions)

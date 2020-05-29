@@ -75,9 +75,6 @@
     <Reference Include="EXILED_Events">
       <HintPath>..\References\EXILED_Events.dll</HintPath>
     </Reference>
-    <Reference Include="EXILED_Idler">
-      <HintPath>..\References\EXILED_Idler.dll</HintPath>
-    </Reference>
     <Reference Include="EXILED_Permissions">
       <HintPath>..\References\EXILED_Permissions.dll</HintPath>
     </Reference>

@@ -37,37 +37,7 @@ namespace CedMod
                 //enabled = GameCore.ConfigFile.ServerConfig.GetBool("cm_playerjoinbcenable", true); currently borked
                 if (enabled)
                 {
-                    foreach (string text in GameCore.ConfigFile.ServerConfig.GetStringList("cm_playerjoinbc"))
-                    {
-                        string[] array = text.Split(new char[]
-                        {
-                                ':'
-                        });
-                        string text2 = array[0];
-                        uint time = (uint)Convert.ToUInt16(array[1]);
-                        Initializer.logger.Debug("PlayerJoin", "Raw Broadcast message: " + text2);
-                        foreach (string text3 in this.EnclosedStrings(text, "$S[", "]"))
-                        {
-                            text2 = text2.Replace("$S[" + text3 + "]", GameCore.ConfigFile.ServerConfig.GetString(text3, "-"));
-                        }
-                        foreach (string text4 in this.EnclosedStrings(text, "$I[", "]"))
-                        {
-                            text2 = text2.Replace("$I[" + text4 + "]", string.Concat(GameCore.ConfigFile.ServerConfig.GetInt(text4, 0)));
-                        }
-                        foreach (string text5 in this.EnclosedStrings(text, "$F[", "]"))
-                        {
-                            text2 = text2.Replace("$F[" + text5 + "]", string.Concat(GameCore.ConfigFile.ServerConfig.GetFloat(text5, 0f)));
-                        }
-                        foreach (string text6 in this.EnclosedStrings(text, "$B[", "]"))
-                        {
-                            text2 = text2.Replace("$B[" + text6 + "]", GameCore.ConfigFile.ServerConfig.GetBool(text6, false).ToString() ?? "");
-                        }
-                        text2 = text2.Replace("$curPlayerCount", (Convert.ToInt64(PlayerManager.players.Max())).ToString());
-                        Initializer.logger.Debug("PlayerJoin", "Broadcasted message: " + text2);
-                        Initializer.logger.Debug("PlayerJoin", "With Duration: " + time.ToString());
-                        Initializer.logger.Debug("PlayerJoin", "To player: " + ev.Player.nicknameSync.MyNick);
-                        ev.Player.Broadcast(time, text2, GameCore.ConfigFile.ServerConfig.GetBool("cm_playerjoinbcmono", false));
-                    }
+                    
                 }
             }
         }

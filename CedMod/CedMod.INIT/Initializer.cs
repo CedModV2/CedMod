@@ -8,11 +8,9 @@ using UnityEngine;
 
 namespace CedMod.INIT
 {
-    // Token: 0x020006CA RID: 1738
     public class Initializer
     {
-        public static readonly bool TestApiOnly = true; //this is used when the version contains code that will not work with the main API and so all requests will me made to the test API
-                                                        // Token: 0x06002507 RID: 9479 RVA: 0x000B82DC File Offset: 0x000B64DC
+        public static readonly bool TestApiOnly = false; //this is used when the version contains code that will not work with the main API and so all requests will me made to the test API
         public static void Setup()
         {
             Initializer.logger.Info("INIT", string.Concat(new string[]
@@ -27,14 +25,14 @@ namespace CedMod.INIT
             {
                 Initializer.logger.Info("INIT", "This version of CedMod is marked as Dev version and will only use the test API");
             }
-            Initializer.UpdateCheck();
+            //Initializer.UpdateCheck();
         }
         public static string GetCedModVersion()
         {
             int num = 3;
             int num2 = 0;
             int num3 = 2;
-            string text = "B";
+            string text = "R";
             return string.Format("{0}.{1}.{2}-{3}", new object[]
             {
                 num,
