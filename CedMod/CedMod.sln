@@ -2,12 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.645
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CedMod-Main", "CedMod\CedMod-Main.csproj", "{B404BA59-5C33-41DC-8FEE-0F10F087089D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CedMod-PluginInterface", "CedMod-PluginInterface\CedMod-PluginInterface.csproj", "{64DB39C5-3875-4E36-BBB8-430F2354D2CD}"
-	ProjectSection(ProjectDependencies) = postProject
-		{B404BA59-5C33-41DC-8FEE-0F10F087089D} = {B404BA59-5C33-41DC-8FEE-0F10F087089D}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CedMod-Main", "CedMod-Main.csproj", "{B404BA59-5C33-41DC-8FEE-0F10F087089D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,10 +14,6 @@ Global
 		{B404BA59-5C33-41DC-8FEE-0F10F087089D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B404BA59-5C33-41DC-8FEE-0F10F087089D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B404BA59-5C33-41DC-8FEE-0F10F087089D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{64DB39C5-3875-4E36-BBB8-430F2354D2CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{64DB39C5-3875-4E36-BBB8-430F2354D2CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{64DB39C5-3875-4E36-BBB8-430F2354D2CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{64DB39C5-3875-4E36-BBB8-430F2354D2CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,2 @@
+# CedMod
+Le CedMod plugin

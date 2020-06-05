@@ -6,13 +6,14 @@ namespace CedMod
 {
     public class Plugin : EXILED.Plugin
     {
-        //Instance variable for eventhandlers
         public BanSystem BanSystemEvents;
-        public PlayerJoinBC PlayerJoinBCEvents;
-        public FriendlyFireAutoBan FFAEvents;
         public Commands Commands;
-        public PlayerStatistics PlayerStats;
+        public FriendlyFireAutoBan FFAEvents;
         public FunctionsNonStatic FunctionsNonStatic;
+        public PlayerJoinBC PlayerJoinBCEvents;
+        public PlayerStatistics PlayerStats;
+
+        public override string getName { get; } = "CedModV2";
 
         public override void OnEnable()
         {
@@ -48,7 +49,9 @@ namespace CedMod
                 Events.PlayerDeathEvent += PlayerStats.OnPlayerDeath;
                 FunctionsNonStatic = new FunctionsNonStatic(this);
                 Events.RoundRestartEvent += FunctionsNonStatic.Roundrestart;
+                Events.WaitingForPlayersEvent += FunctionsNonStatic.Waitingforplayers;
                 Log.Info($"CedMod has loaded. c:");
+                INIT.Initializer.Setup();
             }
             catch (Exception e)
             {
@@ -82,7 +85,5 @@ namespace CedMod
         {
             //This is only fired when you use the EXILED reload command, the reload command will call OnDisable, OnReload, reload the plugin, then OnEnable in that order. There is no GAC bypass, so if you are updating a plugin, it must have a unique assembly name, and you need to remove the old version from the plugins folder
         }
-
-        public override string getName { get; } = "CedModV2";
     }
 }
