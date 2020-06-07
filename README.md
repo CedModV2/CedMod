@@ -1,15 +1,11 @@
-# Readme
-
 Master Branch: ![.NET Core](https://github.com/CedModV2/CedMod/workflows/.NET%20Core/badge.svg?branch=master)
 
 Dev Branch: ![.NET Core](https://github.com/CedModV2/CedMod/workflows/.NET%20Core/badge.svg?branch=dev)
 
-Get the latest stable build here: https://github.com/CedModV2/CedMod/actions?query=branch%3Amaster (click on the most top one that has a checkmark and download the artifact)
+Get the latest stable build here: https://github.com/CedModV2/CedMod/actions?query=branch%3Amaster (click on the most top one that has a checkmark and download the artifact named CedMod Build Results)
 
 
-Get the latest dev build here: https://github.com/CedModV2/CedMod/actions?query=branch%3Adev (click on the most top one that has a checkmark and download the artifact)
-
-## Configs
+Get the latest dev build here: https://github.com/CedModV2/CedMod/actions?query=branch%3Adev (click on the most top one that has a checkmark and download the artifact named CedMod Build Results)
 
 As part of the plugin was made when smod was a thing and part also used to be in the assembly when there were no plugin frameworks
 I reccomend putting the values in both config gameplay and the config exiled uses for plugins
