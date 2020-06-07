@@ -1,3 +1,5 @@
+![.NET Core](https://github.com/CedModV2/CedMod/workflows/.NET%20Core/badge.svg?branch=master)
+
 As part of the plugin was made when smod was a thing and part also used to be in the assembly when there were no plugin frameworks
 I reccomend putting the values in both config gameplay and the config exiled uses for plugins
 | config                              | type      | default  | description                                                |
