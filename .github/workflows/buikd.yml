@@ -1,0 +1,29 @@
+name: .NET Core
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+
+    runs-on: [self-hosted, windows]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.101
+    - name: Build
+      run: dotnet build --configuration Debug --no-restore CedMod.sln
+    - name: Upload
+      uses: actions/upload-artifact@v2
+      with:
+        name: CedMod Build Results
+        path: ${{ github.workspace }}/bin/Debug/CedMod*
+    - name: Upload1
+      uses: actions/upload-artifact@v2
+      with:
+        name: CedMod Build Results
+        path: ${{ github.workspace }}/bin/Debug/
