@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CedMod-PluginInterface", "C
 		{B404BA59-5C33-41DC-8FEE-0F10F087089D} = {B404BA59-5C33-41DC-8FEE-0F10F087089D}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Survival", "GameMode-Survival\Survival.csproj", "{7EFA55F0-22A3-4D91-89AA-5B914A26061D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{64DB39C5-3875-4E36-BBB8-430F2354D2CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64DB39C5-3875-4E36-BBB8-430F2354D2CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64DB39C5-3875-4E36-BBB8-430F2354D2CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EFA55F0-22A3-4D91-89AA-5B914A26061D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EFA55F0-22A3-4D91-89AA-5B914A26061D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EFA55F0-22A3-4D91-89AA-5B914A26061D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EFA55F0-22A3-4D91-89AA-5B914A26061D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
