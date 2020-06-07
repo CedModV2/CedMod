@@ -7,7 +7,7 @@ on:
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: [self-hosted, windows]
 
     steps:
     - uses: actions/checkout@v2
