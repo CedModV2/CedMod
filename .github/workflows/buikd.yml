@@ -20,10 +20,5 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v2
       with:
-        name: CedMod-Main
-        path: ${{ github.workspace }}/bin/Debug/CedMod.dll
-    - name: Upload2
-      uses: actions/upload-artifact@v2
-      with:
-        name: CedMod-PluginInterface
-        path: ${{ github.workspace }}/bin/Debug/CedMod-PluginInterface.dll
+        name: CedMod Build Results
+        path: ${{ github.workspace }}/bin/Debug
