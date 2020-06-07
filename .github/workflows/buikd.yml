@@ -25,5 +25,5 @@ jobs:
     - name: Upload1
       uses: actions/upload-artifact@v2
       with:
-        name: CedMod Build Results
+        name: Build References
         path: ${{ github.workspace }}/bin/Debug/
