@@ -53,6 +53,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
+    <Reference Include="CedMod, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\bin\Debug\CedMod.dll</HintPath>
+    </Reference>
     <Reference Include="DissonanceVoip, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\DissonanceVoip.dll</HintPath>
@@ -64,10 +67,6 @@
     <Reference Include="EXILED_Events, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\EXILED_Events.dll</HintPath>
-    </Reference>
-    <Reference Include="EXILED_Idler, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\EXILED_Idler.dll</HintPath>
     </Reference>
     <Reference Include="EXILED_Permissions, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -172,6 +171,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CedMod\CedMod-Main.csproj">
+      <Project>{b404ba59-5c33-41dc-8fee-0f10f087089d}</Project>
+      <Name>CedMod-Main</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
