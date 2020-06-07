@@ -175,6 +175,5 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>for %25%25i in (*.*) do if not "%25%25i"=="CedMod.dll" if not "%25%25i"=="CedMod.pdb" if not "%25%25i"=="CedMod-PluginInterface.dll" if not "%25%25i"=="CedMod-PluginInterface.pdb" del /q "%25%25i"</PostBuildEvent>
   </PropertyGroup>
 </Project>

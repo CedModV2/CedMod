@@ -20,7 +20,7 @@ namespace CedMod
 
 
     public class BanSystem
-    {
+    { 
         public static List<string> testusers = new List<string>();
         public static bool LastAPIRequestSuccessfull = false;
         public Plugin plugin;
