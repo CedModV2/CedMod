@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using CedMod.INIT;
+using EXILED;
 using EXILED.Extensions;
 using GameCore;
 using Grenades;
@@ -41,6 +42,7 @@ namespace CedMod
             if (ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true))
                 GameObject.Find("StartRound").transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
         }
+        
 
         public void SetScale(GameObject target, float x, float y, float z) //this code may have been yoinked
         {

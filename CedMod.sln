@@ -11,6 +11,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CedMod-PluginInterface", "C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Survival", "GameMode-Survival\Survival.csproj", "{7EFA55F0-22A3-4D91-89AA-5B914A26061D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Outbreak", "Outbreak\Outbreak.csproj", "{EC057189-1044-4418-A4E5-14BC2449FDFB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zombieland", "Zombieland\Zombieland.csproj", "{5D0A17BC-253D-460D-9400-07731365FDCD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GangWar", "GangWar\GangWar.csproj", "{E7CD00C0-BB65-432E-92E3-1CFAFEA2D666}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +35,18 @@ Global
 		{7EFA55F0-22A3-4D91-89AA-5B914A26061D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7EFA55F0-22A3-4D91-89AA-5B914A26061D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7EFA55F0-22A3-4D91-89AA-5B914A26061D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC057189-1044-4418-A4E5-14BC2449FDFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC057189-1044-4418-A4E5-14BC2449FDFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC057189-1044-4418-A4E5-14BC2449FDFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC057189-1044-4418-A4E5-14BC2449FDFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D0A17BC-253D-460D-9400-07731365FDCD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D0A17BC-253D-460D-9400-07731365FDCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D0A17BC-253D-460D-9400-07731365FDCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D0A17BC-253D-460D-9400-07731365FDCD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7CD00C0-BB65-432E-92E3-1CFAFEA2D666}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7CD00C0-BB65-432E-92E3-1CFAFEA2D666}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7CD00C0-BB65-432E-92E3-1CFAFEA2D666}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7CD00C0-BB65-432E-92E3-1CFAFEA2D666}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

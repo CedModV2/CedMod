@@ -52,9 +52,6 @@
     <Reference Include="BouncyCastle.Crypto, Version=1.8.5.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
       <HintPath>..\References\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
-    <Reference Include="CedMod, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\bin\Debug\CedMod.dll</HintPath>
-    </Reference>
     <Reference Include="DissonanceVoip, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\DissonanceVoip.dll</HintPath>
     </Reference>

@@ -53,9 +53,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
-    <Reference Include="CedMod, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\bin\Debug\CedMod.dll</HintPath>
-    </Reference>
     <Reference Include="DissonanceVoip, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\DissonanceVoip.dll</HintPath>
