@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using EXILED.Extensions;
 using MEC;
 
 namespace CedMod.GameMode.Outbreak
@@ -17,6 +18,7 @@ namespace CedMod.GameMode.Outbreak
 		public void DisableGamemode()
 		{
 			plugin.GamemodeEnabled = false;
+			Timing.KillCoroutines("blackout");
 		}
 		public IEnumerator<float> SpawnAlphas()
 		{
@@ -34,7 +36,16 @@ namespace CedMod.GameMode.Outbreak
 					player.gameObject.transform.rotation.y);
 				player.playerStats.maxHP = plugin.ZombieHealth;
 				player.playerStats._health = plugin.ZombieHealth;
+				Cassie.CassieMessage("warning . power system unstable . power Failure may .g2 .g1 .g2 .g4", true, true);
+				Timing.WaitForSeconds(7.50f);
+				Timing.RunCoroutine(Run(), "blackout");
 			}
+		}
+
+		public IEnumerator<float> Run()
+		{
+			Timing.RunCoroutine(CedMod.Functions.LightsOut(false), "blackout");
+			yield return Timing.WaitForSeconds(UnityEngine.Random.Range(60f, 200));
 		}
 
 		public IEnumerator<float> RespawnZombie(ReferenceHub hub)
