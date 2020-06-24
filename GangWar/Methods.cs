@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using EXILED;
+using System.Linq;
 using EXILED.ApiObjects;
 using EXILED.Extensions;
 using MEC;
@@ -8,25 +8,26 @@ namespace CedMod.GameMode.GangWar
 {
 	public class Methods
 	{
-		private readonly GangWar plugin;
-		public Methods(GangWar plugin) => this.plugin = plugin;
+		private readonly GangWar _plugin;
+		public Methods(GangWar plugin) => _plugin = plugin;
 		
 		public void EnableGamemode()
 		{
-			plugin.GamemodeEnabled = true;
+			_plugin.GamemodeEnabled = true;
 			PlayerManager.localPlayer.GetComponent<Broadcast>().RpcAddElement("<color=green>Gangwar gamemode is enabled for the next round!</color>", 10, Broadcast.BroadcastFlags.Normal);
 		}
 
 		public void DisableGamemode()
 		{
-			plugin.GamemodeEnabled = false;
+			_plugin.GamemodeEnabled = false;
 		}
 
 		public IEnumerator<float> SpawnPlayers()
 		{
 			yield return Timing.WaitForSeconds(1f);
 
-			List<ReferenceHub> players = Plugin.GetHubs();
+			IEnumerable<ReferenceHub> players1 = Player.GetHubs();
+			List<ReferenceHub> players = players1.ToList();
 			
 			for (int i = 0; i < players.Count / 2; i++)
 			{

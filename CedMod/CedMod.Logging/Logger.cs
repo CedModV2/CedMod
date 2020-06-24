@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace CedMod.Logging
+﻿namespace CedMod.CedMod.Logging
 {
     // Token: 0x020006CB RID: 1739
     public abstract class Logger

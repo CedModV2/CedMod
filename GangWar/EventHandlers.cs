@@ -8,12 +8,12 @@ namespace CedMod.GameMode.GangWar
 {
 	public class EventHandlers
 	{
-		private readonly GangWar plugin;
-		public EventHandlers(GangWar plugin) => this.plugin = plugin;
+		private readonly GangWar _plugin;
+		public EventHandlers(GangWar plugin) => _plugin = plugin;
 
 		public void OnWaitingForPlayers()
 		{
-			plugin.RoundStarted = false;
+			_plugin.RoundStarted = false;
 		}
 
 		public void OnRoundStart()
@@ -22,16 +22,16 @@ namespace CedMod.GameMode.GangWar
 		}
 		public IEnumerator<float> Start()
 		{
-			if (plugin.GamemodeEnabled)
+			if (_plugin.GamemodeEnabled)
 			{
 				try
 				{
-					plugin.RoundStarted = true;
-					Timing.RunCoroutine(plugin.Functions.SpawnPlayers());
+					_plugin.RoundStarted = true;
+					Timing.RunCoroutine(_plugin.Functions.SpawnPlayers());
 				}
 				catch (Exception e)
 				{
-					Plugin.Error($"ROUND START ERROR< REEEE: {e}");
+					Log.Error($"ROUND START ERROR< REEEE: {e}");
 				}
 			}
 
@@ -39,17 +39,17 @@ namespace CedMod.GameMode.GangWar
 		}
 		public void OnRoundEnd()
 		{
-			plugin.RoundStarted = false;
+			_plugin.RoundStarted = false;
 			Timing.KillCoroutines("Gangwar");
 		}
 
 		public void OnPlayerJoin(PlayerJoinEvent ev)
 		{
-			if (!plugin.GamemodeEnabled) 
+			if (!_plugin.GamemodeEnabled) 
 				return;
 			
 			PlayerManager.localPlayer.GetComponent<Broadcast>().RpcClearElements();
-			if (plugin.RoundStarted)
+			if (_plugin.RoundStarted)
 				ev.Player.Broadcast(5, "<color=green>Currently playing Gangwar Gamemode!</color>");
 			else
 				PlayerManager.localPlayer.GetComponent<Broadcast>()
@@ -58,13 +58,13 @@ namespace CedMod.GameMode.GangWar
 
 		public void OnRespawn(ref TeamRespawnEvent ev)
 		{
-			if (!plugin.RoundStarted)
+			if (!_plugin.RoundStarted)
 				return;
 			
 			ev.IsChaos = RoundSummary.singleton.CountTeam(Team.MTF) > RoundSummary.singleton.CountTeam(Team.CHI);
 
 			foreach (ReferenceHub hub in ev.ToRespawn)
-				Timing.RunCoroutine(plugin.Functions.SetInventory(hub, 2f));
+				Timing.RunCoroutine(_plugin.Functions.SetInventory(hub, 2f));
 		}
 	}
 }

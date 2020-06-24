@@ -1,19 +1,15 @@
-﻿using EXILED;
-using Mirror;
-using RemoteAdmin;
-using System.Collections.Generic;
-using System;
+﻿using System;
+using EXILED;
 using EXILED.Extensions;
-using EXILED.Patches;
-using UnityEngine;
 using MEC;
+using UnityEngine;
 
 namespace CedMod
 {
     public class Commands
     {
-        public Plugin plugin;
-        public Commands(Plugin plugin) => this.plugin = plugin;
+        public Plugin Plugin;
+        public Commands(Plugin plugin) => Plugin = plugin;
         public void OnRoundEnd()
         {
             IsEnabled = false;
@@ -21,77 +17,74 @@ namespace CedMod
         }
         public void OnCommand(ref RACommandEvent ev)
         {
-            string[] Command = ev.Command.Split(new char[]
-            {
-                ' '
-            });
-            switch (Command[0].ToUpper())
+            string[] command = ev.Command.Split(' ');
+            switch (command[0].ToUpper())
             {
                 
                 case "LIGHTSOUT":
                     ev.Allow = false;
-                    if (Command.Length < 2)
+                    if (command.Length < 2)
                     {
-                        ev.Sender.RaReply(Command[0].ToUpper() + "#Usage: LightsOut <OnlyHeavy>", false, true, "");
+                        ev.Sender.RaReply(command[0].ToUpper() + "#Usage: LightsOut <OnlyHeavy>", false, true, "");
                         break;
                     }
-                    if (!CheckPermissions(ev.Sender, Command[0], PlayerPermissions.FacilityManagement, "", true))
+                    if (!CheckPermissions(ev.Sender, command[0], PlayerPermissions.FacilityManagement))
                     {
-                        ev.Sender.RaReply(Command[0].ToUpper() + "#No perms to LightsOut bro.", false, true, "");
+                        ev.Sender.RaReply(command[0].ToUpper() + "#No perms to LightsOut bro.", false, true, "");
                         break;
                     }
                     if (IsEnabled == false)
                     {
                         IsEnabled = true;
-                        Timing.RunCoroutine(Functions.LightsOut(Convert.ToBoolean(Command[1])), "LightsOut");
-                        ev.Sender.RaReply(Command[0].ToUpper() + "#Lights have been turned off", true, true, "");
+                        Timing.RunCoroutine(Functions.LightsOut(Convert.ToBoolean(command[1])), "LightsOut");
+                        ev.Sender.RaReply(command[0].ToUpper() + "#Lights have been turned off", true, true, "");
                         break;
                     }
                     else
                     {
-                        if (IsEnabled == true)
+                        if (IsEnabled)
                         {
                             IsEnabled = false;
                             Timing.KillCoroutines("LightsOut");
-                            ev.Sender.RaReply(Command[0].ToUpper() + "#Lights have been turned on", true, true, "");
+                            ev.Sender.RaReply(command[0].ToUpper() + "#Lights have been turned on", true, true, "");
                             break;
                         }
                     }
-                    ev.Sender.RaReply(Command[0].ToUpper() + "#Something went wrong", false, true, "");
+                    ev.Sender.RaReply(command[0].ToUpper() + "#Something went wrong", false, true, "");
                     break;
                 case "DISABLEFFA":
                     ev.Allow = false;
-                    if (!CheckPermissions(ev.Sender, Command[0], PlayerPermissions.FacilityManagement, "", true))
+                    if (!CheckPermissions(ev.Sender, command[0], PlayerPermissions.FacilityManagement))
                     {
-                        ev.Sender.RaReply(Command[0].ToUpper() + "#No perms to DisableFFA bro.", false, true, "");
+                        ev.Sender.RaReply(command[0].ToUpper() + "#No perms to DisableFFA bro.", false, true, "");
                         break;
                     }
                     FriendlyFireAutoBan.AdminDisabled = !FriendlyFireAutoBan.AdminDisabled;
                     if (FriendlyFireAutoBan.AdminDisabled)
                     {
-                        ev.Sender.RaReply(Command[0].ToUpper() + "#FFA is now Disabled FFA wil reset at round end unless FFA is disabled", true, true, "");
+                        ev.Sender.RaReply(command[0].ToUpper() + "#FFA is now Disabled FFA wil reset at round end unless FFA is disabled", true, true, "");
                     }
                     else
                     {
-                        ev.Sender.RaReply(Command[0].ToUpper() + "#FFA is now Enabled FFA wil reset at round end unless FFA is disabled", true, true, "");
+                        ev.Sender.RaReply(command[0].ToUpper() + "#FFA is now Enabled FFA wil reset at round end unless FFA is disabled", true, true, "");
                     }
                     break;
                 case "STUITER":
                     ev.Allow = false;
-                    if (!CheckPermissions(ev.Sender, Command[0], PlayerPermissions.FacilityManagement, "", true))
+                    if (!CheckPermissions(ev.Sender, command[0], PlayerPermissions.FacilityManagement))
                     {
-                        ev.Sender.RaReply(Command[0].ToUpper() + "#No perms to Stuiter bro.", false, true, "");
+                        ev.Sender.RaReply(command[0].ToUpper() + "#No perms to Stuiter bro.", false, true, "");
                         break;
                     }
-                    if (Command.Length < 2)
+                    if (command.Length < 2)
                     {
-                        ev.Sender.RaReply(Command[0].ToUpper() + "#Usage: stuiter [spec|all]", false, true, "");
+                        ev.Sender.RaReply(command[0].ToUpper() + "#Usage: stuiter [spec|all]", false, true, "");
                         break;
                     }
-                    switch (Command[1].ToUpper())
+                    switch (command[1].ToUpper())
                     {
                         case "ALL":
-                            EXILED.Extensions.Cassie.CassieMessage("xmas_bouncyballs", false, false);
+                            Cassie.CassieMessage("xmas_bouncyballs", false, false);
                             foreach (GameObject player in PlayerManager.players)
                             {
                                 CharacterClassManager component = player.GetComponent<CharacterClassManager>();
@@ -102,9 +95,8 @@ namespace CedMod
                                 component.GodMode = false;
                             }
                             break;
-                        case "SPEC":
                         default:
-                            EXILED.Extensions.Cassie.CassieMessage("xmas_bouncyballs", false, false);
+                            Cassie.CassieMessage("xmas_bouncyballs", false, false);
                             foreach (GameObject player in PlayerManager.players)
                             {
                                 CharacterClassManager component = player.GetComponent<CharacterClassManager>();
@@ -122,22 +114,22 @@ namespace CedMod
                     break;
                 case "AIRSTRIKE":
                     ev.Allow = false;
-                    if (!CheckPermissions(ev.Sender, Command[0], PlayerPermissions.FacilityManagement, "", true))
+                    if (!CheckPermissions(ev.Sender, command[0], PlayerPermissions.FacilityManagement))
                     {
-                        ev.Sender.RaReply(Command[0].ToUpper() + "#No perms to airbomb bro.", false, true, "");
+                        ev.Sender.RaReply(command[0].ToUpper() + "#No perms to airbomb bro.", false, true, "");
                         break;
                     }
-                    if (Command.Length < 3)
+                    if (command.Length < 3)
                     {
-                        ev.Sender.RaReply(Command[0].ToUpper() + "#Usage: AIRSTRIKE <delay> <duration>", false, true, "");
+                        ev.Sender.RaReply(command[0].ToUpper() + "#Usage: AIRSTRIKE <delay> <duration>", false, true, "");
                         break;
                     }
-                    Timing.RunCoroutine(Functions.Coroutines.AirSupportBomb(Convert.ToInt32(Command[1]), Convert.ToInt32(Command[2])), "airstrike");
-                    ev.Sender.RaReply(Command[0].ToUpper() + "#Done", true, true, "");
+                    Timing.RunCoroutine(Functions.Coroutines.AirSupportBomb(Convert.ToInt32(command[1]), Convert.ToInt32(command[2])), "airstrike");
+                    ev.Sender.RaReply(command[0].ToUpper() + "#Done", true, true, "");
                     break;
             }
         }
-        public bool IsEnabled = false;
+        public bool IsEnabled;
         private static bool CheckPermissions(CommandSender sender, string queryZero, PlayerPermissions perm, string replyScreen = "", bool reply = true)
         {
             if (ServerStatic.IsDedicated && sender.FullPermissions)

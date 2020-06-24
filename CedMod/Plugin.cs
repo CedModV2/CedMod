@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using CedMod.CedMod.INIT;
 using EXILED;
+using GameCore;
+using Log = EXILED.Log;
 
 namespace CedMod
 {
@@ -8,9 +11,9 @@ namespace CedMod
     {
         public BanSystem BanSystemEvents;
         public Commands Commands;
-        public FriendlyFireAutoBan FFAEvents;
+        public FriendlyFireAutoBan FfaEvents;
         public FunctionsNonStatic FunctionsNonStatic;
-        public PlayerJoinBC PlayerJoinBCEvents;
+        public PlayerJoinBc PlayerJoinBcEvents;
         public PlayerStatistics PlayerStats;
 
         public override string getName { get; } = "CedModV2";
@@ -19,13 +22,13 @@ namespace CedMod
         {
             try
             {
-                string GEOString = "";
-                List<string> GEOList = GameCore.ConfigFile.ServerConfig.GetStringList("bansystem_geo");
-                foreach (string s in GEOList)
+                string geoString = "";
+                List<string> geoList = ConfigFile.ServerConfig.GetStringList("bansystem_geo");
+                foreach (string s in geoList)
                 {
-                    GEOString = GEOString + s + "+";
+                    geoString = geoString + s + "+";
                 }
-                if (GEOList != null)
+                if (geoList != null)
                 {
                     ServerConsole.AccessRestriction = true;
                 }
@@ -35,12 +38,12 @@ namespace CedMod
                 //Hook the events you will be using in the plugin. You should hook all events you will be using here, all events should be unhooked in OnDisabled 
                 Events.RemoteAdminCommandEvent += BanSystemEvents.OnCommand;
                 Events.PlayerJoinEvent += BanSystemEvents.OnPlayerJoin;
-                PlayerJoinBCEvents = new PlayerJoinBC(this);
-                Events.PlayerJoinEvent += PlayerJoinBCEvents.OnPlayerJoin;
-                FFAEvents = new FriendlyFireAutoBan(this);
-                Events.RoundStartEvent += FFAEvents.OnRoundStart;
-                Events.PlayerDeathEvent += FFAEvents.Ondeath;
-                Events.ConsoleCommandEvent += FFAEvents.ConsoleCommand;
+                PlayerJoinBcEvents = new PlayerJoinBc(this);
+                Events.PlayerJoinEvent += PlayerJoinBcEvents.OnPlayerJoin;
+                FfaEvents = new FriendlyFireAutoBan(this);
+                Events.RoundStartEvent += FfaEvents.OnRoundStart;
+                Events.PlayerDeathEvent += FfaEvents.Ondeath;
+                Events.ConsoleCommandEvent += FfaEvents.ConsoleCommand;
                 Commands = new Commands(this);
                 Events.RemoteAdminCommandEvent += Commands.OnCommand;
                 Events.RoundEndEvent += Commands.OnRoundEnd;
@@ -50,8 +53,8 @@ namespace CedMod
                 FunctionsNonStatic = new FunctionsNonStatic(this);
                 Events.RoundRestartEvent += FunctionsNonStatic.Roundrestart;
                 Events.WaitingForPlayersEvent += FunctionsNonStatic.Waitingforplayers;
-                Log.Info($"CedMod has loaded. c:");
-                INIT.Initializer.Setup();
+                Log.Info("CedMod has loaded. c:");
+                Initializer.Setup();
             }
             catch (Exception e)
             {
@@ -64,17 +67,17 @@ namespace CedMod
         {
             Events.RemoteAdminCommandEvent -= BanSystemEvents.OnCommand;
             Events.PlayerJoinEvent -= BanSystemEvents.OnPlayerJoin;
-            Events.PlayerJoinEvent -= PlayerJoinBCEvents.OnPlayerJoin;
-            Events.RoundStartEvent -= FFAEvents.OnRoundStart;
+            Events.PlayerJoinEvent -= PlayerJoinBcEvents.OnPlayerJoin;
+            Events.RoundStartEvent -= FfaEvents.OnRoundStart;
             Events.RemoteAdminCommandEvent -= Commands.OnCommand;
             Events.RoundEndEvent -= Commands.OnRoundEnd;
-            Events.ConsoleCommandEvent -= FFAEvents.ConsoleCommand;
+            Events.ConsoleCommandEvent -= FfaEvents.ConsoleCommand;
             Events.RoundEndEvent -= PlayerStats.OnRoundEnd;
             Events.PlayerDeathEvent -= PlayerStats.OnPlayerDeath;
             Events.RoundRestartEvent -= FunctionsNonStatic.Roundrestart;
             BanSystemEvents = null;
-            PlayerJoinBCEvents = null;
-            FFAEvents = null;
+            PlayerJoinBcEvents = null;
+            FfaEvents = null;
             Commands = null;
             PlayerStats = null;
             FunctionsNonStatic = null;

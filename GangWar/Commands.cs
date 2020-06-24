@@ -5,8 +5,8 @@ namespace CedMod.GameMode.GangWar
 {
 	public class Commands
 	{
-		private readonly GangWar plugin;
-		public Commands(GangWar plugin) => this.plugin = plugin;
+		private readonly GangWar _plugin;
+		public Commands(GangWar plugin) => _plugin = plugin;
 
 		public void OnRaCommand(ref RACommandEvent ev)
 		{
@@ -19,12 +19,12 @@ namespace CedMod.GameMode.GangWar
 			{
 				case "enable":
 					ev.Allow = false;
-					plugin.Functions.EnableGamemode();
+					_plugin.Functions.EnableGamemode();
 					ev.Sender.RAMessage("Gamemode enabled. c:");
 					break;
 				case "disable":
 					ev.Allow = false;
-					plugin.Functions.DisableGamemode();
+					_plugin.Functions.DisableGamemode();
 					ev.Sender.RAMessage("Gamemode disabled. :c");
 					break;
 			}

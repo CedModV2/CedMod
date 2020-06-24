@@ -1,29 +1,21 @@
-﻿using System;
-using System.Net;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
-using GameCore;
-using UnityEngine;
-
-
-namespace CedMod.INIT
+﻿namespace CedMod.CedMod.INIT
 {
     public class Initializer
     {
         public static readonly bool TestApiOnly = false; //this is used when the version contains code that will not work with the main API and so all requests will me made to the test API
         public static void Setup()
         {
-            Initializer.logger.Info("INIT", string.Concat(new string[]
+            Logger.Info("INIT", string.Concat(new[]
             {
                 "CedMod™ ",
-                Initializer.GetCedModVersion(),
+                GetCedModVersion(),
                 " Initialization"
             }));
-            Initializer.logger.Info("INIT", "For the best experience use MultiAdmin");
-            Initializer.logger.Info("INIT", "Checking for updates");
+            Logger.Info("INIT", "For the best experience use MultiAdmin");
+            Logger.Info("INIT", "Checking for updates");
             if (TestApiOnly)
             {
-                Initializer.logger.Info("INIT", "This version of CedMod is marked as Dev version and will only use the test API");
+                Logger.Info("INIT", "This version of CedMod is marked as Dev version and will only use the test API");
             }
             //Initializer.UpdateCheck();
         }
@@ -33,13 +25,7 @@ namespace CedMod.INIT
             int num2 = 0;
             int num3 = 2;
             string text = "R";
-            return string.Format("{0}.{1}.{2}-{3}", new object[]
-            {
-                num,
-                num2,
-                num3,
-                text
-            });
+            return string.Format("{0}.{1}.{2}-{3}", num, num2, num3, text);
         }
 
         public static void UpdateCheck()
@@ -77,20 +63,7 @@ namespace CedMod.INIT
             //    }
             //}
         }
-        private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors error)
-        {
-            // If the certificate is a valid, signed certificate, return true.
-            if (error == System.Net.Security.SslPolicyErrors.None)
-            {
-                return true;
-            }
 
-            Initializer.logger.Error("INIT" ,"X509Certificate [{0}] Policy Error: '{1}'" +
-                cert.Subject +
-                error.ToString());
-
-            return false;
-        }
-        public static readonly CedModLogger logger = new CedModLogger();
+        public static readonly CedModLogger Logger = new CedModLogger();
     }
 }

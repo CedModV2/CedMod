@@ -7,18 +7,18 @@ namespace CedMod.GameMode.ZombieLand
 {
 	public class Methods
 	{
-		private readonly Plugin plugin;
-		public Methods(Plugin plugin) => this.plugin = plugin;
+		private readonly Plugin _plugin;
+		public Methods(Plugin plugin) => _plugin = plugin;
 
 		public void EnableGamemode()
 		{
-			plugin.GamemodeEnabled = true;
+			_plugin.GamemodeEnabled = true;
 			PlayerManager.localPlayer.GetComponent<Broadcast>().RpcAddElement("<color=lime>Zombieland gamemode is starting next round..</color>", 5, Broadcast.BroadcastFlags.Normal);
 		}
 
 		public void DisableGamemode()
 		{
-			plugin.GamemodeEnabled = false;
+			_plugin.GamemodeEnabled = false;
 		}
 
 		public IEnumerator<float> SpawnMtf(IEnumerable<ReferenceHub> hubs)
@@ -45,8 +45,8 @@ namespace CedMod.GameMode.ZombieLand
 					hub.inventory.AddNewItem(item, 60);
 				
 				hub.playerMovementSync.OverridePosition(Map.GetRandomSpawnPoint(RoleType.Scp93953), 0f);
-				hub.playerStats.maxHP = plugin.NtfHealth;
-				hub.playerStats._health = plugin.NtfHealth;
+				hub.playerStats.maxHP = _plugin.NtfHealth;
+				hub.playerStats._health = _plugin.NtfHealth;
 			}
 		}
 
@@ -114,18 +114,18 @@ namespace CedMod.GameMode.ZombieLand
 				
 				List<int> rands = new List<int>
 				{
-					plugin.Gen.Next(packageItems.Count),
-					plugin.Gen.Next(packageItems.Count),
-					plugin.Gen.Next(packageItems.Count),
-					plugin.Gen.Next(packageItems.Count),
-					plugin.Gen.Next(packageItems.Count),
-					plugin.Gen.Next(packageItems.Count)
+					_plugin.Gen.Next(packageItems.Count),
+					_plugin.Gen.Next(packageItems.Count),
+					_plugin.Gen.Next(packageItems.Count),
+					_plugin.Gen.Next(packageItems.Count),
+					_plugin.Gen.Next(packageItems.Count),
+					_plugin.Gen.Next(packageItems.Count)
 				};
 
 				foreach (int r in rands)
 				{
 					ItemType item = packageItems[r];
-					Vector3 spawn = spawnPoints[plugin.Gen.Next(spawnPoints.Count)];
+					Vector3 spawn = spawnPoints[_plugin.Gen.Next(spawnPoints.Count)];
 
 					if (item == ItemType.Ammo9mm || item == ItemType.Ammo556 || item == ItemType.Ammo762)
 						Map.SpawnItem(item, 300f, spawn);

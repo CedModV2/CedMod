@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Dissonance;
+using System.Linq;
 using EXILED;
 using EXILED.Extensions;
 using MEC;
@@ -8,12 +8,12 @@ namespace CedMod.GameMode.Outbreak
 {
 	public class EventHandlers
 	{
-		private readonly Plugin plugin;
-		public EventHandlers(Plugin plugin) => this.plugin = plugin;
+		private readonly Plugin _plugin;
+		public EventHandlers(Plugin plugin) => _plugin = plugin;
 
 		public void OnWaitingForPlayers()
 		{
-			plugin.RoundStarted = false;
+			_plugin.RoundStarted = false;
 		}
 
 		public void OnRoundStart()
@@ -23,16 +23,16 @@ namespace CedMod.GameMode.Outbreak
 
 		public void OnRoundEnd()
 		{
-			plugin.RoundStarted = false;
+			_plugin.RoundStarted = false;
 			Timing.KillCoroutines("Outbreak");
 		}
 
 		public void OnPlayerJoin(PlayerJoinEvent ev)
 		{
-			if (!plugin.GamemodeEnabled)
+			if (!_plugin.GamemodeEnabled)
 				return;
 			
-			if (plugin.RoundStarted)
+			if (_plugin.RoundStarted)
 				ev.Player.Broadcast(5, "<color=green>Currently playing: Outbreak Gamemode.</color>");
 			else
 			{
@@ -43,12 +43,12 @@ namespace CedMod.GameMode.Outbreak
 		}
 		public IEnumerator<float> Start()
 		{
-			if (plugin.GamemodeEnabled)
+			if (_plugin.GamemodeEnabled)
 			{
 				yield return Timing.WaitForSeconds(2f);
-				plugin.RoundStarted = true;
+				_plugin.RoundStarted = true;
 
-				Timing.RunCoroutine(plugin.Functions.SpawnAlphas());
+				Timing.RunCoroutine(_plugin.Functions.SpawnAlphas());
 			}
 
 			yield return 0;
@@ -56,13 +56,15 @@ namespace CedMod.GameMode.Outbreak
 
 		public void OnCheckRoundEnd(ref CheckRoundEndEvent ev)
 		{
-			if (!plugin.RoundStarted)
+			if (!_plugin.RoundStarted)
 				return;
 			
 			int zCount = 0;
 			int hCount = 0;
 
-			foreach (ReferenceHub hub in Plugin.GetHubs())
+			IEnumerable<ReferenceHub> players1 = Player.GetHubs();
+			List<ReferenceHub> players = players1.ToList();
+			foreach (ReferenceHub hub in players)
 			{
 				if (hub.characterClassManager.CurClass == RoleType.Scp0492)
 					zCount++;
@@ -88,21 +90,21 @@ namespace CedMod.GameMode.Outbreak
 
 		public void OnPlayerDeath(ref PlayerDeathEvent ev)
 		{
-			if (!plugin.RoundStarted)
+			if (!_plugin.RoundStarted)
 				return;
 			
 			DamageTypes.DamageType type = ev.Info.GetDamageType();
 			
 			if (type != DamageTypes.Nuke && type != DamageTypes.Decont && type != DamageTypes.Tesla)
-				Timing.RunCoroutine(plugin.Functions.RespawnZombie(ev.Player));
+				Timing.RunCoroutine(_plugin.Functions.RespawnZombie(ev.Player));
 		}
 
 		public void OnDoorInteraction(ref DoorInteractionEvent ev)
 		{
-			if (!plugin.RoundStarted)
+			if (!_plugin.RoundStarted)
 				return;
 			
-			if (ev.Player.characterClassManager.CurClass == RoleType.Scp0492 && ev.Player.playerStats.maxHP == plugin.ZombieHealth && ev.Door.Networklocked && plugin.AlphasBreakDoors)
+			if (ev.Player.characterClassManager.CurClass == RoleType.Scp0492 && ev.Player.playerStats.maxHP == _plugin.ZombieHealth && ev.Door.Networklocked && _plugin.AlphasBreakDoors)
 			{
 				ev.Door.Networkdestroyed = true;
 				if (ev.Door.GrenadesResistant)
