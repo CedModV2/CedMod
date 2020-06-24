@@ -9,7 +9,12 @@ namespace CedMod.Commands
         public override string Command { get; } = "stuiter";
         public override string[] Aliases { get; }
         public override string Description { get; } = "Does fun stuff";
-
+        public static StuiterCommand Create()
+        {
+            StuiterCommand StuiterCommand = new StuiterCommand();
+            StuiterCommand.LoadGeneratedCommands();
+            return StuiterCommand;
+        }
         protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
@@ -20,6 +25,7 @@ namespace CedMod.Commands
         public override void LoadGeneratedCommands()
         {
             RegisterCommand(new Stuiter.AllCommand());
+            RegisterCommand(new Stuiter.SpecCommand());
         }
     }
 }
