@@ -10,7 +10,7 @@ namespace CedMod
     public class Plugin : EXILED.Plugin
     {
         public BanSystem BanSystemEvents;
-        public Commands Commands;
+        public CommandsOld Commands;
         public FriendlyFireAutoBan FfaEvents;
         public FunctionsNonStatic FunctionsNonStatic;
         public PlayerJoinBc PlayerJoinBcEvents;
@@ -44,7 +44,7 @@ namespace CedMod
                 Events.RoundStartEvent += FfaEvents.OnRoundStart;
                 Events.PlayerDeathEvent += FfaEvents.Ondeath;
                 Events.ConsoleCommandEvent += FfaEvents.ConsoleCommand;
-                Commands = new Commands(this);
+                Commands = new CommandsOld(this);
                 Events.RemoteAdminCommandEvent += Commands.OnCommand;
                 Events.RoundEndEvent += Commands.OnRoundEnd;
                 PlayerStats = new PlayerStatistics(this);
