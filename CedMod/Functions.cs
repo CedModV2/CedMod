@@ -365,7 +365,7 @@ namespace CedMod
                         webClient.Headers.Add("Alias", alias);
                         webClient.Headers.Add("Port", ServerConsole.Port.ToString());
                         webClient.Headers.Add("Ip", ServerConsole.Ip);
-                        var text = "";
+                        string text;
                         if (Initializer.TestApiOnly)
                             text = webClient.DownloadString(string.Concat("https://test.cedmod.nl/banning/ban.php?id=",
                                 player.GetComponent<CharacterClassManager>().UserId, "&ip=",
@@ -423,7 +423,7 @@ namespace CedMod
             Timing.RunCoroutine(LightsOut(Convert.ToBoolean(heavyOnly)), "LightsOut");
         }
 
-        private static bool CheckPermissions(CommandSender sender, string queryZero, PlayerPermissions perm,
+        public static bool CheckPermissions(CommandSender sender, string queryZero, PlayerPermissions perm,
             string replyScreen = "", bool reply = true)
         {
             if (ServerStatic.IsDedicated && sender.FullPermissions) return true;

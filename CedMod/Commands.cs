@@ -1,15 +1,13 @@
 ﻿using System;
 using EXILED;
-using EXILED.Extensions;
 using MEC;
-using UnityEngine;
 
 namespace CedMod
 {
-    public class Commands
+    public class CommandsOld
     {
         public Plugin Plugin;
-        public Commands(Plugin plugin) => Plugin = plugin;
+        public CommandsOld(Plugin plugin) => Plugin = plugin;
         public void OnRoundEnd()
         {
             IsEnabled = false;
@@ -67,49 +65,6 @@ namespace CedMod
                     else
                     {
                         ev.Sender.RaReply(command[0].ToUpper() + "#FFA is now Enabled FFA wil reset at round end unless FFA is disabled", true, true, "");
-                    }
-                    break;
-                case "STUITER":
-                    ev.Allow = false;
-                    if (!CheckPermissions(ev.Sender, command[0], PlayerPermissions.FacilityManagement))
-                    {
-                        ev.Sender.RaReply(command[0].ToUpper() + "#No perms to Stuiter bro.", false, true, "");
-                        break;
-                    }
-                    if (command.Length < 2)
-                    {
-                        ev.Sender.RaReply(command[0].ToUpper() + "#Usage: stuiter [spec|all]", false, true, "");
-                        break;
-                    }
-                    switch (command[1].ToUpper())
-                    {
-                        case "ALL":
-                            Cassie.CassieMessage("xmas_bouncyballs", false, false);
-                            foreach (GameObject player in PlayerManager.players)
-                            {
-                                CharacterClassManager component = player.GetComponent<CharacterClassManager>();
-                                component.SetClassID(RoleType.Tutorial);
-                                component.GetComponent<PlayerStats>()._health = 100;
-                                component.GetComponent<Inventory>().items.Clear();
-                                component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
-                                component.GodMode = false;
-                            }
-                            break;
-                        default:
-                            Cassie.CassieMessage("xmas_bouncyballs", false, false);
-                            foreach (GameObject player in PlayerManager.players)
-                            {
-                                CharacterClassManager component = player.GetComponent<CharacterClassManager>();
-                                if (component.CurClass == RoleType.Spectator)
-                                {
-                                    component.SetClassID(RoleType.Tutorial);
-                                    component.GetComponent<PlayerStats>()._health = 100;
-                                    component.GetComponent<Inventory>().items.Clear();
-                                    component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
-                                    component.GodMode = false;
-                                }
-                            }
-                            break;
                     }
                     break;
                 case "AIRSTRIKE":
