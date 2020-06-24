@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using EXILED;
 using EXILED.Extensions;
 using MEC;
@@ -17,23 +18,29 @@ namespace CedMod.GameMode.GangWar
 
 		public void OnRoundStart()
 		{
-			try
-			{
-				if (!plugin.GamemodeEnabled)
-					return;
-				
-				plugin.RoundStarted = true;
-				Timing.RunCoroutine(plugin.Functions.SpawnPlayers());
-			}
-			catch (Exception e)
-			{
-				Plugin.Error($"ROUND START ERROR< REEEE: {e}");
-			}
+			Timing.RunCoroutine(Start(), "Gangwar");
 		}
+		public IEnumerator<float> Start()
+		{
+			if (plugin.GamemodeEnabled)
+			{
+				try
+				{
+					plugin.RoundStarted = true;
+					Timing.RunCoroutine(plugin.Functions.SpawnPlayers());
+				}
+				catch (Exception e)
+				{
+					Plugin.Error($"ROUND START ERROR< REEEE: {e}");
+				}
+			}
 
+			yield return 0;
+		}
 		public void OnRoundEnd()
 		{
 			plugin.RoundStarted = false;
+			Timing.KillCoroutines("Gangwar");
 		}
 
 		public void OnPlayerJoin(PlayerJoinEvent ev)

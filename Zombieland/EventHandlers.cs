@@ -18,24 +18,32 @@ namespace CedMod.GameMode.ZombieLand
 
 		public void OnRoundStart()
 		{
-			if (!plugin.GamemodeEnabled)
-				return;
+			Timing.RunCoroutine(Start(), "Countdown");
+		}
 
-			plugin.RoundStarted = true;
-			List<ReferenceHub> players = Plugin.GetHubs();
-			List<ReferenceHub> ntf = new List<ReferenceHub>();
-
-			for (int i = 0; i < plugin.MaxNtf && players.Count > 2; i++)
+		public IEnumerator<float> Start()
+		{
+			if (plugin.GamemodeEnabled)
 			{
-				int r = plugin.Gen.Next(players.Count);
-				ntf.Add(players[r]);
-				players.Remove(players[r]);
+				yield return Timing.WaitForSeconds(2f);
+				plugin.RoundStarted = true;
+				List<ReferenceHub> players = Plugin.GetHubs();
+				List<ReferenceHub> ntf = new List<ReferenceHub>();
+
+				for (int i = 0; i < plugin.MaxNtf && players.Count > 2; i++)
+				{
+					int r = plugin.Gen.Next(players.Count);
+					ntf.Add(players[r]);
+					players.Remove(players[r]);
+				}
+
+				Timing.RunCoroutine(plugin.Functions.SpawnMtf(ntf));
+				Timing.RunCoroutine(plugin.Functions.SpawnZombies(players));
+				Timing.RunCoroutine(plugin.Functions.Countdown(players), "Countdown");
+				Timing.RunCoroutine(plugin.Functions.CarePackage(), "CarePackage");
 			}
 
-			Timing.RunCoroutine(plugin.Functions.SpawnMtf(ntf));
-			Timing.RunCoroutine(plugin.Functions.SpawnZombies(players));
-			Timing.RunCoroutine(plugin.Functions.Countdown(players), "Countdown");
-			Timing.RunCoroutine(plugin.Functions.CarePackage(), "CarePackage");
+			yield return 0;
 		}
 
 		public void OnRoundEnd()

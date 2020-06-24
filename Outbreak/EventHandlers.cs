@@ -18,17 +18,13 @@ namespace CedMod.GameMode.Outbreak
 
 		public void OnRoundStart()
 		{
-			if (!plugin.GamemodeEnabled)
-				return;
-			
-			plugin.RoundStarted = true;
-
-			Timing.RunCoroutine(plugin.Functions.SpawnAlphas());
+			Timing.RunCoroutine(Start(), "Outbreak");
 		}
 
 		public void OnRoundEnd()
 		{
 			plugin.RoundStarted = false;
+			Timing.KillCoroutines("Outbreak");
 		}
 
 		public void OnPlayerJoin(PlayerJoinEvent ev)
@@ -44,6 +40,18 @@ namespace CedMod.GameMode.Outbreak
 				broadcast.RpcClearElements();
 				broadcast.RpcAddElement("<color=green>Outbreak Gamemode is starting..</color>", 5, Broadcast.BroadcastFlags.Normal);
 			}
+		}
+		public IEnumerator<float> Start()
+		{
+			if (plugin.GamemodeEnabled)
+			{
+				yield return Timing.WaitForSeconds(2f);
+				plugin.RoundStarted = true;
+
+				Timing.RunCoroutine(plugin.Functions.SpawnAlphas());
+			}
+
+			yield return 0;
 		}
 
 		public void OnCheckRoundEnd(ref CheckRoundEndEvent ev)
