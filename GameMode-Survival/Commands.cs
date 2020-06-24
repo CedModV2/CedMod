@@ -5,8 +5,8 @@ namespace CedMod.GameMode.Survival
 {
 	public class Commands
 	{
-		private readonly Player plugin;
-		public Commands(Player plugin) => this.plugin = plugin;
+		private readonly Player _plugin;
+		public Commands(Player plugin) => _plugin = plugin;
 
 		public void OnRaCommand(ref RACommandEvent ev)
 		{
@@ -19,12 +19,12 @@ namespace CedMod.GameMode.Survival
 			{
 				case "enable":
 					ev.Allow = false;
-					plugin.Functions.EnableGamemode();
+					_plugin.Functions.EnableGamemode();
 					ev.Sender.RAMessage("Gamemode enabled for the next round.");
 					return;
 				case "disable":
 					ev.Allow = false;
-					plugin.Functions.DisableGamemode();
+					_plugin.Functions.DisableGamemode();
 					ev.Sender.RAMessage("Gamemode disabled.");
 					return;
 			}

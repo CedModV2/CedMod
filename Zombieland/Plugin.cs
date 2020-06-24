@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using EXILED;
-using MEC;
 
 namespace CedMod.GameMode.ZombieLand
 {

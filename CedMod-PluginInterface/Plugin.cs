@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 
-using EXILED;
-
-namespace CedModPluginInterface
+namespace CedMod.PluginInterface
 {
     public class PluginInterface : EXILED.Plugin
     {

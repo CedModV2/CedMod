@@ -1,21 +1,21 @@
+using System.Collections.Generic;
+using System.Linq;
 using EXILED;
 using EXILED.Extensions;
 using MEC;
 using Mirror;
-using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 
 namespace CedMod.GameMode.Survival
 {
     public class EventHandlers
     {
-        private readonly Player plugin;
-        public EventHandlers(Player plugin) => this.plugin = plugin;
+        private readonly Player _plugin;
+        public EventHandlers(Player plugin) => _plugin = plugin;
 
         public void OnWaitingForPlayers()
         {
-            plugin.RoundStarted = false;
+            _plugin.RoundStarted = false;
             Timing.KillCoroutines("blackout");
         }
 
@@ -26,7 +26,7 @@ namespace CedMod.GameMode.Survival
         }
         private IEnumerator<float> Start()
         {
-            if (plugin.GamemodeEnabled)
+            if (_plugin.GamemodeEnabled)
             {
                 foreach (GameObject player in PlayerManager.players)
                 {
@@ -35,37 +35,37 @@ namespace CedMod.GameMode.Survival
                     component.GetComponent<ServerRoles>().CmdSetOverwatchStatus(0);
                 }
                 RoundSummary.RoundLock = true;
-                plugin.RoundStarted = true;
-                plugin.Functions.DoSetup();
+                _plugin.RoundStarted = true;
+                _plugin.Functions.DoSetup();
                 List<ReferenceHub> hubs = EXILED.Extensions.Player.GetHubs().ToList();
                 List<ReferenceHub> nuts = new List<ReferenceHub>();
 
                 for (int i = 0; i < 3 && hubs.Count > 2; i++)
                 {
-                    int r = plugin.Gen.Next(hubs.Count);
+                    int r = _plugin.Gen.Next(hubs.Count);
                     nuts.Add(hubs[r]);
                     hubs.Remove(hubs[r]);
                 }
                 yield return Timing.WaitForSeconds(2f);
-                Timing.RunCoroutine(plugin.Functions.SpawnDbois(hubs));
-                Timing.RunCoroutine(plugin.Functions.SpawnNuts(nuts), "blackout");
+                Timing.RunCoroutine(_plugin.Functions.SpawnDbois(hubs));
+                Timing.RunCoroutine(_plugin.Functions.SpawnNuts(nuts), "blackout");
                 RoundSummary.RoundLock = false;
             }
         }
         public void OnRoundEnd()
         {
-            plugin.Functions.DisableGamemode();
-            plugin.RoundStarted = false;
+            _plugin.Functions.DisableGamemode();
+            _plugin.RoundStarted = false;
             Timing.KillCoroutines("blackout");
         }
 
         public void OnPlayerJoin(PlayerJoinEvent ev)
         {
-            if (!plugin.GamemodeEnabled)
+            if (!_plugin.GamemodeEnabled)
                 return;
             //kek
-            if (plugin.RoundStarted)
-                ev.Player.Broadcast(10, "<color=yellow>Now playing: Survival of the Fittest gamemode</color", false);
+            if (_plugin.RoundStarted)
+                ev.Player.Broadcast(10, "<color=yellow>Now playing: Survival of the Fittest gamemode</color");
             else
             {
                 Broadcast broadcast = PlayerManager.localPlayer.GetComponent<Broadcast>();
@@ -75,7 +75,7 @@ namespace CedMod.GameMode.Survival
         }
         public void OnTeamRespawn(ref TeamRespawnEvent ev)
         {
-            if (!plugin.RoundStarted)
+            if (!_plugin.RoundStarted)
                 return;
             foreach (GameObject player in PlayerManager.players)
             {
@@ -93,7 +93,7 @@ namespace CedMod.GameMode.Survival
         }
         public void OnTesla(ref TriggerTeslaEvent ev)
         {
-            if (plugin.GamemodeEnabled)
+            if (_plugin.GamemodeEnabled)
             {
                 ev.Triggerable = false;
             }

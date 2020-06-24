@@ -6,8 +6,7 @@ using System.Net.Security;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
-using CedMod.INIT;
-using EXILED;
+using CedMod.CedMod.INIT;
 using EXILED.Extensions;
 using GameCore;
 using Grenades;
@@ -25,11 +24,11 @@ namespace CedMod
 {
     public class FunctionsNonStatic
     {
-        public Plugin plugin;
+        public Plugin Plugin;
 
         public FunctionsNonStatic(Plugin plugin)
         {
-            this.plugin = plugin;
+            Plugin = plugin;
         }
 
         public static void Roundrestart()
@@ -79,14 +78,14 @@ namespace CedMod
 
     public static class Functions
     {
-        public enum GRENADE_ID
+        public enum GrenadeId
         {
-            FRAG_NADE = 0,
-            FLASH_NADE = 1,
-            SCP018_NADE = 2
+            FragNade = 0,
+            FlashNade = 1,
+            Scp018Nade = 2
         }
 
-        private static string GEOString = "";
+        private static string _geoString = "";
 
         public static void InvokeStaticMethod(this Type type, string methodName, object[] param)
         {
@@ -108,24 +107,25 @@ namespace CedMod
             if (player == null) player = ReferenceHub.GetHub(PlayerManager.localPlayer);
             var gm = player.GetComponent<GrenadeManager>();
             var component = Object
-                .Instantiate(gm.availableGrenades[isFlash ? (int) GRENADE_ID.FLASH_NADE : (int) GRENADE_ID.FRAG_NADE]
+                .Instantiate(gm.availableGrenades[isFlash ? (int) GrenadeId.FlashNade : (int) GrenadeId.FragNade]
                     .grenadeInstance).GetComponent<Grenade>();
             if (fusedur != -1) component.fuseDuration = fusedur;
             component.FullInitData(gm, position, Quaternion.Euler(component.throwStartAngle), Vector3.zero,
                 component.throwAngularVelocity);
-            component.gameObject.transform.localScale = new Vector3(scalex, scaley, scalez);
-            NetworkServer.Spawn(component.gameObject);
+            GameObject gameObject = component.gameObject;
+            gameObject.transform.localScale = new Vector3(scalex, scaley, scalez);
+            NetworkServer.Spawn(gameObject);
         }
 
-        public static Dictionary<string, string> GetBandetails(ReferenceHub Player, bool usegeoifenabled = true)
+        public static Dictionary<string, string> GetBandetails(ReferenceHub player, bool usegeoifenabled = true)
         {
             if (usegeoifenabled)
             {
-                var GEOList = ConfigFile.ServerConfig.GetStringList("bansystem_geo");
-                if (GEOString == "")
-                    foreach (var s in GEOList)
-                        GEOString = GEOString + s + "+";
-                if (GEOList != null) ServerConsole.AccessRestriction = true;
+                var geoList = ConfigFile.ServerConfig.GetStringList("bansystem_geo");
+                if (_geoString == "")
+                    foreach (var s in geoList)
+                        _geoString = _geoString + s + "+";
+                if (geoList != null) ServerConsole.AccessRestriction = true;
             }
 
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
@@ -139,44 +139,44 @@ namespace CedMod
                             ConfigFile.ServerConfig.GetString("bansystem_apikey"));
                     webClient3.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
                     var alias = ConfigFile.ServerConfig.GetString("bansystem_alias", "none");
-                    if (alias.Contains(" ")) alias.Replace(" ", "");
+                    if (alias.Contains(" ")) alias = alias.Replace(" ", "");
                     webClient3.Headers.Add("Alias", alias);
                     webClient3.Headers.Add("Port", ServerConsole.Port.ToString());
                     webClient3.Headers.Add("Ip", ServerConsole.Ip);
-                    var text3 = BanSystem.testusers.Contains(Player.characterClassManager.UserId) ||
+                    var text3 = BanSystem.Testusers.Contains(player.characterClassManager.UserId) ||
                                 Initializer.TestApiOnly
-                        ? webClient3.DownloadString("https://test.cedmod.nl/auth/auth.php?id=" + Player.GetUserId() +
+                        ? webClient3.DownloadString("https://test.cedmod.nl/auth/auth.php?id=" + player.GetUserId() +
                                                     "&ip=" +
-                                                    Player.GetComponent<NetworkIdentity>().connectionToClient.address +
+                                                    player.GetComponent<NetworkIdentity>().connectionToClient.address +
                                                     "&alias=" + ConfigFile.ServerConfig.GetString("bansystem_alias",
-                                                        "none") + "&geo=" + GEOString)
-                        : webClient3.DownloadString("https://api.cedmod.nl/auth/auth.php?id=" + Player.GetUserId() +
+                                                        "none") + "&geo=" + _geoString)
+                        : webClient3.DownloadString("https://api.cedmod.nl/auth/auth.php?id=" + player.GetUserId() +
                                                     "&ip=" +
-                                                    Player.GetComponent<NetworkIdentity>().connectionToClient.address +
+                                                    player.GetComponent<NetworkIdentity>().connectionToClient.address +
                                                     "&alias=" + ConfigFile.ServerConfig.GetString("bansystem_alias",
-                                                        "none") + "&geo=" + GEOString);
-                    Initializer.logger.Info("BANSYSTEM",
-                        "Checking ban status of user: " + Player.GetComponent<CharacterClassManager>().UserId +
+                                                        "none") + "&geo=" + _geoString);
+                    Initializer.Logger.Info("BANSYSTEM",
+                        "Checking ban status of user: " + player.GetComponent<CharacterClassManager>().UserId +
                         " Response from API: " + text3);
-                    BanSystem.LastAPIRequestSuccessfull = true;
-                    var JSONObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(text3);
-                    return JSONObj;
+                    BanSystem.LastApiRequestSuccessfull = true;
+                    var jsonObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(text3);
+                    return jsonObj;
                 }
             }
             catch (WebException ex)
             {
-                Initializer.logger.Error("BANSYSTEN",
+                Initializer.Logger.Error("BANSYSTEN",
                     "Unable to properly connect to CedMod API: " + ex.Status + " | " + ex.Message);
-                BanSystem.LastAPIRequestSuccessfull = false;
+                BanSystem.LastApiRequestSuccessfull = false;
                 return null;
             }
         }
 
-        public static Dictionary<string, string> CheckBanExpired(ReferenceHub Player)
+        public static Dictionary<string, string> CheckBanExpired(ReferenceHub player)
         {
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            Initializer.logger.Debug("BANSYSTEM1", Thread.CurrentThread.Name);
+            Initializer.Logger.Debug("BANSYSTEM1", Thread.CurrentThread.Name);
             try
             {
                 using (var webClient = new WebClient())
@@ -186,40 +186,40 @@ namespace CedMod
                             ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
                     webClient.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
                     var alias = ConfigFile.ServerConfig.GetString("bansystem_alias", "none");
-                    if (alias.Contains(" ")) alias.Replace(" ", "");
+                    if (alias.Contains(" ")) alias = alias.Replace(" ", "");
                     webClient.Headers.Add("Alias", alias);
                     webClient.Headers.Add("Port", ServerConsole.Port.ToString());
                     webClient.Headers.Add("Ip", ServerConsole.Ip);
-                    var text2 = BanSystem.testusers.Contains(Player.characterClassManager.UserId) ||
+                    var text2 = BanSystem.Testusers.Contains(player.characterClassManager.UserId) ||
                                 Initializer.TestApiOnly
                         ? webClient.DownloadString("https://test.cedmod.nl/auth/preauth.php?id=" +
-                                                   Player.GetComponent<CharacterClassManager>().UserId + "&ip=" +
-                                                   Player.GetComponent<NetworkIdentity>().connectionToClient.address +
+                                                   player.GetComponent<CharacterClassManager>().UserId + "&ip=" +
+                                                   player.GetComponent<NetworkIdentity>().connectionToClient.address +
                                                    "&alias=" + ConfigFile.ServerConfig.GetString("bansystem_alias",
                                                        "none"))
                         : webClient.DownloadString("https://api.cedmod.nl/auth/preauth.php?id=" +
-                                                   Player.GetComponent<CharacterClassManager>().UserId + "&ip=" +
-                                                   Player.GetComponent<NetworkIdentity>().connectionToClient.address +
+                                                   player.GetComponent<CharacterClassManager>().UserId + "&ip=" +
+                                                   player.GetComponent<NetworkIdentity>().connectionToClient.address +
                                                    "&alias=" + ConfigFile.ServerConfig.GetString("bansystem_alias",
                                                        "none"));
-                    Initializer.logger.Info("BANSYSTEM",
-                        "checking ban status for user: " + Player.GetComponent<CharacterClassManager>().UserId +
+                    Initializer.Logger.Info("BANSYSTEM",
+                        "checking ban status for user: " + player.GetComponent<CharacterClassManager>().UserId +
                         " Response from API: " + text2);
-                    BanSystem.LastAPIRequestSuccessfull = true;
-                    var JSONObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(text2);
-                    return JSONObj;
+                    BanSystem.LastApiRequestSuccessfull = true;
+                    var jsonObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(text2);
+                    return jsonObj;
                 }
             }
             catch (WebException ex)
             {
-                BanSystem.LastAPIRequestSuccessfull = false;
-                Initializer.logger.Error("BANSYSTEN",
+                BanSystem.LastApiRequestSuccessfull = false;
+                Initializer.Logger.Error("BANSYSTEN",
                     "Unable to properly connect to CedMod API: " + ex.Status + " | " + ex.Message);
                 return null;
             }
         }
 
-        public static Dictionary<string, string> Unban(ReferenceHub Player)
+        public static Dictionary<string, string> Unban(ReferenceHub player)
         {
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -232,44 +232,44 @@ namespace CedMod
                             ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
                     webClient.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
                     var alias = ConfigFile.ServerConfig.GetString("bansystem_alias", "none");
-                    if (alias.Contains(" ")) alias.Replace(" ", "");
+                    if (alias.Contains(" ")) alias = alias.Replace(" ", "");
                     webClient.Headers.Add("Alias", alias);
                     webClient.Headers.Add("Port", ServerConsole.Port.ToString());
                     webClient.Headers.Add("Ip", ServerConsole.Ip);
-                    var text2 = BanSystem.testusers.Contains(Player.characterClassManager.UserId) ||
+                    var text2 = BanSystem.Testusers.Contains(player.characterClassManager.UserId) ||
                                 Initializer.TestApiOnly
                         ? webClient.DownloadString("https://test.cedmod.nl/banning/unban.php?id=" +
-                                                   Player.GetComponent<CharacterClassManager>().UserId + "&ip=" +
-                                                   Player.GetComponent<NetworkIdentity>().connectionToClient.address +
+                                                   player.GetComponent<CharacterClassManager>().UserId + "&ip=" +
+                                                   player.GetComponent<NetworkIdentity>().connectionToClient.address +
                                                    "&reason=Expired&aname=Server&webhook=" +
                                                    ConfigFile.ServerConfig.GetString("bansystem_webhook", "none") +
                                                    "&alias=" + ConfigFile.ServerConfig.GetString("bansystem_alias",
                                                        "none"))
                         : webClient.DownloadString("https://api.cedmod.nl/banning/unban.php?id=" +
-                                                   Player.GetComponent<CharacterClassManager>().UserId + "&ip=" +
-                                                   Player.GetComponent<NetworkIdentity>().connectionToClient.address +
+                                                   player.GetComponent<CharacterClassManager>().UserId + "&ip=" +
+                                                   player.GetComponent<NetworkIdentity>().connectionToClient.address +
                                                    "&reason=Expired&aname=Server&webhook=" +
                                                    ConfigFile.ServerConfig.GetString("bansystem_webhook", "none") +
                                                    "&alias=" + ConfigFile.ServerConfig.GetString("bansystem_alias",
                                                        "none"));
-                    Initializer.logger.Info("BANSYSTEM",
-                        "user: " + Player.GetComponent<CharacterClassManager>().UserId + " unban, Response from API: " +
+                    Initializer.Logger.Info("BANSYSTEM",
+                        "user: " + player.GetComponent<CharacterClassManager>().UserId + " unban, Response from API: " +
                         text2);
-                    BanSystem.LastAPIRequestSuccessfull = true;
-                    var JSONObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(text2);
-                    return JSONObj;
+                    BanSystem.LastApiRequestSuccessfull = true;
+                    var jsonObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(text2);
+                    return jsonObj;
                 }
             }
             catch (WebException ex)
             {
-                Initializer.logger.Error("BANSYSTEN",
+                Initializer.Logger.Error("BANSYSTEN",
                     "Unable to properly connect to CedMod API: " + ex.Status + " | " + ex.Message);
-                BanSystem.LastAPIRequestSuccessfull = false;
+                BanSystem.LastApiRequestSuccessfull = false;
                 return null;
             }
         }
 
-        public static object GetPriors(ReferenceHub Player)
+        public static object GetPriors(ReferenceHub player)
         {
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -282,18 +282,18 @@ namespace CedMod
                             ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
                     webClient.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
                     var alias = ConfigFile.ServerConfig.GetString("bansystem_alias", "none");
-                    if (alias.Contains(" ")) alias.Replace(" ", "");
+                    if (alias.Contains(" ")) alias = alias.Replace(" ", "");
                     webClient.Headers.Add("Alias", alias);
                     webClient.Headers.Add("Port", ServerConsole.Port.ToString());
                     webClient.Headers.Add("Ip", ServerConsole.Ip);
-                    var text2 = BanSystem.testusers.Contains(Player.characterClassManager.UserId) ||
+                    var text2 = BanSystem.Testusers.Contains(player.characterClassManager.UserId) ||
                                 Initializer.TestApiOnly
                         ? webClient.DownloadString("https://test.cedmod.nl/banning/userdetails.php?id=" +
-                                                   Player.GetComponent<CharacterClassManager>().UserId + "&alias=" +
+                                                   player.GetComponent<CharacterClassManager>().UserId + "&alias=" +
                                                    ConfigFile.ServerConfig.GetString("bansystem_alias", "none") +
                                                    "&priors=1")
                         : webClient.DownloadString("https://api.cedmod.nl/banning/userdetails.php?id=" +
-                                                   Player.GetComponent<CharacterClassManager>().UserId + "&alias=" +
+                                                   player.GetComponent<CharacterClassManager>().UserId + "&alias=" +
                                                    ConfigFile.ServerConfig.GetString("bansystem_alias", "none") +
                                                    "&priors=1");
                     var json = JsonConvert.DeserializeObject(text2);
@@ -308,7 +308,7 @@ namespace CedMod
             }
         }
 
-        public static string GetTotalBans(ReferenceHub Player)
+        public static string GetTotalBans(ReferenceHub player)
         {
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -321,12 +321,12 @@ namespace CedMod
                             ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
                     webClient.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
                     var alias = ConfigFile.ServerConfig.GetString("bansystem_alias", "none");
-                    if (alias.Contains(" ")) alias.Replace(" ", "");
+                    if (alias.Contains(" ")) alias = alias.Replace(" ", "");
                     webClient.Headers.Add("Alias", alias);
                     webClient.Headers.Add("Port", ServerConsole.Port.ToString());
                     webClient.Headers.Add("Ip", ServerConsole.Ip);
                     var text2 = webClient.DownloadString("https://api.cedmod.nl/banning/userdetails.php?id=" + 
-                                                         Player.GetComponent<CharacterClassManager>().UserId + 
+                                                         player.GetComponent<CharacterClassManager>().UserId + 
                                                          "&alias=" +
                                                          ConfigFile.ServerConfig.GetString("bansystem_alias", "none") +
                                                          "&total=1");
@@ -345,7 +345,7 @@ namespace CedMod
         public static void Ban(GameObject player, long duration, string sender, string reason, bool bc = true)
         {
             Thread.CurrentThread.Name = "CedModV3 queue worker";
-            Initializer.logger.Debug("BANSYSTEM4", Thread.CurrentThread.Name);
+            Initializer.Logger.Debug("BANSYSTEM4", Thread.CurrentThread.Name);
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             if (duration >= 1)
@@ -361,7 +361,7 @@ namespace CedMod
                             ConfigFile.ServerConfig.GetString("bansystem_apikey", "none"));
                         webClient.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
                         var alias = ConfigFile.ServerConfig.GetString("bansystem_alias", "none");
-                        if (alias.Contains(" ")) alias.Replace(" ", "");
+                        if (alias.Contains(" ")) alias = alias.Replace(" ", "");
                         webClient.Headers.Add("Alias", alias);
                         webClient.Headers.Add("Port", ServerConsole.Port.ToString());
                         webClient.Headers.Add("Ip", ServerConsole.Ip);
@@ -383,13 +383,13 @@ namespace CedMod
                         Log.Info(string.Concat("User: ", player.GetComponent<CharacterClassManager>().UserId,
                             " has been banned by: ", sender, " for the reason: ", reason, " duration: ", duration));
                         Log.Info("BANSYSTEM: Response from ban API: " + text);
-                        var JSONObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(text);
-                        ServerConsole.Disconnect(player, JSONObj["preformattedmessage"]);
+                        var jsonObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(text);
+                        ServerConsole.Disconnect(player, jsonObj["preformattedmessage"]);
                     }
                 }
                 catch (WebException ex)
                 {
-                    Initializer.logger.Error("BANSYSTEM",
+                    Initializer.Logger.Error("BANSYSTEM",
                         string.Concat("An error occured: ", ex.Message, " ", ex.Status,
                             " Adding to UserIDBans instead"));
                     var issuanceTime = TimeBehaviour.CurrentTimestamp();
@@ -416,11 +416,11 @@ namespace CedMod
                 }
             }
         }
-        public static IEnumerator<float> LightsOut(bool HeavyOnly)
+        public static IEnumerator<float> LightsOut(bool heavyOnly)
         {
-            Generator079.generators[0].RpcCustomOverchargeForOurBeautifulModCreators(9.5f, HeavyOnly);
+            Generator079.generators[0].RpcCustomOverchargeForOurBeautifulModCreators(9.5f, heavyOnly);
             yield return Timing.WaitForSeconds(10f);
-            Timing.RunCoroutine(LightsOut(Convert.ToBoolean(HeavyOnly)), "LightsOut");
+            Timing.RunCoroutine(LightsOut(Convert.ToBoolean(heavyOnly)), "LightsOut");
         }
 
         private static bool CheckPermissions(CommandSender sender, string queryZero, PlayerPermissions perm,
@@ -453,7 +453,7 @@ namespace CedMod
             var flag = false;
             var team = victim.Classes.SafeGet(victim.CurClass).team;
             var team2 = killer.Classes.SafeGet(killer.CurClass).team;
-            FFALog(killer, victim, team, team2);
+            FfaLog(killer, victim, team, team2);
             if (killer.CurClass != RoleType.Tutorial)
             {
                 if (victim.CurClass == killer.CurClass &&
@@ -464,15 +464,15 @@ namespace CedMod
                         ConfigFile.ServerConfig.GetBool("ffa_dclassvsdclasstk", true))
                     {
                         flag = true;
-                        Initializer.logger.Debug("FFA", "Teamkill1");
-                        FFALog(killer, victim, team, team2);
+                        Initializer.Logger.Debug("FFA", "Teamkill1");
+                        FfaLog(killer, victim, team, team2);
                     }
                     else if (victim.CurClass != RoleType.ClassD || killer.CurClass != RoleType.ClassD ||
                              ConfigFile.ServerConfig.GetBool("ffa_dclassvsdclasstk", true))
                     {
                         flag = true;
-                        Initializer.logger.Debug("FFA", "Teamkill1");
-                        FFALog(killer, victim, team, team2);
+                        Initializer.Logger.Debug("FFA", "Teamkill1");
+                        FfaLog(killer, victim, team, team2);
                     }
                 }
                 else if (victim.CurClass == RoleType.ClassD && killer.CurClass == RoleType.ChaosInsurgency &&
@@ -480,39 +480,39 @@ namespace CedMod
                          killer.gameObject.GetComponent<QueryProcessor>().PlayerId.ToString())
                 {
                     flag = true;
-                    Initializer.logger.Debug("FFA", "Teamkill2");
-                    FFALog(killer, victim, team, team2);
+                    Initializer.Logger.Debug("FFA", "Teamkill2");
+                    FfaLog(killer, victim, team, team2);
                 }
                 else if (victim.CurClass == RoleType.ChaosInsurgency && killer.CurClass == RoleType.ClassD &&
                          victim.gameObject.GetComponent<QueryProcessor>().PlayerId.ToString() !=
                          killer.gameObject.GetComponent<QueryProcessor>().PlayerId.ToString())
                 {
                     flag = true;
-                    Initializer.logger.Debug("FFA", "Teamkill3");
-                    FFALog(killer, victim, team, team2);
+                    Initializer.Logger.Debug("FFA", "Teamkill3");
+                    FfaLog(killer, victim, team, team2);
                 }
                 else if (team == team2 && victim.gameObject.GetComponent<QueryProcessor>().PlayerId.ToString() !=
                     killer.gameObject.GetComponent<QueryProcessor>().PlayerId.ToString())
                 {
                     flag = true;
-                    Initializer.logger.Debug("FFA", "Teamkill4");
-                    FFALog(killer, victim, team, team2);
+                    Initializer.Logger.Debug("FFA", "Teamkill4");
+                    FfaLog(killer, victim, team, team2);
                 }
                 else if (team2 == Team.MTF && victim.CurClass == RoleType.Scientist &&
                          victim.gameObject.GetComponent<QueryProcessor>().PlayerId.ToString() !=
                          killer.gameObject.GetComponent<QueryProcessor>().PlayerId.ToString())
                 {
                     flag = true;
-                    Initializer.logger.Debug("FFA", "Teamkill5");
-                    FFALog(killer, victim, team, team2);
+                    Initializer.Logger.Debug("FFA", "Teamkill5");
+                    FfaLog(killer, victim, team, team2);
                 }
                 else if (team == Team.MTF && killer.CurClass == RoleType.Scientist &&
                          victim.gameObject.GetComponent<QueryProcessor>().PlayerId.ToString() !=
                          killer.gameObject.GetComponent<QueryProcessor>().PlayerId.ToString())
                 {
                     flag = true;
-                    Initializer.logger.Debug("FFA", "Teamkill6");
-                    FFALog(killer, victim, team, team2);
+                    Initializer.Logger.Debug("FFA", "Teamkill6");
+                    FfaLog(killer, victim, team, team2);
                 }
                 else if (victim.CurClass == RoleType.ClassD && victim.GetComponent<Handcuffs>().NetworkCufferId >= 1 &&
                          !ConfigFile.ServerConfig.GetBool("ffa_killingdisarmedclassdsallowed"))
@@ -520,8 +520,8 @@ namespace CedMod
                     if (killer.CurClass != RoleType.Tutorial && team2 != Team.SCP && killer.CurClass != RoleType.ClassD)
                     {
                         flag = true;
-                        Initializer.logger.Debug("FFA", "Teamkill5");
-                        FFALog(killer, victim, team, team2);
+                        Initializer.Logger.Debug("FFA", "Teamkill5");
+                        FfaLog(killer, victim, team, team2);
                     }
                 }
                 else if (victim.CurClass == RoleType.Scientist &&
@@ -531,23 +531,23 @@ namespace CedMod
                          killer.CurClass != RoleType.ClassD)
                 {
                     flag = true;
-                    Initializer.logger.Debug("FFA", "Teamkill5");
-                    FFALog(killer, victim, team, team2);
+                    Initializer.Logger.Debug("FFA", "Teamkill5");
+                    FfaLog(killer, victim, team, team2);
                 }
             }
 
             return flag;
         }
 
-        public static void FFALog(CharacterClassManager killer, CharacterClassManager victim, Team victimteam,
+        public static void FfaLog(CharacterClassManager killer, CharacterClassManager victim, Team victimteam,
             Team killerteam)
         {
-            Initializer.logger.Debug("FFA",
+            Initializer.Logger.Debug("FFA",
                 string.Concat("VictimDetails: ", victim.gameObject.GetComponent<CharacterClassManager>().UserId, " ",
                     victim.gameObject.GetComponent<NicknameSync>().MyNick, " ",
                     victim.gameObject.GetComponent<QueryProcessor>().PlayerId.ToString(), " ", victimteam, " ",
                     victim.CurClass));
-            Initializer.logger.Debug("FFA",
+            Initializer.Logger.Debug("FFA",
                 string.Concat("KillerDetails: ", killer.gameObject.GetComponent<CharacterClassManager>().UserId, " ",
                     killer.gameObject.GetComponent<NicknameSync>().MyNick, " ",
                     killer.gameObject.GetComponent<QueryProcessor>().PlayerId.ToString(), " ", killerteam, " ",
@@ -601,18 +601,18 @@ namespace CedMod
 
         internal static class Coroutines
         {
-            public static bool isAirBombGoing;
+            public static bool IsAirBombGoing;
 
             public static IEnumerator<float> AirSupportBomb(int waitforready = 5, int duration = 30)
             {
                 Log.Info("[AirSupportBomb] booting...");
-                if (isAirBombGoing)
+                if (IsAirBombGoing)
                 {
                     Log.Info("[Airbomb] already booted, cancel.");
                     yield break;
                 }
 
-                isAirBombGoing = true;
+                IsAirBombGoing = true;
 
                 PlayerManager.localPlayer.GetComponent<MTFRespawn>()
                     .RpcPlayCustomAnnouncement("danger . outside zone emergency termination sequence activated .",
@@ -630,7 +630,7 @@ namespace CedMod
                 Timing.RunCoroutine(AirSupportstop(duration), "airstrike");
                 Log.Info("[AirSupportBomb] throwing...");
                 var throwcount = 0;
-                while (isAirBombGoing)
+                while (IsAirBombGoing)
                 {
                     var randampos = OutsideRandomAirbombPos.Load().OrderBy(x => Guid.NewGuid()).ToList();
                     foreach (var pos in randampos)
@@ -653,7 +653,7 @@ namespace CedMod
             public static IEnumerator<float> AirSupportstop(int duration = 30)
             {
                 yield return Timing.WaitForSeconds(duration);
-                isAirBombGoing = false;
+                IsAirBombGoing = false;
             }
         }
     }
