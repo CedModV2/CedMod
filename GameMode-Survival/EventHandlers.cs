@@ -40,7 +40,7 @@ namespace CedMod.GameMode.Survival
                 List<ReferenceHub> hubs = EXILED.Extensions.Player.GetHubs().ToList();
                 List<ReferenceHub> nuts = new List<ReferenceHub>();
 
-                for (int i = 0; i < 5 && hubs.Count > 2; i++)
+                for (int i = 0; i < 3 && hubs.Count > 2; i++)
                 {
                     int r = plugin.Gen.Next(hubs.Count);
                     nuts.Add(hubs[r]);

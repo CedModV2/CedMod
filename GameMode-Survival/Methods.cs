@@ -122,7 +122,7 @@ namespace CedMod.GameMode.Survival
             }
             yield return Timing.WaitForSeconds(300f);
             Cassie.CassieMessage("pitch_.2 .g5 yield_0,5 .g4 pitch_1 facility detonation in t minus 5 minutes", false, true);
-            Map.Broadcast("<color=red>the facility will detonate in 2 minutes leave now or die :)</color>", 110,false);
+            Map.Broadcast("<color=red>the facility will detonate in 5 minutes leave now or die :)</color>", 110,false);
             yield return Timing.WaitForSeconds(290f);
             Map.Broadcast("<color=red>10</color>", 1,false);
             yield return Timing.WaitForSeconds(1f);
