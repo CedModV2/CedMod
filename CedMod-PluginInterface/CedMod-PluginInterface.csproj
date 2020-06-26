@@ -49,10 +49,6 @@
     <Reference Include="Assembly-CSharp_publicized">
       <HintPath>..\References\Assembly-CSharp_publicized.dll</HintPath>
     </Reference>
-    <Reference Include="BouncyCastle.Crypto, Version=1.8.3.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\BouncyCastle.Crypto.dll</HintPath>
-    </Reference>
     <Reference Include="DissonanceVoip, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\DissonanceVoip.dll</HintPath>

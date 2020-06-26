@@ -25,7 +25,6 @@ namespace CedMod
         {
             try
             {
-                //RemoteAdmin.CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new StuiterCommand());
                 string geoString = "";
                 List<string> geoList = ConfigFile.ServerConfig.GetStringList("bansystem_geo");
                 foreach (string s in geoList)
