@@ -47,8 +47,6 @@
     <Compile Include="BanSystem.cs" />
     <Compile Include="Commands.cs" />
     <Compile Include="Commands\StuiterCommand.cs" />
-    <Compile Include="Commands\Stuiter\all.cs" />
-    <Compile Include="Commands\Stuiter\spec.cs" />
     <Compile Include="Functions.cs" />
     <Compile Include="FriendlyFireAutoBan.cs" />
     <Compile Include="PlayerStats.cs" />
@@ -60,11 +58,11 @@
     <Reference Include="0Harmony">
       <HintPath>..\References\0Harmony.dll</HintPath>
     </Reference>
+    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\References\Assembly-CSharp_publicized.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>..\References\Assembly-CSharp-firstpass.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp_publicized">
-      <HintPath>..\References\Assembly-CSharp_publicized.dll</HintPath>
     </Reference>
     <Reference Include="BouncyCastle.Crypto">
       <HintPath>..\References\BouncyCastle.Crypto.dll</HintPath>

@@ -1,4 +1,9 @@
-﻿namespace CedMod.CedMod.INIT
+﻿using System.Collections.Generic;
+using CedMod.Commands;
+using CommandSystem;
+using MEC;
+
+namespace CedMod.CedMod.INIT
 {
     public class Initializer
     {
