@@ -7,12 +7,15 @@ using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using CedMod.CedMod.INIT;
+using CedMod.Commands;
+using CommandSystem;
 using EXILED.Extensions;
 using GameCore;
 using Grenades;
 using MEC;
 using Mirror;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Math.EC;
 using RemoteAdmin;
 using UnityEngine;
 using Console = System.Console;
@@ -418,7 +421,7 @@ namespace CedMod
         }
         public static IEnumerator<float> LightsOut(bool heavyOnly)
         {
-            Generator079.generators[0].RpcCustomOverchargeForOurBeautifulModCreators(9.5f, heavyOnly);
+            Generator079.mainGenerator.RpcCustomOverchargeForOurBeautifulModCreators(9.5f, heavyOnly);
             yield return Timing.WaitForSeconds(10f);
             Timing.RunCoroutine(LightsOut(Convert.ToBoolean(heavyOnly)), "LightsOut");
         }

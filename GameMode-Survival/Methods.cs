@@ -141,7 +141,7 @@ namespace CedMod.GameMode.Survival
 
 		public IEnumerator<float> DoBlackout()
 		{
-			Generator079.generators[0].RpcCustomOverchargeForOurBeautifulModCreators(9.5f, false);
+			Generator079.mainGenerator.RpcCustomOverchargeForOurBeautifulModCreators(9.5f, false);
 	        yield return Timing.WaitForSeconds(10f);
             Timing.RunCoroutine(DoBlackout(), "blackout");
         }

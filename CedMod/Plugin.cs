@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using CedMod.CedMod.INIT;
+using CedMod.Commands;
 using EXILED;
 using GameCore;
+using CommandSystem;
+using Harmony;
 using Log = EXILED.Log;
 
 namespace CedMod
@@ -22,6 +25,7 @@ namespace CedMod
         {
             try
             {
+                //RemoteAdmin.CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new StuiterCommand());
                 string geoString = "";
                 List<string> geoList = ConfigFile.ServerConfig.GetStringList("bansystem_geo");
                 foreach (string s in geoList)

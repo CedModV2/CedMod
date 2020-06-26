@@ -1,31 +1,60 @@
 ﻿using System;
 using CommandSystem;
+using EXILED.Extensions;
+using UnityEngine;
 
 namespace CedMod.Commands
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
-    public class StuiterCommand : ParentCommand
+    public class StuiterCommand : ICommand
     {
-        public override string Command { get; } = "stuiter";
-        public override string[] Aliases { get; }
-        public override string Description { get; } = "Does fun stuff";
-        public static StuiterCommand Create()
+        public string Command { get; } = "stuiter";
+
+        public string[] Aliases { get; } = new string[]
         {
-            StuiterCommand StuiterCommand = new StuiterCommand();
-            StuiterCommand.LoadGeneratedCommands();
-            return StuiterCommand;
-        }
-        protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender,
+            "idkwhattonamethis"
+        };
+
+        public string Description { get; } = "Does fun stuff";
+
+        public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            response = "Please specify a valid subcommand";
-            return false;
-        }
+            switch (arguments.At(0))
+            {
+                case "all":
+                    Cassie.CassieMessage("xmas_bouncyballs", false, false);
+                    foreach (GameObject player in PlayerManager.players)
+                    {
+                        CharacterClassManager component = player.GetComponent<CharacterClassManager>();
+                        component.SetClassID(RoleType.Tutorial);
+                        component.GetComponent<PlayerStats>().Health = 100;
+                        component.GetComponent<Inventory>().items.Clear();
+                        component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
+                        component.GodMode = false;
+                    }
 
-        public override void LoadGeneratedCommands()
-        {
-            RegisterCommand(new Stuiter.AllCommand());
-            RegisterCommand(new Stuiter.SpecCommand());
+                    break;
+                default:
+                    Cassie.CassieMessage("xmas_bouncyballs", false, false);
+                    foreach (GameObject player in PlayerManager.players)
+                    {
+                        CharacterClassManager component = player.GetComponent<CharacterClassManager>();
+                        if (component.CurClass == RoleType.Spectator)
+                        {
+                            component.SetClassID(RoleType.Tutorial);
+                            component.GetComponent<PlayerStats>().Health = 100;
+                            component.GetComponent<Inventory>().items.Clear();
+                            component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
+                            component.GodMode = false;
+                        }
+                    }
+
+                    break;
+            }
+
+            response = "Stuiter time";
+            return true;
         }
     }
 }
