@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
 using CedMod.Commands;
+using CedMod.Commands.Lightsout;
+using CedMod.Commands.Stuiter;
 using CommandSystem;
 using MEC;
+using RemoteAdmin;
 
 namespace CedMod.CedMod.INIT
 {
@@ -23,6 +26,11 @@ namespace CedMod.CedMod.INIT
                 Logger.Info("INIT", "This version of CedMod is marked as Dev version and will only use the test API");
             }
             //Initializer.UpdateCheck();
+            Logger.Info("INIT", "Registering commands...");
+            CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new StuiterParentCommand());
+            GameCore.Console.singleton.ConsoleCommandHandler.RegisterCommand(new StuiterParentCommand());
+            CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new LightsoutCommand());
+            GameCore.Console.singleton.ConsoleCommandHandler.RegisterCommand(new LightsoutCommand());
         }
         public static string GetCedModVersion()
         {

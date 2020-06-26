@@ -18,38 +18,6 @@ namespace CedMod
             string[] command = ev.Command.Split(' ');
             switch (command[0].ToUpper())
             {
-                
-                case "LIGHTSOUT":
-                    ev.Allow = false;
-                    if (command.Length < 2)
-                    {
-                        ev.Sender.RaReply(command[0].ToUpper() + "#Usage: LightsOut <OnlyHeavy>", false, true, "");
-                        break;
-                    }
-                    if (!CheckPermissions(ev.Sender, command[0], PlayerPermissions.FacilityManagement))
-                    {
-                        ev.Sender.RaReply(command[0].ToUpper() + "#No perms to LightsOut bro.", false, true, "");
-                        break;
-                    }
-                    if (IsEnabled == false)
-                    {
-                        IsEnabled = true;
-                        Timing.RunCoroutine(Functions.LightsOut(Convert.ToBoolean(command[1])), "LightsOut");
-                        ev.Sender.RaReply(command[0].ToUpper() + "#Lights have been turned off", true, true, "");
-                        break;
-                    }
-                    else
-                    {
-                        if (IsEnabled)
-                        {
-                            IsEnabled = false;
-                            Timing.KillCoroutines("LightsOut");
-                            ev.Sender.RaReply(command[0].ToUpper() + "#Lights have been turned on", true, true, "");
-                            break;
-                        }
-                    }
-                    ev.Sender.RaReply(command[0].ToUpper() + "#Something went wrong", false, true, "");
-                    break;
                 case "DISABLEFFA":
                     ev.Allow = false;
                     if (!CheckPermissions(ev.Sender, command[0], PlayerPermissions.FacilityManagement))
