@@ -4,7 +4,7 @@ using EXILED.Extensions;
 using MEC;
 using UnityEngine;
 
-namespace CedMod.Commands.Lightsout
+namespace CedMod.Commands
 {
     public class LightsoutCommand : ICommand
     {

@@ -45,7 +45,9 @@
     <Compile Include="CedMod.INIT\Initializer.cs" />
     <Compile Include="CedMod.Logging\Logger.cs" />
     <Compile Include="BanSystem.cs" />
-    <Compile Include="Commands.cs" />
+    <Compile Include="Commands\AirStrike.cs" />
+    <Compile Include="Commands\CommandHandler.cs" />
+    <Compile Include="Commands\FFADisablecs.cs" />
     <Compile Include="Commands\Lightsout.cs" />
     <Compile Include="Commands\StuiterCommand.cs" />
     <Compile Include="Commands\Stuiter\all.cs" />

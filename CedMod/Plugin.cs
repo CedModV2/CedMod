@@ -6,6 +6,7 @@ using EXILED;
 using GameCore;
 using CommandSystem;
 using Harmony;
+using CommandHandler = CedMod.Commands.CedModCommandHandler;
 using Log = EXILED.Log;
 
 namespace CedMod
@@ -13,7 +14,7 @@ namespace CedMod
     public class Plugin : EXILED.Plugin
     {
         public BanSystem BanSystemEvents;
-        public CommandsOld Commands;
+        public CommandHandler Commands;
         public FriendlyFireAutoBan FfaEvents;
         public FunctionsNonStatic FunctionsNonStatic;
         public PlayerJoinBc PlayerJoinBcEvents;
@@ -47,8 +48,7 @@ namespace CedMod
                 Events.RoundStartEvent += FfaEvents.OnRoundStart;
                 Events.PlayerDeathEvent += FfaEvents.Ondeath;
                 Events.ConsoleCommandEvent += FfaEvents.ConsoleCommand;
-                Commands = new CommandsOld(this);
-                Events.RemoteAdminCommandEvent += Commands.OnCommand;
+                Commands = new CommandHandler(this);
                 Events.RoundEndEvent += Commands.OnRoundEnd;
                 PlayerStats = new PlayerStatistics(this);
                 Events.RoundEndEvent += PlayerStats.OnRoundEnd;
@@ -72,7 +72,6 @@ namespace CedMod
             Events.PlayerJoinEvent -= BanSystemEvents.OnPlayerJoin;
             Events.PlayerJoinEvent -= PlayerJoinBcEvents.OnPlayerJoin;
             Events.RoundStartEvent -= FfaEvents.OnRoundStart;
-            Events.RemoteAdminCommandEvent -= Commands.OnCommand;
             Events.RoundEndEvent -= Commands.OnRoundEnd;
             Events.ConsoleCommandEvent -= FfaEvents.ConsoleCommand;
             Events.RoundEndEvent -= PlayerStats.OnRoundEnd;
