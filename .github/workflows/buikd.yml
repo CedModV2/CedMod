@@ -16,7 +16,7 @@ jobs:
       with:
         dotnet-version: 3.1.101
     - name: Build
-      run: dotnet build --configuration Debug --no-restore CedMod.sln
+      run: dotnet build --configuration Release --no-restore CedMod.sln
     - name: Upload
       uses: actions/upload-artifact@v2
       with:
