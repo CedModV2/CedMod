@@ -17,12 +17,18 @@ namespace CedMod.PluginInterface
             WebService.StopWebServer();
         }
 
+        public static string SecurityKey =
+            GameCore.ConfigFile.ServerConfig.GetString("cm_plugininterface_key", "none");
         public override void OnEnable()
         {
             // Load the event handlers.
 
-            // Start the http server.
-            WebService.StartWebServer();
+            if (SecurityKey != "none")
+            {
+                WebService.StartWebServer();
+            }
+            else
+                CedMod.INIT.Initializer.Logger.Warn("PluginInterface", "cm_plugininterface_key is set to none plugin will nog load due to security risks");
         }
 
         public override void OnReload()
