@@ -9,11 +9,9 @@ namespace CedMod.CedMod.INIT
         // Token: 0x06002501 RID: 9473 RVA: 0x000B82A8 File Offset: 0x000B64A8
         public override void Debug(string tag, string message)
         {
-            bool @bool = ConfigFile.ServerConfig.GetBool("cm_debug");
-            if (@bool)
-            {
-                Write("DEBUG", tag, message);
-            }
+            #if DEBUG
+            Write("DEBUG", tag, message);
+            #endif
         }
 
         // Token: 0x06002502 RID: 9474 RVA: 0x00020DAE File Offset: 0x0001EFAE
