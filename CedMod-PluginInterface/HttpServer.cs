@@ -114,7 +114,7 @@ namespace CedMod.PluginInterface
                                         Dictionary<string, string> jsonData = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
                                         if (jsonData.ContainsKey("key") && jsonData.ContainsKey("user"))
                                         {
-                                            if (jsonData["key"] != ConfigFile.ServerConfig.GetString("cm_plugininterface_key", "HYGutFGytfYTF&RF67fVYT") || jsonData["user"] == null)
+                                            if (jsonData["key"] != PluginInterface.SecurityKey || jsonData["user"] == null)
                                             {
                                                 Log.Warn("Unauthorized connection attempt: " + context.Request.RemoteEndPoint + " request params: " + json);
                                                 response.StatusCode = 401;
