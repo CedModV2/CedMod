@@ -28,7 +28,7 @@ namespace CedMod.CedMod.INIT
         {
             int num = 3;
             int num2 = 0;
-            int num3 = 2;
+            int num3 = 3;
             string text = "R";
             return string.Format("{0}.{1}.{2}-{3}", num, num2, num3, text);
         }
