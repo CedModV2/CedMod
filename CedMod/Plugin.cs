@@ -19,6 +19,7 @@ namespace CedMod
         public FunctionsNonStatic FunctionsNonStatic;
         public PlayerJoinBc PlayerJoinBcEvents;
         public PlayerStatistics PlayerStats;
+        public static List<ItemType> items = new List<ItemType>();
 
         public override string getName { get; } = "CedModV2";
 
@@ -26,6 +27,12 @@ namespace CedMod
         {
             try
             {
+                items.Add(ItemType.GunLogicer);
+                items.Add(ItemType.GunProject90);
+                items.Add(ItemType.GunMP7);
+                items.Add(ItemType.GunCOM15);
+                items.Add(ItemType.GunE11SR);
+                items.Add(ItemType.GunUSP);
                 string geoString = "";
                 List<string> geoList = ConfigFile.ServerConfig.GetStringList("bansystem_geo");
                 foreach (string s in geoList)

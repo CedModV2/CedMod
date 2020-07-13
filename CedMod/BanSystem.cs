@@ -117,9 +117,10 @@ namespace CedMod
             if (!RoundSummary.RoundInProgress())
             {
                 ev.Player.characterClassManager.SetPlayersClass(RoleType.Tutorial, ev.Player.gameObject);
-                ev.Player.SetGodMode(false);
-                ev.Player.inventory.AddNewItem(ItemType.MicroHID);
                 yield return Timing.WaitForSeconds(0.2f);
+                ev.Player.SetGodMode(false);
+                ItemType item = Functions.GetRandomItem();
+                ev.Player.inventory.AddNewItem(item);
                 ev.Player.SetPosition(new Vector3(-20f, 1020, -43));
             }
             yield return 1f;

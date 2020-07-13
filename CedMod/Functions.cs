@@ -98,7 +98,13 @@ namespace CedMod
             info?.Invoke(null, param);
         }
         
-
+        public static ItemType GetRandomItem()
+        {
+            Random random = new Random();
+            int index = UnityEngine.Random.Range(0, Plugin.items.Count);
+            return Plugin.items[index];
+        }
+        
         public static void PlayAmbientSound(int id)
         {
             PlayerManager.localPlayer.GetComponent<AmbientSoundPlayer>().RpcPlaySound(Mathf.Clamp(id, 0, 31));
