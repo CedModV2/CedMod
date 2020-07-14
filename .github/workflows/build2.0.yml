@@ -17,6 +17,11 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.101
+    - name: Setup Nuget
+      uses: warrenbuckley/Setup-Nuget@v1
+      
+    - name: Restore Packages
+      run: nuget restore CedMod.sln
     - name: Build
       run: dotnet build --configuration Debug --no-restore CedMod.sln
     - name: Upload
