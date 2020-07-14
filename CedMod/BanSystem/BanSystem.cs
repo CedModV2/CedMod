@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using CedMod.CedMod.INIT;
+using CedMod.INIT;
 using Exiled.Events.EventArgs;
 using GameCore;
 using MEC;

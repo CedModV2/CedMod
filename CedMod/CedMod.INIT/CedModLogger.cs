@@ -1,7 +1,7 @@
-﻿using CedMod.CedMod.Logging;
+﻿using CedMod.Logging;
 using GameCore;
 
-namespace CedMod.CedMod.INIT
+namespace CedMod.INIT
 {
     public class CedModLogger : Logger
     {

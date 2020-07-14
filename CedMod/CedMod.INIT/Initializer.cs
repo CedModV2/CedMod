@@ -1,5 +1,5 @@
 ﻿using CedMod.Commands;
-namespace CedMod.CedMod.INIT
+namespace CedMod.INIT
 {
     public class Initializer
     {

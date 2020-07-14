@@ -6,7 +6,7 @@ using System.Net.Security;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
-using CedMod.CedMod.INIT;
+using CedMod.INIT;
 using CedMod.Commands;
 using CedMod.Commands.Stuiter;
 using CommandSystem;

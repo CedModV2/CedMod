@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using CedMod.CedMod.INIT;
+using CedMod.INIT;
 using Exiled.API.Features;
 using GameCore;
 using Exiled.Events.EventArgs;

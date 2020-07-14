@@ -9,7 +9,7 @@ namespace CedMod
     /// <summary>
     /// The example plugin.
     /// </summary>
-    public class Example : Plugin<Config>
+    public class CedMod : Plugin<Config>
     {
         private Handlers.Server server;
         private Handlers.Player player;
