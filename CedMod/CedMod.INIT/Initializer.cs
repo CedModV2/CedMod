@@ -1,5 +1,4 @@
 ﻿using CedMod.Commands;
-
 namespace CedMod.CedMod.INIT
 {
     public class Initializer

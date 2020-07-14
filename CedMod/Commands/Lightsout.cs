@@ -1,6 +1,5 @@
 ﻿using System;
 using CommandSystem;
-using EXILED.Extensions;
 using MEC;
 using UnityEngine;
 
@@ -12,7 +11,7 @@ namespace CedMod.Commands
 
         public string[] Aliases { get; } = new string[]
         {
-            "lo"
+            "lamps"
         };
 
         public string Description { get; } = "Turns off the lämps";

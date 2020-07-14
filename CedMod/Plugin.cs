@@ -1,101 +1,90 @@
-﻿using System;
-using System.Collections.Generic;
-using CedMod.CedMod.INIT;
-using CedMod.Commands;
-using EXILED;
-using GameCore;
-using CommandSystem;
-using Harmony;
-using CommandHandler = CedMod.Commands.CedModCommandHandler;
-using Log = EXILED.Log;
+﻿using CedMod.FFA;
+using Exiled.Events;
 
 namespace CedMod
 {
-    public class Plugin : EXILED.Plugin
+    using Exiled.API.Enums;
+    using Exiled.API.Features;
+
+    /// <summary>
+    /// The example plugin.
+    /// </summary>
+    public class Example : Plugin<Config>
     {
-        public BanSystem BanSystemEvents;
-        public CommandHandler Commands;
-        public FriendlyFireAutoBan FfaEvents;
-        public FunctionsNonStatic FunctionsNonStatic;
-        public PlayerJoinBc PlayerJoinBcEvents;
-        public PlayerStatistics PlayerStats;
-        public static List<ItemType> items = new List<ItemType>();
+        private Handlers.Server server;
+        private Handlers.Player player;
+        private BanSystem.BanSystem bansystem;
+        private FFA.FriendlyFireAutoBan ffa;
 
-        public override string getName { get; } = "CedModV2";
+        /// <inheritdoc/>
+        public override PluginPriority Priority { get; } = PluginPriority.Medium;
 
-        public override void OnEnable()
+        /// <inheritdoc/>
+        public override void OnEnabled()
         {
-            try
-            {
-                items.Add(ItemType.GunLogicer);
-                items.Add(ItemType.GunProject90);
-                items.Add(ItemType.GunMP7);
-                items.Add(ItemType.GunCOM15);
-                items.Add(ItemType.GunE11SR);
-                items.Add(ItemType.GunUSP);
-                string geoString = "";
-                List<string> geoList = ConfigFile.ServerConfig.GetStringList("bansystem_geo");
-                foreach (string s in geoList)
-                {
-                    geoString = geoString + s + "+";
-                }
-                if (geoList != null)
-                {
-                    ServerConsole.AccessRestriction = true;
-                }
-                Log.Debug("Initializing event handlers..");
-                //Set instance varible to a new instance, this should be nulled again in OnDisable
-                BanSystemEvents = new BanSystem(this);
-                //Hook the events you will be using in the plugin. You should hook all events you will be using here, all events should be unhooked in OnDisabled 
-                Events.RemoteAdminCommandEvent += BanSystemEvents.OnCommand;
-                Events.PlayerJoinEvent += BanSystemEvents.OnPlayerJoin;
-                PlayerJoinBcEvents = new PlayerJoinBc(this);
-                Events.PlayerJoinEvent += PlayerJoinBcEvents.OnPlayerJoin;
-                FfaEvents = new FriendlyFireAutoBan(this);
-                Events.RoundStartEvent += FfaEvents.OnRoundStart;
-                Events.PlayerDeathEvent += FfaEvents.Ondeath;
-                Events.ConsoleCommandEvent += FfaEvents.ConsoleCommand;
-                Commands = new CommandHandler(this);
-                Events.RoundEndEvent += Commands.OnRoundEnd;
-                PlayerStats = new PlayerStatistics(this);
-                Events.RoundEndEvent += PlayerStats.OnRoundEnd;
-                Events.PlayerDeathEvent += PlayerStats.OnPlayerDeath;
-                FunctionsNonStatic = new FunctionsNonStatic(this);
-                Events.RoundRestartEvent += FunctionsNonStatic.Roundrestart;
-                Events.WaitingForPlayersEvent += FunctionsNonStatic.Waitingforplayers;
-                Log.Info("CedMod has loaded. c:");
-                Initializer.Setup();
-            }
-            catch (Exception e)
-            {
-                //This try catch is redundant, as EXILED will throw an error before this block can, but is here as an example of how to handle exceptions/errors
-                Log.Error($"There was an error loading the plugin: {e}");
-            }
+            base.OnEnabled();
+
+            RegisterEvents();
+
+            Log.Warn($"I correctly read the string config, its value is: {Config.String}");
+            Log.Warn($"I correctly read the int config, its value is: {Config.Int}");
+            Log.Warn($"I correctly read the float config, its value is: {Config.Float}");
         }
 
-        public override void OnDisable()
+        /// <inheritdoc/>
+        public override void OnDisabled()
         {
-            Events.RemoteAdminCommandEvent -= BanSystemEvents.OnCommand;
-            Events.PlayerJoinEvent -= BanSystemEvents.OnPlayerJoin;
-            Events.PlayerJoinEvent -= PlayerJoinBcEvents.OnPlayerJoin;
-            Events.RoundStartEvent -= FfaEvents.OnRoundStart;
-            Events.RoundEndEvent -= Commands.OnRoundEnd;
-            Events.ConsoleCommandEvent -= FfaEvents.ConsoleCommand;
-            Events.RoundEndEvent -= PlayerStats.OnRoundEnd;
-            Events.PlayerDeathEvent -= PlayerStats.OnPlayerDeath;
-            Events.RoundRestartEvent -= FunctionsNonStatic.Roundrestart;
-            BanSystemEvents = null;
-            PlayerJoinBcEvents = null;
-            FfaEvents = null;
-            Commands = null;
-            PlayerStats = null;
-            FunctionsNonStatic = null;
+            base.OnDisabled();
 
+            UnregisterEvents();
         }
 
-        public override void OnReload()
+        /// <summary>
+        /// Registers the plugin events.
+        /// </summary>
+        private void RegisterEvents()
         {
-            //This is only fired when you use the EXILED reload command, the reload command will call OnDisable, OnReload, reload the plugin, then OnEnable in that order. There is no GAC bypass, so if you are updating a plugin, it must have a unique assembly name, and you need to remove the old version from the plugins folder
+            server = new Handlers.Server();
+            player = new Handlers.Player();
+            bansystem = new BanSystem.BanSystem();
+            ffa = new FriendlyFireAutoBan();
+            
+            Exiled.Events.Handlers.Server.WaitingForPlayers += server.OnWaitingForPlayers;
+            Exiled.Events.Handlers.Server.EndingRound += server.OnEndingRound;
+
+            Exiled.Events.Handlers.Player.Died += player.OnDied;
+            Exiled.Events.Handlers.Player.ChangingRole += player.OnChangingRole;
+            Exiled.Events.Handlers.Player.ChangingItem += player.OnChangingItem;
+            
+            Exiled.Events.Handlers.Player.Joined += bansystem.OnPlayerJoin;
+            Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += bansystem.OnCommand;
+
+            Exiled.Events.Handlers.Player.Died += ffa.Ondeath;
+            Exiled.Events.Handlers.Server.SendingConsoleCommand += ffa.ConsoleCommand;
+        }
+
+        /// <summary>
+        /// Unregisters the plugin events.
+        /// </summary>
+        private void UnregisterEvents()
+        {
+            Exiled.Events.Handlers.Server.WaitingForPlayers -= server.OnWaitingForPlayers;
+            Exiled.Events.Handlers.Server.EndingRound -= server.OnEndingRound;
+
+            Exiled.Events.Handlers.Player.Died -= player.OnDied;
+            Exiled.Events.Handlers.Player.ChangingRole -= player.OnChangingRole;
+            Exiled.Events.Handlers.Player.ChangingItem -= player.OnChangingItem;
+            
+            Exiled.Events.Handlers.Player.Joined -= bansystem.OnPlayerJoin;
+            Exiled.Events.Handlers.Server.SendingRemoteAdminCommand -= bansystem.OnCommand;
+            
+            Exiled.Events.Handlers.Player.Died -= ffa.Ondeath;
+            Exiled.Events.Handlers.Server.SendingConsoleCommand -= ffa.ConsoleCommand;
+
+            server = null;
+            player = null;
+            bansystem = null;
+            ffa = null;
         }
     }
 }

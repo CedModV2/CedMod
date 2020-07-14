@@ -1,6 +1,6 @@
 ﻿using System;
 using CommandSystem;
-using EXILED.Extensions;
+using Exiled.API.Features;
 using UnityEngine;
 
 namespace CedMod.Commands.Stuiter
@@ -19,7 +19,7 @@ namespace CedMod.Commands.Stuiter
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            Cassie.CassieMessage("xmas_bouncyballs", false, false);
+            Cassie.Message("xmas_bouncyballs", false, false);
             foreach (GameObject player in PlayerManager.players)
             {
                 CharacterClassManager component = player.GetComponent<CharacterClassManager>();

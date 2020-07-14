@@ -1,6 +1,5 @@
 ﻿using System;
 using CommandSystem;
-using EXILED.Extensions;
 using MEC;
 using UnityEngine;
 

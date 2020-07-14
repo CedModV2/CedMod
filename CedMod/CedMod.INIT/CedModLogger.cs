@@ -7,9 +7,9 @@ namespace CedMod.CedMod.INIT
     {
         public override void Debug(string tag, string message)
         {
-            #if DEBUG
+#if DEBUG
             Write("DEBUG", tag, message);
-            #endif
+#endif
         }
         
         public override void Error(string tag, string message)

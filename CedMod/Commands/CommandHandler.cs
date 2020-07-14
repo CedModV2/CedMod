@@ -7,9 +7,6 @@ namespace CedMod.Commands
 {
     public class CedModCommandHandler
     {
-        public Plugin Plugin;
-        public CedModCommandHandler(Plugin plugin) => Plugin = plugin;
-
         public static void RegisterRACommands()
         {
             Initializer.Logger.Info("INIT", "Registering RA commands...");
