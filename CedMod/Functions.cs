@@ -623,8 +623,7 @@ namespace CedMod
 
                 IsAirBombGoing = true;
 
-                PlayerManager.localPlayer.GetComponent<MTFRespawn>()
-                    .RpcPlayCustomAnnouncement("danger . outside zone emergency termination sequence activated .",
+                Cassie.CassieMessage("danger . outside zone emergency termination sequence activated .",
                         false, true);
                 yield return Timing.WaitForSeconds(5f);
 
@@ -653,8 +652,7 @@ namespace CedMod
                     yield return Timing.WaitForSeconds(0.25f);
                 }
 
-                PlayerManager.localPlayer.GetComponent<MTFRespawn>()
-                    .RpcPlayCustomAnnouncement("outside zone termination completed .", false, true);
+                Cassie.CassieMessage("outside zone termination completed .", false, true);
 
                 Log.Info("[AirSupportBomb] Ended.");
             }
