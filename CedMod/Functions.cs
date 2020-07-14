@@ -59,6 +59,12 @@ namespace CedMod
 
     public static class Functions
     {
+        public static ItemType GetRandomItem()
+        {
+            Random random = new Random();
+            int index = UnityEngine.Random.Range(0, CedModMain.items.Count);
+            return CedModMain.items[index];
+        }
         public enum GrenadeId
         {
             FragNade = 0,

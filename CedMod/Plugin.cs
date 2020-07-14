@@ -1,4 +1,5 @@
-﻿using CedMod.FFA;
+﻿using System.Collections.Generic;
+using CedMod.FFA;
 using Exiled.Events;
 
 namespace CedMod
@@ -9,8 +10,9 @@ namespace CedMod
     /// <summary>
     /// The example plugin.
     /// </summary>
-    public class CedMod : Plugin<Config>
+    public class CedModMain : Plugin<Config_Main>
     {
+        public static List<ItemType> items = new List<ItemType>();
         private Handlers.Server server;
         private Handlers.Player player;
         private BanSystem.BanSystem bansystem;
@@ -22,13 +24,15 @@ namespace CedMod
         /// <inheritdoc/>
         public override void OnEnabled()
         {
+            items.Add(ItemType.GunLogicer);
+            items.Add(ItemType.GunProject90);
+            items.Add(ItemType.GunMP7);
+            items.Add(ItemType.GunCOM15);
+            items.Add(ItemType.GunE11SR);
+            items.Add(ItemType.GunUSP);
             base.OnEnabled();
 
             RegisterEvents();
-
-            Log.Warn($"I correctly read the string config, its value is: {Config.String}");
-            Log.Warn($"I correctly read the int config, its value is: {Config.Int}");
-            Log.Warn($"I correctly read the float config, its value is: {Config.Float}");
         }
 
         /// <inheritdoc/>

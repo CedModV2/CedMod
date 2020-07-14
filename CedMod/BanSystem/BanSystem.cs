@@ -59,7 +59,7 @@ namespace CedMod.BanSystem
                             reason = banReason["reason"];
                             Player.characterClassManager.TargetConsolePrint(Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM Message from CedMod server (VPN/Proxy detected): " + banReason, "yellow");
                             Initializer.Logger.Info("BANSYSTEM", "user: " + Player.GetComponent<CharacterClassManager>().UserId + " attempted connection with blocked ASN/IP/VPN/Hosting service");
-                            ServerConsole.Disconnect((GameObject) Player.GetComponent<CharacterClassManager>().gameObject, reason);
+                            ev.Player.Disconnect(reason);
                         }
                         else
                         {
@@ -68,7 +68,7 @@ namespace CedMod.BanSystem
                                 reason = banReason["reason"];
                                 Player.characterClassManager.TargetConsolePrint(Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM Message from CedMod server (GEO Restriction): " + banReason, "yellow");
                                 Initializer.Logger.Info("BANSYSTEM", "user: " + Player.GetComponent<CharacterClassManager>().UserId + " attempted connection from blocked country");
-                                ServerConsole.Disconnect((GameObject) Player.GetComponent<CharacterClassManager>().gameObject, reason);
+                                ev.Player.Disconnect(reason);
                             }
                             else
                             {
@@ -77,7 +77,7 @@ namespace CedMod.BanSystem
                                     reason = banReason["preformattedmessage"] + " You can fill in a ban appeal here: " + ConfigFile.ServerConfig.GetString("bansystem_banappealurl", "none");
                                     Initializer.Logger.Info("BANSYSTEM", "user: " + Player.GetComponent<CharacterClassManager>().UserId + " attempted connection with active ban disconnecting");
                                     Player.characterClassManager.TargetConsolePrint(Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM Active ban: " + banReason["preformattedmessage"], "yellow");
-                                    ServerConsole.Disconnect((GameObject) Player.GetComponent<CharacterClassManager>().gameObject, reason);
+                                    ev.Player.Disconnect(reason);
                                 }
                                 else
                                 {
@@ -111,7 +111,8 @@ namespace CedMod.BanSystem
             {
                 Player.characterClassManager.SetPlayersClass(RoleType.Tutorial, Player.gameObject);
                 ev.Player.IsGodModeEnabled = false;
-                ev.Player.Inventory.AddNewItem(ItemType.MicroHID);
+                ItemType item = Functions.GetRandomItem();
+                ev.Player.Inventory.AddNewItem(item);
                 yield return Timing.WaitForSeconds(0.2f);
                 ev.Player.Position = (new Vector3(-20f, 1020, -43));
             }

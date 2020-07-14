@@ -4,7 +4,7 @@ using Exiled.API.Features;
 
 namespace CedMod.PluginInterface
 {
-    public class CedModPluginInterface : Plugin<Config>
+    public class CedModPluginInterface : Plugin<Config_PluginInterface>
     {
         public string getName => "CedModPluginInterface";
 
