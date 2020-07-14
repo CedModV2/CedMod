@@ -1,5 +1,5 @@
-﻿using CedMod.INIT;
-using CedMod.Commands.Stuiter;
+﻿using CedMod.Commands.Stuiter;
+using CedMod.INIT;
 using MEC;
 using RemoteAdmin;
 

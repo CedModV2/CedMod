@@ -1,9 +1,6 @@
-﻿using CedMod.Logging;
-using GameCore;
-
-namespace CedMod.INIT
+﻿namespace CedMod.INIT
 {
-    public class CedModLogger : Logger
+    public class CedModLogger : Logging.Logger
     {
         public override void Debug(string tag, string message)
         {
