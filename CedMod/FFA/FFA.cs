@@ -21,13 +21,15 @@ namespace CedMod.FFA
         }
         static List<string> _badguylist = new List<string>();
         Dictionary<string, string> _victims = new Dictionary<string, string>();
-        public void Ondeath(DiedEventArgs ev)
+        public void OnHurt(HurtingEventArgs ev)
         {
             CharacterClassManager victim = ev.Target.ReferenceHub.characterClassManager;
-            CharacterClassManager killer = ev.Killer.ReferenceHub.characterClassManager;
+            CharacterClassManager killer = ev.Attacker.ReferenceHub.characterClassManager;
             if (ConfigFile.ServerConfig.GetBool("ffa_enable") && RoundSummary.RoundInProgress() && !AdminDisabled)
             {
                 bool flag = Functions.IsTeamKill(victim, killer);
+                if (ev.Amount >= ev.Target.Health)
+                    return;
                 if (flag)
                 {
                     if (killer.GetComponent<NetworkIdentity>().connectionToClient != null)

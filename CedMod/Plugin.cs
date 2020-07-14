@@ -63,7 +63,7 @@ namespace CedMod
             Exiled.Events.Handlers.Player.Joined += bansystem.OnPlayerJoin;
             Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += bansystem.OnCommand;
 
-            Exiled.Events.Handlers.Player.Died += ffa.Ondeath;
+            Exiled.Events.Handlers.Player.Hurting += ffa.OnHurt;
             Exiled.Events.Handlers.Server.SendingConsoleCommand += ffa.ConsoleCommand;
         }
 
@@ -82,7 +82,7 @@ namespace CedMod
             Exiled.Events.Handlers.Player.Joined -= bansystem.OnPlayerJoin;
             Exiled.Events.Handlers.Server.SendingRemoteAdminCommand -= bansystem.OnCommand;
             
-            Exiled.Events.Handlers.Player.Died -= ffa.Ondeath;
+            Exiled.Events.Handlers.Player.Hurting -= ffa.OnHurt;
             Exiled.Events.Handlers.Server.SendingConsoleCommand -= ffa.ConsoleCommand;
 
             server = null;
