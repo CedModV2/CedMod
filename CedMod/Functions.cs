@@ -630,7 +630,7 @@ namespace CedMod
                 }
 
                 Cassie.Message("outside zone termination completed .", false, true);
-                Initializer.Logger.Info("AIRSTRIKE","[AirSupportBomb] Ended.");
+                Initializer.Logger.Info("AIRSTRKE","[AirSupportBomb] Ended.");
             }
 
             public static IEnumerator<float> AirSupportstop(int duration = 30)
