@@ -117,9 +117,10 @@ namespace CedMod
             if (!RoundSummary.RoundInProgress())
             {
                 ev.Player.characterClassManager.SetPlayersClass(RoleType.Tutorial, ev.Player.gameObject);
-                ev.Player.SetGodMode(false);
-                ev.Player.inventory.AddNewItem(ItemType.MicroHID);
                 yield return Timing.WaitForSeconds(0.2f);
+                ev.Player.SetGodMode(false);
+                ItemType item = Functions.GetRandomItem();
+                ev.Player.inventory.AddNewItem(item);
                 ev.Player.SetPosition(new Vector3(-20f, 1020, -43));
             }
             yield return 1f;
@@ -153,7 +154,6 @@ namespace CedMod
                         ev.Sender.RaReply(string.Concat(command[0].ToUpper(), "#To run this program, you must specify a reason use the text based RA console to do so, Autocorrection:   ban ", command[1], " ", command[2], " ReasonHere"), false, true, "");
                         return;
                     }
-                    ServerLogs.AddLog(ServerLogs.Modules.Administrative, string.Concat(ev.Sender.Nickname, " ran the ban command (duration: ", command[2], " min) on ", command[1], " players. Reason: ", (text17 == string.Empty) ? "(none)" : text17, "."), ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging);
                     List<int> list = new List<int>();
                     string[] source = command[1].Split('.');
                     list.AddRange((from item in source

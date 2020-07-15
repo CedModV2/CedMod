@@ -98,7 +98,13 @@ namespace CedMod
             info?.Invoke(null, param);
         }
         
-
+        public static ItemType GetRandomItem()
+        {
+            Random random = new Random();
+            int index = UnityEngine.Random.Range(0, Plugin.items.Count);
+            return Plugin.items[index];
+        }
+        
         public static void PlayAmbientSound(int id)
         {
             PlayerManager.localPlayer.GetComponent<AmbientSoundPlayer>().RpcPlaySound(Mathf.Clamp(id, 0, 31));
@@ -617,8 +623,7 @@ namespace CedMod
 
                 IsAirBombGoing = true;
 
-                PlayerManager.localPlayer.GetComponent<MTFRespawn>()
-                    .RpcPlayCustomAnnouncement("danger . outside zone emergency termination sequence activated .",
+                Cassie.CassieMessage("danger . outside zone emergency termination sequence activated .",
                         false, true);
                 yield return Timing.WaitForSeconds(5f);
 
@@ -647,8 +652,7 @@ namespace CedMod
                     yield return Timing.WaitForSeconds(0.25f);
                 }
 
-                PlayerManager.localPlayer.GetComponent<MTFRespawn>()
-                    .RpcPlayCustomAnnouncement("outside zone termination completed .", false, true);
+                Cassie.CassieMessage("outside zone termination completed .", false, true);
 
                 Log.Info("[AirSupportBomb] Ended.");
             }
