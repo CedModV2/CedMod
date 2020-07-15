@@ -600,7 +600,6 @@ namespace CedMod
                 }
 
                 IsAirBombGoing = true;
-
                 Cassie.Message("danger . outside zone emergency termination sequence activated .",
                     false, true);
                 yield return Timing.WaitForSeconds(5f);
@@ -629,7 +628,6 @@ namespace CedMod
                     Initializer.Logger.Info("AIRSTRIKE", $"[AirSupportBomb] throwcount:{throwcount}");
                     yield return Timing.WaitForSeconds(0.25f);
                 }
-
                 Cassie.Message("outside zone termination completed .", false, true);
                 Initializer.Logger.Info("AIRSTRKE","[AirSupportBomb] Ended.");
             }

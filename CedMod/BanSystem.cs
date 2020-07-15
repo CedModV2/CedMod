@@ -154,7 +154,6 @@ namespace CedMod
                         ev.Sender.RaReply(string.Concat(command[0].ToUpper(), "#To run this program, you must specify a reason use the text based RA console to do so, Autocorrection:   ban ", command[1], " ", command[2], " ReasonHere"), false, true, "");
                         return;
                     }
-                    ServerLogs.AddLog(ServerLogs.Modules.Administrative, string.Concat(ev.Sender.Nickname, " ran the ban command (duration: ", command[2], " min) on ", command[1], " players. Reason: ", (text17 == string.Empty) ? "(none)" : text17, "."), ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging);
                     List<int> list = new List<int>();
                     string[] source = command[1].Split('.');
                     list.AddRange((from item in source
