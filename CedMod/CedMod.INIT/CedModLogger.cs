@@ -1,15 +1,12 @@
-﻿using CedMod.CedMod.Logging;
-using GameCore;
-
-namespace CedMod.CedMod.INIT
+﻿namespace CedMod.INIT
 {
-    public class CedModLogger : Logger
+    public class CedModLogger : Logging.Logger
     {
         public override void Debug(string tag, string message)
         {
-            #if DEBUG
+#if DEBUG
             Write("DEBUG", tag, message);
-            #endif
+#endif
         }
         
         public override void Error(string tag, string message)

@@ -6,11 +6,8 @@ using System.Net.Security;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
-using CedMod.CedMod.INIT;
-using CedMod.Commands;
-using CedMod.Commands.Stuiter;
-using CommandSystem;
-using EXILED.Extensions;
+using CedMod.INIT;
+using Exiled.API.Features;
 using GameCore;
 using Grenades;
 using MEC;
@@ -19,7 +16,6 @@ using Newtonsoft.Json;
 using RemoteAdmin;
 using UnityEngine;
 using Console = System.Console;
-using Log = EXILED.Log;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
@@ -27,24 +23,6 @@ namespace CedMod
 {
     public class FunctionsNonStatic
     {
-        public Plugin Plugin;
-
-        public FunctionsNonStatic(Plugin plugin)
-        {
-            Plugin = plugin;
-        }
-
-        public static void Roundrestart()
-        {
-            Timing.KillCoroutines("airstrike");
-        }
-
-        public void Waitingforplayers()
-        {
-            if (ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true))
-                GameObject.Find("StartRound").transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
-        }
-        
 
         public void SetScale(GameObject target, float x, float y, float z) //this code may have been yoinked
         {
@@ -74,13 +52,19 @@ namespace CedMod
             }
             catch (Exception e)
             {
-                Log.Info($"Set Scale error: {e}");
+                Initializer.Logger.Error("Scale",$"Set Scale error: {e}");
             }
         }
     }
 
     public static class Functions
     {
+        public static ItemType GetRandomItem()
+        {
+            Random random = new Random();
+            int index = UnityEngine.Random.Range(0, CedModMain.items.Count);
+            return CedModMain.items[index];
+        }
         public enum GrenadeId
         {
             FragNade = 0,
@@ -98,13 +82,7 @@ namespace CedMod
             info?.Invoke(null, param);
         }
         
-        public static ItemType GetRandomItem()
-        {
-            Random random = new Random();
-            int index = UnityEngine.Random.Range(0, Plugin.items.Count);
-            return Plugin.items[index];
-        }
-        
+
         public static void PlayAmbientSound(int id)
         {
             PlayerManager.localPlayer.GetComponent<AmbientSoundPlayer>().RpcPlaySound(Mathf.Clamp(id, 0, 31));
@@ -152,14 +130,14 @@ namespace CedMod
                     webClient3.Headers.Add("Alias", alias);
                     webClient3.Headers.Add("Port", ServerConsole.Port.ToString());
                     webClient3.Headers.Add("Ip", ServerConsole.Ip);
-                    var text3 = BanSystem.Testusers.Contains(player.characterClassManager.UserId) ||
+                    var text3 = BanSystem.BanSystem.Testusers.Contains(player.characterClassManager.UserId) ||
                                 Initializer.TestApiOnly
-                        ? webClient3.DownloadString("https://test.cedmod.nl/auth/auth.php?id=" + player.GetUserId() +
+                        ? webClient3.DownloadString("https://test.cedmod.nl/auth/auth.php?id=" + player.characterClassManager.UserId +
                                                     "&ip=" +
                                                     player.GetComponent<NetworkIdentity>().connectionToClient.address +
                                                     "&alias=" + ConfigFile.ServerConfig.GetString("bansystem_alias",
                                                         "none") + "&geo=" + _geoString)
-                        : webClient3.DownloadString("https://api.cedmod.nl/auth/auth.php?id=" + player.GetUserId() +
+                        : webClient3.DownloadString("https://api.cedmod.nl/auth/auth.php?id=" + player.characterClassManager.UserId +
                                                     "&ip=" +
                                                     player.GetComponent<NetworkIdentity>().connectionToClient.address +
                                                     "&alias=" + ConfigFile.ServerConfig.GetString("bansystem_alias",
@@ -167,7 +145,7 @@ namespace CedMod
                     Initializer.Logger.Info("BANSYSTEM",
                         "Checking ban status of user: " + player.GetComponent<CharacterClassManager>().UserId +
                         " Response from API: " + text3);
-                    BanSystem.LastApiRequestSuccessfull = true;
+                    BanSystem.BanSystem.LastApiRequestSuccessfull = true;
                     var jsonObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(text3);
                     return jsonObj;
                 }
@@ -176,7 +154,7 @@ namespace CedMod
             {
                 Initializer.Logger.Error("BANSYSTEN",
                     "Unable to properly connect to CedMod API: " + ex.Status + " | " + ex.Message);
-                BanSystem.LastApiRequestSuccessfull = false;
+                BanSystem.BanSystem.LastApiRequestSuccessfull = false;
                 return null;
             }
         }
@@ -199,7 +177,7 @@ namespace CedMod
                     webClient.Headers.Add("Alias", alias);
                     webClient.Headers.Add("Port", ServerConsole.Port.ToString());
                     webClient.Headers.Add("Ip", ServerConsole.Ip);
-                    var text2 = BanSystem.Testusers.Contains(player.characterClassManager.UserId) ||
+                    var text2 = BanSystem.BanSystem.Testusers.Contains(player.characterClassManager.UserId) ||
                                 Initializer.TestApiOnly
                         ? webClient.DownloadString("https://test.cedmod.nl/auth/preauth.php?id=" +
                                                    player.GetComponent<CharacterClassManager>().UserId + "&ip=" +
@@ -214,14 +192,14 @@ namespace CedMod
                     Initializer.Logger.Info("BANSYSTEM",
                         "checking ban status for user: " + player.GetComponent<CharacterClassManager>().UserId +
                         " Response from API: " + text2);
-                    BanSystem.LastApiRequestSuccessfull = true;
+                    BanSystem.BanSystem.LastApiRequestSuccessfull = true;
                     var jsonObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(text2);
                     return jsonObj;
                 }
             }
             catch (WebException ex)
             {
-                BanSystem.LastApiRequestSuccessfull = false;
+                BanSystem.BanSystem.LastApiRequestSuccessfull = false;
                 Initializer.Logger.Error("BANSYSTEN",
                     "Unable to properly connect to CedMod API: " + ex.Status + " | " + ex.Message);
                 return null;
@@ -245,7 +223,7 @@ namespace CedMod
                     webClient.Headers.Add("Alias", alias);
                     webClient.Headers.Add("Port", ServerConsole.Port.ToString());
                     webClient.Headers.Add("Ip", ServerConsole.Ip);
-                    var text2 = BanSystem.Testusers.Contains(player.characterClassManager.UserId) ||
+                    var text2 = BanSystem.BanSystem.Testusers.Contains(player.characterClassManager.UserId) ||
                                 Initializer.TestApiOnly
                         ? webClient.DownloadString("https://test.cedmod.nl/banning/unban.php?id=" +
                                                    player.GetComponent<CharacterClassManager>().UserId + "&ip=" +
@@ -264,7 +242,7 @@ namespace CedMod
                     Initializer.Logger.Info("BANSYSTEM",
                         "user: " + player.GetComponent<CharacterClassManager>().UserId + " unban, Response from API: " +
                         text2);
-                    BanSystem.LastApiRequestSuccessfull = true;
+                    BanSystem.BanSystem.LastApiRequestSuccessfull = true;
                     var jsonObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(text2);
                     return jsonObj;
                 }
@@ -273,7 +251,7 @@ namespace CedMod
             {
                 Initializer.Logger.Error("BANSYSTEN",
                     "Unable to properly connect to CedMod API: " + ex.Status + " | " + ex.Message);
-                BanSystem.LastApiRequestSuccessfull = false;
+                BanSystem.BanSystem.LastApiRequestSuccessfull = false;
                 return null;
             }
         }
@@ -295,7 +273,7 @@ namespace CedMod
                     webClient.Headers.Add("Alias", alias);
                     webClient.Headers.Add("Port", ServerConsole.Port.ToString());
                     webClient.Headers.Add("Ip", ServerConsole.Ip);
-                    var text2 = BanSystem.Testusers.Contains(player.characterClassManager.UserId) ||
+                    var text2 = BanSystem.BanSystem.Testusers.Contains(player.characterClassManager.UserId) ||
                                 Initializer.TestApiOnly
                         ? webClient.DownloadString("https://test.cedmod.nl/banning/userdetails.php?id=" +
                                                    player.GetComponent<CharacterClassManager>().UserId + "&alias=" +
@@ -360,7 +338,7 @@ namespace CedMod
             if (duration >= 1)
             {
                 if (bc)
-                    Map.Broadcast(player.GetComponent<NicknameSync>().MyNick + " Has been banned from the server", 9);
+                    Map.Broadcast(9, player.GetComponent<NicknameSync>().MyNick + " Has been banned from the server", Broadcast.BroadcastFlags.Normal);
                 try
                 {
                     using (var webClient = new WebClient())
@@ -389,9 +367,9 @@ namespace CedMod
                                 "&aname=", sender, "&bd=", duration,
                                 "&alias=" + ConfigFile.ServerConfig.GetString("bansystem_alias", "none") + "&webhook=" +
                                 ConfigFile.ServerConfig.GetString("bansystem_webhook", "none")));
-                        Log.Info(string.Concat("User: ", player.GetComponent<CharacterClassManager>().UserId,
+                        Initializer.Logger.Info("BANSYSTEM", string.Concat("User: ", player.GetComponent<CharacterClassManager>().UserId,
                             " has been banned by: ", sender, " for the reason: ", reason, " duration: ", duration));
-                        Log.Info("BANSYSTEM: Response from ban API: " + text);
+                        Initializer.Logger.Info("BANSYSTEM", "Response from ban API: " + text);
                         var jsonObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(text);
                         ServerConsole.Disconnect(player, jsonObj["preformattedmessage"]);
                     }
@@ -614,20 +592,19 @@ namespace CedMod
 
             public static IEnumerator<float> AirSupportBomb(int waitforready = 5, int duration = 30)
             {
-                Log.Info("[AirSupportBomb] booting...");
+                Initializer.Logger.Info("AIRSTRIKE", "[AirSupportBomb] booting...");
                 if (IsAirBombGoing)
                 {
-                    Log.Info("[Airbomb] already booted, cancel.");
+                    Initializer.Logger.Info("AIRSTRIKE","[Airbomb] already booted, cancel.");
                     yield break;
                 }
 
                 IsAirBombGoing = true;
-
-                Cassie.CassieMessage("danger . outside zone emergency termination sequence activated .",
-                        false, true);
+                Cassie.Message("danger . outside zone emergency termination sequence activated .",
+                    false, true);
                 yield return Timing.WaitForSeconds(5f);
 
-                Log.Info("[AirSupportBomb] charging...");
+                Initializer.Logger.Info("AIRSTRIKE", "[AirSupportBomb] charging...");
                 while (waitforready > 0)
                 {
                     PlayAmbientSound(7);
@@ -636,7 +613,7 @@ namespace CedMod
                 }
 
                 Timing.RunCoroutine(AirSupportstop(duration), "airstrike");
-                Log.Info("[AirSupportBomb] throwing...");
+                Initializer.Logger.Info("AIRSTRIKE", "[AirSupportBomb] throwing...");
                 var throwcount = 0;
                 while (IsAirBombGoing)
                 {
@@ -648,13 +625,11 @@ namespace CedMod
                     }
 
                     throwcount++;
-                    Log.Info($"[AirSupportBomb] throwcount:{throwcount}");
+                    Initializer.Logger.Info("AIRSTRIKE", $"[AirSupportBomb] throwcount:{throwcount}");
                     yield return Timing.WaitForSeconds(0.25f);
                 }
-
-                Cassie.CassieMessage("outside zone termination completed .", false, true);
-
-                Log.Info("[AirSupportBomb] Ended.");
+                Cassie.Message("outside zone termination completed .", false, true);
+                Initializer.Logger.Info("AIRSTRKE","[AirSupportBomb] Ended.");
             }
 
             public static IEnumerator<float> AirSupportstop(int duration = 30)

@@ -6,11 +6,11 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using CedMod.INIT;
 using GameCore;
 using Newtonsoft.Json;
 using UnityEngine;
 using Console = System.Console;
-using Log = EXILED.Log;
 
 namespace CedMod.PluginInterface
 {
@@ -50,7 +50,7 @@ namespace CedMod.PluginInterface
             }
             catch (Exception ex)
             {
-                Log.Error(ex.StackTrace);
+                Initializer.Logger.Error("PluginInterface", ex.StackTrace);
             }
         }
         private static async Task MainLoop()
@@ -114,9 +114,9 @@ namespace CedMod.PluginInterface
                                         Dictionary<string, string> jsonData = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
                                         if (jsonData.ContainsKey("key") && jsonData.ContainsKey("user"))
                                         {
-                                            if (jsonData["key"] != PluginInterface.SecurityKey || jsonData["user"] == null)
+                                            if (jsonData["key"] != PluginInterface.CedModPluginInterface.SecurityKey || jsonData["user"] == null)
                                             {
-                                                Log.Warn("Unauthorized connection attempt: " + context.Request.RemoteEndPoint + " request params: " + json);
+                                                Initializer.Logger.Warn("PluginInterface", "Unauthorized connection attempt: " + context.Request.RemoteEndPoint + " request params: " + json);
                                                 response.StatusCode = 401;
                                                 string json1 = "{'unauthorized': 'true'}";
                                                 string responseBody = JsonConvert.SerializeObject(json1);
@@ -128,7 +128,7 @@ namespace CedMod.PluginInterface
                                         }
                                         else
                                         {
-                                            Log.Warn("Unauthorized connection attempt: " + context.Request.RemoteEndPoint + " request params: " + json);
+                                            Initializer.Logger.Warn("PluginInterface","Unauthorized connection attempt: " + context.Request.RemoteEndPoint + " request params: " + json);
                                             response.StatusCode = 401;
                                             string json1 = "{'unauthorized': 'true'}";
                                             string responseBody = JsonConvert.SerializeObject(json1);
@@ -137,12 +137,12 @@ namespace CedMod.PluginInterface
                                             response.OutputStream.Write(buffer1, 0, buffer1.Length);
                                             break;
                                         }
-                                        Log.Info(jsonData["user"]);
-                                        Log.Info(jsonData["action"]);
+                                        Initializer.Logger.Warn("PluginInterface",jsonData["user"]);
+                                        Initializer.Logger.Warn("PluginInterface",jsonData["action"]);
                                         switch (jsonData["action"])
                                         {
                                             case "broadcast":
-                                                Log.Info("Broadcast recieved: " + jsonData["message"]);
+                                                Initializer.Logger.Warn("PluginInterface","Broadcast recieved: " + jsonData["message"]);
                                                 PlayerManager.localPlayer.gameObject.GetComponent<Broadcast>()
                                                     .RpcAddElement(jsonData["message"], Convert.ToUInt16(jsonData["duration"]),
                                                         Broadcast.BroadcastFlags.Normal);
@@ -197,7 +197,7 @@ namespace CedMod.PluginInterface
                             response.ContentLength64 = buffer404.Length;
                             response.OutputStream.Write(buffer404, 0, buffer404.Length);
                             response.StatusCode = 404;
-                            Log.Warn("404 error served request url: " + context.Request.Url.AbsolutePath);
+                            Initializer.Logger.Warn("PluginInterface","404 error served request url: " + context.Request.Url.AbsolutePath);
                             break;
                     }
                 }

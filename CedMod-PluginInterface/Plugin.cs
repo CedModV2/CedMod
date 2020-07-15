@@ -1,15 +1,17 @@
 ﻿using System;
+using CedMod.INIT;
+using Exiled.API.Features;
 
 namespace CedMod.PluginInterface
 {
-    public class PluginInterface : EXILED.Plugin
+    public class CedModPluginInterface : Plugin<Config_PluginInterface>
     {
-        public override string getName => "CedModPluginInterface";
+        public string getName => "CedModPluginInterface";
 
         // HTTP server
 
 
-        public override void OnDisable()
+        public void OnDisable()
         {
             // Unload the event handlers.
 
@@ -19,7 +21,7 @@ namespace CedMod.PluginInterface
 
         public static string SecurityKey =
             GameCore.ConfigFile.ServerConfig.GetString("cm_plugininterface_key", "none");
-        public override void OnEnable()
+        public void OnEnable()
         {
             // Load the event handlers.
 
@@ -28,10 +30,10 @@ namespace CedMod.PluginInterface
                 WebService.StartWebServer();
             }
             else
-                CedMod.INIT.Initializer.Logger.Warn("PluginInterface", "cm_plugininterface_key is set to none plugin will nog load due to security risks");
+               Initializer.Logger.Warn("PluginInterface", "cm_plugininterface_key is set to none plugin will nog load due to security risks");
         }
 
-        public override void OnReload()
+        public void OnReload()
         {
             throw new NotImplementedException();
         }
