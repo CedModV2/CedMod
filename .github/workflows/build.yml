@@ -24,9 +24,3 @@ jobs:
       with:
        name: CedMod Build Results
        path: ${{ github.workspace }}/bin/Release/CedMod*
-    - name: Upload1
-      uses: actions/upload-artifact@v2
-      with:
-        name: Build References
-        path: ${{ github.workspace }}/bin/Release/
-
