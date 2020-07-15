@@ -100,20 +100,25 @@
     <Reference Include="dnlib, Version=3.3.2.0, Culture=neutral, PublicKeyToken=50e96378b6e77999">
       <HintPath>..\References\dnlib.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.API, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\References\Exiled.API.dll</HintPath>
+    <Reference Include="Exiled.API, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\EXILED.2.0.1\lib\net472\Exiled.API.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Exiled.Bootstrap, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\References\Exiled.Bootstrap.dll</HintPath>
+    <Reference Include="Exiled.Events, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\EXILED.2.0.1\lib\net472\Exiled.Events.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Exiled.Events, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\References\Exiled.Events.dll</HintPath>
+    <Reference Include="Exiled.Loader, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\EXILED.2.0.1\lib\net472\Exiled.Loader.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Exiled.Loader, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\References\Exiled.Loader.dll</HintPath>
+    <Reference Include="Exiled.Permissions, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\EXILED.2.0.1\lib\net472\Exiled.Permissions.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Exiled.Permissions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\References\Exiled.Permissions.dll</HintPath>
+    <Reference Include="Exiled.Updater, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\EXILED.2.0.1\lib\net472\Exiled.Updater.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Facepunch.Steamworks.Win64, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\Facepunch.Steamworks.Win64.dll</HintPath>
