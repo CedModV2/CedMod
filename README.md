@@ -1,6 +1,6 @@
-Master Branch: ![.NET Core](https://github.com/CedModV2/CedMod/workflows/.NET%20Core/badge.svg?branch=master)
+Master Branch: ![.NET Core](https://github.com/CedModV2/CedMod/workflows/.NET%20Core%20Master/badge.svg?branch=master)
 
-Dev Branch: ![.NET Core](https://github.com/CedModV2/CedMod/workflows/.NET%20Core/badge.svg?branch=dev)
+Dev Branch: ![.NET Core](https://github.com/CedModV2/CedMod/workflows/.NET%20Core%20Dev/badge.svg?branch=master)
 
 Get the latest stable build here: https://github.com/CedModV2/CedMod/actions?query=branch%3Amaster (click on the most top one that has a checkmark and download the artifact named CedMod Build Results)
 
