@@ -10,6 +10,7 @@ using MEC;
 using Mirror;
 using RemoteAdmin;
 using UnityEngine;
+using Console = System.Console;
 using Map = Exiled.API.Features.Map;
 using Permissions = Exiled.Permissions.Extensions.Permissions;
 using Player = Exiled.API.Features.Player;
@@ -22,77 +23,129 @@ namespace CedMod.BanSystem
         public static bool LastApiRequestSuccessfull = false;
         public void OnPlayerJoinThread(JoinedEventArgs ev)
         {
-            Thread.CurrentThread.Name = "CedModV3 queue worker";
-            Initializer.Logger.Debug("BANSYSTEM", Thread.CurrentThread.Name);
-            ReferenceHub Player = ev.Player.ReferenceHub;
-            if (Player.characterClassManager.UserId.Contains("@northwood"))
+            try
             {
-                return;
-            }
-            if (!Player.gameObject.GetComponent<ServerRoles>().BypassStaff)
-            {
-                if (!Player.characterClassManager.isLocalPlayer)
+                Thread.CurrentThread.Name = "CedModV3 queue worker";
+                Initializer.Logger.Debug("BANSYSTEM", Thread.CurrentThread.Name);
+                ReferenceHub Player = ev.Player.ReferenceHub;
+                if (Player.characterClassManager.UserId.Contains("@northwood"))
                 {
-                    foreach (string b in ConfigFile.ServerConfig.GetStringList("cm_nicknamefilter"))
+                    return;
+                }
+
+                if (!Player.gameObject.GetComponent<ServerRoles>().BypassStaff)
+                {
+                    if (!Player.characterClassManager.isLocalPlayer)
                     {
-                        if (Player.nicknameSync.MyNick.ToUpper().Contains(b.ToUpper()))
+                        foreach (string b in ConfigFile.ServerConfig.GetStringList("cm_nicknamefilter"))
                         {
-                            Player.nicknameSync.MyNick = Player.nicknameSync.MyNick.Replace(b.ToUpper(), "");
-                            Player.nicknameSync.Network_myNickSync = Player.nicknameSync.Network_myNickSync.Replace(b.ToUpper(), "");
+                            if (Player.nicknameSync.MyNick.ToUpper().Contains(b.ToUpper()))
+                            {
+                                Player.nicknameSync.MyNick = Player.nicknameSync.MyNick.Replace(b.ToUpper(), "");
+                                Player.nicknameSync.Network_myNickSync =
+                                    Player.nicknameSync.Network_myNickSync.Replace(b.ToUpper(), "");
+                            }
                         }
-                    }
-                    Dictionary<string, string> bancheck = Functions.CheckBanExpired(Player);
-                    
-                    Initializer.Logger.Debug("BANSYSTEM", "Checking ban status of user: " + Player.GetComponent<CharacterClassManager>().UserId + " Response from API: " + bancheck);
-                    if (bancheck["banexpired"] == "true" && bancheck["success"] == "true")
-                    {
-                        Initializer.Logger.Info("BANSYSTEM", "user: " + Player.GetComponent<CharacterClassManager>().UserId + " Ban expired attempting unban");
-                        Functions.Unban(Player);
-                        Map.Broadcast(20, "WARNING Player: " + Player.nicknameSync.MyNick + " " + Player.characterClassManager.UserId + " has been recently been unbanned due to ban expiery", Broadcast.BroadcastFlags.AdminChat);
-                    }
-                    Dictionary<string, string> banReason = Functions.GetBandetails(Player);
-                    if (banReason != null && LastApiRequestSuccessfull)
-                    {
-                        string reason;
-                        if (banReason["success"] == "true" && banReason["vpn"] == "true" && banReason["geo"] == "false" && banReason["isbanned"] == "false")
+
+                        Dictionary<string, string> bancheck = Functions.CheckBanExpired(Player);
+
+                        Initializer.Logger.Debug("BANSYSTEM",
+                            "Checking ban status of user: " + Player.GetComponent<CharacterClassManager>().UserId +
+                            " Response from API: " + bancheck);
+                        if (bancheck["banexpired"] == "true" && bancheck["success"] == "true")
                         {
-                            reason = banReason["reason"];
-                            Player.characterClassManager.TargetConsolePrint(Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM Message from CedMod server (VPN/Proxy detected): " + banReason, "yellow");
-                            Initializer.Logger.Info("BANSYSTEM", "user: " + Player.GetComponent<CharacterClassManager>().UserId + " attempted connection with blocked ASN/IP/VPN/Hosting service");
-                            ev.Player.Disconnect(reason);
+                            Initializer.Logger.Info("BANSYSTEM",
+                                "user: " + Player.GetComponent<CharacterClassManager>().UserId +
+                                " Ban expired attempting unban");
+                            Functions.Unban(Player);
+                            Map.Broadcast(20,
+                                "WARNING Player: " + Player.nicknameSync.MyNick + " " +
+                                Player.characterClassManager.UserId +
+                                " has been recently been unbanned due to ban expiery",
+                                Broadcast.BroadcastFlags.AdminChat);
                         }
-                        else
+
+                        Dictionary<string, string> banReason = Functions.GetBandetails(Player);
+                        if (banReason != null && LastApiRequestSuccessfull)
                         {
-                            if (banReason["success"] == "true" && banReason["vpn"] == "false" && banReason["geo"] == "true" && banReason["isbanned"] == "false")
+                            string reason;
+                            if (banReason["success"] == "true" && banReason["vpn"] == "true" &&
+                                banReason["geo"] == "false" && banReason["isbanned"] == "false")
                             {
                                 reason = banReason["reason"];
-                                Player.characterClassManager.TargetConsolePrint(Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM Message from CedMod server (GEO Restriction): " + banReason, "yellow");
-                                Initializer.Logger.Info("BANSYSTEM", "user: " + Player.GetComponent<CharacterClassManager>().UserId + " attempted connection from blocked country");
+                                Player.characterClassManager.TargetConsolePrint(
+                                    Player.GetComponent<NetworkIdentity>().connectionToClient,
+                                    "CedMod.BANSYSTEM Message from CedMod server (VPN/Proxy detected): " + banReason,
+                                    "yellow");
+                                Initializer.Logger.Info("BANSYSTEM",
+                                    "user: " + Player.GetComponent<CharacterClassManager>().UserId +
+                                    " attempted connection with blocked ASN/IP/VPN/Hosting service");
                                 ev.Player.Disconnect(reason);
                             }
                             else
                             {
-                                if (banReason["success"] == "true" && banReason["vpn"] == "false" && banReason["geo"] == "false" && banReason["isbanned"] == "true")
+                                if (banReason["success"] == "true" && banReason["vpn"] == "false" &&
+                                    banReason["geo"] == "true" && banReason["isbanned"] == "false")
                                 {
-                                    reason = banReason["preformattedmessage"] + " You can fill in a ban appeal here: " + ConfigFile.ServerConfig.GetString("bansystem_banappealurl", "none");
-                                    Initializer.Logger.Info("BANSYSTEM", "user: " + Player.GetComponent<CharacterClassManager>().UserId + " attempted connection with active ban disconnecting");
-                                    Player.characterClassManager.TargetConsolePrint(Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM Active ban: " + banReason["preformattedmessage"], "yellow");
+                                    reason = banReason["reason"];
+                                    Player.characterClassManager.TargetConsolePrint(
+                                        Player.GetComponent<NetworkIdentity>().connectionToClient,
+                                        "CedMod.BANSYSTEM Message from CedMod server (GEO Restriction): " + banReason,
+                                        "yellow");
+                                    Initializer.Logger.Info("BANSYSTEM",
+                                        "user: " + Player.GetComponent<CharacterClassManager>().UserId +
+                                        " attempted connection from blocked country");
                                     ev.Player.Disconnect(reason);
                                 }
                                 else
                                 {
-                                    if (banReason["success"] == "true" && banReason["vpn"] == "false" && banReason["geo"] == "false" && banReason["isbanned"] == "false" && banReason["iserror"] == "true")
+                                    if (banReason["success"] == "true" && banReason["vpn"] == "false" &&
+                                        banReason["geo"] == "false" && banReason["isbanned"] == "true")
                                     {
-                                        Player.characterClassManager.TargetConsolePrint(Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM Message from CedMod server: " + banReason["error"], "yellow");
-                                        Initializer.Logger.Info("BANSYSTEM", "Message from CedMod server: " + banReason["error"]);
+                                        reason = banReason["preformattedmessage"] +
+                                                 " You can fill in a ban appeal here: " +
+                                                 ConfigFile.ServerConfig.GetString("bansystem_banappealurl", "none");
+                                        Initializer.Logger.Info("BANSYSTEM",
+                                            "user: " + Player.GetComponent<CharacterClassManager>().UserId +
+                                            " attempted connection with active ban disconnecting");
+                                        Player.characterClassManager.TargetConsolePrint(
+                                            Player.GetComponent<NetworkIdentity>().connectionToClient,
+                                            "CedMod.BANSYSTEM Active ban: " + banReason["preformattedmessage"],
+                                            "yellow");
+                                        ev.Player.Disconnect(reason);
+                                    }
+                                    else
+                                    {
+                                        if (banReason["success"] == "true" && banReason["vpn"] == "false" &&
+                                            banReason["geo"] == "false" && banReason["isbanned"] == "false" &&
+                                            banReason["iserror"] == "true")
+                                        {
+                                            Player.characterClassManager.TargetConsolePrint(
+                                                Player.GetComponent<NetworkIdentity>().connectionToClient,
+                                                "CedMod.BANSYSTEM Message from CedMod server: " + banReason["error"],
+                                                "yellow");
+                                            Initializer.Logger.Info("BANSYSTEM",
+                                                "Message from CedMod server: " + banReason["error"]);
+                                        }
                                     }
                                 }
                             }
                         }
+
+                        string authtype = Testusers.Contains(Player.characterClassManager.UserId)
+                            ? "Test API"
+                            : "Main API";
+                        Player.characterClassManager.TargetConsolePrint(
+                            Player.GetComponent<NetworkIdentity>().connectionToClient,
+                            "CedMod.BANSYSTEM You have been authed by the CedMod: " + authtype, "green");
                     }
-                    string authtype = Testusers.Contains(Player.characterClassManager.UserId) ? "Test API" : "Main API";
-                    Player.characterClassManager.TargetConsolePrint(Player.GetComponent<NetworkIdentity>().connectionToClient, "CedMod.BANSYSTEM You have been authed by the CedMod: " + authtype, "green");
                 }
+            }
+            catch (Exception ex)
+            {
+                Initializer.Logger.Error("BANSYSTEM", ex.Message);
+                Initializer.Logger.Error("BANSYSTEM", ex.Source);
+                Initializer.Logger.Error("BANSYSTEM", ex.StackTrace);
             }
         }
         public void OnPlayerJoin(JoinedEventArgs ev)

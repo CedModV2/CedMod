@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CedMod.FFA;
+using CedMod.INIT;
 using Exiled.Events;
 
 namespace CedMod
@@ -19,9 +21,16 @@ namespace CedMod
         private FFA.FriendlyFireAutoBan ffa;
 
         /// <inheritdoc/>
-        public override PluginPriority Priority { get; } = PluginPriority.Medium;
+        public override PluginPriority Priority { get; } = PluginPriority.First;
 
         /// <inheritdoc/>
+
+        public override string Author { get; } = "ced777ric#0001";
+
+        public override string Name { get; } = "CedMod-Main";
+
+        public override string Prefix { get; } = "cm";
+
         public override void OnEnabled()
         {
             items.Add(ItemType.GunLogicer);

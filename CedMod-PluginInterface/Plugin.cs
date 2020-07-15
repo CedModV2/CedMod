@@ -1,16 +1,25 @@
 ﻿using System;
 using CedMod.INIT;
+using Exiled.API.Enums;
 using Exiled.API.Features;
 
 namespace CedMod.PluginInterface
 {
     public class CedModPluginInterface : Plugin<Config_PluginInterface>
     {
-        public string getName => "CedModPluginInterface";
 
-        // HTTP server
+        /// <inheritdoc/>
+        public override PluginPriority Priority { get; } = PluginPriority.Default;
 
+        /// <inheritdoc/>
 
+        public override string Author { get; } = "ced777ric#0001";
+
+        public override string Name { get; } = "CedMod-PluginInterface";
+
+        public override string Prefix { get; } = "cm_pi";
+
+        
         public void OnDisable()
         {
             // Unload the event handlers.
@@ -35,7 +44,6 @@ namespace CedMod.PluginInterface
 
         public void OnReload()
         {
-            throw new NotImplementedException();
         }
     }
 }

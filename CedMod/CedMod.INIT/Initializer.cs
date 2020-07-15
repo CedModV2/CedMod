@@ -1,4 +1,5 @@
-﻿using CedMod.Commands;
+﻿using System;
+using CedMod.Commands;
 namespace CedMod.INIT
 {
     public class Initializer
@@ -9,7 +10,7 @@ namespace CedMod.INIT
             Logger.Info("INIT", string.Concat(new[]
             {
                 "CedMod™ ",
-                GetCedModVersion(),
+                GetCedModVersion().ToString(),
                 " Initialization"
             }));
             Logger.Info("INIT", "For the best experience use MultiAdmin");
@@ -27,7 +28,7 @@ namespace CedMod.INIT
         {
             int num = 3;
             int num2 = 0;
-            int num3 = 3;
+            int num3 = 4;
             string text = "R";
             return string.Format("{0}.{1}.{2}-{3}", num, num2, num3, text);
         }
