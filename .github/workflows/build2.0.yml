@@ -1,10 +1,10 @@
-name: .NET Core 2.0 Dev
+name: .NET Core Dev
 
 on:
   push:
-    branches: [ Dev ]
+    branches: [ dev ]
   pull_request:
-    branches: [ Dev ]
+    branches: [ dev ]
 
 jobs:
   build:
