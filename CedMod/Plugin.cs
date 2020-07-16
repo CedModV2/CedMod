@@ -33,6 +33,8 @@ namespace CedMod
 
         public override void OnEnabled()
         {
+            if (!Config.IsEnabled)
+                return;
             items.Add(ItemType.GunLogicer);
             items.Add(ItemType.GunProject90);
             items.Add(ItemType.GunMP7);

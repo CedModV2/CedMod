@@ -33,7 +33,8 @@ namespace CedMod.PluginInterface
         public void OnEnable()
         {
             // Load the event handlers.
-
+            if (!Config.IsEnabled)
+                return;
             if (SecurityKey != "none")
             {
                 WebService.StartWebServer();
