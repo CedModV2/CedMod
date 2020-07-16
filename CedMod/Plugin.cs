@@ -12,7 +12,7 @@ namespace CedMod
     /// <summary>
     /// The example plugin.
     /// </summary>
-    public class CedModMain : Plugin<Config_Main>
+    public class CedModMain : Plugin<Config>
     {
         public static List<ItemType> items = new List<ItemType>();
         private Handlers.Server server;
@@ -27,7 +27,7 @@ namespace CedMod
 
         public override string Author { get; } = "ced777ric#0001";
 
-        public override string Name { get; } = "CedMod-Main";
+        public override string Name { get; } = "CedMod";
 
         public override string Prefix { get; } = "cm";
 
@@ -44,6 +44,7 @@ namespace CedMod
             base.OnEnabled();
 
             RegisterEvents();
+            Initializer.Setup();
         }
 
         /// <inheritdoc/>
@@ -76,6 +77,7 @@ namespace CedMod
 
             Exiled.Events.Handlers.Player.Hurting += ffa.OnHurt;
             Exiled.Events.Handlers.Server.SendingConsoleCommand += ffa.ConsoleCommand;
+            
         }
 
         /// <summary>

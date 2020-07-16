@@ -47,7 +47,7 @@
     <Compile Include="CedMod.Logging\Logger.cs" />
     <Compile Include="Commands\AirStrike.cs" />
     <Compile Include="Commands\CommandHandler.cs" />
-    <Compile Include="Commands\FFaDisable.cs" />
+    <Compile Include="Commands\FFADisable.cs" />
     <Compile Include="Commands\Lightsout.cs" />
     <Compile Include="Commands\Stuiter.cs" />
     <Compile Include="Commands\Stuiter\All.cs" />

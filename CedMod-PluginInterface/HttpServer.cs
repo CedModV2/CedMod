@@ -1,14 +1,19 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Security;
+using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using CedMod.INIT;
+using Exiled.API.Features;
 using GameCore;
 using Newtonsoft.Json;
+using ServerOutput;
 using UnityEngine;
 using Console = System.Console;
 
@@ -24,18 +29,22 @@ namespace CedMod.PluginInterface
                 if (!pl.GetComponent<CharacterClassManager>().isLocalPlayer)
                     p++;
             }
+
             string playersammount = p.ToString();
             return playersammount;
         }
+
         private static int _port = ConfigFile.ServerConfig.GetInt("cm_port", 8000);
-        private static readonly HttpListener Listener = new HttpListener { Prefixes = { $"http://*:{_port}/" } };
+        private static readonly HttpListener Listener = new HttpListener {Prefixes = {$"http://*:{_port}/"}};
         private static bool _keepGoing = true;
         private static Task _mainLoop;
+        static List<string> responses = new List<string>();
         public static void StartWebServer()
         {
             if (_mainLoop != null && !_mainLoop.IsCompleted) return;
             _mainLoop = MainLoop();
         }
+
         public static void StopWebServer()
         {
             _keepGoing = false;
@@ -53,6 +62,7 @@ namespace CedMod.PluginInterface
                 Initializer.Logger.Error("PluginInterface", ex.StackTrace);
             }
         }
+
         private static async Task MainLoop()
         {
             Listener.Start();
@@ -72,6 +82,7 @@ namespace CedMod.PluginInterface
                 }
             }
         }
+
         private static void ProcessRequest(HttpListenerContext context)
         {
             using (HttpListenerResponse response = context.Response)
@@ -89,15 +100,19 @@ namespace CedMod.PluginInterface
                                     {
                                         Directory.CreateDirectory("static");
                                     }
+
                                     if (!File.Exists("static/index.html"))
                                     {
                                         using (WebClient client = new WebClient())
                                         {
-                                            ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
+                                            ServicePointManager.ServerCertificateValidationCallback +=
+                                                ValidateRemoteCertificate;
                                             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                                            client.DownloadFile("https://api.cedmod.nl/scpplugin/index.html", "static/index.html");
+                                            client.DownloadFile("https://api.cedmod.nl/scpplugin/index.html",
+                                                "static/index.html");
                                         }
                                     }
+
                                     string responseBody1 = File.ReadAllText(@"static\index.html");
                                     //Write it to the response stream
                                     byte[] buffer = Encoding.UTF8.GetBytes(responseBody1);
@@ -107,16 +122,22 @@ namespace CedMod.PluginInterface
 
                                 case "POST":
                                     using (Stream body = context.Request.InputStream)
-                                    using (StreamReader reader = new StreamReader(body, context.Request.ContentEncoding))
+                                    using (StreamReader reader =
+                                        new StreamReader(body, context.Request.ContentEncoding))
                                     {
                                         //Get the data that was sent to us
                                         string json = reader.ReadToEnd();
-                                        Dictionary<string, string> jsonData = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-                                        if (jsonData.ContainsKey("key") && jsonData.ContainsKey("user"))
+                                        Dictionary<string, string> jsonData =
+                                            JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+                                        if (jsonData.ContainsKey("key") && jsonData.ContainsKey("user") &&
+                                            jsonData.ContainsKey("action"))
                                         {
-                                            if (jsonData["key"] != PluginInterface.CedModPluginInterface.SecurityKey || jsonData["user"] == null)
+                                            if (jsonData["key"] != PluginInterface.CedModPluginInterface.SecurityKey ||
+                                                jsonData["user"] == null)
                                             {
-                                                Initializer.Logger.Warn("PluginInterface", "Unauthorized connection attempt: " + context.Request.RemoteEndPoint + " request params: " + json);
+                                                Initializer.Logger.Warn("PluginInterface",
+                                                    "Unauthorized connection attempt: " +
+                                                    context.Request.RemoteEndPoint + " request params: " + json);
                                                 response.StatusCode = 401;
                                                 string json1 = "{'unauthorized': 'true'}";
                                                 string responseBody = JsonConvert.SerializeObject(json1);
@@ -128,40 +149,67 @@ namespace CedMod.PluginInterface
                                         }
                                         else
                                         {
-                                            Initializer.Logger.Warn("PluginInterface","Unauthorized connection attempt: " + context.Request.RemoteEndPoint + " request params: " + json);
-                                            response.StatusCode = 401;
-                                            string json1 = "{'unauthorized': 'true'}";
-                                            string responseBody = JsonConvert.SerializeObject(json1);
-                                            byte[] buffer1 = Encoding.UTF8.GetBytes(responseBody);
-                                            response.ContentLength64 = buffer1.Length;
-                                            response.OutputStream.Write(buffer1, 0, buffer1.Length);
-                                            break;
+                                            Initializer.Logger.Warn("PluginInterface",
+                                                "Unauthorized connection attempt: " + context.Request.RemoteEndPoint +
+                                                " request params: " + json);
+                                            throw new ArgumentException("Missing arguments");
                                         }
-                                        Initializer.Logger.Warn("PluginInterface",jsonData["user"]);
-                                        Initializer.Logger.Warn("PluginInterface",jsonData["action"]);
+
+                                        Initializer.Logger.Warn("PluginInterface", "Command recieved: " + json);
+                                        ;
                                         switch (jsonData["action"])
                                         {
-                                            case "broadcast":
-                                                Initializer.Logger.Warn("PluginInterface","Broadcast recieved: " + jsonData["message"]);
-                                                PlayerManager.localPlayer.gameObject.GetComponent<Broadcast>()
-                                                    .RpcAddElement(jsonData["message"], Convert.ToUInt16(jsonData["duration"]),
-                                                        Broadcast.BroadcastFlags.Normal);
-                                                break;
-                                            case "kick":
+                                            case "kicksteamid":
                                                 foreach (GameObject player in PlayerManager.players)
                                                 {
-                                                    CharacterClassManager component = player.GetComponent<CharacterClassManager>();
+                                                    CharacterClassManager component =
+                                                        player.GetComponent<CharacterClassManager>();
                                                     if (component.UserId == jsonData["steamid"])
                                                     {
                                                         ServerConsole.Disconnect(player, jsonData["reason"]);
                                                     }
                                                 }
+                                                Dictionary<string, string> json1 = new Dictionary<string, string>();
+                                                json1.Add("success", "true");
+                                                json1.Add("error", "none");
+                                                string responseBody = JsonConvert.SerializeObject(json1);
+                                                byte[] buffer1 = Encoding.UTF8.GetBytes(responseBody);
+                                                response.ContentLength64 = buffer1.Length;
+                                                response.OutputStream.Write(buffer1, 0, buffer1.Length);
+                                                response.StatusCode = 200;
+
+                                                break;
+                                            case "custom":
+                                                if (!jsonData.ContainsKey("command"))
+                                                    throw new ArgumentException("Missing argument");
+                                                string[] command = jsonData["command"].Split(' ');
+                                                if (CedModPluginInterface.config.DisallowedWebCommands.Contains(
+                                                    command[0]))
+                                                    throw new UnauthorizedAccessException(
+                                                        "This command is disabled by a server aministrator.");
+                                                GameCore.Console.singleton.TypeCommand("/" + jsonData["command"], new CmSender(jsonData["user"]));
+                                                Dictionary<string, string> json11 = new Dictionary<string, string>();
+                                                json11.Add("success", "true");
+                                                string responsess = "";
+                                                foreach (string res in responses)
+                                                {
+                                                    responsess = responsess + Environment.NewLine + res;
+                                                }
+                                                responses.Clear();
+                                                json11.Add("message", responsess);
+                                                json11.Add("error", "none");
+                                                string responseBody11 = JsonConvert.SerializeObject(json11);
+                                                byte[] buffer11 = Encoding.UTF8.GetBytes(responseBody11);
+                                                response.ContentLength64 = buffer11.Length;
+                                                response.OutputStream.Write(buffer11, 0, buffer11.Length);
+                                                response.StatusCode = 200;
                                                 break;
                                         }
-                                        response.StatusCode = 204;
                                     }
+
                                     break;
                             }
+
                             break;
                         case "/stats/":
                         case "/stats":
@@ -176,6 +224,7 @@ namespace CedMod.PluginInterface
                                     response.OutputStream.Write(buffer, 0, buffer.Length);
                                     break;
                             }
+
                             break;
                         default:
                             response.ContentType = "text/html";
@@ -183,35 +232,49 @@ namespace CedMod.PluginInterface
                             {
                                 Directory.CreateDirectory("static");
                             }
+
                             if (!File.Exists("static/404.html"))
                             {
                                 using (WebClient client = new WebClient())
                                 {
-                                    ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
+                                    ServicePointManager.ServerCertificateValidationCallback +=
+                                        ValidateRemoteCertificate;
                                     ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                                     client.DownloadFile("https://api.cedmod.nl/scpplugin/404.html", "static/404.html");
                                 }
                             }
+
                             string error404Body = File.ReadAllText(@"static\404.html");
                             byte[] buffer404 = Encoding.UTF8.GetBytes(error404Body);
                             response.ContentLength64 = buffer404.Length;
                             response.OutputStream.Write(buffer404, 0, buffer404.Length);
                             response.StatusCode = 404;
-                            Initializer.Logger.Warn("PluginInterface","404 error served request url: " + context.Request.Url.AbsolutePath);
+                            Initializer.Logger.Warn("PluginInterface",
+                                "404 error served request url: " + context.Request.Url.AbsolutePath);
                             break;
                     }
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    response.StatusCode = 500;
-                    response.ContentType = "application/json";
-                    byte[] buffer = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(e));
-                    response.ContentLength64 = buffer.Length;
-                    response.OutputStream.Write(buffer, 0, buffer.Length);
+                    if (ex.GetType() == typeof(ArgumentException))
+                        context.Response.StatusCode = 400;
+                    else
+                        context.Response.StatusCode = 500;
+                    if (ex.GetType() == typeof(UnauthorizedAccessException))
+                        context.Response.StatusCode = 401;
+                    Dictionary<string, string> json1 = new Dictionary<string, string>();
+                    json1.Add("success", "false");
+                    json1.Add("error", ex.Message);
+                    string responseBody = JsonConvert.SerializeObject(json1);
+                    byte[] buffer1 = Encoding.UTF8.GetBytes(responseBody);
+                    response.ContentLength64 = buffer1.Length;
+                    response.OutputStream.Write(buffer1, 0, buffer1.Length);
                 }
             }
         }
-        private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors error)
+
+        private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain,
+            SslPolicyErrors error)
         {
             if (error == SslPolicyErrors.None)
             {
@@ -224,7 +287,25 @@ namespace CedMod.PluginInterface
 
             return false;
         }
+        class CmSender : CommandSender
+        {
+            public override void RaReply(string text, bool success, bool logToConsole, string overrideDisplay)
+            {
+                responses.Add(text);
+            }
 
+            public override void Print(string text)
+            {
+                responses.Add(text);
+            }
 
+            public string Name;
+            public CmSender(string name) => Name = name;
+            public override string SenderId => "SERVER CONSOLE";
+            public override string Nickname => Name;
+            public override ulong Permissions => ServerStatic.GetPermissionsHandler().FullPerm;
+            public override byte KickPower => byte.MaxValue;
+            public override bool FullPermissions => true;
+        }
     }
 }
