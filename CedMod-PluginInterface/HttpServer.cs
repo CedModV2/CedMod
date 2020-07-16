@@ -187,7 +187,7 @@ namespace CedMod.PluginInterface
                                                     command[0]))
                                                     throw new UnauthorizedAccessException(
                                                         "This command is disabled by a server aministrator.");
-                                                GameCore.Console.singleton.TypeCommand("/" + jsonData["command"], new CmSender(jsonData["user"]));
+                                                RemoteAdmin.CommandProcessor.ProcessQuery(jsonData["command"], new CmSender(jsonData["user"]));
                                                 Dictionary<string, string> json11 = new Dictionary<string, string>();
                                                 json11.Add("success", "true");
                                                 string responsess = "";
@@ -302,6 +302,10 @@ namespace CedMod.PluginInterface
             public string Name;
             public CmSender(string name) => Name = name;
             public override string SenderId => "SERVER CONSOLE";
+            public override void Respond(string text, bool success = true)
+            {
+                responses.Add(text);
+            }
             public override string Nickname => Name;
             public override ulong Permissions => ServerStatic.GetPermissionsHandler().FullPerm;
             public override byte KickPower => byte.MaxValue;

@@ -27,7 +27,7 @@ namespace CedMod.FFA
 
         public void OnHurt(HurtingEventArgs ev)
         {
-            if (ev.Amount >= ev.Target.Health)
+            if (ev.Amount >= ev.Target.Health + ev.Target.AdrenalineHealth)
             {
                 CharacterClassManager victim = ev.Target.ReferenceHub.characterClassManager;
                 CharacterClassManager killer = ev.Attacker.ReferenceHub.characterClassManager;
