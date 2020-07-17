@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CedMod.FFA;
 using CedMod.INIT;
-using Exiled.Events;
 
 namespace CedMod
 {
@@ -16,7 +14,6 @@ namespace CedMod
     {
         public static List<ItemType> items = new List<ItemType>();
         private Handlers.Server server;
-        private Handlers.Player player;
         private BanSystem.BanSystem bansystem;
         private FFA.FriendlyFireAutoBan ffa;
 
@@ -61,17 +58,11 @@ namespace CedMod
         private void RegisterEvents()
         {
             server = new Handlers.Server();
-            player = new Handlers.Player();
             bansystem = new BanSystem.BanSystem();
             ffa = new FriendlyFireAutoBan();
-            
             Exiled.Events.Handlers.Server.WaitingForPlayers += server.OnWaitingForPlayers;
             Exiled.Events.Handlers.Server.EndingRound += server.OnEndingRound;
 
-            Exiled.Events.Handlers.Player.Died += player.OnDied;
-            Exiled.Events.Handlers.Player.ChangingRole += player.OnChangingRole;
-            Exiled.Events.Handlers.Player.ChangingItem += player.OnChangingItem;
-            
             Exiled.Events.Handlers.Player.Joined += bansystem.OnPlayerJoin;
             Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += bansystem.OnCommand;
 
@@ -88,10 +79,6 @@ namespace CedMod
             Exiled.Events.Handlers.Server.WaitingForPlayers -= server.OnWaitingForPlayers;
             Exiled.Events.Handlers.Server.EndingRound -= server.OnEndingRound;
 
-            Exiled.Events.Handlers.Player.Died -= player.OnDied;
-            Exiled.Events.Handlers.Player.ChangingRole -= player.OnChangingRole;
-            Exiled.Events.Handlers.Player.ChangingItem -= player.OnChangingItem;
-            
             Exiled.Events.Handlers.Player.Joined -= bansystem.OnPlayerJoin;
             Exiled.Events.Handlers.Server.SendingRemoteAdminCommand -= bansystem.OnCommand;
             
@@ -99,7 +86,6 @@ namespace CedMod
             Exiled.Events.Handlers.Server.SendingConsoleCommand -= ffa.ConsoleCommand;
 
             server = null;
-            player = null;
             bansystem = null;
             ffa = null;
         }

@@ -55,7 +55,6 @@
     <Compile Include="Config.cs" />
     <Compile Include="FFA\FFA.cs" />
     <Compile Include="Functions.cs" />
-    <Compile Include="Handlers\Players.cs" />
     <Compile Include="Handlers\Server.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
