@@ -298,7 +298,6 @@ namespace CedMod.PluginInterface
             {
                 responses.Add(text);
             }
-
             public string Name;
             public CmSender(string name) => Name = name;
             public override string SenderId => "SERVER CONSOLE";

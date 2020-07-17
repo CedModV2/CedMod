@@ -33,7 +33,7 @@ namespace CedMod.BanSystem
                     return;
                 }
 
-                if (!Player.gameObject.GetComponent<ServerRoles>().BypassStaff)
+                if (!ev.Player.ReferenceHub.serverRoles.BypassStaff)
                 {
                     if (!Player.characterClassManager.isLocalPlayer)
                     {
