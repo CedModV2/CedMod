@@ -16,12 +16,14 @@ namespace CedMod
         private Handlers.Server server;
         private BanSystem.BanSystem bansystem;
         private FFA.FriendlyFireAutoBan ffa;
+        private Handlers.Player player;
 
         /// <inheritdoc/>
         public override PluginPriority Priority { get; } = PluginPriority.First;
 
         /// <inheritdoc/>
-
+        public static Config config;
+        
         public override string Author { get; } = "ced777ric#0001";
 
         public override string Name { get; } = "CedMod";
@@ -32,13 +34,12 @@ namespace CedMod
         {
             if (!Config.IsEnabled)
                 return;
-            items.Add(ItemType.GunLogicer);
+            config = Config;
             items.Add(ItemType.GunProject90);
             items.Add(ItemType.GunMP7);
             items.Add(ItemType.GunCOM15);
             items.Add(ItemType.GunE11SR);
             items.Add(ItemType.GunUSP);
-            base.OnEnabled();
 
             RegisterEvents();
             Initializer.Setup();
@@ -60,6 +61,7 @@ namespace CedMod
             server = new Handlers.Server();
             bansystem = new BanSystem.BanSystem();
             ffa = new FriendlyFireAutoBan();
+            player = new Handlers.Player();
             Exiled.Events.Handlers.Server.WaitingForPlayers += server.OnWaitingForPlayers;
             Exiled.Events.Handlers.Server.EndingRound += server.OnEndingRound;
 
@@ -68,7 +70,8 @@ namespace CedMod
 
             Exiled.Events.Handlers.Player.Hurting += ffa.OnHurt;
             Exiled.Events.Handlers.Server.SendingConsoleCommand += ffa.ConsoleCommand;
-            
+
+            Exiled.Events.Handlers.Player.Left += player.OnLeave;
         }
 
         /// <summary>
@@ -85,9 +88,12 @@ namespace CedMod
             Exiled.Events.Handlers.Player.Hurting -= ffa.OnHurt;
             Exiled.Events.Handlers.Server.SendingConsoleCommand -= ffa.ConsoleCommand;
 
+            Exiled.Events.Handlers.Player.Left -= player.OnLeave;
+            
             server = null;
             bansystem = null;
             ffa = null;
+            player = null;
         }
     }
 }

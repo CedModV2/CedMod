@@ -421,6 +421,15 @@ namespace CedMod
                     false, true, replyScreen);
             return false;
         }
+        public static bool IsPlayer(CommandSender sender, string queryZero, string replyScreen = "")
+        {
+            if (sender is RemoteAdmin.PlayerCommandSender)
+            {
+                return true;
+            }
+            sender.RaReply(queryZero + "#This command can be executed only from the game level.", success: false, logToConsole: true, replyScreen);
+            return false;
+        }
 
         private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain,
             SslPolicyErrors error)

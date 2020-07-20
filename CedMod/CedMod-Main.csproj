@@ -41,10 +41,12 @@
     <RootNamespace>CedMod</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="BadgeController\Badge.cs" />
     <Compile Include="BanSystem\BanSystem.cs" />
-    <Compile Include="CedMod.INIT\CedModLogger.cs" />
-    <Compile Include="CedMod.INIT\Initializer.cs" />
-    <Compile Include="CedMod.Logging\Logger.cs" />
+    <Compile Include="Handlers\Player.cs" />
+    <Compile Include="INIT\CedModLogger.cs" />
+    <Compile Include="INIT\Initializer.cs" />
+    <Compile Include="Logging\Logger.cs" />
     <Compile Include="Commands\AirStrike.cs" />
     <Compile Include="Commands\CommandHandler.cs" />
     <Compile Include="Commands\FFADisable.cs" />
