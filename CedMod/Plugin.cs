@@ -48,8 +48,6 @@ namespace CedMod
         /// <inheritdoc/>
         public override void OnDisabled()
         {
-            base.OnDisabled();
-
             UnregisterEvents();
         }
 
