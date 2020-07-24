@@ -2,20 +2,26 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using CedMod.INIT;
 using Exiled.API.Features;
+using Exiled.Events.EventArgs;
 using GameCore;
+using Mirror;
 using Newtonsoft.Json;
+using RemoteAdmin;
 using ServerOutput;
 using UnityEngine;
 using Console = System.Console;
+using Object = UnityEngine.Object;
 
 namespace CedMod.PluginInterface
 {
@@ -39,6 +45,7 @@ namespace CedMod.PluginInterface
         private static bool _keepGoing = true;
         private static Task _mainLoop;
         static List<string> responses = new List<string>();
+
         public static void StartWebServer()
         {
             if (_mainLoop != null && !_mainLoop.IsCompleted) return;
@@ -169,6 +176,7 @@ namespace CedMod.PluginInterface
                                                         ServerConsole.Disconnect(player, jsonData["reason"]);
                                                     }
                                                 }
+
                                                 Dictionary<string, string> json1 = new Dictionary<string, string>();
                                                 json1.Add("success", "true");
                                                 json1.Add("error", "none");
@@ -187,7 +195,20 @@ namespace CedMod.PluginInterface
                                                     command[0]))
                                                     throw new UnauthorizedAccessException(
                                                         "This command is disabled by a server aministrator.");
-                                                RemoteAdmin.CommandProcessor.ProcessQuery(jsonData["command"], new CmSender(jsonData["user"]));
+                                                if (jsonData.ContainsKey("userid"))
+                                                {
+                                                    string group =
+                                                        ServerStatic.PermissionsHandler._members[jsonData["userid"]];
+                                                    UserGroup ugroup = ServerStatic.PermissionsHandler.GetGroup(group);
+                                                    RemoteAdmin.CommandProcessor.ProcessQuery(jsonData["command"],
+                                                        new CmSender(jsonData["user"], jsonData["userid"], ugroup));
+                                                }
+                                                else
+                                                {
+                                                    RemoteAdmin.CommandProcessor.ProcessQuery(jsonData["command"],
+                                                        new CmSender(jsonData["user"]));
+                                                }
+
                                                 Dictionary<string, string> json11 = new Dictionary<string, string>();
                                                 json11.Add("success", "true");
                                                 string responsess = "";
@@ -195,6 +216,7 @@ namespace CedMod.PluginInterface
                                                 {
                                                     responsess = responsess + Environment.NewLine + res;
                                                 }
+
                                                 responses.Clear();
                                                 json11.Add("message", responsess);
                                                 json11.Add("error", "none");
@@ -264,7 +286,7 @@ namespace CedMod.PluginInterface
                         context.Response.StatusCode = 401;
                     Dictionary<string, string> json1 = new Dictionary<string, string>();
                     json1.Add("success", "false");
-                    json1.Add("error", ex.Message);
+                    json1.Add("message", ex.Message);
                     string responseBody = JsonConvert.SerializeObject(json1);
                     byte[] buffer1 = Encoding.UTF8.GetBytes(responseBody);
                     response.ContentLength64 = buffer1.Length;
@@ -287,6 +309,8 @@ namespace CedMod.PluginInterface
 
             return false;
         }
+
+        
         class CmSender : CommandSender
         {
             public override void RaReply(string text, bool success, bool logToConsole, string overrideDisplay)
@@ -298,17 +322,42 @@ namespace CedMod.PluginInterface
             {
                 responses.Add(text);
             }
+
             public string Name;
-            public CmSender(string name) => Name = name;
-            public override string SenderId => "SERVER CONSOLE";
+            public string senderId;
+            public ulong permissions;
+            public bool fullPermissions;
+            public CmSender(string name, string userid, UserGroup group)
+            {
+                Name = name;
+                senderId = userid;
+                permissions = group.Permissions;
+                fullPermissions = false;
+            }
+            public CmSender(string name)
+            {
+                Name = name;
+                senderId = "SERVER CONSOLE";
+                permissions = ServerStatic.PermissionsHandler.FullPerm;
+                fullPermissions = true;
+            }
+
             public override void Respond(string text, bool success = true)
             {
                 responses.Add(text);
             }
+            
+
+            public override string SenderId => senderId;
             public override string Nickname => Name;
-            public override ulong Permissions => ServerStatic.GetPermissionsHandler().FullPerm;
+            public override ulong Permissions => permissions;
             public override byte KickPower => byte.MaxValue;
-            public override bool FullPermissions => true;
+            public override bool FullPermissions => fullPermissions;
+
+            public override string LogName
+            {
+                get { return Nickname + " (" + SenderId + ")"; }
+            }
         }
     }
 }
