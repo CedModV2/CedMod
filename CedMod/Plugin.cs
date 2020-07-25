@@ -62,6 +62,7 @@ namespace CedMod
             player = new Handlers.Player();
             Exiled.Events.Handlers.Server.WaitingForPlayers += server.OnWaitingForPlayers;
             Exiled.Events.Handlers.Server.EndingRound += server.OnEndingRound;
+            Exiled.Events.Handlers.Server.LocalReporting += server.OnReport;
 
             Exiled.Events.Handlers.Player.Joined += bansystem.OnPlayerJoin;
             Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += bansystem.OnCommand;
@@ -79,6 +80,7 @@ namespace CedMod
         {
             Exiled.Events.Handlers.Server.WaitingForPlayers -= server.OnWaitingForPlayers;
             Exiled.Events.Handlers.Server.EndingRound -= server.OnEndingRound;
+            Exiled.Events.Handlers.Server.LocalReporting -= server.OnReport;
 
             Exiled.Events.Handlers.Player.Joined -= bansystem.OnPlayerJoin;
             Exiled.Events.Handlers.Server.SendingRemoteAdminCommand -= bansystem.OnCommand;

@@ -95,6 +95,9 @@
     <Reference Include="CommandSystem.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\CommandSystem.Core.dll</HintPath>
     </Reference>
+    <Reference Include="DiscordIntegration_Plugin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\References\DiscordIntegration_Plugin.dll</HintPath>
+    </Reference>
     <Reference Include="DissonanceVoip, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\DissonanceVoip.dll</HintPath>
     </Reference>

@@ -13,5 +13,9 @@
         
         [Description("If CM Badges are enabled ,these badges do not provide RA access of any sort, badgehandles located at: CedMod.BadgeController")]
         public bool CmBadge { get; set; } = true;
+        [Description("Message that will be printed above the embed,for things like role pings")]
+        public string ReportContent { get; set; } = "A new report has been made";
+        [Description("channel where the message will be sent")]
+        public ulong ReportChannel { get; set; } = 0;
     }
 }
