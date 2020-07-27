@@ -191,8 +191,11 @@ namespace CedMod.PluginInterface
                                                 if (!jsonData.ContainsKey("command"))
                                                     throw new ArgumentException("Missing argument");
                                                 string[] command = jsonData["command"].Split(' ');
+                                                if (jsonData["command"].ToUpper().Contains("REQUEST_DATA AUTH"))
+                                                    throw new UnauthorizedAccessException(
+                                                        "Command disabled due to security concerns");
                                                 if (CedModPluginInterface.config.DisallowedWebCommands.Contains(
-                                                    command[0]))
+                                                    command[0].ToUpper()))
                                                     throw new UnauthorizedAccessException(
                                                         "This command is disabled by a server aministrator.");
                                                 if (jsonData.ContainsKey("userid"))
@@ -354,6 +357,7 @@ namespace CedMod.PluginInterface
             public override byte KickPower => byte.MaxValue;
             public override bool FullPermissions => fullPermissions;
 
+            
             public override string LogName
             {
                 get { return Nickname + " (" + SenderId + ")"; }

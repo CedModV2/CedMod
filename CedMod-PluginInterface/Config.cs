@@ -11,8 +11,8 @@
         [Description("Indicates whether the plugin is enabled or not")]
         public bool IsEnabled { get; set; } = true;
         
-        [Description("Commands in this list will not be allowed to run via the web API")]
-        public List<string> DisallowedWebCommands { get; set; } = new List<string>();
+        [Description("Commands in this list will not be allowed to run via the web API (must be uppercase)")]
+        public List<string> DisallowedWebCommands { get; set; } = new List<string> { "REQUEST_DATA AUTH", "GBAN_KICK" };
 
         [Description("Secret passphrase used to authenticate request KEEP THIS SECRET")]
         public string SecurityKey { get; set; } = "None";
