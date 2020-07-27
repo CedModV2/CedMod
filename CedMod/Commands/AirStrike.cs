@@ -19,7 +19,7 @@ namespace CedMod.Commands
         {
             if (arguments.Count <= 2)
             {
-                response = "Usage: AIRSTRIKE <delay> <duration>";
+                response = "Usage: AIRSTRIKE <userid> <delay> <duration>";
                 return false;
             }
             Timing.RunCoroutine(Functions.Coroutines.AirSupportBomb(Convert.ToInt32(arguments.At(0)), Convert.ToInt32(arguments.At(1))), "airstrike");
