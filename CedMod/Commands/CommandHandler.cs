@@ -14,6 +14,7 @@ namespace CedMod.Commands
             CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new LightsoutCommand());
             CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new FFADisableCommand());
             CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new AirstrikeCommand());
+            CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new PlayersCommand());
         }
         public static void RegisterConsoleCommands()
         {

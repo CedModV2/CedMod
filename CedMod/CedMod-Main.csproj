@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="BadgeController\Badge.cs" />
     <Compile Include="BanSystem\BanSystem.cs" />
+    <Compile Include="Commands\Players.cs" />
     <Compile Include="Handlers\Player.cs" />
     <Compile Include="INIT\CedModLogger.cs" />
     <Compile Include="INIT\Initializer.cs" />
