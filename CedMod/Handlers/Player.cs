@@ -13,15 +13,26 @@ namespace CedMod.Handlers
     /// </summary>
     public class Player
     {
+        public void OnJoin(JoinedEventArgs ev)
+        {
+            Timing.RunCoroutine(BanSystem.HandleJoin(ev));
+            foreach (string b in ConfigFile.ServerConfig.GetStringList("cm_nicknamefilter"))
+            {
+                if (ev.Player.Nickname.ToUpper().Contains(b.ToUpper()))
+                {
+                    ev.Player.ReferenceHub.nicknameSync.DisplayName = "Filtered name";
+                }
+            }
+            Initializer.Logger.Debug("Joined", "Join event fired");
+        }
         public void OnLeave(LeftEventArgs ev)
         {
-            if (BanSystem.BanSystem.Users.ContainsKey(ev.Player.ReferenceHub))
-            {
-                BanSystem.BanSystem.Users.Remove(ev.Player.ReferenceHub);
-                ev.Player.ReferenceHub.serverRoles.SetText(null);
-                ev.Player.ReferenceHub.serverRoles.SetColor(null);
-                Initializer.Logger.Debug("BadgeHandler","Removing player from playerlist");
-            }
+            Initializer.Logger.Debug("Left", "Left event fired");
+        }
+
+        public void OnDying(DyingEventArgs ev)
+        {
+            
         }
     }
 }

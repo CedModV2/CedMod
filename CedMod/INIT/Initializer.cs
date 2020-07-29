@@ -1,5 +1,4 @@
 ﻿using System;
-using CedMod.Commands;
 using HarmonyLib;
 
 namespace CedMod.INIT
@@ -22,9 +21,9 @@ namespace CedMod.INIT
             {
                 Logger.Info("INIT", "This version of CedMod is marked as Dev version and will only use the test API");
             }
-            CedModCommandHandler.RegisterRACommands();
-            CedModCommandHandler.RegisterConsoleCommands();
-            CedModCommandHandler.RegisterClientConsoleCommands();
+            //CedModCommandHandler.RegisterRACommands();
+            //CedModCommandHandler.RegisterConsoleCommands();
+            //CedModCommandHandler.RegisterClientConsoleCommands();
             DoPatching();
             //Initializer.UpdateCheck();
         }

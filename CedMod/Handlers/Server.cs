@@ -1,4 +1,7 @@
 ﻿using System;
+using CedMod.INIT;
+using CommandSystem;
+using Exiled.Events;
 using GameCore;
 using MEC;
 using UnityEngine;
@@ -17,12 +20,14 @@ namespace CedMod.Handlers
         /// <inheritdoc cref="Events.Handlers.Server.OnWaitingForPlayers"/>
         public void OnWaitingForPlayers()
         {
+            Initializer.Logger.Debug("WaitingForPlayers", "waitingforplayers event fired");
             if (ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true))
                 GameObject.Find("StartRound").transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
         }
 
         public void OnReport(LocalReportingEventArgs ev)
         {
+            Initializer.Logger.Debug("LocalReport", "localreport event fired");
             sendDI();
         }
 
@@ -39,7 +44,12 @@ namespace CedMod.Handlers
         /// <inheritdoc cref="Events.Handlers.Server.OnEndingRound(EndingRoundEventArgs)"/>
         public void OnEndingRound(EndingRoundEventArgs ev)
         {
-            Timing.KillCoroutines("airstrike");
+            Initializer.Logger.Debug("RoundEnd", "roundend event fired");
+        }
+
+        public void OnSendingRemoteAdmin(SendingRemoteAdminCommandEventArgs ev)
+        {
+            BanSystem.HandleRACommand(ev);
         }
     }
 }

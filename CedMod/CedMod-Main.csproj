@@ -41,23 +41,14 @@
     <RootNamespace>CedMod</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="BadgeController\Badge.cs" />
-    <Compile Include="BanSystem\BanSystem.cs" />
-    <Compile Include="Commands\Players.cs" />
+    <Compile Include="API.cs" />
+    <Compile Include="BanSystem.cs" />
+    <Compile Include="FriendlyFireAutoban.cs" />
     <Compile Include="Handlers\Player.cs" />
     <Compile Include="INIT\CedModLogger.cs" />
     <Compile Include="INIT\Initializer.cs" />
     <Compile Include="Logging\Logger.cs" />
-    <Compile Include="Commands\AirStrike.cs" />
-    <Compile Include="Commands\CommandHandler.cs" />
-    <Compile Include="Commands\FFADisable.cs" />
-    <Compile Include="Commands\Lightsout.cs" />
-    <Compile Include="Commands\Stuiter.cs" />
-    <Compile Include="Commands\Stuiter\All.cs" />
-    <Compile Include="Commands\Stuiter\Spec.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="FFA\FFA.cs" />
-    <Compile Include="Functions.cs" />
     <Compile Include="Handlers\Server.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -105,24 +96,24 @@
     <Reference Include="dnlib, Version=3.3.2.0, Culture=neutral, PublicKeyToken=50e96378b6e77999">
       <HintPath>..\References\dnlib.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.API, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.2.0.1\lib\net472\Exiled.API.dll</HintPath>
+    <Reference Include="Exiled.API, Version=2.0.7.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\EXILED.2.0.7\lib\net472\Exiled.API.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Exiled.Events, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.2.0.1\lib\net472\Exiled.Events.dll</HintPath>
+    <Reference Include="Exiled.Events, Version=2.0.7.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\EXILED.2.0.7\lib\net472\Exiled.Events.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Exiled.Loader, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.2.0.1\lib\net472\Exiled.Loader.dll</HintPath>
+    <Reference Include="Exiled.Loader, Version=2.0.7.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\EXILED.2.0.7\lib\net472\Exiled.Loader.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Exiled.Permissions, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.2.0.1\lib\net472\Exiled.Permissions.dll</HintPath>
+    <Reference Include="Exiled.Permissions, Version=2.0.7.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\EXILED.2.0.7\lib\net472\Exiled.Permissions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Exiled.Updater, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.2.0.1\lib\net472\Exiled.Updater.dll</HintPath>
+    <Reference Include="Exiled.Updater, Version=2.0.7.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\EXILED.2.0.7\lib\net472\Exiled.Updater.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Facepunch.Steamworks.Win64, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">

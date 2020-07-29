@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using CedMod.FFA;
 using CedMod.INIT;
 
 namespace CedMod
@@ -14,8 +13,6 @@ namespace CedMod
     {
         public static List<ItemType> items = new List<ItemType>();
         private Handlers.Server server;
-        private BanSystem.BanSystem bansystem;
-        private FFA.FriendlyFireAutoBan ffa;
         private Handlers.Player player;
 
         /// <inheritdoc/>
@@ -57,20 +54,15 @@ namespace CedMod
         private void RegisterEvents()
         {
             server = new Handlers.Server();
-            bansystem = new BanSystem.BanSystem();
-            ffa = new FriendlyFireAutoBan();
             player = new Handlers.Player();
             Exiled.Events.Handlers.Server.WaitingForPlayers += server.OnWaitingForPlayers;
             Exiled.Events.Handlers.Server.EndingRound += server.OnEndingRound;
             Exiled.Events.Handlers.Server.LocalReporting += server.OnReport;
-
-            Exiled.Events.Handlers.Player.Joined += bansystem.OnPlayerJoin;
-            Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += bansystem.OnCommand;
-
-            Exiled.Events.Handlers.Player.Hurting += ffa.OnHurt;
-            Exiled.Events.Handlers.Server.SendingConsoleCommand += ffa.ConsoleCommand;
+            Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += server.OnSendingRemoteAdmin;
 
             Exiled.Events.Handlers.Player.Left += player.OnLeave;
+            Exiled.Events.Handlers.Player.Joined += player.OnJoin;
+            Exiled.Events.Handlers.Player.Dying += player.OnDying;
         }
 
         /// <summary>
@@ -81,18 +73,13 @@ namespace CedMod
             Exiled.Events.Handlers.Server.WaitingForPlayers -= server.OnWaitingForPlayers;
             Exiled.Events.Handlers.Server.EndingRound -= server.OnEndingRound;
             Exiled.Events.Handlers.Server.LocalReporting -= server.OnReport;
-
-            Exiled.Events.Handlers.Player.Joined -= bansystem.OnPlayerJoin;
-            Exiled.Events.Handlers.Server.SendingRemoteAdminCommand -= bansystem.OnCommand;
-            
-            Exiled.Events.Handlers.Player.Hurting -= ffa.OnHurt;
-            Exiled.Events.Handlers.Server.SendingConsoleCommand -= ffa.ConsoleCommand;
+            Exiled.Events.Handlers.Server.SendingRemoteAdminCommand -= server.OnSendingRemoteAdmin;
 
             Exiled.Events.Handlers.Player.Left -= player.OnLeave;
-            
+            Exiled.Events.Handlers.Player.Joined -= player.OnJoin;
+            Exiled.Events.Handlers.Player.Dying -= player.OnDying;
+
             server = null;
-            bansystem = null;
-            ffa = null;
             player = null;
         }
     }
