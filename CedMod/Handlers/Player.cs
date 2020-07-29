@@ -32,7 +32,7 @@ namespace CedMod.Handlers
 
         public void OnDying(DyingEventArgs ev)
         {
-            
+            FriendlyFireAutoban.HandleKill(ev);
         }
     }
 }
