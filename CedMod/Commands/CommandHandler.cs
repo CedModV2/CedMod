@@ -16,6 +16,7 @@ namespace CedMod
             CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new LightsoutCommand());
             CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new FFADisableCommand());
             CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new PlayersCommand());
+            CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new TotalBansCommand());
         }
         public static void RegisterConsoleCommands()
         {
@@ -27,6 +28,7 @@ namespace CedMod
         public static void RegisterClientConsoleCommands()
         {
             Initializer.Logger.Info("INIT", "Registering Client Console commands...");
+            QueryProcessor.DotCommandHandler.RegisterCommand(new TotalBansCommand());
         }
         
         public void OnRoundEnd()

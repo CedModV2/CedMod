@@ -25,7 +25,7 @@ namespace CedMod
                 yield return 0f;
             if (Player.characterClassManager.isLocalPlayer)
                 yield return 0f;
-            Dictionary<string, string> info = API.APIRequest("auth/preauth.php",
+            Dictionary<string, string> info = (Dictionary<string, string>) API.APIRequest("auth/preauth.php",
                 "?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" +
                 Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + API.GetAlias());
             if (info["banexpired"] == "true" && info["success"] == "true")
@@ -42,7 +42,7 @@ namespace CedMod
                 }
             }
 
-            info = API.APIRequest("auth/auth.php",
+            info = (Dictionary<string, string>) API.APIRequest("auth/auth.php",
                 "?id=" + Player.characterClassManager.UserId + "&ip=" +
                 Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + API.GetAlias());
             string reason;

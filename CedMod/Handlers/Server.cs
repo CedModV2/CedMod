@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using CedMod.INIT;
 using CommandSystem;
 using Exiled.Events;
 using GameCore;
 using MEC;
 using UnityEngine;
+using Exiled.API.Features;
 using Console = System.Console;
 
 namespace CedMod.Handlers
@@ -51,6 +53,16 @@ namespace CedMod.Handlers
         public void OnSendingRemoteAdmin(SendingRemoteAdminCommandEventArgs ev)
         {
             BanSystem.HandleRACommand(ev);
+        }
+        IEnumerator<float> PlayerStatsRound(RoundEndedEventArgs ev)
+        {
+            foreach (Exiled.API.Features.Player ply in Exiled.API.Features.Player.List)
+            {
+                API.APIRequest("playerstats/addstat.php",
+                    $"?rounds=1&kills=0&deaths=0&teamkills=0&alias={API.GetAlias()}&id={ply.UserId}&dnt={Convert.ToInt32(ply.ReferenceHub.serverRoles.DoNotTrack)}&ip={ply.IPAddress}&username={ply.Nickname}");
+            }
+
+            yield return 0;
         }
     }
 }

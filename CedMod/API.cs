@@ -36,7 +36,7 @@ namespace CedMod
 
             return false;
         }
-        public static Dictionary<string, string> APIRequest(string endpoint, string arguments)
+        public static object APIRequest(string endpoint, string arguments, bool returnstring = false)
         {
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -55,8 +55,12 @@ namespace CedMod
                     response = webClient.DownloadString(APIUrl + endpoint + arguments);
                 Initializer.Logger.Info("BANSYSTEM",
                     "Response from API: "+  response);
-                var jsonObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(response);
-                return jsonObj;
+                if (!returnstring)
+                {
+                    var jsonObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(response);
+                    return jsonObj;
+                }
+                return response;
             }
             catch (WebException ex)
             {
@@ -73,7 +77,7 @@ namespace CedMod
                 if (bc)
                     Map.Broadcast(9, player.GetComponent<NicknameSync>().MyNick + " Has been banned from the server",
                         Broadcast.BroadcastFlags.Normal);
-                Dictionary<string, string> result = APIRequest("banning/ban.php", string.Concat("?id=",
+                Dictionary<string, string> result = (Dictionary<string, string>) APIRequest("banning/ban.php", string.Concat("?id=",
                     player.GetComponent<CharacterClassManager>().UserId, "&ip=",
                     player.GetComponent<NetworkIdentity>().connectionToClient.address, "&reason=", reason,
                     "&aname=", sender, "&bd=", duration,
