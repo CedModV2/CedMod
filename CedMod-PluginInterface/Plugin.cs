@@ -26,6 +26,7 @@ namespace CedMod.PluginInterface
             // Unload the event handlers.
             // Close the HTTP server.
             WebService.StopWebServer();
+            Exiled.Events.Handlers.Server.SendingRemoteAdminCommand -= CommandHandler.HandleCommand;
         }
 
         public static string SecurityKey;
@@ -35,6 +36,7 @@ namespace CedMod.PluginInterface
             // Load the event handlers.
             if (!Config.IsEnabled)
                 return;
+            Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += CommandHandler.HandleCommand;
             SecurityKey =
                 GameCore.ConfigFile.ServerConfig.GetString("cm_plugininterface_key", "None");
             if (SecurityKey == "None")
