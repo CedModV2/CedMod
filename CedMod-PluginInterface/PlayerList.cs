@@ -75,7 +75,7 @@ namespace CedMod.PluginInterface
 								{
 								}
 								text = text + text2 + "(" + component.PlayerId + ") " + component.GetComponent<NicknameSync>().CombinedName.Replace("\n", string.Empty) + (flag4 ? "<OVRM>" : string.Empty);
-								CharacterClassManager ccm = component.GetComponent<CharacterClassManager>()
+								CharacterClassManager ccm = component.GetComponent<CharacterClassManager>();
 								text = $"<color={ccm.CurRole.classColor.ToHex()}>" +
 								       text + "</color>";
 							}
