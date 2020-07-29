@@ -234,22 +234,6 @@ namespace CedMod.PluginInterface
 
                                     break;
                             }
-
-                            break;
-                        case "/stats/":
-                        case "/stats":
-                            switch (context.Request.HttpMethod)
-                            {
-                                case "GET":
-                                    response.ContentType = "application/json";
-                                    string json = "{'players': '" + GetCount() + "'}";
-                                    string responseBody = JsonConvert.SerializeObject(json);
-                                    byte[] buffer = Encoding.UTF8.GetBytes(responseBody);
-                                    response.ContentLength64 = buffer.Length;
-                                    response.OutputStream.Write(buffer, 0, buffer.Length);
-                                    break;
-                            }
-
                             break;
                         default:
                             response.ContentType = "text/html";

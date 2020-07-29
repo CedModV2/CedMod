@@ -45,6 +45,7 @@ namespace CedMod.Handlers
         public void OnEndingRound(EndingRoundEventArgs ev)
         {
             Initializer.Logger.Debug("RoundEnd", "roundend event fired");
+            Timing.KillCoroutines("LightsOut");
         }
 
         public void OnSendingRemoteAdmin(SendingRemoteAdminCommandEventArgs ev)

@@ -43,6 +43,13 @@
   <ItemGroup>
     <Compile Include="API.cs" />
     <Compile Include="BanSystem.cs" />
+    <Compile Include="Commands\CommandHandler.cs" />
+    <Compile Include="Commands\FFADisable.cs" />
+    <Compile Include="Commands\Lightsout.cs" />
+    <Compile Include="Commands\Players.cs" />
+    <Compile Include="Commands\Stuiter.cs" />
+    <Compile Include="Commands\Stuiter\all.cs" />
+    <Compile Include="Commands\Stuiter\spec.cs" />
     <Compile Include="FriendlyFireAutoban.cs" />
     <Compile Include="Handlers\Player.cs" />
     <Compile Include="INIT\CedModLogger.cs" />
