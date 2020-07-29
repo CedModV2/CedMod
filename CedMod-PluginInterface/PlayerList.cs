@@ -35,6 +35,7 @@ namespace CedMod.PluginInterface
             switch (ev.Name.ToUpper())
             {
 	            case "PLAYERLISTCOLORED":
+		            ev.IsAllowed = false;
                     try
                     {
 	                    string q = ev.Name + " " + string.Join(" ", ev.Arguments.ToArray());
