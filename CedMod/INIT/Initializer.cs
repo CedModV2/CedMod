@@ -30,9 +30,9 @@ namespace CedMod.INIT
         public static string GetCedModVersion()
         {
             int num = 3;
-            int num2 = 0;
-            int num3 = 4;
-            string text = "R";
+            int num2 = 1;
+            int num3 = 0;
+            string text = "B";
             return string.Format("{0}.{1}.{2}-{3}", num, num2, num3, text);
         }
         public static void DoPatching()
