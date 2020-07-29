@@ -49,7 +49,7 @@ namespace CedMod
             }
 
             if (Teamkillers.ContainsKey(ev.Killer.UserId))
-                Teamkillers[ev.Killer.UserId] = Teamkillers[ev.Killer.UserId] + 1;
+                Teamkillers[ev.Killer.UserId] = Teamkillers[ev.Killer.UserId]++;
             else
                 Teamkillers.Add(ev.Killer.UserId, 1);
             
