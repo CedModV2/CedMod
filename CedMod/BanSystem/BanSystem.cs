@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using CedMod.BadgeController;
 using CedMod.INIT;
 using Exiled.Events.EventArgs;
 using GameCore;
@@ -20,7 +19,6 @@ namespace CedMod.BanSystem
 {
     public class BanSystem
     {
-        public static Dictionary<ReferenceHub, CmUser> Users = new Dictionary<ReferenceHub, CmUser>();
         public static List<string> Testusers = new List<string>();
         public static bool LastApiRequestSuccessfull = false;
         public void OnPlayerJoinThread(JoinedEventArgs ev)
