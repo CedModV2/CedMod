@@ -15,13 +15,7 @@ namespace CedMod.Handlers
     {
         public void OnLeave(LeftEventArgs ev)
         {
-            if (BanSystem.BanSystem.Users.ContainsKey(ev.Player.ReferenceHub))
-            {
-                BanSystem.BanSystem.Users.Remove(ev.Player.ReferenceHub);
-                ev.Player.ReferenceHub.serverRoles.SetText(null);
-                ev.Player.ReferenceHub.serverRoles.SetColor(null);
-                Initializer.Logger.Debug("BadgeHandler","Removing player from playerlist");
-            }
+            
         }
     }
 }
