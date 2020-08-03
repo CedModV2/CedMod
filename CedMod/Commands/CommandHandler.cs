@@ -18,12 +18,14 @@ namespace CedMod
             CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new PlayersCommand());
             CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new TotalBansCommand());
             CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new PriorBansCommand());
+            CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new RedirectCommand());
         }
         public static void RegisterConsoleCommands()
         {
             Initializer.Logger.Info("INIT", "Registering Console commands...");
             GameCore.Console.singleton.ConsoleCommandHandler.RegisterCommand(new StuiterParentCommand());
             GameCore.Console.singleton.ConsoleCommandHandler.RegisterCommand(new LightsoutCommand());
+            GameCore.Console.singleton.ConsoleCommandHandler.RegisterCommand(new RedirectCommand());
         }
 
         public static void RegisterClientConsoleCommands()
