@@ -18,11 +18,6 @@ using Player = Exiled.API.Features.Player;
 
 namespace CedMod.BanSystem
 {
-    public class CmUser
-    {
-        public bool hasbadge;
-        public string[] Badge;
-    }
     public class BanSystem
     {
         public static Dictionary<ReferenceHub, CmUser> Users = new Dictionary<ReferenceHub, CmUser>();
@@ -73,7 +68,6 @@ namespace CedMod.BanSystem
                         }
 
                         Dictionary<string, string> banReason = Functions.GetBandetails(Player);
-                        Badge.HandleBadge(banReason["badge"], Player);
                         if (banReason != null && LastApiRequestSuccessfull)
                         {
                             string reason;
