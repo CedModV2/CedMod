@@ -41,7 +41,7 @@ namespace CedMod.Handlers
             }
             catch (Exception e)
             {
-                Initializer.Logger.Debug("DIReport", "DI is not installed");
+                Initializer.Logger.Debug("DIReport", $"DI is not installed{e.Message}");
             }
         }
         /// <inheritdoc cref="Events.Handlers.Server.OnEndingRound(EndingRoundEventArgs)"/>
