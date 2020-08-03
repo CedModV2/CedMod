@@ -41,7 +41,6 @@
     <RootNamespace>CedMod</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="BadgeController\Badge.cs" />
     <Compile Include="BanSystem\BanSystem.cs" />
     <Compile Include="Commands\Players.cs" />
     <Compile Include="Handlers\Player.cs" />
