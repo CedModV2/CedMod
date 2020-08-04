@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using CedMod.INIT;
 using GameCore;
 using MEC;
+using UnityEngine;
+using Random = System.Random;
 
 namespace CedMod.Handlers
 {
@@ -24,6 +26,29 @@ namespace CedMod.Handlers
                     ev.Player.ReferenceHub.nicknameSync.DisplayName = "Filtered name";
                 }
             }
+            if (!RoundSummary.RoundInProgress() && ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true))
+                Timing.RunCoroutine(Playerjoinhandle(ev));
+        }
+        public static ItemType GetRandomItem()
+        {
+            Random random = new Random();
+            int index = UnityEngine.Random.Range(0, CedModMain.items.Count);
+            return CedModMain.items[index];
+        }
+        public IEnumerator<float> Playerjoinhandle(JoinedEventArgs ev)
+        {
+            ReferenceHub Player = ev.Player.ReferenceHub;
+            yield return Timing.WaitForSeconds(0.5f);
+            if (!RoundSummary.RoundInProgress())
+            {
+                Player.characterClassManager.SetPlayersClass(RoleType.Tutorial, Player.gameObject);
+                ev.Player.IsGodModeEnabled = false;
+                ItemType item = GetRandomItem();
+                ev.Player.Inventory.AddNewItem(item);
+                yield return Timing.WaitForSeconds(0.2f);
+                ev.Player.Position = (new Vector3(-20f, 1020, -43));
+            }
+            yield return 1f;
         }
         public void OnLeave(LeftEventArgs ev)
         {
