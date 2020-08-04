@@ -24,11 +24,9 @@ namespace CedMod.Handlers
                     ev.Player.ReferenceHub.nicknameSync.DisplayName = "Filtered name";
                 }
             }
-            Initializer.Logger.Debug("Joined", "Join event fired");
         }
         public void OnLeave(LeftEventArgs ev)
         {
-            Initializer.Logger.Debug("Left", "Left event fired");
         }
 
         public void OnDying(DyingEventArgs ev)

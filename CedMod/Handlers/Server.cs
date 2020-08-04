@@ -22,14 +22,12 @@ namespace CedMod.Handlers
         /// <inheritdoc cref="Events.Handlers.Server.OnWaitingForPlayers"/>
         public void OnWaitingForPlayers()
         {
-            Initializer.Logger.Debug("WaitingForPlayers", "waitingforplayers event fired");
             if (ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true))
                 GameObject.Find("StartRound").transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
         }
 
         public void OnReport(LocalReportingEventArgs ev)
         {
-            Initializer.Logger.Debug("LocalReport", "localreport event fired");
             sendDI();
         }
 
@@ -47,7 +45,6 @@ namespace CedMod.Handlers
         /// <inheritdoc cref="Events.Handlers.Server.OnEndingRound(EndingRoundEventArgs)"/>
         public void OnEndingRound(EndingRoundEventArgs ev)
         {
-            Initializer.Logger.Debug("RoundEnd", "roundend event fired");
             Timing.KillCoroutines("LightsOut");
         }
 
