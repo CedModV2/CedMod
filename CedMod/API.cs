@@ -70,7 +70,7 @@ namespace CedMod
             }
         }
 
-        public static IEnumerator<float> Ban(GameObject player, long duration, string sender, string reason, bool bc = true)
+        public static void Ban(GameObject player, long duration, string sender, string reason, bool bc = true)
         {
             if (duration >= 1)
             {
@@ -92,8 +92,6 @@ namespace CedMod
                     ServerConsole.Disconnect(player, reason);
                 }
             }
-
-            yield return 1f;
         }
     }
 }

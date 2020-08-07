@@ -16,15 +16,15 @@ namespace CedMod
 {
     public class BanSystem
     {
-        public static IEnumerator<float> HandleJoin(JoinedEventArgs ev)
+        public static void HandleJoin(JoinedEventArgs ev)
         {
             ReferenceHub Player = ev.Player.ReferenceHub;
             if (Player.characterClassManager.UserId.Contains("@northwood"))
-                yield return 0f;
+                return;
             if (ev.Player.ReferenceHub.serverRoles.BypassStaff)
-                yield return 0f;
+                return;
             if (Player.characterClassManager.isLocalPlayer)
-                yield return 0f;
+                return;
             Dictionary<string, string> info = (Dictionary<string, string>) API.APIRequest("auth/preauth.php",
                 "?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" +
                 Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + API.GetAlias());
@@ -149,7 +149,8 @@ namespace CedMod
                                 if (Convert.ToInt64(ev.Arguments[1]) >= 1)
                                 {
                                     string sender1 = ev.Sender.Nickname;
-                                    Timing.RunCoroutine(API.Ban(gameObject, Convert.ToInt64(ev.Arguments[1]), sender1, text17));
+                                    
+                                    Task.Factory.StartNew(() => { API.Ban(gameObject, Convert.ToInt64(ev.Arguments[1]), sender1, text17); });
                                 }
                                 else
                                 {

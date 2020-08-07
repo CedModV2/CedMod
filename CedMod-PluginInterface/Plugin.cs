@@ -3,6 +3,7 @@ using CedMod.INIT;
 using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.Events;
+using GameCore;
 
 namespace CedMod.PluginInterface
 {
@@ -21,6 +22,7 @@ namespace CedMod.PluginInterface
         public override string Prefix { get; } = "cm_WAPI";
 
         public static Config config;
+        
         public override void OnDisabled()
         {
             // Unload the event handlers.

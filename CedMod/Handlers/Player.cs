@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CedMod.INIT;
 using GameCore;
 using MEC;
@@ -18,7 +19,8 @@ namespace CedMod.Handlers
     {
         public void OnJoin(JoinedEventArgs ev)
         {
-            Timing.RunCoroutine(BanSystem.HandleJoin(ev));
+
+            Task.Factory.StartNew(() => { BanSystem.HandleJoin(ev); });
             foreach (string b in ConfigFile.ServerConfig.GetStringList("cm_nicknamefilter"))
             {
                 if (ev.Player.Nickname.ToUpper().Contains(b.ToUpper()))

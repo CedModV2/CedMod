@@ -22,7 +22,7 @@ namespace CedMod.PluginInterface
 	    }
 	    public static bool IsPlayer(CommandSender sender, string queryZero, string replyScreen = "")
 	    {
-		    if (sender is RemoteAdmin.PlayerCommandSender)
+		    if (sender is PlayerCommandSender)
 		    {
 			    return true;
 		    }
@@ -42,8 +42,8 @@ namespace CedMod.PluginInterface
 	                    PlayerCommandSender playerCommandSender = sender as PlayerCommandSender;
 						string text = "\n";
 						bool gameplayData = CheckPermissions(sender, ev.Name, PlayerPermissions.GameplayData, string.Empty, reply: false);
-						RemoteAdmin.PlayerCommandSender playerCommandSender2;
-						if ((playerCommandSender2 = (sender as RemoteAdmin.PlayerCommandSender)) != null)
+						PlayerCommandSender playerCommandSender2;
+						if ((playerCommandSender2 = (sender as PlayerCommandSender)) != null)
 						{
 							playerCommandSender2.Processor.GameplayData = gameplayData;
 						}

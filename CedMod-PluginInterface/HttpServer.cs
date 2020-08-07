@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CedMod.INIT;
 using Exiled.API.Features;
@@ -45,6 +46,7 @@ namespace CedMod.PluginInterface
         private static bool _keepGoing = true;
         private static Task _mainLoop;
         static List<string> responses = new List<string>();
+        static List<string> queue = new List<string>();
 
         public static void StartWebServer()
         {
@@ -139,7 +141,7 @@ namespace CedMod.PluginInterface
                                         if (jsonData.ContainsKey("key") && jsonData.ContainsKey("user") &&
                                             jsonData.ContainsKey("action"))
                                         {
-                                            if (jsonData["key"] != PluginInterface.CedModPluginInterface.SecurityKey ||
+                                            if (jsonData["key"] != CedModPluginInterface.SecurityKey ||
                                                 jsonData["user"] == null)
                                             {
                                                 Initializer.Logger.Warn("PluginInterface",
@@ -203,12 +205,12 @@ namespace CedMod.PluginInterface
                                                     string group =
                                                         ServerStatic.PermissionsHandler._members[jsonData["userid"]];
                                                     UserGroup ugroup = ServerStatic.PermissionsHandler.GetGroup(group);
-                                                    RemoteAdmin.CommandProcessor.ProcessQuery(jsonData["command"],
+                                                    CommandProcessor.ProcessQuery(jsonData["command"],
                                                         new CmSender(jsonData["user"], jsonData["userid"], ugroup));
                                                 }
                                                 else
                                                 {
-                                                    RemoteAdmin.CommandProcessor.ProcessQuery(jsonData["command"],
+                                                    CommandProcessor.ProcessQuery(jsonData["command"],
                                                         new CmSender(jsonData["user"]));
                                                 }
 
@@ -252,7 +254,6 @@ namespace CedMod.PluginInterface
                                     client.DownloadFile("https://api.cedmod.nl/scpplugin/404.html", "static/404.html");
                                 }
                             }
-
                             string error404Body = File.ReadAllText(@"static\404.html");
                             byte[] buffer404 = Encoding.UTF8.GetBytes(error404Body);
                             response.ContentLength64 = buffer404.Length;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CedMod.INIT;
 using Exiled.Events.EventArgs;
 using GameCore;
@@ -65,11 +66,11 @@ namespace CedMod
                                 ev.Killer.ReferenceHub.queryProcessor.PlayerId.ToString(),
                                 " ", ev.Killer.UserId,
                                 " exeeded teamkill limit"));
-                        Timing.RunCoroutine(API.Ban(ev.Killer.ReferenceHub.gameObject,
+                        Task.Factory.StartNew(() => { API.Ban(ev.Killer.ReferenceHub.gameObject,
                             ConfigFile.ServerConfig.GetInt("ffa_banduration", 4320),
                             "Server.Module.FriendlyFireAutoban",
                             ConfigFile.ServerConfig.GetString("ffa_banreason",
-                                "You have teamkilled too many people"), false));
+                                "You have teamkilled too many people"), false); });
                         QueryProcessor.Localplayer.GetComponent<Broadcast>().RpcAddElement(
                             "<size=25><b><color=yellow>user: </color></b><color=red>" +
                             ev.Killer.Nickname +
