@@ -43,7 +43,7 @@ namespace CedMod.Handlers
             }
         }
         /// <inheritdoc cref="Events.Handlers.Server.OnEndingRound(EndingRoundEventArgs)"/>
-        public void OnEndingRound(EndingRoundEventArgs ev)
+        public void OnRoundRestart()
         {
             Timing.KillCoroutines("LightsOut");
         }

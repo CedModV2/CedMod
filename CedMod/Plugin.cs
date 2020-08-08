@@ -56,7 +56,7 @@ namespace CedMod
             server = new Handlers.Server();
             player = new Handlers.Player();
             Exiled.Events.Handlers.Server.WaitingForPlayers += server.OnWaitingForPlayers;
-            Exiled.Events.Handlers.Server.EndingRound += server.OnEndingRound;
+            Exiled.Events.Handlers.Server.RestartingRound += server.OnRoundRestart;
             Exiled.Events.Handlers.Server.LocalReporting += server.OnReport;
             Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += server.OnSendingRemoteAdmin;
 
@@ -71,7 +71,7 @@ namespace CedMod
         private void UnregisterEvents()
         {
             Exiled.Events.Handlers.Server.WaitingForPlayers -= server.OnWaitingForPlayers;
-            Exiled.Events.Handlers.Server.EndingRound -= server.OnEndingRound;
+            Exiled.Events.Handlers.Server.RestartingRound -= server.OnRoundRestart;
             Exiled.Events.Handlers.Server.LocalReporting -= server.OnReport;
             Exiled.Events.Handlers.Server.SendingRemoteAdminCommand -= server.OnSendingRemoteAdmin;
 
