@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading;
+using CedMod.INIT;
 using HarmonyLib;
 
 namespace CedMod.PluginInterface.patches
@@ -25,8 +22,9 @@ namespace CedMod.PluginInterface.patches
                             __instance.Users[i].CloseConn(false);
                             __instance.Users.RemoveAt(i);
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            Initializer.Logger.Error("CMQuery", ex.ToString());
                         }
                     }
                 }

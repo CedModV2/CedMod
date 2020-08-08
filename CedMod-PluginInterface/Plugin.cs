@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CedMod.INIT;
 using Exiled.API.Enums;
 using Exiled.API.Features;
@@ -15,6 +16,8 @@ namespace CedMod.PluginInterface
         public override PluginPriority Priority { get; } = PluginPriority.Default;
 
         /// <inheritdoc/>
+        /// 
+        public static Dictionary<QueryUser, string> autheduers = new Dictionary<QueryUser, string>();
 
         public override string Author { get; } = "ced777ric#0001";
 

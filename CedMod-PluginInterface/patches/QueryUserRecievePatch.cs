@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using HarmonyLib;
@@ -10,7 +8,6 @@ namespace CedMod.PluginInterface.patches
     [HarmonyPatch(typeof(QueryUser), nameof(QueryUser.Receive))]
     public static class QueryUserRecievePatch
     {
-        public static Dictionary<QueryUser, string> autheduers = new Dictionary<QueryUser, string>();
         static bool Prefix(QueryUser __instance)
         {
             __instance._s.ReadTimeout = 200;
@@ -129,7 +126,7 @@ namespace CedMod.PluginInterface.patches
                                     }
                                     else if (authenticatedMessage.Message.Contains("authenticate"))
                                     {
-                                        if (autheduers.ContainsKey(__instance))
+                                        if (CedModPluginInterface.autheduers.ContainsKey(__instance))
                                         {
                                             __instance.Send("You have already authenticated");
                                         }
@@ -142,17 +139,23 @@ namespace CedMod.PluginInterface.patches
                                             string group =
                                                 ServerStatic.PermissionsHandler._members[cmd[1]];
                                             UserGroup groupq = ServerStatic.PermissionsHandler.GetGroup(group);
-                                            autheduers.Add(__instance, $"{cmd[1]}:{cmd[2]}:{group}");
-                                            //if (PermissionsHandler.IsPermitted(groupq.Permissions, PlayerPermissions.ServerConsoleCommands))
+                                            __instance.Permissions = groupq.Permissions;
+                                            __instance.KickPower = groupq.KickPower;
+                                            CedModPluginInterface.autheduers.Add(__instance, $"{cmd[1]}:{cmd[2]}:{group}");
+                                            __instance.Send("You have successfully authenticated");
+                                            if (PermissionsHandler.IsPermitted(__instance.Permissions, PlayerPermissions.ServerConsoleCommands))
+                                                __instance.Send("Permission to view serverconsole output has been granted");
+                                            else 
+                                                __instance.Send("Permission to view serverconsole output has been denied: Missing permission, ServerConsoleCommands");
                                         }
                                     }
-                                    else if (__instance.AdminCheck(authenticatedMessage.Administrator) && autheduers.ContainsKey(__instance))
+                                    else if (__instance.AdminCheck(authenticatedMessage.Administrator) && CedModPluginInterface.autheduers.ContainsKey(__instance))
                                     {
                                         ConsoleColor consoleColor;
                                         global::ServerConsole.EnterCommand(authenticatedMessage.Message,
-                                            out consoleColor, new UserPrint(__instance, autheduers[__instance]));
+                                            out consoleColor, new UserPrint(__instance, CedModPluginInterface.autheduers[__instance]));
                                     }
-                                    else if (!autheduers.ContainsKey(__instance))
+                                    else if (!CedModPluginInterface.autheduers.ContainsKey(__instance))
                                         __instance.Send("Authentication is required in order to send  commands");
                                 }
                             }

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
+using System.Collections.Generic;
 using HarmonyLib;
 
 namespace CedMod.PluginInterface.patches
@@ -13,16 +11,14 @@ namespace CedMod.PluginInterface.patches
         {
             try
             {
-
-                // foreach (QueryUser usr in CustomNetworkManager._queryserver.Users)
-                // {
-                //     if (QueryUserRecievePatch.consoleusers.Contains(usr))
-                //         usr.Send(q);
-                // }
+                foreach (QueryUser usr in CustomNetworkManager._queryserver.Users)
+                {
+                    if (PermissionsHandler.IsPermitted(usr.Permissions, PlayerPermissions.ServerConsoleCommands))
+                        usr.Send(q);
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
             }
         }
     }

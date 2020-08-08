@@ -13,7 +13,7 @@ namespace CedMod.PluginInterface.patches
         static void Postfix(QueryUser __instance, QueryServer s, TcpClient c, string ip)
         {
             __instance.Send("CedMod Query protocol based of the SCP:SL query protocol");
-            __instance.Send("In order to send commands please authenticate first <i>authenticate userid username</i>");
+            __instance.Send("Please authenticate first in order to send commands <i>authenticate userid username</i>");
         }
     }
 }

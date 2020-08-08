@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading;
+﻿using System.Net.Sockets;
 using HarmonyLib;
 
 namespace CedMod.PluginInterface.patches
@@ -17,7 +13,7 @@ namespace CedMod.PluginInterface.patches
             {
                 s.Dispose();
             }
-            UserPrint print = new UserPrint(__instance, QueryUserRecievePatch.autheduers[__instance]);
+            UserPrint print = new UserPrint(__instance, CedModPluginInterface.autheduers[__instance]);
             if (global::ServerConsole.ConsoleOutputs.Contains(print))
             {
                 global::ServerConsole.ConsoleOutputs.Remove(print);
