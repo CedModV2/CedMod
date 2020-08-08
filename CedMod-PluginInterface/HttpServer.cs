@@ -6,12 +6,15 @@ using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
+using System.Net.WebSockets;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using CedMod.INIT;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
@@ -46,7 +49,8 @@ namespace CedMod.PluginInterface
         private static bool _keepGoing = true;
         private static Task _mainLoop;
         static List<string> responses = new List<string>();
-        static List<string> queue = new List<string>();
+        public static List<string> queue = new List<string>();
+        public static bool ClientConnected = false;
 
         public static void StartWebServer()
         {
@@ -147,13 +151,7 @@ namespace CedMod.PluginInterface
                                                 Initializer.Logger.Warn("PluginInterface",
                                                     "Unauthorized connection attempt: " +
                                                     context.Request.RemoteEndPoint + " request params: " + json);
-                                                response.StatusCode = 401;
-                                                string json1 = "{'unauthorized': 'true'}";
-                                                string responseBody = JsonConvert.SerializeObject(json1);
-                                                byte[] buffer1 = Encoding.UTF8.GetBytes(responseBody);
-                                                response.ContentLength64 = buffer1.Length;
-                                                response.OutputStream.Write(buffer1, 0, buffer1.Length);
-                                                break;
+                                                throw new UnauthorizedAccessException("Login is required");
                                             }
                                         }
                                         else

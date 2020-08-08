@@ -4,12 +4,13 @@ using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.Events;
 using GameCore;
+using HarmonyLib;
 
 namespace CedMod.PluginInterface
 {
     public class CedModPluginInterface : Plugin<Config>
     {
-
+        public static Harmony harmony;
         /// <inheritdoc/>
         public override PluginPriority Priority { get; } = PluginPriority.Default;
 
@@ -22,7 +23,6 @@ namespace CedMod.PluginInterface
         public override string Prefix { get; } = "cm_WAPI";
 
         public static Config config;
-        
         public override void OnDisabled()
         {
             // Unload the event handlers.
@@ -52,6 +52,8 @@ namespace CedMod.PluginInterface
             if (SecurityKey != "None")
             {
                 // Start the HTTP server.
+                harmony = new Harmony("com.cedmodAPI.patch");
+                harmony.PatchAll();
                 WebService.StartWebServer();
             }
             else
