@@ -19,6 +19,7 @@ namespace CedMod.PluginInterface.patches
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.ToString()); //silently log the exception
             }
         }
     }
