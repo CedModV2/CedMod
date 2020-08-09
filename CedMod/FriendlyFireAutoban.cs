@@ -17,10 +17,13 @@ namespace CedMod
         public static bool AdminDisabled = false;
         public static void HandleKill(DyingEventArgs ev)
         {
-            if (!RoundSummary.RoundInProgress() && !ConfigFile.ServerConfig.GetBool("ffa_enable") && AdminDisabled)
+            Initializer.Logger.Debug("FFA", "Check 1");
+            if (RoundSummary.RoundInProgress() == false && ConfigFile.ServerConfig.GetBool("ffa_enable") == false && AdminDisabled == true)
                 return;
+            Initializer.Logger.Debug("FFA", "Check 2");
             if (ev.Killer == ev.Target)
                 return;
+            Initializer.Logger.Debug("FFA", "Check 3");
             if (!IsTeakill(ev))
                 return;
             string ffatext1 = "<size=25><b><color=yellow>You teamkilled: </color></b><color=red>" +
@@ -50,10 +53,13 @@ namespace CedMod
             }
 
             if (Teamkillers.ContainsKey(ev.Killer.UserId))
-                Teamkillers[ev.Killer.UserId] = Teamkillers[ev.Killer.UserId]++;
+                Teamkillers[ev.Killer.UserId]++;
             else
                 Teamkillers.Add(ev.Killer.UserId, 1);
-            
+            foreach (KeyValuePair<string, int> s in Teamkillers)
+            {
+                Initializer.Logger.Debug("CMFFA" + s.Key, s.Value.ToString());
+            }
             foreach (KeyValuePair<string, int> s in Teamkillers)
             {
                 if (s.Key == ev.Killer.UserId)
@@ -86,8 +92,6 @@ namespace CedMod
             bool result = false;
             if (ev.Killer == ev.Target)
                 return false;
-            if (ev.Killer.Team == ev.Target.Team)
-                result = true;
             switch (ev.Killer.Team)
             {
                 case Team.CDP when ev.Target.Team == Team.CHI:
@@ -103,6 +107,8 @@ namespace CedMod
                     result = false;
                     break;
             }
+            if (ev.Killer.Team == ev.Target.Team)
+                result = true;
 
             return result;
         }

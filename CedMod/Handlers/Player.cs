@@ -19,7 +19,6 @@ namespace CedMod.Handlers
     {
         public void OnJoin(JoinedEventArgs ev)
         {
-
             Task.Factory.StartNew(() => { BanSystem.HandleJoin(ev); });
             foreach (string b in ConfigFile.ServerConfig.GetStringList("cm_nicknamefilter"))
             {
@@ -28,15 +27,18 @@ namespace CedMod.Handlers
                     ev.Player.ReferenceHub.nicknameSync.DisplayName = "Filtered name";
                 }
             }
+
             if (!RoundSummary.RoundInProgress() && ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true))
                 Timing.RunCoroutine(Playerjoinhandle(ev));
         }
+
         public static ItemType GetRandomItem()
         {
             Random random = new Random();
             int index = UnityEngine.Random.Range(0, CedModMain.items.Count);
             return CedModMain.items[index];
         }
+
         public IEnumerator<float> Playerjoinhandle(JoinedEventArgs ev)
         {
             ReferenceHub Player = ev.Player.ReferenceHub;
@@ -50,14 +52,17 @@ namespace CedMod.Handlers
                 yield return Timing.WaitForSeconds(0.2f);
                 ev.Player.Position = (new Vector3(-20f, 1020, -43));
             }
+
             yield return 1f;
         }
+
         public void OnLeave(LeftEventArgs ev)
         {
         }
 
         public void OnDying(DyingEventArgs ev)
         {
+            Initializer.Logger.Debug("CMEVENT", "Dyingevent triggered");
             FriendlyFireAutoban.HandleKill(ev);
             Timing.RunCoroutine(PlayerStatsDieEv(ev));
         }
@@ -67,13 +72,22 @@ namespace CedMod.Handlers
             if (!RoundSummary.RoundInProgress())
                 yield return 0f;
             if (FriendlyFireAutoban.IsTeakill(ev))
-                API.APIRequest("playerstats/addstat.php",
-                    $"?rounds=0&kills=0&deaths=0&teamkills=1&alias={API.GetAlias()}&id={ev.Killer.UserId}&dnt={Convert.ToInt32(ev.Target.ReferenceHub.serverRoles.DoNotTrack)}&ip={ev.Killer.IPAddress}&username={ev.Killer.Nickname}");
+                Task.Factory.StartNew(() =>
+                {
+                    API.APIRequest("playerstats/addstat.php",
+                        $"?rounds=0&kills=0&deaths=0&teamkills=1&alias={API.GetAlias()}&id={ev.Killer.UserId}&dnt={Convert.ToInt32(ev.Target.ReferenceHub.serverRoles.DoNotTrack)}&ip={ev.Killer.IPAddress}&username={ev.Killer.Nickname}");
+                });
             else
+                Task.Factory.StartNew(() =>
+                {
+                    API.APIRequest("playerstats/addstat.php",
+                        $"?rounds=0&kills=1&deaths=0&teamkills=0&alias={API.GetAlias()}&id={ev.Killer.UserId}&dnt={Convert.ToInt32(ev.Target.ReferenceHub.serverRoles.DoNotTrack)}&ip={ev.Killer.IPAddress}&username={ev.Killer.Nickname}");
+                });
+            Task.Factory.StartNew(() =>
+            {
                 API.APIRequest("playerstats/addstat.php",
-                    $"?rounds=0&kills=1&deaths=0&teamkills=0&alias={API.GetAlias()}&id={ev.Killer.UserId}&dnt={Convert.ToInt32(ev.Target.ReferenceHub.serverRoles.DoNotTrack)}&ip={ev.Killer.IPAddress}&username={ev.Killer.Nickname}");
-            API.APIRequest("playerstats/addstat.php",
-                $"?rounds=0&kills=0&deaths=1&teamkills=0&alias={API.GetAlias()}&id={ev.Target.UserId}&dnt={Convert.ToInt32(ev.Target.ReferenceHub.serverRoles.DoNotTrack)}&ip={ev.Target.IPAddress}&username={ev.Target.Nickname}");
+                    $"?rounds=0&kills=0&deaths=1&teamkills=0&alias={API.GetAlias()}&id={ev.Target.UserId}&dnt={Convert.ToInt32(ev.Target.ReferenceHub.serverRoles.DoNotTrack)}&ip={ev.Target.IPAddress}&username={ev.Target.Nickname}");
+            });
             yield return 0f;
         }
     }

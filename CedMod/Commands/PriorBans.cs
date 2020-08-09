@@ -31,13 +31,13 @@ namespace CedMod.Commands
                 }
                 Player ply = Player.Get(arguments.At(0));
                 string resp = API.APIRequest("banning/userdetails.php",
-                    $"?id={ply.UserId}&alias={API.GetAlias()}&total=1", true).ToString();
+                    $"?id={ply.UserId}&alias={API.GetAlias()}&priors=1", true).ToString();
                 response = resp;
                 return true;
             }
             if (!Player.Get(sndr.SenderId).ReferenceHub.serverRoles.RemoteAdmin)
             {
-                string resp = API.APIRequest("banning/userdetails.php", $"?id={sndr.SenderId}&alias={API.GetAlias()}&total=1", true).ToString();
+                string resp = API.APIRequest("banning/userdetails.php", $"?id={sndr.SenderId}&alias={API.GetAlias()}&priors=1", true).ToString();
                 response = resp;
                 return true;
             }
