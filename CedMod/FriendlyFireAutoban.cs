@@ -21,9 +21,6 @@ namespace CedMod
             if (RoundSummary.RoundInProgress() == false && ConfigFile.ServerConfig.GetBool("ffa_enable") == false && AdminDisabled == true)
                 return;
             Initializer.Logger.Debug("FFA", "Check 2");
-            if (ev.Killer == ev.Target)
-                return;
-            Initializer.Logger.Debug("FFA", "Check 3");
             if (!IsTeakill(ev))
                 return;
             string ffatext1 = "<size=25><b><color=yellow>You teamkilled: </color></b><color=red>" +

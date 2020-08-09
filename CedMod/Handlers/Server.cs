@@ -26,12 +26,27 @@ namespace CedMod.Handlers
             if (ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true))
                 GameObject.Find("StartRound").transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
         }
-
+        Dictionary<ReferenceHub, ReferenceHub> reported = new Dictionary<ReferenceHub, ReferenceHub>();
         public void OnReport(LocalReportingEventArgs ev)
         {
+            if (reported.ContainsKey(ev.Target.ReferenceHub))
+            {
+                ev.IsAllowed = false;
+                ev.Issuer.GameObject.GetComponent<GameConsoleTransmission>().SendToClient(ev.Issuer.Connection,
+                    $"[REPORTING] {ev.Target.Nickname} ({ev.Target.UserId}) has already been reported by {Exiled.API.Features.Player.Get(reported[ev.Target.ReferenceHub]).Nickname}",
+                    "green");
+                return;
+            }
+            reported.Add(ev.Target.ReferenceHub, ev.Issuer.ReferenceHub);
+            Timing.RunCoroutine(removefromlist(ev.Target.ReferenceHub));
             sendDI();
         }
 
+        public IEnumerator<float> removefromlist(ReferenceHub target)
+        {
+            yield return Timing.WaitForSeconds(60f);
+            reported.Remove(target);
+        }
         private void sendDI()
         {
             try
