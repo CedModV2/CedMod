@@ -37,6 +37,13 @@ namespace CedMod.Handlers
                     "green");
                 return;
             }
+            if (ev.Reason.IsEmpty())
+            {
+                ev.Issuer.GameObject.GetComponent<GameConsoleTransmission>().SendToClient(ev.Issuer.Connection,
+                    $"You have to enter a reason",
+                    "green");
+                return;
+            }
             reported.Add(ev.Target.ReferenceHub, ev.Issuer.ReferenceHub);
             Timing.RunCoroutine(removefromlist(ev.Target.ReferenceHub));
             sendDI();

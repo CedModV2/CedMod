@@ -18,8 +18,9 @@ namespace CedMod
         public static void HandleKill(DyingEventArgs ev)
         {
             Initializer.Logger.Debug("FFA", "Check 1");
-            if (RoundSummary.RoundInProgress() == false && ConfigFile.ServerConfig.GetBool("ffa_enable") == false && AdminDisabled == true)
-                return;
+            if (RoundSummary.RoundInProgress() == false) return;
+            if (ConfigFile.ServerConfig.GetBool("ffa_enable", true) == false) return;
+            if (AdminDisabled) return;
             Initializer.Logger.Debug("FFA", "Check 2");
             if (!IsTeakill(ev))
                 return;
