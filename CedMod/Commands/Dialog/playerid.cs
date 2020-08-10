@@ -35,7 +35,7 @@ namespace CedMod.Commands.Dialog
                     response = "Could not find player with the specified playerid";
                     return false;
                 }
-                Ply.SendConsoleMessage("[REPORTING] " + msg, "green");
+                Ply.SendConsoleMessage("[REPORTING] " + msg + " Press ESC to close", "green");
                 response = "Done";
                 return true;
             }

@@ -29,7 +29,7 @@ namespace CedMod.Commands.Dialog
             string msg = arguments.Skip(0).Aggregate((current, n) => current + " " + n);
             foreach (Player ply in Player.List) 
             {
-                ply.SendConsoleMessage("[REPORTING] " + msg, "green");
+                ply.SendConsoleMessage("[REPORTING] " + msg + " Press ESC to close", "green");
             }
 
             response = "Done";
