@@ -1,5 +1,6 @@
 ﻿using CedMod.Commands;
 using CedMod.Commands.Stuiter;
+using CedMod.Commands.Dialog;
 using CedMod.INIT;
 using MEC;
 using RemoteAdmin;
@@ -19,6 +20,7 @@ namespace CedMod
             CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new TotalBansCommand());
             CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new PriorBansCommand());
             CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new RedirectCommand());
+            CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new DiaglogParentCommand());
         }
         public static void RegisterConsoleCommands()
         {
@@ -26,6 +28,7 @@ namespace CedMod
             GameCore.Console.singleton.ConsoleCommandHandler.RegisterCommand(new StuiterParentCommand());
             GameCore.Console.singleton.ConsoleCommandHandler.RegisterCommand(new LightsoutCommand());
             GameCore.Console.singleton.ConsoleCommandHandler.RegisterCommand(new RedirectCommand());
+            GameCore.Console.singleton.ConsoleCommandHandler.RegisterCommand(new DiaglogParentCommand());
         }
 
         public static void RegisterClientConsoleCommands()
