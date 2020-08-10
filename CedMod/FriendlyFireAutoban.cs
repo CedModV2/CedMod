@@ -106,6 +106,8 @@ namespace CedMod
             }
             if (ev.Killer.Team == ev.Target.Team)
                 result = true;
+            if (ev.Killer.Team == Team.TUT)
+                result = false;
 
             return result;
         }
