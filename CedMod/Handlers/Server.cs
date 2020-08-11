@@ -26,6 +26,10 @@ namespace CedMod.Handlers
             if (ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true))
                 GameObject.Find("StartRound").transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
         }
+
+        public void onRoundStart()
+        {
+        }
         Dictionary<ReferenceHub, ReferenceHub> reported = new Dictionary<ReferenceHub, ReferenceHub>();
         public void OnReport(LocalReportingEventArgs ev)
         {
