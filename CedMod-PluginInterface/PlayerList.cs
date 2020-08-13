@@ -2,6 +2,7 @@
 using CommandSystem;
 using Exiled.API.Extensions;
 using Exiled.Events.EventArgs;
+using NorthwoodLib;
 using RemoteAdmin;
 using UnityEngine;
 
@@ -47,7 +48,7 @@ namespace CedMod.PluginInterface
 						{
 							playerCommandSender2.Processor.GameplayData = gameplayData;
 						}
-						bool flag = Misc.Contains(q, "STAFF", StringComparison.OrdinalIgnoreCase);
+						bool flag = q.Contains("STAFF", StringComparison.OrdinalIgnoreCase);
 						bool flag2 = CheckPermissions(sender, ev.Name, PlayerPermissions.ViewHiddenBadges, string.Empty, reply: false);
 						bool flag3 = CheckPermissions(sender, ev.Name, PlayerPermissions.ViewHiddenGlobalBadges, string.Empty, reply: false);
 						if (playerCommandSender != null && playerCommandSender.SR.Staff)
@@ -85,7 +86,7 @@ namespace CedMod.PluginInterface
 							}
 							text += "\n";
 						}
-						if (!Misc.Contains(q, "STAFF", StringComparison.OrdinalIgnoreCase))
+						if (!q.Contains("STAFF", StringComparison.OrdinalIgnoreCase))
 						{
 							sender.RaReply(ev.Name + ":PLAYER_LIST#" + text, success: true, ev.Arguments.Count < 2 || ev.Arguments[1].ToUpper() != "SILENT", "");
 						}
