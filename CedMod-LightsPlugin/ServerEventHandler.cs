@@ -52,11 +52,24 @@ namespace CedMod.LightsPlugin
             {
                 if (ply.Team != Team.SCP && ply.Team != Team.RIP && CedModLightsPlugin.config.GiveFlashlights)
                 {
+                    bool _hasflashlight = false;
                     Initializer.Logger.Info("CedMod-LightsPlugin", "Giving flashlights");
-                    ply.Inventory.AddNewItem(ItemType.Flashlight);
                     if (CedModLightsPlugin.config.GiveFlashlightsNotification)
-                        ply.HintDisplay.Show(new TextHint("<color=red>You have been given a flashlight.</color>",
-                            new HintParameter[] {new StringHintParameter("")}, null, 10f));
+                    {
+                        foreach (var Item in ply.Inventory.items)
+                        {
+                            if (Item.id == ItemType.Flashlight)
+                            {
+                                _hasflashlight = true;
+                            }
+                        }
+                        if (!_hasflashlight)
+                        {
+                            ply.HintDisplay.Show(new TextHint("<color=red>You have been given a flashlight.</color>",
+                                new HintParameter[] {new StringHintParameter("")}, null, 10f));
+                            ply.Inventory.AddNewItem(ItemType.Flashlight);
+                        }
+                    }
                 }
             }
 
