@@ -6,7 +6,7 @@ namespace CedMod.INIT
     public class Initializer
     {
         public static Harmony harmony;
-        public static readonly bool TestApiOnly = true; //this is used when the version contains code that will not work with the main API and so all requests will me made to the test API
+        public static readonly bool TestApiOnly = false; //this is used when the version contains code that will not work with the main API and so all requests will me made to the test API
         public static void Setup()
         {
             Logger.Info("INIT", string.Concat(new[]
