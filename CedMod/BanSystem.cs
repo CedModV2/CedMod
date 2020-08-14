@@ -19,8 +19,6 @@ namespace CedMod
         public static void HandleJoin(JoinedEventArgs ev)
         {
             ReferenceHub Player = ev.Player.ReferenceHub;
-            if (Player.characterClassManager.UserId.Contains("@northwood"))
-                return;
             if (ev.Player.ReferenceHub.serverRoles.BypassStaff)
                 return;
             if (Player.characterClassManager.isLocalPlayer)
