@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CedMod.INIT;
 using GameCore;
+using Grenades;
 using MEC;
+using Mirror;
 using UnityEngine;
+using Object = UnityEngine.Object;
 using Random = System.Random;
 
 namespace CedMod.Handlers
@@ -38,7 +42,7 @@ namespace CedMod.Handlers
             int index = UnityEngine.Random.Range(0, CedModMain.items.Count);
             return CedModMain.items[index];
         }
-
+        
         public IEnumerator<float> Playerjoinhandle(JoinedEventArgs ev)
         {
             ReferenceHub Player = ev.Player.ReferenceHub;
@@ -47,12 +51,21 @@ namespace CedMod.Handlers
             {
                 Player.characterClassManager.SetPlayersClass(RoleType.Tutorial, Player.gameObject);
                 ev.Player.IsGodModeEnabled = false;
-                ItemType item = GetRandomItem();
-                ev.Player.Inventory.AddNewItem(item);
                 yield return Timing.WaitForSeconds(0.2f);
-                ev.Player.Position = (new Vector3(-20f, 1020, -43));
+                ev.Player.Position = (new Vector3(176.2169f, 987.3649f,112.187f));
+                yield return Timing.WaitForSeconds(0.2f);
+                Vector3 spawnrand = new Vector3(UnityEngine.Random.Range(0f, 2f), UnityEngine.Random.Range(0f, 2f), UnityEngine.Random.Range(0f, 2f));
+                GrenadeManager gm = ev.Player.GrenadeManager;
+                GrenadeSettings ball = gm.availableGrenades.FirstOrDefault(g => g.inventoryID == ItemType.SCP018);
+                if (ball == null)
+                {
+                    yield return 0f;
+                }
+                ball.grenadeInstance.transform.localScale = new Vector3(3f,3f,3f);
+                Grenade component = Object.Instantiate(ball.grenadeInstance).GetComponent<Scp018Grenade>();
+                component.InitData(gm, spawnrand, Vector3.zero);
+                NetworkServer.Spawn(component.gameObject);
             }
-
             yield return 1f;
         }
 
