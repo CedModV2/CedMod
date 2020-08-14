@@ -6,7 +6,7 @@ namespace CedMod.INIT
     public class Initializer
     {
         public static Harmony harmony;
-        public static readonly bool TestApiOnly = true; //this is used when the version contains code that will not work with the main API and so all requests will me made to the test API
+        public static readonly bool TestApiOnly = false; //this is used when the version contains code that will not work with the main API and so all requests will me made to the test API
         public static void Setup()
         {
             Logger.Info("INIT", string.Concat(new[]
@@ -32,7 +32,7 @@ namespace CedMod.INIT
             int num = 3;
             int num2 = 2;
             int num3 = 0;
-            string text = "B";
+            string text = "R";
             return string.Format("{0}.{1}.{2}-{3}", num, num2, num3, text);
         }
         public static void DoPatching()
