@@ -64,6 +64,7 @@ namespace CedMod
             Exiled.Events.Handlers.Player.Left += player.OnLeave;
             Exiled.Events.Handlers.Player.Joined += player.OnJoin;
             Exiled.Events.Handlers.Player.Dying += player.OnDying;
+            Exiled.Events.Handlers.Player.PickingUpItem += player.OnPickup;
         }
 
         /// <summary>
@@ -79,6 +80,7 @@ namespace CedMod
             Exiled.Events.Handlers.Player.Left -= player.OnLeave;
             Exiled.Events.Handlers.Player.Joined -= player.OnJoin;
             Exiled.Events.Handlers.Player.Dying -= player.OnDying;
+            Exiled.Events.Handlers.Player.PickingUpItem += player.OnPickup;
 
             server = null;
             player = null;

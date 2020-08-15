@@ -58,6 +58,7 @@
     <Compile Include="Commands\Stuiter\spec.cs" />
     <Compile Include="Commands\TotalBans.cs" />
     <Compile Include="FriendlyFireAutoban.cs" />
+    <Compile Include="Handlers\MiniGameHandler.cs" />
     <Compile Include="Handlers\Player.cs" />
     <Compile Include="INIT\CedModLogger.cs" />
     <Compile Include="INIT\Initializer.cs" />
