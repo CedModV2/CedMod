@@ -1,4 +1,7 @@
-﻿namespace CedMod.INIT
+﻿using System;
+using Sentry;
+
+namespace CedMod.INIT
 {
     public class CedModLogger : Logging.Logger
     {
@@ -7,6 +10,12 @@
 #if DEBUG
             Write("DEBUG", tag, message);
 #endif
+        }
+
+        public override void LogException(Exception ex,string classname, string methodname)
+        {
+            //SentrySdk.CaptureMessage("Exception thrown at: " + classname + "." + methodname + " Exception" + ex.ToString());
+            SentrySdk.CaptureException(ex);
         }
         
         public override void Error(string tag, string message)

@@ -1,5 +1,6 @@
 ﻿using System;
 using HarmonyLib;
+using Sentry;
 
 namespace CedMod.INIT
 {
@@ -24,6 +25,8 @@ namespace CedMod.INIT
             CedModCommandHandler.RegisterRACommands();
             CedModCommandHandler.RegisterConsoleCommands();
             CedModCommandHandler.RegisterClientConsoleCommands();
+            Logger.Info("INIT", "Initializing automated error tracking...");
+            SentrySdk.Init("https://f71722a366fa4a69bd5f96e48ee14d34@o435810.ingest.sentry.io/5395779");
             DoPatching();
             //Initializer.UpdateCheck();
         }

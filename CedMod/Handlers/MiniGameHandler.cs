@@ -155,6 +155,7 @@ namespace CedMod.Handlers
                 }
                 catch (Exception e)
                 {
+                    Initializer.Logger.LogException(e, "CedMod", "PreRoundMinigameHandler.WaitingForPlayers");
                     Initializer.Logger.Error("PreRoundMinigame", e.StackTrace);
                 }
             }

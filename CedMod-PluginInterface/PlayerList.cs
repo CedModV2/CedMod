@@ -1,4 +1,5 @@
 ﻿using System;
+using CedMod.INIT;
 using CommandSystem;
 using Exiled.API.Extensions;
 using Exiled.Events.EventArgs;
@@ -97,6 +98,7 @@ namespace CedMod.PluginInterface
 					}
 					catch (Exception ex2)
 					{
+						Initializer.Logger.LogException(ex2, "CedMod.PluginInterface", "PlayerListCommand");
 						sender.RaReply(ev.Name + ":PLAYER_LIST#An unexpected problem has occurred!\nMessage: " + ex2.Message + "\nStackTrace: " + ex2.StackTrace + "\nAt: " + ex2.Source, success: false, logToConsole: true, "");
 						throw;
 					}

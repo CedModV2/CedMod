@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using CedMod.INIT;
 
 namespace CedMod
@@ -14,7 +17,6 @@ namespace CedMod
         public static List<ItemType> items = new List<ItemType>();
         private Handlers.Server server;
         private Handlers.Player player;
-
         /// <inheritdoc/>
         public override PluginPriority Priority { get; } = PluginPriority.First;
 
@@ -31,6 +33,54 @@ namespace CedMod
         {
             if (!Config.IsEnabled)
                 return;
+            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CedMod.System.Runtime.InteropServices.RuntimeInformation.dll"))
+            {
+                if (stream == null)
+                    throw new InvalidOperationException("Cannot find resource.0");
+                using (var reader = new BinaryReader(stream))
+                {
+                    var rawAssembly = new byte[(int)stream.Length];
+
+                    reader.Read(rawAssembly, 0, (int)stream.Length);
+                    var assembly = Assembly.Load(rawAssembly);
+                }
+            }
+            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CedMod.Sentry.dll"))
+            {
+                if (stream == null)
+                    throw new InvalidOperationException("Cannot find resource.1");
+                    using (var reader = new BinaryReader(stream))
+                {
+                    var rawAssembly = new byte[(int)stream.Length];
+
+                    reader.Read(rawAssembly, 0, (int)stream.Length);
+                    var assembly = Assembly.Load(rawAssembly);
+                }
+            }
+            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CedMod.Sentry.PlatformAbstractions.dll"))
+            {
+                if (stream == null)
+                    throw new InvalidOperationException("Cannot find resource.2");
+                using (var reader = new BinaryReader(stream))
+                {
+                    var rawAssembly = new byte[(int)stream.Length];
+
+                    reader.Read(rawAssembly, 0, (int)stream.Length);
+                    var assembly = Assembly.Load(rawAssembly);
+                }
+            }
+            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CedMod.Sentry.Protocol.dll"))
+            {
+                if (stream == null)
+                    throw new InvalidOperationException("Cannot find resource.3");
+                using (var reader = new BinaryReader(stream))
+                {
+                    var rawAssembly = new byte[(int)stream.Length];
+
+                    reader.Read(rawAssembly, 0, (int)stream.Length);
+                    var assembly = Assembly.Load(rawAssembly);
+                }
+            }
             config = Config;
             items.Add(ItemType.GunProject90);
             items.Add(ItemType.GunMP7);

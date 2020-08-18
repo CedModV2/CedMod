@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
@@ -8,6 +9,8 @@ using Exiled.API.Features;
 using GameCore;
 using Mirror;
 using Newtonsoft.Json;
+using Sentry;
+using Sentry.Protocol;
 using UnityEngine;
 using Console = System.Console;
 
@@ -40,6 +43,7 @@ namespace CedMod
         {
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            string response = "";  
             try
             {
                 WebClient webClient = new WebClient();
@@ -48,7 +52,6 @@ namespace CedMod
                 webClient.Headers.Add("Alias", GetAlias());
                 webClient.Headers.Add("Port", ServerConsole.Port.ToString());
                 webClient.Headers.Add("Ip", ServerConsole.Ip);
-                string response;  
                 if (Initializer.TestApiOnly)
                     response = webClient.DownloadString(TestAPIUrl + endpoint + arguments);
                 else
@@ -64,8 +67,16 @@ namespace CedMod
             }
             catch (WebException ex)
             {
+                using (StreamReader r = new StreamReader(((HttpWebResponse)ex.Response).GetResponseStream()))
+                {
+                    response = r.ReadToEnd();
+                }
+                if (string.IsNullOrEmpty(response))
+                    SentrySdk.CaptureMessage($"API-Request failed on {GetAlias()} Response code {ex.Status} {ex.Message}", SentryLevel.Warning);
+                else
+                    SentrySdk.CaptureMessage($"API-Request failed on {GetAlias()} Response code {ex.Status} {ex.Message} API response was {response}", SentryLevel.Warning);
                 Initializer.Logger.Error("API",
-                    "API request failed: " + ex.Status + " | " + ex.Message);
+                    "API request failed: " + response + " | " + ex.Message);
                 return null;
             }
         }

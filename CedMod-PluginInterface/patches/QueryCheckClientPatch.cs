@@ -24,6 +24,7 @@ namespace CedMod.PluginInterface.patches
                         }
                         catch (Exception ex)
                         {
+                            Initializer.Logger.LogException(ex, "CedMod-PluginInterface.QueryCheckClientPatch", "Prefix");
                             Initializer.Logger.Error("CMQuery", ex.ToString());
                         }
                     }

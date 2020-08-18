@@ -65,6 +65,7 @@
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Handlers\Server.cs" />
+    <Compile Include="Patches\ExceptionPatch.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -190,6 +191,18 @@
     <Reference Include="OpusWrapper, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\0OpusWrapper.dll</HintPath>
     </Reference>
+    <Reference Include="Sentry, Version=2.1.5.0, Culture=neutral, PublicKeyToken=fba2ec45388e2af0">
+      <HintPath>Sentry.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Sentry.PlatformAbstractions, Version=1.1.1.0, Culture=neutral, PublicKeyToken=fba2ec45388e2af0">
+      <HintPath>Sentry.PlatformAbstractions.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Sentry.Protocol, Version=2.1.5.0, Culture=neutral, PublicKeyToken=fba2ec45388e2af0">
+      <HintPath>Sentry.Protocol.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
       <HintPath>..\References\System.dll</HintPath>
     </Reference>
@@ -273,6 +286,9 @@
     </Reference>
     <Reference Include="System.Runtime.Extensions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <HintPath>..\..\..\..\EXILED\bin\Release\System.Runtime.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
       <HintPath>..\References\System.Runtime.Serialization.dll</HintPath>
@@ -523,6 +539,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Sentry.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Sentry.PlatformAbstractions.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Sentry.Protocol.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="System.Runtime.InteropServices.RuntimeInformation.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

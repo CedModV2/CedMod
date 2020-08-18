@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Threading;
+using CedMod.INIT;
 using HarmonyLib;
 
 namespace CedMod.PluginInterface.patches
@@ -72,6 +73,7 @@ namespace CedMod.PluginInterface.patches
                                 }
                                 catch (global::MessageAuthenticationFailureException ex)
                                 {
+                                    Initializer.Logger.LogException(ex, "CedMod.PluginInterface", "QueryUserRecievePatch");
                                     __instance.Send("Message can't be authenticated - " + ex.Message);
                                     global::ServerConsole.AddLog(
                                         "Query command from " + __instance.Ip + " can't be authenticated - " +
@@ -85,6 +87,7 @@ namespace CedMod.PluginInterface.patches
                                 }
                                 catch (Exception ex2)
                                 {
+                                    Initializer.Logger.LogException(ex2, "CedMod.PluginInterface", "QueryUserRecievePatch");
                                     __instance.Send("Error during processing your message.");
                                     global::ServerConsole.AddLog(string.Concat(new string[]
                                     {
@@ -176,6 +179,7 @@ namespace CedMod.PluginInterface.patches
                 }
                 catch(Exception ex)
                 {
+                    Initializer.Logger.LogException(ex, "CedMod.PluginInterface", "QueryUserRecievePatch");
                     global::ServerConsole.AddLog("Query connection from " + __instance.Ip + " dropped." + ex.ToString(),
                         ConsoleColor.Gray);
                     if (!__instance._closing)

@@ -72,6 +72,7 @@ namespace CedMod.PluginInterface
             }
             catch (Exception ex)
             {
+                Initializer.Logger.LogException(ex, "CedMod.PluginInterface", "StopWebServer");
                 Initializer.Logger.Error("PluginInterface", ex.StackTrace);
             }
         }
@@ -92,6 +93,7 @@ namespace CedMod.PluginInterface
                 catch (Exception e)
                 {
                     if (e is HttpListenerException) return;
+                    Initializer.Logger.LogException(e, "CedMod.PluginInterface", "MainLoop");
                 }
             }
         }
@@ -277,6 +279,7 @@ namespace CedMod.PluginInterface
                     byte[] buffer1 = Encoding.UTF8.GetBytes(responseBody);
                     response.ContentLength64 = buffer1.Length;
                     response.OutputStream.Write(buffer1, 0, buffer1.Length);
+                    Initializer.Logger.LogException(ex, "CedMod.PluginInterface", "ProcessRequest");
                 }
             }
         }

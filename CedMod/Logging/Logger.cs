@@ -1,10 +1,14 @@
-﻿namespace CedMod.Logging
+﻿using System;
+
+namespace CedMod.Logging
 {
     // Token: 0x020006CB RID: 1739
     public abstract class Logger
     {
         // Token: 0x0600250C RID: 9484
         public abstract void Debug(string tag, string message);
+        
+        public abstract void LogException(Exception ex, string classname, string methodname);
 
         // Token: 0x0600250D RID: 9485
         public abstract void Info(string tag, string message);

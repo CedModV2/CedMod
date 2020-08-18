@@ -9,6 +9,12 @@ namespace CedMod.PluginInterface.patches
     {
         static void Postfix(string q, ConsoleColor color = ConsoleColor.Gray )
         {
+            if (CustomNetworkManager._queryserver == null)
+                return;
+            if (CustomNetworkManager._queryserver.Users == null)
+                return;
+            if (!CustomNetworkManager._queryserver._thr.IsAlive)
+                return;
             try
             {
                 foreach (QueryUser usr in CustomNetworkManager._queryserver.Users)

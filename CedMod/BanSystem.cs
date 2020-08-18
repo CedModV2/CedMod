@@ -18,76 +18,84 @@ namespace CedMod
     {
         public static void HandleJoin(JoinedEventArgs ev)
         {
-            ReferenceHub Player = ev.Player.ReferenceHub;
-            if (ev.Player.ReferenceHub.serverRoles.BypassStaff)
-                return;
-            if (Player.characterClassManager.isLocalPlayer)
-                return;
-            Dictionary<string, string> info = (Dictionary<string, string>) API.APIRequest("auth/preauth.php",
-                "?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" +
-                Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + API.GetAlias());
-            if (info["banexpired"] == "true" && info["success"] == "true")
+            try
             {
-                API.APIRequest("banning/unban.php",
+                ReferenceHub Player = ev.Player.ReferenceHub;
+                if (ev.Player.ReferenceHub.serverRoles.BypassStaff)
+                    return;
+                if (Player.characterClassManager.isLocalPlayer)
+                    return;
+                Dictionary<string, string> info = (Dictionary<string, string>) API.APIRequest("auth/preauth.php",
                     "?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" +
-                    Player.GetComponent<NetworkIdentity>().connectionToClient.address +
-                    "&reason=Expired&aname=Server&webhook=" +
-                    ConfigFile.ServerConfig.GetString("bansystem_webhook", "none") + "&alias=" + API.GetAlias());
-                foreach (Player plr in Exiled.API.Features.Player.List)
+                    Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + API.GetAlias());
+                if (info["banexpired"] == "true" && info["success"] == "true")
                 {
-                    plr.Broadcast(15, Player.nicknameSync.MyNick + " " +
-                                      Player.characterClassManager.UserId + "'s ban has expired", Broadcast.BroadcastFlags.AdminChat);
+                    API.APIRequest("banning/unban.php",
+                        "?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" +
+                        Player.GetComponent<NetworkIdentity>().connectionToClient.address +
+                        "&reason=Expired&aname=Server&webhook=" +
+                        ConfigFile.ServerConfig.GetString("bansystem_webhook", "none") + "&alias=" + API.GetAlias());
+                    foreach (Player plr in Exiled.API.Features.Player.List)
+                    {
+                        plr.Broadcast(15, Player.nicknameSync.MyNick + " " +
+                                          Player.characterClassManager.UserId + "'s ban has expired",
+                            Broadcast.BroadcastFlags.AdminChat);
+                    }
                 }
-            }
 
-            info = (Dictionary<string, string>) API.APIRequest("auth/auth.php",
-                "?id=" + Player.characterClassManager.UserId + "&ip=" +
-                Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + API.GetAlias());
-            string reason;
-            if (info["success"] == "true" && info["vpn"] == "true" &&
-                info["geo"] == "false" && info["isbanned"] == "false")
-            {
-                reason = info["reason"];
-                Player.characterClassManager.TargetConsolePrint(
-                    Player.GetComponent<NetworkIdentity>().connectionToClient,
-                    "CedMod.BANSYSTEM Message from CedMod server (VPN/Proxy detected): " + info,
-                    "yellow");
-                Initializer.Logger.Info("BANSYSTEM",
-                    "user: " + Player.GetComponent<CharacterClassManager>().UserId +
-                    " attempted connection with blocked ASN/IP/VPN/Hosting service");
-                ev.Player.Disconnect(reason);
-            }
-            else
-            {
-                if (info["success"] == "true" && info["vpn"] == "false" &&
-                    info["geo"] == "false" && info["isbanned"] == "true")
+                info = (Dictionary<string, string>) API.APIRequest("auth/auth.php",
+                    "?id=" + Player.characterClassManager.UserId + "&ip=" +
+                    Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + API.GetAlias());
+                string reason;
+                if (info["success"] == "true" && info["vpn"] == "true" &&
+                    info["geo"] == "false" && info["isbanned"] == "false")
                 {
-                    reason = info["preformattedmessage"] +
-                             " You can fill in a ban appeal here: " +
-                             ConfigFile.ServerConfig.GetString("bansystem_banappealurl", "none");
-                    Initializer.Logger.Info("BANSYSTEM",
-                        "user: " + Player.GetComponent<CharacterClassManager>().UserId +
-                        " attempted connection with active ban disconnecting");
+                    reason = info["reason"];
                     Player.characterClassManager.TargetConsolePrint(
                         Player.GetComponent<NetworkIdentity>().connectionToClient,
-                        "CedMod.BANSYSTEM Active ban: " + info["preformattedmessage"],
+                        "CedMod.BANSYSTEM Message from CedMod server (VPN/Proxy detected): " + info,
                         "yellow");
+                    Initializer.Logger.Info("BANSYSTEM",
+                        "user: " + Player.GetComponent<CharacterClassManager>().UserId +
+                        " attempted connection with blocked ASN/IP/VPN/Hosting service");
                     ev.Player.Disconnect(reason);
                 }
                 else
                 {
                     if (info["success"] == "true" && info["vpn"] == "false" &&
-                        info["geo"] == "false" && info["isbanned"] == "false" &&
-                        info["iserror"] == "true")
+                        info["geo"] == "false" && info["isbanned"] == "true")
                     {
+                        reason = info["preformattedmessage"] +
+                                 " You can fill in a ban appeal here: " +
+                                 ConfigFile.ServerConfig.GetString("bansystem_banappealurl", "none");
+                        Initializer.Logger.Info("BANSYSTEM",
+                            "user: " + Player.GetComponent<CharacterClassManager>().UserId +
+                            " attempted connection with active ban disconnecting");
                         Player.characterClassManager.TargetConsolePrint(
                             Player.GetComponent<NetworkIdentity>().connectionToClient,
-                            "CedMod.BANSYSTEM Message from CedMod server: " + info["error"],
+                            "CedMod.BANSYSTEM Active ban: " + info["preformattedmessage"],
                             "yellow");
-                        Initializer.Logger.Info("BANSYSTEM",
-                            "Message from CedMod server: " + info["error"]);
+                        ev.Player.Disconnect(reason);
+                    }
+                    else
+                    {
+                        if (info["success"] == "true" && info["vpn"] == "false" &&
+                            info["geo"] == "false" && info["isbanned"] == "false" &&
+                            info["iserror"] == "true")
+                        {
+                            Player.characterClassManager.TargetConsolePrint(
+                                Player.GetComponent<NetworkIdentity>().connectionToClient,
+                                "CedMod.BANSYSTEM Message from CedMod server: " + info["error"],
+                                "yellow");
+                            Initializer.Logger.Info("BANSYSTEM",
+                                "Message from CedMod server: " + info["error"]);
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Initializer.Logger.LogException(ex, "CedMod", "BanSystem.HandleJoin");
             }
         }
 
