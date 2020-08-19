@@ -16,6 +16,7 @@ namespace CedMod.INIT
         {
             //SentrySdk.CaptureMessage("Exception thrown at: " + classname + "." + methodname + " Exception" + ex.ToString());
             SentrySdk.CaptureException(ex);
+            Initializer.Logger.Debug("CedModERRORREPORTING", "Reporting exception");
         }
         
         public override void Error(string tag, string message)

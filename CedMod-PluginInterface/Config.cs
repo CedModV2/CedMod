@@ -16,5 +16,8 @@
 
         [Description("Secret passphrase used to authenticate request KEEP THIS SECRET")]
         public string SecurityKey { get; set; } = "None";
+
+        [Description("If we override the query system")]
+        public bool QueryOverride { get; set; } = false;
     }
 }

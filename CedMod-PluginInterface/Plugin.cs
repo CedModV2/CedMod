@@ -55,8 +55,11 @@ namespace CedMod.PluginInterface
             if (SecurityKey != "None")
             {
                 // Start the HTTP server.
-                harmony = new Harmony("com.cedmodAPI.patch");
-                harmony.PatchAll();
+                if (Config.QueryOverride)
+                {
+                    harmony = new Harmony("com.cedmodAPI.patch");
+                    harmony.PatchAll();
+                }
                 WebService.StartWebServer();
             }
             else
