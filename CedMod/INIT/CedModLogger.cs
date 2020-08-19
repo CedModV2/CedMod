@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Sentry;
 
 namespace CedMod.INIT
@@ -12,11 +13,17 @@ namespace CedMod.INIT
 #endif
         }
 
-        public override void LogException(Exception ex,string classname, string methodname)
+        public override void LogException(Exception ex,string classname = "", string methodname = "")
         {
             //SentrySdk.CaptureMessage("Exception thrown at: " + classname + "." + methodname + " Exception" + ex.ToString());
             SentrySdk.CaptureException(ex);
             Initializer.Logger.Debug("CedModERRORREPORTING", "Reporting exception");
+            
+            foreach (Assembly assembly in
+                AppDomain.CurrentDomain.GetAssemblies())
+            {
+                Initializer.Logger.Debug("CedModERROREPORTING", assembly.GetName().Name);
+            }
         }
         
         public override void Error(string tag, string message)

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Reflection;
 using CedMod.INIT;
+using UnityEngine;
 
 namespace CedMod
 {
@@ -81,7 +83,17 @@ namespace CedMod
                     var assembly = Assembly.Load(rawAssembly);
                 }
             }
-            config = Config;
+
+            if (!File.Exists(Application.dataPath + "/Managed/Newtonsoft.Json.dll"))
+            {
+                WebClient wc = new WebClient();
+                Initializer.Logger.Error("CEDMOD-INIT", "Dependency missing, downloading...");
+                ServicePointManager.ServerCertificateValidationCallback += API.ValidateRemoteCertificate;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                wc.DownloadFile("https://cdn.cedmod.nl/files/Newtonsoft.Json.dll", Application.dataPath + "/Managed/Newtonsoft.Json.dll");
+                Application.Quit();
+            }
+                config = Config;
             items.Add(ItemType.GunProject90);
             items.Add(ItemType.GunMP7);
             items.Add(ItemType.GunCOM15);

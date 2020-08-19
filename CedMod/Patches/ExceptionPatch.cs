@@ -13,6 +13,6 @@ namespace CedMod.Patches
         new Type[] {typeof(Exception), typeof(string), typeof(string), typeof(string)})]
     public static class ExceptionPatch
     {
-        public static void Postfix(Exception ex, string methodName, string sourceClassName, string eventName) => SentrySdk.CaptureException(ex);
+        public static void Postfix(Exception ex, string methodName, string sourceClassName, string eventName) => INIT.Initializer.Logger.LogException(ex);
     }
 }

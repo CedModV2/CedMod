@@ -27,7 +27,8 @@ namespace CedMod
             alias = alias.Replace(" ", "");
             return alias;
         }
-        private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain,
+
+        public static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain,
             SslPolicyErrors error)
         {
             // If the certificate is a valid, signed certificate, return true.
