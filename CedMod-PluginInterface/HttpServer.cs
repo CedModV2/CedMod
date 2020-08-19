@@ -182,11 +182,11 @@ namespace CedMod.PluginInterface
                                                 Dictionary<string, string> json1 = new Dictionary<string, string>();
                                                 json1.Add("success", "true");
                                                 json1.Add("error", "none");
+                                                response.StatusCode = 200;
                                                 string responseBody = JsonConvert.SerializeObject(json1);
                                                 byte[] buffer1 = Encoding.UTF8.GetBytes(responseBody);
                                                 response.ContentLength64 = buffer1.Length;
                                                 response.OutputStream.Write(buffer1, 0, buffer1.Length);
-                                                response.StatusCode = 200;
 
                                                 break;
                                             case "custom":
@@ -225,11 +225,11 @@ namespace CedMod.PluginInterface
                                                 responses.Clear();
                                                 json11.Add("message", responsess);
                                                 json11.Add("error", "none");
+                                                response.StatusCode = 200;
                                                 string responseBody11 = JsonConvert.SerializeObject(json11);
                                                 byte[] buffer11 = Encoding.UTF8.GetBytes(responseBody11);
                                                 response.ContentLength64 = buffer11.Length;
                                                 response.OutputStream.Write(buffer11, 0, buffer11.Length);
-                                                response.StatusCode = 200;
                                                 break;
                                         }
                                     }
@@ -254,11 +254,11 @@ namespace CedMod.PluginInterface
                                     client.DownloadFile("https://api.cedmod.nl/scpplugin/404.html", "static/404.html");
                                 }
                             }
+                            response.StatusCode = 404;
                             string error404Body = File.ReadAllText(@"static\404.html");
                             byte[] buffer404 = Encoding.UTF8.GetBytes(error404Body);
                             response.ContentLength64 = buffer404.Length;
                             response.OutputStream.Write(buffer404, 0, buffer404.Length);
-                            response.StatusCode = 404;
                             Initializer.Logger.Warn("PluginInterface",
                                 "404 error served request url: " + context.Request.Url.AbsolutePath);
                             break;
