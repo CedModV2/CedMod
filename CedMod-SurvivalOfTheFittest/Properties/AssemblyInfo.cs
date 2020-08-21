@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CedMod_SurvivalOfTheFittest")]
+[assembly: AssemblyTitle("CedMod-SurvivalOfTheFittest")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("CedMod_SurvivalOfTheFittest")]
+[assembly: AssemblyCompany("CedMod Development Team")]
+[assembly: AssemblyProduct("CedMod-SurvivalOfTheFittest")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
