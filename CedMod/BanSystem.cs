@@ -37,7 +37,8 @@ namespace CedMod
                         ConfigFile.ServerConfig.GetString("bansystem_webhook", "none") + "&alias=" + API.GetAlias());
                     foreach (Player plr in Exiled.API.Features.Player.List)
                     {
-                        plr.Broadcast(15, Player.nicknameSync.MyNick + " " +
+                        if (plr.ReferenceHub.serverRoles.RemoteAdmin)
+                            plr.Broadcast(15, Player.nicknameSync.MyNick + " " +
                                           Player.characterClassManager.UserId + "'s ban has expired",
                             Broadcast.BroadcastFlags.AdminChat);
                     }
