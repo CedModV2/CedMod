@@ -26,7 +26,7 @@ namespace CedMod.LightsPlugin
 
         public IEnumerator<float> Run()
         {
-            yield return Timing.WaitForSeconds(1f);
+            yield return Timing.WaitForSeconds(5f);
             foreach (Player ply in Player.List)
             {
                 if (ply.Role == RoleType.Scp173 && !CedModLightsPlugin.config.BlackoutWhen173Ingame)
