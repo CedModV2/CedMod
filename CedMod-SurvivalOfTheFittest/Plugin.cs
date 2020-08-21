@@ -56,6 +56,7 @@ namespace CedMod.SurvivalOfTheFittest
             Exiled.Events.Handlers.Server.RoundEnded += handler.OnEndingRound;
             Exiled.Events.Handlers.Player.TriggeringTesla += handler.TriggerTesla;
             Exiled.Events.Handlers.Server.RespawningTeam += handler.Respawn;
+            Exiled.Events.Handlers.Player.Hurting += handler.OnDamage;
         }
 
         /// <summary>
@@ -70,6 +71,7 @@ namespace CedMod.SurvivalOfTheFittest
             Exiled.Events.Handlers.Server.RoundEnded -= handler.OnEndingRound;
             Exiled.Events.Handlers.Player.TriggeringTesla -= handler.TriggerTesla;
             Exiled.Events.Handlers.Server.RespawningTeam -= handler.Respawn;
+            Exiled.Events.Handlers.Player.Hurting -= handler.OnDamage;
             handler = null;
         }
     }

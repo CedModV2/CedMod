@@ -2,6 +2,7 @@
 using System.Linq;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
+using Exiled.Permissions.Extensions;
 using MEC;
 using UnityEngine;
 using Random = System.Random;
@@ -21,6 +22,13 @@ namespace CedMod.SurvivalOfTheFittest
             }
         }
 
+        public void OnDamage(HurtingEventArgs ev)
+        {
+            if (GameModeRunning)
+                if (ev.Attacker.Role != RoleType.Scp173)
+                    ev.Amount = 0;
+        }
+        
         public void OnJoin(JoinedEventArgs ev)
         {
             if (RunOnStart)
