@@ -24,6 +24,7 @@ namespace CedMod.Handlers
         public void OnJoin(JoinedEventArgs ev)
         {
             Task.Factory.StartNew(() => { BanSystem.HandleJoin(ev); });
+            Timing.RunCoroutine(Name(ev));
             foreach (string b in ConfigFile.ServerConfig.GetStringList("cm_nicknamefilter"))
             {
                 if (ev.Player.Nickname.ToUpper().Contains(b.ToUpper()))
@@ -31,11 +32,39 @@ namespace CedMod.Handlers
                     ev.Player.ReferenceHub.nicknameSync.DisplayName = "Filtered name";
                 }
             }
-
+            
             if (!RoundSummary.RoundInProgress() && ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true))
                 Timing.RunCoroutine(MiniGameHandler.Playerjoinhandle(ev));
         }
         
+        public IEnumerator<float> Name(JoinedEventArgs ev)
+        {
+            foreach (var pp in Exiled.API.Features.Player.List)
+            {
+                if (pp.UserId == ev.Player.UserId) yield return 0;
+                if (CedModMain.config.KickSameName)
+                {
+                    if (pp.Nickname == ev.Player.Nickname)
+                    {
+                        if (ev.Player.ReferenceHub.serverRoles.RemoteAdmin && !pp.ReferenceHub.serverRoles.RemoteAdmin)
+                        {
+                            Server.sendDI(pp.Nickname + pp.UserId + " kicked for having a name of a staff member " + ev.Player.UserId + ev.Player.Nickname);
+                            pp.Kick("You have been kicked by a plugin: \n Please change your name to something unique (A staff member joined with your name) \n This server is protected by CedMod");
+                            yield return 0f;
+                        }
+                        else if (pp.UserId != ev.Player.UserId)
+                        {
+                            Server.sendDI(pp.Nickname + pp.UserId + " kicked for having a name of a server member " +
+                                          ev.Player.UserId + ev.Player.Nickname);
+                            ev.Player.Kick(
+                                "You have been kicked by a plugin: \n Please change your name to something unique (there is already someone with your name) \n This server is protected by CedMod");
+                        }
+                    }
+                }
+            }
+
+            yield return 0f;
+        }
 
         public void OnLeave(LeftEventArgs ev)
         {

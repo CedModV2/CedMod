@@ -17,5 +17,8 @@
         public string ReportContent { get; set; } = "A new report has been made";
         [Description("channel where the message will be sent")]
         public ulong ReportChannel { get; set; } = 0;
+        
+        [Description("kick a player if they have a name someone else already has")]
+        public bool KickSameName { get; set; } = true;
     }
 }

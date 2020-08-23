@@ -63,11 +63,12 @@ namespace CedMod.Handlers
             yield return Timing.WaitForSeconds(60f);
             reported.Remove(target);
         }
-        private void sendDI()
+        public static void sendDI(string msg = "Default")
         {
+            if (msg == "Default") msg = CedModMain.config.ReportContent;
             try
             {
-                DiscordIntegration_Plugin.ProcessSTT.SendData(CedModMain.config.ReportContent,
+                DiscordIntegration_Plugin.ProcessSTT.SendData(msg,
                     CedModMain.config.ReportChannel);
             }
             catch (Exception e)

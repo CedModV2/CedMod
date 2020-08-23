@@ -169,7 +169,7 @@ namespace CedMod.Handlers
             foreach (GameObject gb in PreGamePropSpawned)
             {
                 Initializer.Logger.Debug("PreRoundMiniGame", "Cleaning up spawned prop: " + gb.name);
-                NetworkServer.UnSpawn(gb);
+                GameObject.Destroy(gb);
                 spawned.Remove(gb);
             }
             PreGamePropSpawned = spawned;
