@@ -80,6 +80,8 @@ namespace CedMod.Handlers
         /// <inheritdoc cref="Events.Handlers.Server.OnEndingRound(EndingRoundEventArgs)"/>
         public void OnRoundRestart()
         {
+            FriendlyFireAutoban.Teamkillers.Clear();
+            FriendlyFireAutoban.Victims.Clear();
             Timing.KillCoroutines("LightsOut");
         }
 
