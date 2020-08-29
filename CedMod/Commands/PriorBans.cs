@@ -17,7 +17,7 @@ namespace CedMod.Commands
         {
         };
 
-        public string Description { get; } = "Gives the ammount of prior bans on record";
+        public string Description { get; } = "Gives the prior bans on record";
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
