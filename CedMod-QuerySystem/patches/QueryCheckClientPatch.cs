@@ -2,7 +2,7 @@
 using CedMod.INIT;
 using HarmonyLib;
 
-namespace CedMod.PluginInterface.patches
+namespace CedMod.QuerySystem.patches
 {
     [HarmonyPatch(typeof(QueryServer), nameof(QueryServer.CheckClients))]
     public static class QueryCheckClientPatch
@@ -24,7 +24,7 @@ namespace CedMod.PluginInterface.patches
                         }
                         catch (Exception ex)
                         {
-                            Initializer.Logger.LogException(ex, "CedMod-PluginInterface.QueryCheckClientPatch", "Prefix");
+                            Initializer.Logger.LogException(ex, "CedMod-QuerySystem.QueryCheckClientPatch", "Prefix");
                             Initializer.Logger.Error("CMQuery", ex.ToString());
                         }
                     }

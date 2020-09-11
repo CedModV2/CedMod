@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using HarmonyLib;
 
-namespace CedMod.PluginInterface.patches
+namespace CedMod.QuerySystem.patches
 {
     [HarmonyPatch(typeof(ServerConsole), nameof(ServerConsole.AddLog))]
     public static class ServerConsoleAddlogPatch

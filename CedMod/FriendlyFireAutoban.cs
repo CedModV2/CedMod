@@ -87,6 +87,8 @@ namespace CedMod
 
         public static bool IsTeakill(DyingEventArgs ev)
         {
+            if (!RoundSummary.RoundInProgress())
+                return false;
             bool result = false;
             if (ev.Killer == ev.Target)
                 return false;

@@ -1,7 +1,7 @@
 ﻿using System.Net.Sockets;
 using HarmonyLib;
 
-namespace CedMod.PluginInterface.patches
+namespace CedMod.QuerySystem.patches
 {
     [HarmonyPatch(typeof(QueryUser), nameof(QueryUser.Dispose))]
     public static class QueryUserDisposePatch
@@ -13,7 +13,7 @@ namespace CedMod.PluginInterface.patches
             {
                 s.Dispose();
             }
-            UserPrint print = new UserPrint(__instance, CedModPluginInterface.autheduers[__instance]);
+            UserPrint print = new UserPrint(__instance, QuerySystem.autheduers[__instance]);
             if (global::ServerConsole.ConsoleOutputs.Contains(print))
             {
                 global::ServerConsole.ConsoleOutputs.Remove(print);

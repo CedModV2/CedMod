@@ -27,7 +27,7 @@ using UnityEngine;
 using Console = System.Console;
 using Object = UnityEngine.Object;
 
-namespace CedMod.PluginInterface
+namespace CedMod.QuerySystem
 {
     internal static class WebService
     {
@@ -44,7 +44,7 @@ namespace CedMod.PluginInterface
             return playersammount;
         }
 
-        private static int _port = ConfigFile.ServerConfig.GetInt("cm_port", 8000);
+        private static int _port = QuerySystem.config.Port;
         private static readonly HttpListener Listener = new HttpListener {Prefixes = {$"http://*:{_port}/"}};
         private static bool _keepGoing = true;
         private static Task _mainLoop;
@@ -147,7 +147,7 @@ namespace CedMod.PluginInterface
                                         if (jsonData.ContainsKey("key") && jsonData.ContainsKey("user") &&
                                             jsonData.ContainsKey("action"))
                                         {
-                                            if (jsonData["key"] != CedModPluginInterface.SecurityKey ||
+                                            if (jsonData["key"] != QuerySystem.SecurityKey ||
                                                 jsonData["user"] == null)
                                             {
                                                 Initializer.Logger.Warn("PluginInterface",
@@ -196,7 +196,7 @@ namespace CedMod.PluginInterface
                                                 if (jsonData["command"].ToUpper().Contains("REQUEST_DATA AUTH"))
                                                     throw new UnauthorizedAccessException(
                                                         "Command disabled due to security concerns");
-                                                if (CedModPluginInterface.config.DisallowedWebCommands.Contains(
+                                                if (QuerySystem.config.DisallowedWebCommands.Contains(
                                                     command[0].ToUpper()))
                                                     throw new UnauthorizedAccessException(
                                                         "This command is disabled by a server aministrator.");

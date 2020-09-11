@@ -1,4 +1,6 @@
-﻿namespace CedMod.PluginInterface
+﻿using GameCore;
+
+namespace CedMod.QuerySystem
 {
     using System.Collections.Generic;
     using System.ComponentModel;
@@ -19,5 +21,11 @@
 
         [Description("If we override the query system")]
         public bool QueryOverride { get; set; } = false;
+
+        [Description("If true it will start a websocket server instead of a webserver")]
+        public bool NewWebSocketSystem { get; set; } = true;
+
+        [Description("The port that the WebServer or WebSocket server wil run on")]
+        public int Port { get; set; } = ConfigFile.ServerConfig.GetInt("cm_port", 8000);
     }
 }

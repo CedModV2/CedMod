@@ -4,7 +4,7 @@ using System.Threading;
 using CedMod.INIT;
 using HarmonyLib;
 
-namespace CedMod.PluginInterface.patches
+namespace CedMod.QuerySystem.patches
 {
     [HarmonyPatch(typeof(QueryUser), nameof(QueryUser.Receive))]
     public static class QueryUserRecievePatch
@@ -129,7 +129,7 @@ namespace CedMod.PluginInterface.patches
                                     }
                                     else if (authenticatedMessage.Message.Contains("authenticate"))
                                     {
-                                        if (CedModPluginInterface.autheduers.ContainsKey(__instance))
+                                        if (QuerySystem.autheduers.ContainsKey(__instance))
                                         {
                                             __instance.Send("You have already authenticated");
                                         }
@@ -144,7 +144,7 @@ namespace CedMod.PluginInterface.patches
                                             UserGroup groupq = ServerStatic.PermissionsHandler.GetGroup(group);
                                             __instance.Permissions = groupq.Permissions;
                                             __instance.KickPower = groupq.KickPower;
-                                            CedModPluginInterface.autheduers.Add(__instance, $"{cmd[1]}:{cmd[2]}:{group}");
+                                            QuerySystem.autheduers.Add(__instance, $"{cmd[1]}:{cmd[2]}:{group}");
                                             __instance.Send("You have successfully authenticated");
                                             if (PermissionsHandler.IsPermitted(__instance.Permissions, PlayerPermissions.ServerConsoleCommands))
                                                 __instance.Send("Permission to view serverconsole output has been granted");
@@ -152,13 +152,13 @@ namespace CedMod.PluginInterface.patches
                                                 __instance.Send("Permission to view serverconsole output has been denied: Missing permission, ServerConsoleCommands");
                                         }
                                     }
-                                    else if (__instance.AdminCheck(authenticatedMessage.Administrator) && CedModPluginInterface.autheduers.ContainsKey(__instance))
+                                    else if (__instance.AdminCheck(authenticatedMessage.Administrator) && QuerySystem.autheduers.ContainsKey(__instance))
                                     {
                                         ConsoleColor consoleColor;
                                         global::ServerConsole.EnterCommand(authenticatedMessage.Message,
-                                            out consoleColor, new UserPrint(__instance, CedModPluginInterface.autheduers[__instance]));
+                                            out consoleColor, new UserPrint(__instance, QuerySystem.autheduers[__instance]));
                                     }
-                                    else if (!CedModPluginInterface.autheduers.ContainsKey(__instance))
+                                    else if (!QuerySystem.autheduers.ContainsKey(__instance))
                                         __instance.Send("Authentication is required in order to send  commands");
                                 }
                             }

@@ -3,11 +3,12 @@ using CedMod.INIT;
 using CommandSystem;
 using Exiled.API.Extensions;
 using Exiled.Events.EventArgs;
+using GameCore;
 using NorthwoodLib;
 using RemoteAdmin;
 using UnityEngine;
 
-namespace CedMod.PluginInterface
+namespace CedMod.QuerySystem
 {
     public class CommandHandler
     {
@@ -36,6 +37,17 @@ namespace CedMod.PluginInterface
 	        CommandSender sender = ev.CommandSender;
             switch (ev.Name.ToUpper())
             {
+	            case "RESTARTQUERYSERVER":
+		            ev.IsAllowed = false;
+		            if (!QuerySystem.config.NewWebSocketSystem)
+		            {
+			            ev.ReplyMessage = "Query server is not enabled";
+			            return;
+		            }
+		            WS.WebSocketServer.Stop();
+		            WS.WebSocketServer.Start(ConfigFile.ServerConfig.GetInt("cm_port", 8000));
+		            ev.ReplyMessage = "Query server restarted";
+		            break;
 	            case "PLAYERLISTCOLORED":
 		            ev.IsAllowed = false;
                     try

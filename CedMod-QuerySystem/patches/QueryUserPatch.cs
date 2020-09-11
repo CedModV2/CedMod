@@ -5,7 +5,7 @@ using System.Threading;
 using HarmonyLib;
 using Org.BouncyCastle.Asn1.X509.Qualified;
 
-namespace CedMod.PluginInterface.patches
+namespace CedMod.QuerySystem.patches
 {
     [HarmonyPatch(typeof(QueryUser), MethodType.Constructor, new Type[] { typeof(QueryServer), typeof(TcpClient), typeof(string)})]
     public static class QueryUserPatch
