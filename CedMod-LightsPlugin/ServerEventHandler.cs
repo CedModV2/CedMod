@@ -22,6 +22,36 @@ namespace CedMod.LightsPlugin
             BlackoutOn = false;
         }
 
+        public void Onchangerole(ChangingRoleEventArgs ev)
+        {
+            if (BlackoutOn)
+            {
+                Timing.CallDelayed(1f, () =>
+                {
+                    bool _hasflashlight = false;
+                    Initializer.Logger.Info("CedMod-LightsPlugin", "Giving flashlights");
+                    if (CedModLightsPlugin.config.GiveFlashlightsNotification)
+                    {
+                        foreach (var Item in ev.Player.Inventory.items)
+                        {
+                            if (Item.id == ItemType.Flashlight)
+                            {
+                                _hasflashlight = true;
+                            }
+                        }
+
+                        if (!_hasflashlight)
+                        {
+                            ev.Player.HintDisplay.Show(new TextHint(
+                                "<color=red>You have been given a flashlight.</color>",
+                                new HintParameter[] {new StringHintParameter("")}, null, 10f));
+                            ev.Player.Inventory.AddNewItem(ItemType.Flashlight);
+                        }
+                    }
+                });
+            }
+        }
+
         public static bool BlackoutOn;
 
         public IEnumerator<float> Run()
@@ -63,6 +93,7 @@ namespace CedMod.LightsPlugin
                                 _hasflashlight = true;
                             }
                         }
+
                         if (!_hasflashlight)
                         {
                             ply.HintDisplay.Show(new TextHint("<color=red>You have been given a flashlight.</color>",

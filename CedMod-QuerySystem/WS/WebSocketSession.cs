@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -500,7 +500,7 @@ namespace CedMod.QuerySystem.WS
                                 }
 
                                 string[] command = jsonData["command"].Split(' ');
-                                if (jsonData["command"].ToUpper().Contains("REQUEST_DATA AUTH") || jsonData["command"].ToUpper().Contains("SUDO QUIT"))
+                                if (jsonData["command"].ToUpper().Contains("REQUEST_DATA AUTH") || jsonData["command"].ToUpper().Contains("FC") || jsonData["command"].ToUpper().Contains("FORCECLASS") || jsonData["command"].ToUpper().Contains("SUDO QUIT"))
                                 {
                                     SendMessage("This command is disabled");
                                     return;
