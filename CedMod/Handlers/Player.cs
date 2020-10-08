@@ -33,7 +33,7 @@ namespace CedMod.Handlers
                 }
             }
             
-            if (!RoundSummary.RoundInProgress() && ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true))
+            if (RoundSummary.roundTime == 0 && ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true))
                 Timing.RunCoroutine(MiniGameHandler.Playerjoinhandle(ev));
         }
         
