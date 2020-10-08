@@ -143,7 +143,7 @@ namespace CedMod.QuerySystem.WS
 
             if (!Encoding.UTF8.GetString(handshake).Contains("GET /WSAPI"))
             {
-                SendMessage("<title>CedMod QuerySystem</title><h3>CedMod QuerySystem</h3><hr><p>Welcome to the CedMod QuerySystem<br>For documentation on how to use it visit  <a href=\"https://cedmod.nl/QuerySystem\">https://cedmod.nl/QuerySystem</a> </p>");
+                SendMessage("Welcome to the CedMod QuerySystem For documentation on how to use it visit https://cedmod.nl/QuerySystem");
                 return false;
             }
 
