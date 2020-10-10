@@ -20,5 +20,7 @@
         
         [Description("kick a player if they have a name someone else already has")]
         public bool KickSameName { get; set; } = true;
+
+        public List<string> ReportBlacklist { get; set; } = new List<string> { "masonic@northwood", "sirmeep@northwood" };
     }
 }

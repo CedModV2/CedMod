@@ -38,6 +38,13 @@ namespace CedMod.Handlers
         Dictionary<ReferenceHub, ReferenceHub> reported = new Dictionary<ReferenceHub, ReferenceHub>();
         public void OnReport(LocalReportingEventArgs ev)
         {
+            if (CedModMain.config.ReportBlacklist.Contains(ev.Issuer.UserId))
+            {
+                ev.IsAllowed = false;
+                ev.Issuer.GameObject.GetComponent<GameConsoleTransmission>().SendToClient(ev.Issuer.Connection,
+                    $"[REPORTING] You are banned from ingame reports", "green");
+                return;
+            }
             if (ev.Issuer.UserId == ev.Target.UserId)
             {
                 ev.IsAllowed = false;
@@ -62,6 +69,7 @@ namespace CedMod.Handlers
             }
             reported.Add(ev.Target.ReferenceHub, ev.Issuer.ReferenceHub);
             Timing.RunCoroutine(removefromlist(ev.Target.ReferenceHub));
+            
             sendDI();
         }
 
