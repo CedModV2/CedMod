@@ -38,6 +38,13 @@ namespace CedMod.Handlers
         Dictionary<ReferenceHub, ReferenceHub> reported = new Dictionary<ReferenceHub, ReferenceHub>();
         public void OnReport(LocalReportingEventArgs ev)
         {
+            if (ev.Issuer.UserId == ev.Target.UserId)
+            {
+                ev.IsAllowed = false;
+                ev.Issuer.GameObject.GetComponent<GameConsoleTransmission>().SendToClient(ev.Issuer.Connection,
+                    $"[REPORTING] You can't report yourself", "green");
+                return;
+            }
             if (reported.ContainsKey(ev.Target.ReferenceHub))
             {
                 ev.IsAllowed = false;
