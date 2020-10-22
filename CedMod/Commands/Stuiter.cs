@@ -3,6 +3,7 @@ using System;
 
 namespace CedMod.Commands.Stuiter
 {
+    [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class StuiterParentCommand : ParentCommand
     {
         public override string Command => "stuiter";

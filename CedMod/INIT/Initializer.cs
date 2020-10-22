@@ -7,7 +7,7 @@ namespace CedMod.INIT
     public class Initializer
     {
         public static Harmony harmony;
-        public static readonly bool TestApiOnly = true; //this is used when the version contains code that will not work with the main API and so all requests will me made to the test API
+        public static readonly bool TestApiOnly = false; //this is used when the version contains code that will not work with the main API and so all requests will me made to the test API
         public static void Setup()
         {
             Logger.Info("INIT", string.Concat(new[]
@@ -22,9 +22,9 @@ namespace CedMod.INIT
             {
                 Logger.Info("INIT", "This version of CedMod is marked as Dev version and will only use the test API");
             }
-            CedModCommandHandler.RegisterRACommands();
-            CedModCommandHandler.RegisterConsoleCommands();
-            CedModCommandHandler.RegisterClientConsoleCommands();
+            // CedModCommandHandler.RegisterRACommands();
+            // CedModCommandHandler.RegisterConsoleCommands();
+            // CedModCommandHandler.RegisterClientConsoleCommands();
             Logger.Info("INIT", "Initializing automated error tracking...");
             SentrySdk.Init("https://f71722a366fa4a69bd5f96e48ee14d34@o435810.ingest.sentry.io/5395779");
             DoPatching();
@@ -33,9 +33,9 @@ namespace CedMod.INIT
         public static string GetCedModVersion()
         {
             int num = 3;
-            int num2 = 2;
+            int num2 = 3;
             int num3 = 0;
-            string text = "B";
+            string text = "A";
             return string.Format("{0}.{1}.{2}-{3}", num, num2, num3, text);
         }
         public static void DoPatching()

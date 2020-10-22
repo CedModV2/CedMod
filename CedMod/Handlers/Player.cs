@@ -33,8 +33,8 @@ namespace CedMod.Handlers
                 }
             }
             
-            if (RoundSummary.roundTime == 0 && ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true))
-                Timing.RunCoroutine(MiniGameHandler.Playerjoinhandle(ev));
+            // if (RoundSummary.roundTime == 0 && ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true)) removed for now
+            //     Timing.RunCoroutine(MiniGameHandler.Playerjoinhandle(ev));
         }
         
         public IEnumerator<float> Name(JoinedEventArgs ev)
@@ -84,7 +84,7 @@ namespace CedMod.Handlers
 
         IEnumerator<float> PlayerStatsDieEv(DyingEventArgs ev)
         {
-            if (!RoundSummary.RoundInProgress())
+            /*if (!RoundSummary.RoundInProgress())
                 yield return 0f;
             if (FriendlyFireAutoban.IsTeakill(ev))
                 Task.Factory.StartNew(() =>
@@ -102,7 +102,7 @@ namespace CedMod.Handlers
             {
                 API.APIRequest("playerstats/addstat.php",
                     $"?rounds=0&kills=0&deaths=1&teamkills=0&alias={API.GetAlias()}&id={ev.Target.UserId}&dnt={Convert.ToInt32(ev.Target.ReferenceHub.serverRoles.DoNotTrack)}&ip={ev.Target.IPAddress}&username={ev.Target.Nickname}");
-            });
+            });*/
             yield return 0f;
         }
     }

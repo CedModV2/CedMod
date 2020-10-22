@@ -3,6 +3,7 @@ using System;
 
 namespace CedMod.Commands.Dialog
 {
+    [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class DiaglogParentCommand : ParentCommand
     {
         public override string Command => "popupbox";

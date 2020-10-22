@@ -9,6 +9,7 @@ using UnityEngine;
 
 namespace CedMod.Commands
 {
+    [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class LightsoutCommand : ICommand
     {
         public string Command { get; } = "lightsout";

@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace CedMod.Commands
 {
+    [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class RedirectCommand : ICommand
     {
         public string Command { get; } = "redirect";

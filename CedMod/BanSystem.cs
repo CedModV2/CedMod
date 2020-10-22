@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CedMod.Commands;
 using CedMod.INIT;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
+using Exiled.Permissions.Extensions;
 using GameCore;
 using MEC;
 using Mirror;
+using Newtonsoft.Json;
 using RemoteAdmin;
 using UnityEngine;
 using Console = System.Console;
@@ -25,31 +28,11 @@ namespace CedMod
                     return;
                 if (Player.characterClassManager.isLocalPlayer)
                     return;
-                Dictionary<string, string> info = (Dictionary<string, string>) API.APIRequest("auth/preauth.php",
-                    "?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" +
-                    Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + API.GetAlias());
-                if (info["banexpired"] == "true" && info["success"] == "true")
-                {
-                    API.APIRequest("banning/unban.php",
-                        "?id=" + Player.GetComponent<CharacterClassManager>().UserId + "&ip=" +
-                        Player.GetComponent<NetworkIdentity>().connectionToClient.address +
-                        "&reason=Expired&aname=Server&webhook=" +
-                        ConfigFile.ServerConfig.GetString("bansystem_webhook", "none") + "&alias=" + API.GetAlias());
-                    foreach (Player plr in Exiled.API.Features.Player.List)
-                    {
-                        if (plr.ReferenceHub.serverRoles.RemoteAdmin)
-                            plr.Broadcast(15, Player.nicknameSync.MyNick + " " +
-                                          Player.characterClassManager.UserId + "'s ban has expired",
-                            Broadcast.BroadcastFlags.AdminChat);
-                    }
-                }
 
-                info = (Dictionary<string, string>) API.APIRequest("auth/auth.php",
-                    "?id=" + Player.characterClassManager.UserId + "&ip=" +
-                    Player.GetComponent<NetworkIdentity>().connectionToClient.address + "&alias=" + API.GetAlias());
+                Dictionary<string, string> info = (Dictionary<string, string>) API.APIRequest("Auth/",
+                    $"{Player.characterClassManager.UserId}&{ev.Player.IPAddress}");
                 string reason;
-                if (info["success"] == "true" && info["vpn"] == "true" &&
-                    info["geo"] == "false" && info["isbanned"] == "false")
+                if (info["success"] == "true" && info["vpn"] == "true" && info["isbanned"] == "false")
                 {
                     reason = info["reason"];
                     Player.characterClassManager.TargetConsolePrint(
@@ -63,8 +46,7 @@ namespace CedMod
                 }
                 else
                 {
-                    if (info["success"] == "true" && info["vpn"] == "false" &&
-                        info["geo"] == "false" && info["isbanned"] == "true")
+                    if (info["success"] == "true" && info["vpn"] == "false" && info["isbanned"] == "true")
                     {
                         reason = info["preformattedmessage"] +
                                  " You can fill in a ban appeal here: " +
@@ -80,8 +62,7 @@ namespace CedMod
                     }
                     else
                     {
-                        if (info["success"] == "true" && info["vpn"] == "false" &&
-                            info["geo"] == "false" && info["isbanned"] == "false" &&
+                        if (info["success"] == "true" && info["vpn"] == "false" && info["isbanned"] == "false" &&
                             info["iserror"] == "true")
                         {
                             Player.characterClassManager.TargetConsolePrint(
@@ -156,8 +137,11 @@ namespace CedMod
                                 if (Convert.ToInt64(ev.Arguments[1]) >= 1)
                                 {
                                     string sender1 = ev.Sender.Nickname;
-                                    
-                                    Task.Factory.StartNew(() => { API.Ban(gameObject, Convert.ToInt64(ev.Arguments[1]), sender1, text17); });
+
+                                    Task.Factory.StartNew(() =>
+                                    {
+                                        API.Ban(gameObject, Convert.ToInt64(ev.Arguments[1]), sender1, text17);
+                                    });
                                 }
                                 else
                                 {
@@ -173,10 +157,41 @@ namespace CedMod
                     }
                 }
             }
+
             if (ev.Name.ToUpper() == "UNBAN")
             {
                 ev.IsAllowed = false;
                 ev.CommandSender.Respond("Use the Webinterface for unbanning", false);
+            }
+
+            if (ev.Name.ToUpper() == "JAIL")
+            {
+                if (!ev.Sender.CheckPermission("at.jail"))
+                {
+                    return;
+                }
+
+                if (ev.Arguments.Count != 1)
+                {
+                    return;
+                }
+
+                Player Ply = Player.Get(ev.Arguments[0]);
+                if (Ply == null)
+                {
+                    return;
+                }
+
+                ApiBanResponse resp =
+                    JsonConvert.DeserializeObject<ApiBanResponse>(
+                        (string) API.APIRequest($"api/BanLog/UserId/{Ply.UserId}", "", true));
+                foreach (BanModel ban in resp.Message)
+                {
+                    ev.Sender.RemoteAdminMessage($"\nIssuer :{ban.Adminname}" +
+                                   $"\nReason {ban.Banreason}" +
+                                   $"\nDuration {ban.Banduration}" +
+                                   $"\nTimestamp {ban.Timestamp}", true);
+                }
             }
         }
     }

@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using CedMod.INIT;
 using Exiled.API.Features;
 using GameCore;
@@ -40,23 +42,32 @@ namespace CedMod
 
             return false;
         }
-        public static object APIRequest(string endpoint, string arguments, bool returnstring = false)
+        public static object APIRequest(string endpoint, string arguments, bool returnstring = false, string type = "GET")
         {
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             string response = "";  
             try
             {
-                WebClient webClient = new WebClient();
-                webClient.Credentials = new NetworkCredential(ConfigFile.ServerConfig.GetString("bansystem_apikey"), ConfigFile.ServerConfig.GetString("bansystem_apikey"));
-                webClient.Headers.Add("user-agent", "Cedmod Client build: " + Initializer.GetCedModVersion());
-                webClient.Headers.Add("Alias", GetAlias());
-                webClient.Headers.Add("Port", ServerConsole.Port.ToString());
-                webClient.Headers.Add("Ip", ServerConsole.Ip);
-                if (Initializer.TestApiOnly)
-                    response = webClient.DownloadString(TestAPIUrl + endpoint + arguments);
-                else
-                    response = webClient.DownloadString(APIUrl + endpoint + arguments);
+                if (type == "GET")
+                {
+                    HttpClient client = new HttpClient();
+                    client.DefaultRequestHeaders.Add("ApiKey", ConfigFile.ServerConfig.GetString("bansystem_apikey"));
+                    if (Initializer.TestApiOnly)
+                        response = client.GetAsync(TestAPIUrl + endpoint + arguments).Result.Content.ReadAsStringAsync().Result;
+                    else
+                        response = client.GetAsync(APIUrl + endpoint + arguments).Result.Content.ReadAsStringAsync().Result;
+                }
+
+                if (type == "POST")
+                {
+                    HttpClient client = new HttpClient();
+                    client.DefaultRequestHeaders.Add("ApiKey", ConfigFile.ServerConfig.GetString("bansystem_apikey"));
+                    if (Initializer.TestApiOnly)
+                        response = client.PostAsync(TestAPIUrl + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json")).Result.Content.ReadAsStringAsync().Result;
+                    else
+                        response = client.PostAsync(APIUrl + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json")).Result.Content.ReadAsStringAsync().Result;
+                }
                 Initializer.Logger.Info("BANSYSTEM",
                     "Response from API: "+  response);
                 if (!returnstring)
@@ -86,16 +97,16 @@ namespace CedMod
         {
             if (duration >= 1)
             {
+                string json = "{\"Userid\": \"" + player.GetComponent<CharacterClassManager>().UserId + "\"," +
+                              "\"Ip\": \"" + player.GetComponent<CharacterClassManager>().connectionToClient.address+"\"," +
+                              "\"AdminName\": \"" + sender.Replace("\"", "'") + "\"," +
+                              "\"BanDuration\": "+duration+"," +
+                              "\"BanReason\": \""+reason.Replace("\"", "'")+"\"}";
+                Dictionary<string, string> result = (Dictionary<string, string>) APIRequest("Auth/Ban", json, false, "POST"); 
+                ServerConsole.Disconnect(player, result["preformattedmessage"]);
                 if (bc)
                     Map.Broadcast(9, player.GetComponent<NicknameSync>().MyNick + " Has been banned from the server",
                         Broadcast.BroadcastFlags.Normal);
-                Dictionary<string, string> result = (Dictionary<string, string>) APIRequest("banning/ban.php", string.Concat("?id=",
-                    player.GetComponent<CharacterClassManager>().UserId, "&ip=",
-                    player.GetComponent<NetworkIdentity>().connectionToClient.address, "&reason=", reason,
-                    "&aname=", sender, "&bd=", duration,
-                    "&alias=" + GetAlias() + "&webhook=" +
-                    ConfigFile.ServerConfig.GetString("bansystem_webhook", "none")));
-                ServerConsole.Disconnect(player, result["preformattedmessage"]);
             }
             else
             {

@@ -134,6 +134,7 @@ namespace CedMod
         /// </summary>
         private void UnregisterEvents()
         {
+            Exiled.Events.Handlers.Server.RoundStarted -= server.onRoundStart;
             Exiled.Events.Handlers.Server.WaitingForPlayers -= server.OnWaitingForPlayers;
             Exiled.Events.Handlers.Server.RestartingRound -= server.OnRoundRestart;
             Exiled.Events.Handlers.Server.LocalReporting -= server.OnReport;

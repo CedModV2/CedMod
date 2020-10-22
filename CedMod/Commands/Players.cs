@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace CedMod.Commands
 {
+    [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class PlayersCommand : ICommand
     {
         public string Command { get; } = "players";
