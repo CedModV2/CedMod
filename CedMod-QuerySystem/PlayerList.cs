@@ -64,7 +64,7 @@ namespace CedMod.QuerySystem
 						bool flag = q.Contains("STAFF", StringComparison.OrdinalIgnoreCase);
 						bool flag2 = CheckPermissions(sender, ev.Name, PlayerPermissions.ViewHiddenBadges, string.Empty, reply: false);
 						bool flag3 = CheckPermissions(sender, ev.Name, PlayerPermissions.ViewHiddenGlobalBadges, string.Empty, reply: false);
-						if (playerCommandSender != null && playerCommandSender.SR.Staff)
+						if (playerCommandSender != null && playerCommandSender.ServerRoles.Staff)
 						{
 							flag2 = true;
 							flag3 = true;
