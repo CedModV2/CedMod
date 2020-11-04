@@ -41,11 +41,6 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="MapEvents.cs" />
-    <Compile Include="patches\QueryCheckClientPatch.cs" />
-    <Compile Include="patches\QueryUserPatch.cs" />
-    <Compile Include="patches\QueryUserRecievePatch.cs" />
-    <Compile Include="patches\QueryUserDisposePatch.cs" />
-    <Compile Include="patches\ServerConsoleAddlogPatch.cs" />
     <Compile Include="PlayerEventHandler.cs" />
     <Compile Include="PlayerList.cs" />
     <Compile Include="Plugin.cs" />
