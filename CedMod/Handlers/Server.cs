@@ -26,8 +26,8 @@ namespace CedMod.Handlers
         /// <inheritdoc cref="Events.Handlers.Server.OnWaitingForPlayers"/>
         public void OnWaitingForPlayers()
         {
-            if (ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true))
-                Timing.RunCoroutine(MiniGameHandler.WaitingForPlayers());
+            // if (ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true))
+            //     Timing.RunCoroutine(MiniGameHandler.WaitingForPlayers());
         }
 
         public void onRoundStart()
