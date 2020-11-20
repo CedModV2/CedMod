@@ -35,7 +35,7 @@ namespace CedMod.INIT
             int num = 3;
             int num2 = 3;
             int num3 = 0;
-            string text = "A";
+            string text = "R";
             return string.Format("{0}.{1}.{2}-{3}", num, num2, num3, text);
         }
         public static void DoPatching()
