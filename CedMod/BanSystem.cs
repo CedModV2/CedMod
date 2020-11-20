@@ -19,6 +19,7 @@ namespace CedMod
 {
     public class BanSystem
     {
+        private static object banlock = new object();
         public static void HandleJoin(JoinedEventArgs ev)
         {
             try
@@ -140,7 +141,10 @@ namespace CedMod
 
                                     Task.Factory.StartNew(() =>
                                     {
-                                        API.Ban(gameObject, Convert.ToInt64(ev.Arguments[1]), sender1, text17);
+                                        lock (banlock) //so theres only 1 ban at a time
+                                        {
+                                            API.Ban(gameObject, Convert.ToInt64(ev.Arguments[1]), sender1, text17);
+                                        }
                                     });
                                 }
                                 else
