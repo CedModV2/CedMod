@@ -2,6 +2,7 @@
 using CedMod.INIT;
 using CommandSystem;
 using Exiled.API.Extensions;
+using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using GameCore;
 using NorthwoodLib;
@@ -37,6 +38,13 @@ namespace CedMod.QuerySystem
 	        CommandSender sender = ev.CommandSender;
             switch (ev.Name.ToUpper())
             {
+	            case "CMSYNC":
+		            ev.IsAllowed = false;
+		            Initializer.Logger.Info("CedMod-RoleSync", $"Assigning role: {ev.Arguments[1]} to {ev.Arguments[0]}.");
+		            ServerStatic.GetPermissionsHandler()._members.Remove(Player.Get(int.Parse(ev.Arguments[0])).UserId);
+		            ServerStatic.GetPermissionsHandler()._members.Add(Player.Get(int.Parse(ev.Arguments[0])).UserId, ev.Arguments[1]);
+		            Player.Get(int.Parse(ev.Arguments[0])).ReferenceHub.serverRoles.RefreshPermissions();
+		            break;
 	            case "RESTARTQUERYSERVER":
 		            ev.IsAllowed = false;
 		            if (!QuerySystem.config.NewWebSocketSystem)

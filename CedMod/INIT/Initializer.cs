@@ -26,7 +26,7 @@ namespace CedMod.INIT
             // CedModCommandHandler.RegisterConsoleCommands();
             // CedModCommandHandler.RegisterClientConsoleCommands();
             Logger.Info("INIT", "Initializing automated error tracking...");
-            SentrySdk.Init("https://f71722a366fa4a69bd5f96e48ee14d34@o435810.ingest.sentry.io/5395779");
+            SentrySdk.Init("https://7a433d3d4bce4cdeb2c0db37c7a319e8@sentry.cedmod.nl/3");
             DoPatching();
             //Initializer.UpdateCheck();
         }

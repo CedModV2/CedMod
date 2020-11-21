@@ -107,7 +107,7 @@ namespace CedMod.QuerySystem
             foreach (WS.WebSocketSession wss in WS.WebSocketServer.ws.Clients)
             {
                 if (wss.IsAuthenticated)
-                    wss.SendMessage($"{ev.Player.Nickname} - {ev.Player.UserId} joined the game.");
+                    wss.SendMessage($"({ev.Player.Id}) {ev.Player.Nickname} - {ev.Player.UserId} joined the game.");
             }
         }
         
