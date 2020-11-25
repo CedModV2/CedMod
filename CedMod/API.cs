@@ -105,7 +105,7 @@ namespace CedMod
                 Dictionary<string, string> result = (Dictionary<string, string>) APIRequest("Auth/Ban", json, false, "POST"); 
                 ServerConsole.Disconnect(player, result["preformattedmessage"]);
                 if (bc)
-                    Map.Broadcast((ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick$", player.GetComponent<NicknameSync>().MyNick),
+                    Map.Broadcast((ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", player.GetComponent<NicknameSync>().MyNick),
                         Broadcast.BroadcastFlags.Normal);
             }
             else
