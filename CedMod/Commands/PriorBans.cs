@@ -40,9 +40,14 @@ namespace CedMod.Commands
                 Player ply = Player.Get(arguments.At(0));
                 try
                 {
+                    string response1 = (string) API.APIRequest($"api/BanLog/UserId/{ply.UserId}", "", true);
+                    if (response1.Contains("\"message\":\"Specified BanLog does not exist\""))
+                    {
+                        response = "No banlogs found!";
+                        return true;
+                    }
                     ApiBanResponse resp =
-                        JsonConvert.DeserializeObject<ApiBanResponse>(
-                            (string) API.APIRequest($"api/BanLog/UserId/{ply.UserId}", "", true));
+                        JsonConvert.DeserializeObject<ApiBanResponse>(response1);
                     foreach (BanModel ban in resp.Message)
                     {
                         sender.Respond($"\nIssuer :{ban.Adminname}" +
