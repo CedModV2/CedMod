@@ -15,7 +15,6 @@ namespace CedMod.INIT
 
         public override void LogException(Exception ex,string classname = "", string methodname = "")
         {
-            Initializer.Logger.Debug("CedModERRORREPORTING", SentrySdk.CaptureMessage("Exception thrown at: " + classname + "." + methodname + " Exception" + ex.ToString()).ToString());
             Initializer.Logger.Debug("CedModERRORREPORTING", "Reporting exception: "+SentrySdk.IsEnabled+" " +SentrySdk.CaptureException(ex).ToString()+" " + classname + methodname + ex.ToString());
         }
         
