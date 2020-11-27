@@ -276,7 +276,6 @@ namespace CedMod.QuerySystem.WS
 
                         messageBuffer.Write(data, 0, data.Length);
                     }
-                    
 
                     if (!fin) continue;
                     var message = messageBuffer.ToArray();
@@ -422,7 +421,7 @@ namespace CedMod.QuerySystem.WS
         public void DieIfNotKepAlive()
         {
             Thread.Sleep(5000);
-            if(DateTime.Now.Subtract(lastkeepalivetime) >= TimeSpan.FromSeconds(5)) 
+            if (DateTime.Now.Subtract(lastkeepalivetime) >= TimeSpan.FromSeconds(5))
                 Close();
             DieIfNotKepAlive();
         }
@@ -500,7 +499,7 @@ namespace CedMod.QuerySystem.WS
                                 }
 
                                 string[] command = jsonData["command"].Split(' ');
-                                if (jsonData["command"].ToUpper().Contains("REQUEST_DATA AUTH") || jsonData["command"].ToUpper().Contains("FC") || jsonData["command"].ToUpper().Contains("FORCECLASS") || jsonData["command"].ToUpper().Contains("SUDO QUIT"))
+                                if (jsonData["command"].ToUpper().Contains("REQUEST_DATA AUTH") || jsonData["command"].ToUpper().Contains("SUDO QUIT"))
                                 {
                                     SendMessage("This command is disabled");
                                     return;
@@ -518,14 +517,22 @@ namespace CedMod.QuerySystem.WS
                                     string group =
                                         ServerStatic.PermissionsHandler._members[decrypted.Split(':')[1]];
                                     UserGroup ugroup = ServerStatic.PermissionsHandler.GetGroup(group);
-                                    CommandProcessor.ProcessQuery(jsonData["command"],
-                                        new CmSender(this, jsonData["user"], decrypted.Split(':')[1],
-                                            ugroup));
+                                    MainThreadDispatcher.Dispatch(
+                                        () =>
+                                        {
+                                            CommandProcessor.ProcessQuery(jsonData["command"],
+                                                new CmSender(this, jsonData["user"], decrypted.Split(':')[1],
+                                                    ugroup));
+                                        });
                                 }
                                 else
                                 {
-                                    CommandProcessor.ProcessQuery(jsonData["command"],
-                                        new CmSender(this, jsonData["user"]));
+                                    MainThreadDispatcher.Dispatch(
+                                        () =>
+                                        {
+                                            CommandProcessor.ProcessQuery(jsonData["command"],
+                                                new CmSender(this, jsonData["user"]));
+                                        });
                                 }
 
                                 break;
@@ -556,12 +563,12 @@ namespace CedMod.QuerySystem.WS
     {
         public override void RaReply(string text, bool success, bool logToConsole, string overrideDisplay)
         {
-            Ses.SendMessage(text);
+            Task.Factory.StartNew(() => { Ses.SendMessage(text); });
         }
 
         public override void Print(string text)
         {
-            Ses.SendMessage(text);
+            Task.Factory.StartNew(() => { Ses.SendMessage(text); });
         }
 
         public WebSocketSession Ses;
