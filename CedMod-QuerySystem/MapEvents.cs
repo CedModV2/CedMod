@@ -1,4 +1,6 @@
-﻿using Exiled.API.Features;
+﻿using System;
+using CedMod.QuerySystem.WS;
+using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 
 namespace CedMod.QuerySystem
@@ -7,39 +9,46 @@ namespace CedMod.QuerySystem
     {
         public void OnWarheadDetonation()
         {
-            foreach (WS.WebSocketSession wss in WS.WebSocketServer.ws.Clients)
+            foreach (WebSocketSystemBehavior webSocketSystemBehavior in WebSocketSystem.Clients)
             {
-                if (wss.IsAuthenticated)
-                    wss.SendMessage($"Warhead has been detonated");
+                if (webSocketSystemBehavior.authed)
+                {
+                    webSocketSystemBehavior.Context.WebSocket.Send("Warhead has been detonated");
+                }
             }
         }
         
         public void OnDecon(DecontaminatingEventArgs ev)
         {
-            foreach (WS.WebSocketSession wss in WS.WebSocketServer.ws.Clients)
+            foreach (WebSocketSystemBehavior webSocketSystemBehavior in WebSocketSystem.Clients)
             {
-                if (wss.IsAuthenticated)
-                    wss.SendMessage($"Light containment zone has been decontaminated.");
+                if (webSocketSystemBehavior.authed)
+                {
+                    webSocketSystemBehavior.Context.WebSocket.Send("Light containment zone has been decontaminated.");
+                }
             }
         }
         
         public void OnWarheadStart(StartingEventArgs ev)
         {
-            foreach (WS.WebSocketSession wss in WS.WebSocketServer.ws.Clients)
+            foreach (WebSocketSystemBehavior webSocketSystemBehavior in WebSocketSystem.Clients)
             {
-                if (wss.IsAuthenticated)
-                    wss.SendMessage($"warhead has been started: {Warhead.Controller.NetworktimeToDetonation} seconds");
+                if (webSocketSystemBehavior.authed)
+                {
+                    webSocketSystemBehavior.Context.WebSocket.Send(string.Format("warhead has been started: {0} seconds", Warhead.Controller.NetworktimeToDetonation));
+                }
             }
         }
-
+        
         public void OnWarheadCancelled(StoppingEventArgs ev)
         {
-            foreach (WS.WebSocketSession wss in WS.WebSocketServer.ws.Clients)
+            foreach (WebSocketSystemBehavior webSocketSystemBehavior in WebSocketSystem.Clients)
             {
-                if (wss.IsAuthenticated)
-                    wss.SendMessage($"{ev.Player.Nickname} - {ev.Player.UserId} has stopped the detonation.");
+                if (webSocketSystemBehavior.authed)
+                {
+                    webSocketSystemBehavior.Context.WebSocket.Send(ev.Player.Nickname + " - " + ev.Player.UserId + " has stopped the detonation.");
+                }
             }
         }
-
     }
 }

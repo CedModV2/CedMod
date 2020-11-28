@@ -51,7 +51,7 @@ namespace CedMod
             {
                 if (stream == null)
                     throw new InvalidOperationException("Cannot find resource.1");
-                    using (var reader = new BinaryReader(stream))
+                using (var reader = new BinaryReader(stream))
                 {
                     var rawAssembly = new byte[(int)stream.Length];
 
@@ -93,7 +93,17 @@ namespace CedMod
                 wc.DownloadFile("https://cdn.cedmod.nl/files/Newtonsoft.Json.dll", Application.dataPath + "/Managed/Newtonsoft.Json.dll");
                 Application.Quit();
             }
-                config = Config;
+            
+            if (!File.Exists(Exiled.API.Features.Paths.Dependencies + "/websocket-sharp.dll"))
+            {
+                WebClient wc = new WebClient();
+                Initializer.Logger.Error("CEDMOD-INIT", "Dependency missing, downloading...");
+                ServicePointManager.ServerCertificateValidationCallback += API.ValidateRemoteCertificate;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                wc.DownloadFile("https://cdn.cedmod.nl/files/websocket-sharp.dll", Paths.Dependencies + "/websocket-sharp.dll");
+                Application.Quit();
+            }
+            config = Config;
             items.Add(ItemType.GunProject90);
             items.Add(ItemType.GunMP7);
             items.Add(ItemType.GunCOM15);

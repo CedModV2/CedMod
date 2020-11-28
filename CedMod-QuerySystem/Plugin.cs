@@ -109,7 +109,7 @@ namespace CedMod.QuerySystem
                 }
 
                 if (Config.NewWebSocketSystem)
-                    WS.WebSocketServer.Start(Config.Port);
+                    WS.WebSocketSystem.Start();
                 else
                     WebService.StartWebServer();
             }

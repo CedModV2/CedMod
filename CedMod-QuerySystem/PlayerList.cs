@@ -52,8 +52,8 @@ namespace CedMod.QuerySystem
 			            ev.ReplyMessage = "Query server is not enabled";
 			            return;
 		            }
-		            WS.WebSocketServer.Stop();
-		            WS.WebSocketServer.Start(ConfigFile.ServerConfig.GetInt("cm_port", 8000));
+		            WS.WebSocketSystem.Stop();
+		            WS.WebSocketSystem.Start();
 		            ev.ReplyMessage = "Query server restarted";
 		            break;
 	            case "PLAYERLISTCOLORED":

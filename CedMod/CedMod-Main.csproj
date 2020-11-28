@@ -575,6 +575,9 @@
   <ItemGroup>
     <EmbeddedResource Include="System.Runtime.InteropServices.RuntimeInformation.dll" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="websocket-sharp.dll" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
   </PropertyGroup>
