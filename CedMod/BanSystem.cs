@@ -186,9 +186,14 @@ namespace CedMod
                     return;
                 }
 
+                string response1 = (string) API.APIRequest($"api/BanLog/UserId/{Ply.UserId}", "", true);
+                if (response1.Contains("\"message\":\"Specified BanLog does not exist\""))
+                {
+                    ev.Sender.RemoteAdminMessage("No banlogs found!", false);
+                    return;
+                }
                 ApiBanResponse resp =
-                    JsonConvert.DeserializeObject<ApiBanResponse>(
-                        (string) API.APIRequest($"api/BanLog/UserId/{Ply.UserId}", "", true));
+                    JsonConvert.DeserializeObject<ApiBanResponse>(response1);
                 foreach (BanModel ban in resp.Message)
                 {
                     ev.Sender.RemoteAdminMessage($"\nIssuer :{ban.Adminname}" +
