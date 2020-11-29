@@ -66,6 +66,7 @@
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Handlers\Server.cs" />
+    <Compile Include="Patches\BanPatch.cs" />
     <Compile Include="Patches\ExceptionPatch.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
