@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using CedMod.INIT;
 using HarmonyLib;
 using UnityEngine;
@@ -11,7 +12,13 @@ namespace CedMod.Patches
         public static bool Prefix(GameObject user, int duration, string reason, string issuer, bool isGlobalBan)
         {
             Initializer.Logger.Info("BANSYSTEM", $"MainGame ban patch: banning user. {duration} {reason} {issuer}");
-            API.Ban(user, duration, issuer, reason, true);
+            Task.Factory.StartNew(() =>
+            {
+                lock (BanSystem.banlock)
+                {
+                    API.Ban(user, duration, issuer, reason, true);
+                }
+            });
             return false;
         }
     }

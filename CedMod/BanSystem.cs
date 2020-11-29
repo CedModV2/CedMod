@@ -19,7 +19,7 @@ namespace CedMod
 {
     public class BanSystem
     {
-        private static object banlock = new object();
+        public static object banlock = new object();
         public static void HandleJoin(JoinedEventArgs ev)
         {
             try
