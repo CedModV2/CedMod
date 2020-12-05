@@ -60,7 +60,7 @@ namespace CedMod.Handlers
                     "green");
                 return;
             }
-            if (ev.Target.RemoteAdminAccess)
+            if (ev.Target.RemoteAdminAccess && !CedModMain.config.StaffReportAllowed)
             {
                 ev.Issuer.GameObject.GetComponent<GameConsoleTransmission>().SendToClient(ev.Issuer.Connection,
                     $"[REPORTING] " + CedModMain.config.StaffReportMessage,
