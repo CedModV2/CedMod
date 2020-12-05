@@ -62,6 +62,7 @@ namespace CedMod.Handlers
             }
             if (ev.Target.RemoteAdminAccess && !CedModMain.config.StaffReportAllowed)
             {
+                ev.IsAllowed = false;
                 ev.Issuer.GameObject.GetComponent<GameConsoleTransmission>().SendToClient(ev.Issuer.Connection,
                     $"[REPORTING] " + CedModMain.config.StaffReportMessage,
                     "green");
@@ -69,6 +70,7 @@ namespace CedMod.Handlers
             }
             if (ev.Reason.IsEmpty())
             {
+                ev.IsAllowed = false;
                 ev.Issuer.GameObject.GetComponent<GameConsoleTransmission>().SendToClient(ev.Issuer.Connection,
                     $"[REPORTING] You have to enter a reason",
                     "green");
