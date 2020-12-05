@@ -60,6 +60,13 @@ namespace CedMod.Handlers
                     "green");
                 return;
             }
+            if (ev.Target.RemoteAdminAccess)
+            {
+                ev.Issuer.GameObject.GetComponent<GameConsoleTransmission>().SendToClient(ev.Issuer.Connection,
+                    $"[REPORTING] " + CedModMain.config.StaffReportMessage,
+                    "green");
+                return;
+            }
             if (ev.Reason.IsEmpty())
             {
                 ev.Issuer.GameObject.GetComponent<GameConsoleTransmission>().SendToClient(ev.Issuer.Connection,
@@ -67,6 +74,7 @@ namespace CedMod.Handlers
                     "green");
                 return;
             }
+            
             reported.Add(ev.Target.ReferenceHub, ev.Issuer.ReferenceHub);
             Timing.RunCoroutine(removefromlist(ev.Target.ReferenceHub));
             

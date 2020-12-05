@@ -20,7 +20,13 @@
         
         [Description("kick a player if they have a name someone else already has")]
         public bool KickSameName { get; set; } = true;
-
+        
         public List<string> ReportBlacklist { get; set; } = new List<string> { "masonic@northwood", "sirmeep@northwood" };
+        
+        [Description("If players are allowed to report staff members")]
+        public bool StaffReportAllowed { get; set; } = false;
+        
+        [Description("The message that players recieve if they try to report a staff member")]
+        public string StaffReportMessage { get; set; } = "You can not report a staff member";
     }
 }
