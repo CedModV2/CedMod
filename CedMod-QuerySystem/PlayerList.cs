@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CedMod.INIT;
 using CommandSystem;
 using Exiled.API.Extensions;
@@ -13,6 +14,7 @@ namespace CedMod.QuerySystem
 {
     public class CommandHandler
     {
+	    public static List<string> synced = new List<string>();
 	    public static bool CheckPermissions(CommandSender sender, string queryZero, PlayerPermissions perm,
 		    string replyScreen = "", bool reply = true)
 	    {
@@ -41,9 +43,9 @@ namespace CedMod.QuerySystem
 	            case "CMSYNC":
 		            ev.IsAllowed = false;
 		            Initializer.Logger.Info("CedMod-RoleSync", $"Assigning role: {ev.Arguments[1]} to {ev.Arguments[0]}.");
-		            ServerStatic.GetPermissionsHandler()._members.Remove(Player.Get(int.Parse(ev.Arguments[0])).UserId);
-		            ServerStatic.GetPermissionsHandler()._members.Add(Player.Get(int.Parse(ev.Arguments[0])).UserId, ev.Arguments[1]);
+		            Player.Get(int.Parse(ev.Arguments[0])).SetRank(ev.Arguments[1], ServerStatic.PermissionsHandler.GetGroup(ev.Arguments[1]));
 		            Player.Get(int.Parse(ev.Arguments[0])).ReferenceHub.serverRoles.RefreshPermissions();
+		            synced.Add(Player.Get(int.Parse(ev.Arguments[0])).UserId);
 		            break;
 	            case "RESTARTQUERYSERVER":
 		            ev.IsAllowed = false;

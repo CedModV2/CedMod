@@ -194,6 +194,13 @@ namespace CedMod.QuerySystem
 		
 		public void OnPlayerJoin(JoinedEventArgs ev)
 		{
+			if (CommandHandler.synced.Contains(ev.Player.UserId))
+			{
+				if (ServerStatic.GetPermissionsHandler()._members.ContainsKey(ev.Player.UserId))
+					ServerStatic.GetPermissionsHandler()._members.Remove(ev.Player.UserId);
+				ev.Player.ReferenceHub.serverRoles.RefreshPermissions();
+				CommandHandler.synced.Remove(ev.Player.UserId);
+			}
 			foreach (WebSocketSystemBehavior webSocketSystemBehavior in WebSocketSystem.Clients)
 			{
 				if (webSocketSystemBehavior.authed)
