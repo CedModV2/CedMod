@@ -1,11 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using CedMod.QuerySystem.WS;
+using Exiled.API.Enums;
+using Exiled.API.Features;
 using Exiled.Events.EventArgs;
+using UnityEngine;
 
 namespace CedMod.QuerySystem
 {
 	public class ServerEvents
 	{
+		public static List<ImageGenerator.MinimapElement> map = new List<ImageGenerator.MinimapElement>();
+		public static List<MiniMapElement> Minimap = new List<MiniMapElement>();
 		public void OnCommand(SendingRemoteAdminCommandEventArgs ev)
 		{
 			if (ev.Name.Contains("playerlistcolored"))
@@ -34,6 +41,20 @@ namespace CedMod.QuerySystem
 		
 		public void OnWaitingForPlayers()
 		{
+			Minimap.Clear();
+			foreach (ImageGenerator gen in ImageGenerator.ZoneGenerators)
+			{
+				foreach (ImageGenerator.MinimapElement elem in gen.minimap)
+				{
+					MiniMapElement elem1 = new MiniMapElement();
+					elem1.Name = elem.roomSource.GetComponentsInChildren<RoomInformation>().FirstOrDefault().CurrentRoomType.ToString();
+					elem1.Position = elem.roomSource.transform.position.ToString();
+					elem1.Rotation = elem.rotation.ToString();
+					elem1.ZoneType = elem.roomSource.GetComponentsInChildren<RoomInformation>().FirstOrDefault().CurrentZoneType.ToString().Replace("HCZ", "HeavyContainment").Replace("LCZ", "LightContainment").Replace("ENTRANCE", "Entrance");
+					Minimap.Add(elem1);
+				}
+			}
+
 			foreach (WebSocketSystemBehavior webSocketSystemBehavior in WebSocketSystem.Clients)
 			{
 				if (webSocketSystemBehavior.authed)
@@ -114,5 +135,27 @@ namespace CedMod.QuerySystem
 				}
 			}
 		}
+	}
+
+	public class MiniMapClass
+	{
+		public List<MiniMapElement> MapElements = new List<MiniMapElement>();
+		public List<MiniMapPlayerElement> PlayerElements = new List<MiniMapPlayerElement>();
+	}
+
+	public class MiniMapElement
+	{
+		public string Position;
+		public string Name;
+		public string ZoneType;
+		public string Rotation;
+	}
+	
+	public class MiniMapPlayerElement
+	{
+		public string Position;
+		public string Name;
+		public string Zone;
+		public string TeamColor;
 	}
 }

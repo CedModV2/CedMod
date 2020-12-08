@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CedMod.INIT;
 using CommandSystem;
 using Exiled.API.Extensions;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using GameCore;
+using Newtonsoft.Json;
 using NorthwoodLib;
 using RemoteAdmin;
 using UnityEngine;
@@ -40,6 +42,23 @@ namespace CedMod.QuerySystem
 	        CommandSender sender = ev.CommandSender;
             switch (ev.Name.ToUpper())
             {
+	            case "CMMINIMAP":
+		            ev.IsAllowed = false;
+		            MiniMapClass map = new MiniMapClass();
+		            map.MapElements = ServerEvents.Minimap;
+		            foreach (Player plr in Player.List)
+		            {
+			            if (plr.Team == Team.RIP)
+				            continue;
+			            MiniMapPlayerElement pele = new MiniMapPlayerElement();
+			            pele.Name = plr.Nickname;
+			            pele.Position = plr.Position.ToString();
+			            pele.Zone = plr.CurrentRoom.Zone.ToString();
+			            pele.TeamColor = plr.RoleColor.ToString();
+			            map.PlayerElements.Add(pele);
+		            }
+		            ev.ReplyMessage = JsonConvert.SerializeObject(map);
+					break;
 	            case "CMSYNC":
 		            ev.IsAllowed = false;
 		            Initializer.Logger.Info("CedMod-RoleSync", $"Assigning role: {ev.Arguments[1]} to {ev.Arguments[0]}.");
