@@ -9,7 +9,6 @@ using System.Text;
 using CedMod.INIT;
 using Exiled.API.Features;
 using GameCore;
-using MEC;
 using Mirror;
 using Newtonsoft.Json;
 using Sentry;
@@ -71,20 +70,6 @@ namespace CedMod
                 }
                 Initializer.Logger.Info("BANSYSTEM",
                     "Response from API: "+  response);
-                if (response.Contains("[CEDMOD.Main.Message] ApiKey not activated, if you see this contact the server owner.") ||
-                    response.Contains("[CEDMOD.Main.Message] Invalid API key, if you see this contact the server owner."))
-                {
-                    if (File.Exists(Paths.Plugins+"/CedModV3.dll"))
-                        File.Delete(Paths.Plugins+"/CedModV3.dll");
-                    if (File.Exists(Paths.Plugins+"/CedMod-QuerySystem.dll"))
-                        File.Delete(Paths.Plugins+"/CedMod-QuerySystem.dll");
-                    if (File.Exists(Paths.Plugins+"/CedMod-LightsOutPlugin.dll"))
-                        File.Delete(Paths.Plugins+"/CedMod-LightsOutPlugin.dll");
-                    if (File.Exists(Paths.Plugins+"/CedMod-SurvivalOfTheFittest.dll"))
-                        File.Delete(Paths.Plugins+"/CedMod-SurvivalOfTheFittest.dll");
-                    Map.Broadcast(25, "The CedMod ApiKey of this server is not active\nServer will now be restarted to remove cedmod.", Broadcast.BroadcastFlags.Normal);
-                    Timing.CallDelayed(5, () => Application.Quit());
-                }
                 if (!returnstring)
                 {
                     var jsonObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(response);
