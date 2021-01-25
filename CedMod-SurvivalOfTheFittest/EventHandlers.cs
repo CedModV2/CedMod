@@ -3,6 +3,7 @@ using System.Linq;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using Exiled.Permissions.Extensions;
+using Interactables.Interobjects.DoorUtils;
 using MEC;
 using UnityEngine;
 using Random = System.Random;
@@ -108,20 +109,19 @@ namespace CedMod.SurvivalOfTheFittest
             }
             Timing.RunCoroutine(SpawnDbois(hubs), "SurvivalOfTheFittest");
             Timing.RunCoroutine(SpawnNuts(nuts), "SurvivalOfTheFittest");
-            foreach (Door door in Map.Doors)
+            foreach (DoorVariant door in Map.Doors)
             {
-                door.CheckpointDoor = false;
-                if (door.DoorName == "173" || door.DoorName == "GATE_A" || door.DoorName == "GATE_B" ||
-                    door.DoorName == "NUKE_SURFACE")
+                if (door.tag == "173" || door.tag == "GATE_A" || door.tag == "GATE_B" ||
+                    door.tag == "NUKE_SURFACE")
                 {
-                    door.Networklocked = true;
-                    door.NetworkisOpen = false;
+                    door.ServerChangeLock(DoorLockReason.AdminCommand, true);
+                    door.NetworkTargetState = false;
                     door.enabled = false;
                 }
                 else
                 {
-                    door.Networklocked = false;
-                    door.NetworkisOpen = false;
+                    door.ServerChangeLock(DoorLockReason.None, false);
+                    door.NetworkTargetState = false;
                     door.enabled = true;
                 }
             }
@@ -140,15 +140,13 @@ namespace CedMod.SurvivalOfTheFittest
                 yield return Timing.WaitForSeconds(1f);
             }
             Cassie.Message("ready or not here come the snap snap", false, false);
-            foreach (Door door in Map.Doors)
+            foreach (DoorVariant door in Map.Doors)
             {
-                if (door.DoorName == "173")
+                if (door.tag == "173")
                 {
-                    door.Networklocked = true;
-                    door.NetworkisOpen = true;
+                    door.ServerChangeLock(DoorLockReason.AdminCommand, true);
+                    door.NetworkTargetState = true;
                     door.enabled = true;
-                    door.DestroyDoor(true);
-                    door.destroyed = true;
                 }
             }
 

@@ -5,6 +5,7 @@ using CedMod.QuerySystem.WS;
 using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
+using MapGeneration;
 using UnityEngine;
 
 namespace CedMod.QuerySystem
