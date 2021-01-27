@@ -49,7 +49,7 @@ namespace CedMod.SurvivalOfTheFittest
         private void RegisterEvents()
         {
             handler = new EventHandlers();
-            Exiled.Events.Handlers.Player.Joined += handler.OnJoin;
+            Exiled.Events.Handlers.Player.Verified += handler.OnJoin;
             Exiled.Events.Handlers.Server.RoundStarted += handler.OnRoundStart;
             Exiled.Events.Handlers.Server.RestartingRound += handler.OnRoundRestart;
             Exiled.Events.Handlers.Server.RestartingRound += handler.OnRoundStart;
@@ -64,7 +64,7 @@ namespace CedMod.SurvivalOfTheFittest
         /// </summary>
         private void UnregisterEvents()
         {
-            Exiled.Events.Handlers.Player.Joined -= handler.OnJoin;
+            Exiled.Events.Handlers.Player.Verified -= handler.OnJoin;
             Exiled.Events.Handlers.Server.RoundStarted -= handler.OnRoundStart;
             Exiled.Events.Handlers.Server.RestartingRound -= handler.OnRoundRestart;
             Exiled.Events.Handlers.Server.RestartingRound -= handler.OnRoundStart;

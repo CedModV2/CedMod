@@ -192,7 +192,7 @@ namespace CedMod.QuerySystem
 			}
 		}
 		
-		public void OnPlayerJoin(JoinedEventArgs ev)
+		public void OnPlayerJoin(VerifiedEventArgs ev)
 		{
 			if (CommandHandler.synced.Contains(ev.Player.UserId))
 			{

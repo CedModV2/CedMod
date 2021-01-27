@@ -32,8 +32,8 @@ namespace CedMod.Handlers
 
         public void onRoundStart()
         {
-            if (ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true))
-                MiniGameHandler.RoundStart();
+            //if (ConfigFile.ServerConfig.GetBool("cm_customloadingscreen", true))
+                //MiniGameHandler.RoundStart();
         }
         Dictionary<ReferenceHub, ReferenceHub> reported = new Dictionary<ReferenceHub, ReferenceHub>();
         public void OnReport(LocalReportingEventArgs ev)

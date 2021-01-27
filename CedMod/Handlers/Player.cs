@@ -21,7 +21,7 @@ namespace CedMod.Handlers
     /// </summary>
     public class Player
     {
-        public void OnJoin(JoinedEventArgs ev)
+        public void OnJoin(VerifiedEventArgs ev)
         {
             Task.Factory.StartNew(() => { BanSystem.HandleJoin(ev); });
             Timing.RunCoroutine(Name(ev));
@@ -37,7 +37,7 @@ namespace CedMod.Handlers
             //     Timing.RunCoroutine(MiniGameHandler.Playerjoinhandle(ev));
         }
         
-        public IEnumerator<float> Name(JoinedEventArgs ev)
+        public IEnumerator<float> Name(VerifiedEventArgs ev)
         {
             foreach (var pp in Exiled.API.Features.Player.List)
             {
@@ -66,13 +66,13 @@ namespace CedMod.Handlers
             yield return 0f;
         }
 
-        public void OnLeave(LeftEventArgs ev)
+        public void OnLeave(DestroyingEventArgs ev)
         {
         }
 
         public void OnPickup(PickingUpItemEventArgs ev)
         {
-            MiniGameHandler.Pickup(ev);
+            //MiniGameHandler.Pickup(ev);
         }
         
         public void OnDying(DyingEventArgs ev)

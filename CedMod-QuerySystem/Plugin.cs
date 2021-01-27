@@ -69,7 +69,7 @@ namespace CedMod.QuerySystem
                 Exiled.Events.Handlers.Player.InteractingElevator -= PlayerEvents.OnElevatorInteraction;
                 Exiled.Events.Handlers.Player.Handcuffing -= PlayerEvents.OnPlayerHandcuffed;
                 Exiled.Events.Handlers.Player.RemovingHandcuffs -= PlayerEvents.OnPlayerFreed;
-                Exiled.Events.Handlers.Player.Joined -= PlayerEvents.OnPlayerJoin;
+                Exiled.Events.Handlers.Player.Verified -= PlayerEvents.OnPlayerJoin;
                 Exiled.Events.Handlers.Player.Left -= PlayerEvents.OnPlayerLeave;
                 Exiled.Events.Handlers.Player.ChangingRole -= PlayerEvents.OnSetClass;
             }
@@ -146,7 +146,7 @@ namespace CedMod.QuerySystem
                 Exiled.Events.Handlers.Player.InteractingElevator += PlayerEvents.OnElevatorInteraction;
                 Exiled.Events.Handlers.Player.Handcuffing += PlayerEvents.OnPlayerHandcuffed;
                 Exiled.Events.Handlers.Player.RemovingHandcuffs += PlayerEvents.OnPlayerFreed;
-                Exiled.Events.Handlers.Player.Joined += PlayerEvents.OnPlayerJoin;
+                Exiled.Events.Handlers.Player.Verified += PlayerEvents.OnPlayerJoin;
                 Exiled.Events.Handlers.Player.Left += PlayerEvents.OnPlayerLeave;
                 Exiled.Events.Handlers.Player.ChangingRole += PlayerEvents.OnSetClass;
             }

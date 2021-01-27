@@ -133,8 +133,8 @@ namespace CedMod
             Exiled.Events.Handlers.Server.LocalReporting += server.OnReport;
             Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += server.OnSendingRemoteAdmin;
             
-            Exiled.Events.Handlers.Player.Left += player.OnLeave;
-            Exiled.Events.Handlers.Player.Joined += player.OnJoin;
+            Exiled.Events.Handlers.Player.Destroying += player.OnLeave;
+            Exiled.Events.Handlers.Player.Verified += player.OnJoin;
             Exiled.Events.Handlers.Player.Dying += player.OnDying;
             Exiled.Events.Handlers.Player.PickingUpItem += player.OnPickup;
         }
@@ -150,8 +150,8 @@ namespace CedMod
             Exiled.Events.Handlers.Server.LocalReporting -= server.OnReport;
             Exiled.Events.Handlers.Server.SendingRemoteAdminCommand -= server.OnSendingRemoteAdmin;
             
-            Exiled.Events.Handlers.Player.Left -= player.OnLeave;
-            Exiled.Events.Handlers.Player.Joined -= player.OnJoin;
+            Exiled.Events.Handlers.Player.Destroying -= player.OnLeave;
+            Exiled.Events.Handlers.Player.Verified -= player.OnJoin;
             Exiled.Events.Handlers.Player.Dying -= player.OnDying;
             Exiled.Events.Handlers.Player.PickingUpItem += player.OnPickup;
 

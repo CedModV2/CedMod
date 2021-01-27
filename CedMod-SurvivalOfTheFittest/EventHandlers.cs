@@ -30,7 +30,7 @@ namespace CedMod.SurvivalOfTheFittest
                     ev.Amount = 0;
         }
         
-        public void OnJoin(JoinedEventArgs ev)
+        public void OnJoin(VerifiedEventArgs ev)
         {
             if (RunOnStart)
                 ev.Player.Broadcast(5, "Survival of the fittest is starting", Broadcast.BroadcastFlags.Normal);
