@@ -11,14 +11,22 @@ namespace CedMod.Patches
     {
         public static bool Prefix(GameObject user, int duration, string reason, string issuer, bool isGlobalBan)
         {
-            Initializer.Logger.Info("BANSYSTEM", $"MainGame ban patch: banning user. {duration} {reason} {issuer}");
-            Task.Factory.StartNew(() =>
+            try
             {
-                lock (BanSystem.banlock)
+                Initializer.Logger.Info("BANSYSTEM", $"MainGame ban patch: banning user. {duration} {reason} {issuer}");
+                Task.Factory.StartNew(() =>
                 {
-                    API.Ban(user, duration, issuer, reason, true);
-                }
-            });
+                    lock (BanSystem.banlock)
+                    {
+                        API.Ban(user, duration, issuer, reason, true);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Initializer.Logger.Error("BANSYSTEM", $"MainGame ban patch failed {ex.ToString()}");
+            }
+
             return false;
         }
     }
