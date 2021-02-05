@@ -16,9 +16,16 @@ namespace CedMod.Patches
                 Initializer.Logger.Info("BANSYSTEM", $"MainGame ban patch: banning user. {duration} {reason} {issuer}");
                 Task.Factory.StartNew(() =>
                 {
-                    lock (BanSystem.banlock)
+                    try
                     {
-                        API.Ban(user, duration, issuer, reason, true);
+                        lock (BanSystem.banlock)
+                        {
+                            API.Ban(user, duration, issuer, reason, true);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Initializer.Logger.Error("BANSYSTEM", $"MainGame ban patch failed {ex.ToString()}");
                     }
                 });
             }
