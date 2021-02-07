@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using CedMod.Handlers;
 using CommandSystem;
+using Exiled.Permissions.Extensions;
 using Newtonsoft.Json;
 using RemoteAdmin;
 using UnityEngine;
@@ -50,6 +51,11 @@ namespace CedMod.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
+            if (!sender.CheckPermission("cedmod.totalbans"))
+            {
+                response = "no permission";
+                return false;
+            }
             CommandSender sndr = (sender as CommandSender);
             if (Player.Get(sndr.SenderId).ReferenceHub.serverRoles.RemoteAdmin)
             {

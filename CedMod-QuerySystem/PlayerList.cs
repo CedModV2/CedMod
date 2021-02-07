@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using CedMod.INIT;
+using CedMod.QuerySystem.WS;
 using CommandSystem;
 using Exiled.API.Extensions;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
+using Exiled.Permissions.Extensions;
 using GameCore;
 using Newtonsoft.Json;
 using NorthwoodLib;
@@ -43,6 +45,7 @@ namespace CedMod.QuerySystem
             switch (ev.Name.ToUpper())
             {
 	            case "CMMINIMAP":
+		            return;
 		            ev.IsAllowed = false;
 		            MiniMapClass map = new MiniMapClass();
 		            map.MapElements = ServerEvents.Minimap;
@@ -60,6 +63,10 @@ namespace CedMod.QuerySystem
 		            ev.ReplyMessage = JsonConvert.SerializeObject(map);
 					break;
 	            case "CMSYNC":
+		            if (sender is not CmSender || CommandProcessor.CheckPermissions(sender, "CMSYNC", PlayerPermissions.SetGroup, "", false))
+		            {
+			            return;
+		            }
 		            ev.IsAllowed = false;
 		            Initializer.Logger.Info("CedMod-RoleSync", $"Assigning role: {ev.Arguments[1]} to {ev.Arguments[0]}.");
 		            Player.Get(int.Parse(ev.Arguments[0])).ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(ev.Arguments[1]), false, false, ServerStatic.PermissionsHandler.GetGroup(ev.Arguments[1]).HiddenByDefault);
@@ -70,6 +77,10 @@ namespace CedMod.QuerySystem
 		            synced.Add(Player.Get(int.Parse(ev.Arguments[0])).UserId);
 		            break;
 	            case "RESTARTQUERYSERVER":
+		            if (!sender.CheckPermission("cedmod.restartquery"))
+		            {
+			            return;
+		            }
 		            ev.IsAllowed = false;
 		            if (!QuerySystem.config.NewWebSocketSystem)
 		            {

@@ -1,5 +1,7 @@
 ﻿using System;
 using CommandSystem;
+using Exiled.Permissions.Extensions;
+
 namespace CedMod.Commands
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
@@ -15,6 +17,11 @@ namespace CedMod.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
+            if (!sender.CheckPermission("cedmod.ffadisable"))
+            {
+                response = "no permission";
+                return false;
+            }
             FriendlyFireAutoban.AdminDisabled = !FriendlyFireAutoban.AdminDisabled;
             if (FriendlyFireAutoban.AdminDisabled)
             {

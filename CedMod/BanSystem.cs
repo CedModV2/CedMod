@@ -90,6 +90,17 @@ namespace CedMod
             if (ev.Name.ToUpper() == "BAN")
             {
                 ev.IsAllowed = false;
+                var num4 = Convert.ToInt64(ev.Arguments[1]);
+                if ((num4 == 0 && !CommandProcessor.CheckPermissions(ev.CommandSender, "BAN", new PlayerPermissions[3]
+                {
+                    PlayerPermissions.KickingAndShortTermBanning,
+                    PlayerPermissions.BanningUpToDay,
+                    PlayerPermissions.LongTermBanning
+                })) || (num4 > 0 && num4 <= 3600 && !CommandProcessor.CheckPermissions(ev.CommandSender, "BAN", PlayerPermissions.KickingAndShortTermBanning)) || (num4 > 3600 && num4 <= 86400 && !CommandProcessor.CheckPermissions(ev.CommandSender, "BAN", PlayerPermissions.BanningUpToDay)) || (num4 > 86400 && !CommandProcessor.CheckPermissions(ev.CommandSender, "BAN", PlayerPermissions.LongTermBanning)))
+                {
+                    ev.CommandSender.Respond("No permission", false);
+                    return;
+                }
                 if (ev.Arguments.Count < 2)
                 {
                     ev.CommandSender.Respond(

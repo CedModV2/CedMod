@@ -4,6 +4,7 @@ using System.Linq;
 using CommandSystem;
 using Exiled.API.Enums;
 using Exiled.API.Features;
+using Exiled.Permissions.Extensions;
 using MEC;
 using UnityEngine;
 
@@ -25,6 +26,11 @@ namespace CedMod.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
+            if (!sender.CheckPermission("cedmod.lightsout"))
+            {
+                response = "no permission";
+                return false;
+            }
             if (IsEnabled == false)
             {
                 if (arguments.Count != 5)
