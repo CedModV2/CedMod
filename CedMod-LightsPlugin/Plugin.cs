@@ -27,6 +27,7 @@ namespace CedMod.LightsPlugin
             Exiled.Events.Handlers.Server.RestartingRound -= server.OnRoundRestart;
             Exiled.Events.Handlers.Server.RoundStarted -= server.OnRoundStart;
             Exiled.Events.Handlers.Player.ChangingRole -= server.Onchangerole;
+            Exiled.Events.Handlers.Server.RoundEnded += server.OnRoundEnd;
             server = null;
             ServerEventHandler.BlackoutOn = true;
             Timing.KillCoroutines("CMLightsPluginCoroutines");
@@ -45,6 +46,7 @@ namespace CedMod.LightsPlugin
             Exiled.Events.Handlers.Server.RestartingRound += server.OnRoundRestart;
             Exiled.Events.Handlers.Server.RoundStarted += server.OnRoundStart;
             Exiled.Events.Handlers.Player.ChangingRole += server.Onchangerole;
+            Exiled.Events.Handlers.Server.RoundEnded -= server.OnRoundEnd;
         }
         public override void OnReloaded()
         {}

@@ -11,6 +11,9 @@
         public bool IsEnabled { get; set; } = true;
 
         [Description("The maximum time that has to pass before a blackout can happen")]
+        public float SpawnChance { get; set; } = 45f;
+        
+        [Description("The maximum time that has to pass before a blackout can happen")]
         public float BlackoutWaitMax { get; set; } = 360f;
         
         [Description("The minimum time that has to pass before a blackout can happen")]

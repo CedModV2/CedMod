@@ -13,7 +13,13 @@ namespace CedMod.LightsPlugin
     {
         public void OnRoundRestart()
         {
+            BlackoutOn = false;
             Timing.KillCoroutines("CMLightsPluginCoroutines");
+        }
+
+        public void OnRoundEnd(RoundEndedEventArgs ev)
+        {
+            BlackoutOn = false;
         }
 
         public void OnRoundStart()
@@ -56,6 +62,15 @@ namespace CedMod.LightsPlugin
 
         public IEnumerator<float> Run()
         {
+            float chance = Random.Range(1, 100);
+
+            Initializer.Logger.Info("CedMod-LightsPlugin", $"Chance: {chance}");
+            if (chance <= CedModLightsPlugin.config.SpawnChance)
+            {
+                Initializer.Logger.Info("CedMod-LightsPlugin", $"Chance below {chance} skipping");
+            }
+            Initializer.Logger.Info("CedMod-LightsPlugin", $"Chance above {chance} continueing");
+            
             yield return Timing.WaitForSeconds(5f);
             foreach (Player ply in Player.List)
             {
