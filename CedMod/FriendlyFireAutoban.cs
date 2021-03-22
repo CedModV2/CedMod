@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CedMod.INIT;
+using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using GameCore;
 using Hints;
@@ -25,7 +26,7 @@ namespace CedMod
             if (!IsTeakill(ev))
                 return;
             string ffatext1 = "<size=25><b><color=yellow>You teamkilled: </color></b><color=red>" +
-                              ev.Target.ReferenceHub.gameObject.GetComponent<NicknameSync>().MyNick +
+                              ev.Target.Nickname +
                               "</color><color=yellow><b> If you continue teamkilling it will result in a ban</b></color></size>";
             ev.Killer.ReferenceHub.hints.Show(new TextHint(ffatext1
                 ,
@@ -33,14 +34,18 @@ namespace CedMod
             ev.Killer.SendConsoleMessage(ffatext1, "white");
             string ffatext = string.Concat(
                 "<size=25><b><color=yellow>You have been teamkilled by: </color></b></size>",
-                "<color=red><size=25>", ev.Killer.ReferenceHub.gameObject.GetComponent<NicknameSync>().MyNick, " (",
-                ev.Killer.ReferenceHub.gameObject.GetComponent<CharacterClassManager>().UserId,
+                "<color=red><size=25>", ev.Killer.Nickname, " (",
+                ev.Killer.UserId,
                 "), " + ev.Killer.ReferenceHub.characterClassManager.CurClass + " You were a " + ev.Target.ReferenceHub.characterClassManager.CurClass + " </size></color>" +
                 Environment.NewLine,
                 "<size=25><b><color=yellow> Use this as a screenshot as evidence for a report " +
                 Environment.NewLine +
                 "</color></b></size>",
                 "<size=25><i><color=yellow> Note: if he continues to teamkill the server will ban him</color></i></size>");
+
+            if (ev.Killer.DoNotTrack)
+                ffatext = ffatext.Replace(ev.Killer.UserId, "DNT");
+            
             ev.Target.ReferenceHub.hints.Show(new TextHint(ffatext,
                 new HintParameter[] {new StringHintParameter("")}, null, 20f));
             ev.Target.SendConsoleMessage(ffatext, "white");
@@ -70,16 +75,15 @@ namespace CedMod
                                 ev.Killer.ReferenceHub.queryProcessor.PlayerId.ToString(),
                                 " ", ev.Killer.UserId,
                                 " exeeded teamkill limit"));
-                        Task.Factory.StartNew(() => { API.Ban(ev.Killer.ReferenceHub.gameObject,
+                        Task.Factory.StartNew(() => { API.Ban(ev.Killer,
                             ConfigFile.ServerConfig.GetInt("ffa_banduration", 4320),
                             "Server.Module.FriendlyFireAutoban",
                             ConfigFile.ServerConfig.GetString("ffa_banreason",
                                 "You have teamkilled too many people"), false); });
-                        QueryProcessor.Localplayer.GetComponent<Broadcast>().RpcAddElement(
+                        Map.Broadcast(20,
                             "<size=25><b><color=yellow>user: </color></b><color=red>" +
                             ev.Killer.Nickname +
-                            "</color><color=yellow><b> got banned for teamkilling, dont be like this user please</b></color></size>",
-                            20, Broadcast.BroadcastFlags.Normal);
+                            "</color><color=yellow><b> got banned for teamkilling, dont be like this user please</b></color></size>", Broadcast.BroadcastFlags.Normal);
                     }
                 }
             }

@@ -45,7 +45,6 @@
     <Compile Include="PlayerList.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="HttpServer.cs" />
     <Compile Include="ServerEvents.cs" />
     <Compile Include="WS\WebSocketSystem.cs" />
   </ItemGroup>

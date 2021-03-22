@@ -26,13 +26,13 @@ namespace CedMod.Commands.Stuiter
                 return false;
             }
             Cassie.Message("xmas_bouncyballs", false, false);
-            foreach (GameObject player in PlayerManager.players)
+            foreach (Player player in Player.List)
             {
-                CharacterClassManager component = player.GetComponent<CharacterClassManager>();
+                CharacterClassManager component = player.ReferenceHub.characterClassManager;
                 component.SetClassID(RoleType.Tutorial);
-                component.GetComponent<PlayerStats>().Health = 100;
-                component.GetComponent<Inventory>().items.Clear();
-                component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
+                player.ReferenceHub.playerStats.Health = 100;
+                player.ReferenceHub.inventory.items.Clear();
+                player.ReferenceHub.inventory.AddNewItem(ItemType.SCP018);
                 component.GodMode = false;
             }
 

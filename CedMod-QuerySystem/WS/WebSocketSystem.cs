@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CedMod.INIT;
+using Exiled.API.Features;
 using Newtonsoft.Json;
 using RemoteAdmin;
 using UnityEngine;
@@ -173,13 +174,12 @@ namespace CedMod.QuerySystem.WS
                             }
                             else
                             {
-                                foreach (GameObject gameObject in PlayerManager.players)
+                                foreach (Player player in Player.List)
                                 {
-                                    CharacterClassManager component =
-                                        gameObject.GetComponent<CharacterClassManager>();
+	                                CharacterClassManager component = player.ReferenceHub.characterClassManager;
                                     if (component.UserId == jsonData["steamid"])
                                     {
-                                        ServerConsole.Disconnect(gameObject, jsonData["reason"]);
+                                        ServerConsole.Disconnect(player.GameObject, jsonData["reason"]);
                                     }
                                 }
 

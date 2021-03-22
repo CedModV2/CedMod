@@ -40,10 +40,9 @@ namespace CedMod.QuerySystem
             // Unload the event handlers.
             // Close the HTTP server.
             if (Config.NewWebSocketSystem)
-                WebService.StopWebServer();
+                WS.WebSocketSystem.Stop();
             else
-                WebService.StopWebServer();
-            Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += CommandHandler.HandleCommand;
+                Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += CommandHandler.HandleCommand;
             if (Config.NewWebSocketSystem)
             {
                 Exiled.Events.Handlers.Map.Decontaminating -= MapEvents.OnDecon;
@@ -110,8 +109,6 @@ namespace CedMod.QuerySystem
 
                 if (Config.NewWebSocketSystem)
                     WS.WebSocketSystem.Start();
-                else
-                    WebService.StartWebServer();
             }
             else
                 Initializer.Logger.Warn("PluginInterface",

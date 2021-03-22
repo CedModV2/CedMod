@@ -36,12 +36,11 @@ namespace CedMod
                 if (info["success"] == "true" && info["vpn"] == "true" && info["isbanned"] == "false")
                 {
                     reason = info["reason"];
-                    Player.characterClassManager.TargetConsolePrint(
-                        Player.GetComponent<NetworkIdentity>().connectionToClient,
+                    Player.characterClassManager.TargetConsolePrint(Player.characterClassManager.connectionToClient,
                         "CedMod.BANSYSTEM Message from CedMod server (VPN/Proxy detected): " + info,
                         "yellow");
                     Initializer.Logger.Info("BANSYSTEM",
-                        "user: " + Player.GetComponent<CharacterClassManager>().UserId +
+                        "user: " + Player.characterClassManager.UserId +
                         " attempted connection with blocked ASN/IP/VPN/Hosting service");
                     ev.Player.Disconnect(reason);
                 }
@@ -53,10 +52,10 @@ namespace CedMod
                                  " You can fill in a ban appeal here: " +
                                  ConfigFile.ServerConfig.GetString("bansystem_banappealurl", "none");
                         Initializer.Logger.Info("BANSYSTEM",
-                            "user: " + Player.GetComponent<CharacterClassManager>().UserId +
+                            "user: " + Player.characterClassManager.UserId +
                             " attempted connection with active ban disconnecting");
                         Player.characterClassManager.TargetConsolePrint(
-                            Player.GetComponent<NetworkIdentity>().connectionToClient,
+                            Player.characterClassManager.connectionToClient,
                             "CedMod.BANSYSTEM Active ban: " + info["preformattedmessage"],
                             "yellow");
                         ev.Player.Disconnect(reason);
@@ -67,7 +66,7 @@ namespace CedMod
                             info["iserror"] == "true")
                         {
                             Player.characterClassManager.TargetConsolePrint(
-                                Player.GetComponent<NetworkIdentity>().connectionToClient,
+                                Player.characterClassManager.connectionToClient,
                                 "CedMod.BANSYSTEM Message from CedMod server: " + info["error"],
                                 "yellow");
                             Initializer.Logger.Info("BANSYSTEM",
@@ -140,11 +139,11 @@ namespace CedMod
                     select item).Select(int.Parse));
                 foreach (int num2 in list)
                 {
-                    foreach (GameObject gameObject in PlayerManager.players)
+                    foreach (Player player in Player.List)
                     {
-                        if (num2 == gameObject.GetComponent<QueryProcessor>().PlayerId)
+                        if (num2 == player.ReferenceHub.queryProcessor.PlayerId)
                         {
-                            if (!gameObject.GetComponent<ServerRoles>().BypassStaff)
+                            if (!player.ReferenceHub.serverRoles.BypassStaff)
                             {
                                 if (Convert.ToInt64(ev.Arguments[1]) >= 1)
                                 {
@@ -154,7 +153,7 @@ namespace CedMod
                                     {
                                         lock (banlock) //so theres only 1 ban at a time
                                         {
-                                            API.Ban(gameObject, Convert.ToInt64(ev.Arguments[1]), sender1, text17);
+                                            API.Ban(player, Convert.ToInt64(ev.Arguments[1]), sender1, text17);
                                         }
                                     });
                                 }
@@ -164,7 +163,7 @@ namespace CedMod
                                     {
                                         string text3;
                                         text3 = " Reason: " + text17;
-                                        ServerConsole.Disconnect(gameObject, text3);
+                                        ServerConsole.Disconnect(player.GameObject, text3);
                                     }
                                 }
                             }

@@ -93,26 +93,26 @@ namespace CedMod
             }
         }
 
-        public static void Ban(GameObject player, long duration, string sender, string reason, bool bc = true)
+        public static void Ban(Player player, long duration, string sender, string reason, bool bc = true)
         {
             if (duration >= 1)
             {
-                string json = "{\"Userid\": \"" + player.GetComponent<CharacterClassManager>().UserId + "\"," +
-                              "\"Ip\": \"" + player.GetComponent<CharacterClassManager>().connectionToClient.address+"\"," +
+                string json = "{\"Userid\": \"" + player.UserId + "\"," +
+                              "\"Ip\": \"" + player.Connection.address+"\"," +
                               "\"AdminName\": \"" + sender.Replace("\"", "'") + "\"," +
                               "\"BanDuration\": "+duration+"," +
                               "\"BanReason\": \""+reason.Replace("\"", "'")+"\"}";
                 Dictionary<string, string> result = (Dictionary<string, string>) APIRequest("Auth/Ban", json, false, "POST"); 
-                ServerConsole.Disconnect(player, result["preformattedmessage"]);
+                ServerConsole.Disconnect(player.GameObject, result["preformattedmessage"]);
                 if (bc)
-                    Map.Broadcast((ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", player.GetComponent<NicknameSync>().MyNick),
+                    Map.Broadcast((ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", player.Nickname),
                         Broadcast.BroadcastFlags.Normal);
             }
             else
             {
                 if (duration <= 0)
                 {
-                    ServerConsole.Disconnect(player, reason);
+                    ServerConsole.Disconnect(player.GameObject, reason);
                 }
             }
         }

@@ -41,21 +41,21 @@ namespace CedMod.Handlers
             if (CedModMain.config.ReportBlacklist.Contains(ev.Issuer.UserId))
             {
                 ev.IsAllowed = false;
-                ev.Issuer.GameObject.GetComponent<GameConsoleTransmission>().SendToClient(ev.Issuer.Connection,
+                ev.Issuer.SendConsoleMessage(
                     $"[REPORTING] You are banned from ingame reports", "green");
                 return;
             }
             if (ev.Issuer.UserId == ev.Target.UserId)
             {
                 ev.IsAllowed = false;
-                ev.Issuer.GameObject.GetComponent<GameConsoleTransmission>().SendToClient(ev.Issuer.Connection,
+                ev.Issuer.SendConsoleMessage(
                     $"[REPORTING] You can't report yourself", "green");
                 return;
             }
             if (reported.ContainsKey(ev.Target.ReferenceHub))
             {
                 ev.IsAllowed = false;
-                ev.Issuer.GameObject.GetComponent<GameConsoleTransmission>().SendToClient(ev.Issuer.Connection,
+                ev.Issuer.SendConsoleMessage(
                     $"[REPORTING] {ev.Target.Nickname} ({ev.Target.UserId}) has already been reported by {Exiled.API.Features.Player.Get(reported[ev.Target.ReferenceHub]).Nickname}",
                     "green");
                 return;
@@ -63,7 +63,7 @@ namespace CedMod.Handlers
             if (ev.Target.RemoteAdminAccess && !CedModMain.config.StaffReportAllowed)
             {
                 ev.IsAllowed = false;
-                ev.Issuer.GameObject.GetComponent<GameConsoleTransmission>().SendToClient(ev.Issuer.Connection,
+                ev.Issuer.SendConsoleMessage(
                     $"[REPORTING] " + CedModMain.config.StaffReportMessage,
                     "green");
                 return;
@@ -71,7 +71,7 @@ namespace CedMod.Handlers
             if (ev.Reason.IsEmpty())
             {
                 ev.IsAllowed = false;
-                ev.Issuer.GameObject.GetComponent<GameConsoleTransmission>().SendToClient(ev.Issuer.Connection,
+                ev.Issuer.SendConsoleMessage(
                     $"[REPORTING] You have to enter a reason",
                     "green");
                 return;

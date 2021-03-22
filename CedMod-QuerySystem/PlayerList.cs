@@ -112,14 +112,14 @@ namespace CedMod.QuerySystem
 							flag2 = true;
 							flag3 = true;
 						}
-						foreach (GameObject player in PlayerManager.players)
+						foreach (Player player in Player.List)
 						{
-							QueryProcessor component = player.GetComponent<QueryProcessor>();
+							QueryProcessor component = player.ReferenceHub.queryProcessor;
 							if (!flag)
 							{
 								string text2 = string.Empty;
 								bool flag4 = false;
-								ServerRoles component2 = component.GetComponent<ServerRoles>();
+								ServerRoles component2 = player.ReferenceHub.serverRoles;
 								try
 								{
 									if (string.IsNullOrEmpty(component2.HiddenBadge) || (component2.GlobalHidden && flag3) || (!component2.GlobalHidden && flag2))
@@ -131,14 +131,14 @@ namespace CedMod.QuerySystem
 								catch
 								{
 								}
-								text = text + text2 + "(" + component.PlayerId + ") " + component.GetComponent<NicknameSync>().CombinedName.Replace("\n", string.Empty) + (flag4 ? "<OVRM>" : string.Empty);
-								CharacterClassManager ccm = component.GetComponent<CharacterClassManager>();
+								text = text + text2 + "(" + component.PlayerId + ") " + player.ReferenceHub.nicknameSync.CombinedName.Replace("\n", string.Empty) + (flag4 ? "<OVRM>" : string.Empty);
+								CharacterClassManager ccm = player.ReferenceHub.characterClassManager;
 								text = $"<color={ccm.CurRole.classColor.ToHex()}>" +
 								       text + "</color>";
 							}
 							else
 							{
-								text = text + component.PlayerId + ";" + component.GetComponent<NicknameSync>().CombinedName;
+								text = text + component.PlayerId + ";" + player.ReferenceHub.nicknameSync.CombinedName;
 							}
 							text += "\n";
 						}
