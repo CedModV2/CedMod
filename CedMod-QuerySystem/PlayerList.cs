@@ -158,6 +158,26 @@ namespace CedMod.QuerySystem
 						throw;
 					}
 					break;
+	            
+	            case "PLAYERLISTCOLOREDSTEAMID":
+		            ev.IsAllowed = false;
+                    try
+                    {
+	                    string text = "\n";
+						foreach (Player player in Player.List)
+						{
+							QueryProcessor component = player.ReferenceHub.queryProcessor;
+							text += $"{player.UserId}:{player.DoNotTrack}:{player.RemoteAdminAccess}\n";
+						}
+						sender.RaReply(ev.Name + ":PLAYER_LIST#" + text, success: true, ev.Arguments.Count < 2 || ev.Arguments[1].ToUpper() != "SILENT", "");
+                    }
+					catch (Exception ex2)
+					{
+						Initializer.Logger.LogException(ex2, "CedMod.PluginInterface", "PlayerListCommand");
+						sender.RaReply(ev.Name + ":PLAYER_LIST#An unexpected problem has occurred!\nMessage: " + ex2.Message + "\nStackTrace: " + ex2.StackTrace + "\nAt: " + ex2.Source, success: false, logToConsole: true, "");
+						throw;
+					}
+					break;
             }
         }
     }

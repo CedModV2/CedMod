@@ -62,7 +62,7 @@ namespace CedMod.QuerySystem.WS
             }
 
             Task.Factory.StartNew(delegate() { DieIfNotAuthed(); });
-            if (!ev.Data.Contains("command\":\"PLAYERLISTCOLORED SILENT") && !ev.Data.Contains("command\":\"CMMINIMAP"))
+            if (!ev.Data.Contains("command\":\"PLAYERLISTCOLOREDSTEAMID SILENT") && !ev.Data.Contains("command\":\"PLAYERLISTCOLORED SILENT") && !ev.Data.Contains("command\":\"CMMINIMAP"))
             {
                 Initializer.Logger.Debug("CedMod-WebAPI", "Message recieved: " + ev.Data);
             }
