@@ -38,7 +38,7 @@ namespace CedMod.INIT
         public static string GetCedModVersion()
         {
             int num = 3;
-            int num2 = 3;
+            int num2 = 4;
             int num3 = 0;
             string text = "R";
             return string.Format("{0}.{1}.{2}-{3}", num, num2, num3, text);
