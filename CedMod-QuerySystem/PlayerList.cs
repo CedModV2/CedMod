@@ -69,11 +69,8 @@ namespace CedMod.QuerySystem
 				            return;
 			            ev.IsAllowed = false;
 			            Initializer.Logger.Info("CedMod-RoleSync", $"Assigning role: {ev.Arguments[1]} to {ev.Arguments[0]}.");
-			            Player.Get(int.Parse(ev.Arguments[0])).ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(ev.Arguments[1]), false, false, ServerStatic.PermissionsHandler.GetGroup(ev.Arguments[1]).HiddenByDefault);
-			            if (ServerStatic.GetPermissionsHandler()._members.ContainsKey(Player.Get(int.Parse(ev.Arguments[0])).UserId))
-				            ServerStatic.GetPermissionsHandler()._members[Player.Get(int.Parse(ev.Arguments[0])).UserId] = ev.Arguments[1];
-			            else
-				            ServerStatic.GetPermissionsHandler()._members.Add(Player.Get(int.Parse(ev.Arguments[0])).UserId, ev.Arguments[1]);
+			            Player.Get(int.Parse(ev.Arguments[0])).ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler._groups[ev.Arguments[1]], false);
+			            ServerStatic.PermissionsHandler._members[Player.Get(int.Parse(ev.Arguments[0])).UserId] = ev.Arguments[1];
 			            synced.Add(Player.Get(int.Parse(ev.Arguments[0])).UserId);
 		            }
 		            break;
