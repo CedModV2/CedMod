@@ -68,6 +68,11 @@ namespace CedMod.QuerySystem
 			            if (!CommandProcessor.CheckPermissions(sender, "CMSYNC", PlayerPermissions.SetGroup, "", false))
 				            return;
 			            ev.IsAllowed = false;
+			            if (ServerStatic.PermissionsHandler._members.ContainsKey(Player.Get(int.Parse(ev.Arguments[0])).UserId))
+			            {
+				            Initializer.Logger.Info("CedMod-RoleSync", $"{ev.Arguments[0]} already present in RA config ignoring...");
+				            return;
+			            }
 			            Initializer.Logger.Info("CedMod-RoleSync", $"Assigning role: {ev.Arguments[1]} to {ev.Arguments[0]}.");
 			            Player.Get(int.Parse(ev.Arguments[0])).ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler._groups[ev.Arguments[1]], false);
 			            ServerStatic.PermissionsHandler._members[Player.Get(int.Parse(ev.Arguments[0])).UserId] = ev.Arguments[1];
