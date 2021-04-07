@@ -68,6 +68,7 @@ namespace CedMod.LightsPlugin
             if (chance <= CedModLightsPlugin.config.SpawnChance)
             {
                 Initializer.Logger.Info("CedMod-LightsPlugin", $"Chance below {chance} skipping");
+                yield break;
             }
             Initializer.Logger.Info("CedMod-LightsPlugin", $"Chance above {chance} continueing");
             
