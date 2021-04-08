@@ -170,7 +170,13 @@ namespace CedMod.QuerySystem
 						foreach (Player player in Player.List)
 						{
 							QueryProcessor component = player.ReferenceHub.queryProcessor;
-							text += $"{player.UserId}:{player.DoNotTrack}:{player.RemoteAdminAccess}\n";
+
+							bool staff = false;
+							if (ServerStatic.PermissionsHandler._members.ContainsKey(player.UserId) && ServerStatic.PermissionsHandler._groups.ContainsKey(ServerStatic.PermissionsHandler._members[player.UserId]))
+							{
+								staff = ServerStatic.PermissionsHandler.IsRaPermitted(ServerStatic.PermissionsHandler._groups[ServerStatic.PermissionsHandler._members[player.UserId]].Permissions);
+							}
+							text += $"{player.UserId}:{player.DoNotTrack}:{staff}\n";
 						}
 						sender.RaReply(ev.Name + ":PLAYER_LIST#" + text, success: true, ev.Arguments.Count < 2 || ev.Arguments[1].ToUpper() != "SILENT", "");
                     }
