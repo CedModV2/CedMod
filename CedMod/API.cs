@@ -22,14 +22,7 @@ namespace CedMod
     {
         public static readonly Uri APIUrl = new Uri("https://api.cedmod.nl/");
         public static readonly Uri TestAPIUrl = new Uri("https://test.cedmod.nl/");
-
-        public static string GetAlias()
-        {
-            var alias = ConfigFile.ServerConfig.GetString("bansystem_alias", "none");
-            alias = alias.Replace(" ", "");
-            return alias;
-        }
-
+        
         public static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain,
             SslPolicyErrors error)
         {
@@ -52,7 +45,7 @@ namespace CedMod
                 if (type == "GET")
                 {
                     HttpClient client = new HttpClient();
-                    client.DefaultRequestHeaders.Add("ApiKey", ConfigFile.ServerConfig.GetString("bansystem_apikey"));
+                    client.DefaultRequestHeaders.Add("ApiKey", CedModMain.config.CedModApiKey);
                     if (Initializer.TestApiOnly)
                         response = client.GetAsync(TestAPIUrl + endpoint + arguments).Result.Content.ReadAsStringAsync().Result;
                     else
@@ -62,7 +55,7 @@ namespace CedMod
                 if (type == "POST")
                 {
                     HttpClient client = new HttpClient();
-                    client.DefaultRequestHeaders.Add("ApiKey", ConfigFile.ServerConfig.GetString("bansystem_apikey"));
+                    client.DefaultRequestHeaders.Add("ApiKey", CedModMain.config.CedModApiKey);
                     if (Initializer.TestApiOnly)
                         response = client.PostAsync(TestAPIUrl + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json")).Result.Content.ReadAsStringAsync().Result;
                     else
@@ -84,9 +77,9 @@ namespace CedMod
                     response = r.ReadToEnd();
                 }
                 if (string.IsNullOrEmpty(response))
-                    SentrySdk.CaptureMessage($"API-Request failed on {GetAlias()} Response code {ex.Status} {ex.Message}", SentryLevel.Warning);
+                    SentrySdk.CaptureMessage($"API-Request failed Response code {ex.Status} {ex.Message}", SentryLevel.Warning);
                 else
-                    SentrySdk.CaptureMessage($"API-Request failed on {GetAlias()} Response code {ex.Status} {ex.Message} API response was {response}", SentryLevel.Warning);
+                    SentrySdk.CaptureMessage($"API-Request failed Response code {ex.Status} {ex.Message} API response was {response}", SentryLevel.Warning);
                 Initializer.Logger.Error("API",
                     "API request failed: " + response + " | " + ex.Message);
                 return null;

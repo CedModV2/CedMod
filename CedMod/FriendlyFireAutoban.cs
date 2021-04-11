@@ -20,7 +20,7 @@ namespace CedMod
         {
             Initializer.Logger.Debug("FFA", "Check 1");
             if (RoundSummary.RoundInProgress() == false) return;
-            if (ConfigFile.ServerConfig.GetBool("ffa_enable", true) == false) return;
+            if (!CedModMain.config.AutobanEnabled) return;
             if (AdminDisabled) return;
             Initializer.Logger.Debug("FFA", "Check 2");
             if (!IsTeakill(ev))
@@ -67,7 +67,7 @@ namespace CedMod
             {
                 if (s.Key == ev.Killer.UserId)
                 {
-                    if (s.Value >= ConfigFile.ServerConfig.GetInt("ffa_ammountoftkbeforeban", 3))
+                    if (s.Value >= CedModMain.config.AutobanThreshold)
                     {
                         Initializer.Logger.Info("FFA",
                             string.Concat("Player: ",
@@ -75,11 +75,13 @@ namespace CedMod
                                 ev.Killer.ReferenceHub.queryProcessor.PlayerId.ToString(),
                                 " ", ev.Killer.UserId,
                                 " exeeded teamkill limit"));
-                        Task.Factory.StartNew(() => { API.Ban(ev.Killer,
-                            ConfigFile.ServerConfig.GetInt("ffa_banduration", 4320),
-                            "Server.Module.FriendlyFireAutoban",
-                            ConfigFile.ServerConfig.GetString("ffa_banreason",
-                                "You have teamkilled too many people"), false); });
+                        Task.Factory.StartNew(() =>
+                        {
+                            API.Ban(ev.Killer,
+                                CedModMain.config.AutobanDuration,
+                                "Server.Module.FriendlyFireAutoban",
+                                CedModMain.config.AutobanReason);
+                        });
                         Map.Broadcast(20,
                             "<size=25><b><color=yellow>user: </color></b><color=red>" +
                             ev.Killer.Nickname +
@@ -102,11 +104,11 @@ namespace CedMod
                 case Team.CHI when ev.Target.Team == Team.CDP:
                 case Team.RSC when ev.Target.Team == Team.MTF:
                 case Team.MTF when ev.Target.Team == Team.RSC:
-                case Team.MTF when ev.Target.Team == Team.CDP && ev.Target.IsCuffed && !ConfigFile.ServerConfig.GetBool("ffa_killingdisarmedclassdsallowed"):
-                case Team.CHI when ev.Target.Team == Team.RSC && ev.Target.IsCuffed && !ConfigFile.ServerConfig.GetBool("ffa_killingdisarmedscientistallowed"):
+                case Team.MTF when ev.Target.Team == Team.CDP && ev.Target.IsCuffed && CedModMain.config.AutobanDisarmedClassDTk:
+                case Team.CHI when ev.Target.Team == Team.RSC && ev.Target.IsCuffed && CedModMain.config.AutobanDisarmedScientistDTk:
                     result = true;
                     break;
-                case Team.CDP when ev.Target.Team == Team.CDP && !ConfigFile.ServerConfig.GetBool("ffa_dclassvsdclasstk", true):
+                case Team.CDP when ev.Target.Team == Team.CDP && CedModMain.config.AutobanClassDvsClassD:
                 default:
                     result = false;
                     break;

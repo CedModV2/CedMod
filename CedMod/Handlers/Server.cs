@@ -79,27 +79,12 @@ namespace CedMod.Handlers
             
             reported.Add(ev.Target.ReferenceHub, ev.Issuer.ReferenceHub);
             Timing.RunCoroutine(removefromlist(ev.Target.ReferenceHub));
-            
-            sendDI();
         }
 
         public IEnumerator<float> removefromlist(ReferenceHub target)
         {
             yield return Timing.WaitForSeconds(60f);
             reported.Remove(target);
-        }
-        public static void sendDI(string msg = "Default")
-        {
-            if (msg == "Default") msg = CedModMain.config.ReportContent;
-            try
-            {
-                DiscordIntegration_Plugin.ProcessSTT.SendData(msg,
-                    CedModMain.config.ReportChannel);
-            }
-            catch (Exception e)
-            {
-                Initializer.Logger.Debug("DIReport", $"DI is not installed{e.Message}");
-            }
         }
 
         /// <inheritdoc cref="Events.Handlers.Server.OnEndingRound(EndingRoundEventArgs)"/>

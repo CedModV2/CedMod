@@ -48,9 +48,7 @@ namespace CedMod
                 {
                     if (info["success"] == "true" && info["vpn"] == "false" && info["isbanned"] == "true")
                     {
-                        reason = info["preformattedmessage"] +
-                                 " You can fill in a ban appeal here: " +
-                                 ConfigFile.ServerConfig.GetString("bansystem_banappealurl", "none");
+                        reason = info["preformattedmessage"];
                         Initializer.Logger.Info("BANSYSTEM",
                             "user: " + Player.characterClassManager.UserId +
                             " attempted connection with active ban disconnecting");
