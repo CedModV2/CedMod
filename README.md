@@ -20,7 +20,7 @@ CedMod builds are located on the Actions tab (download is also available on the 
 | report_blacklist                    |   list    | []       | userids in this list will not be able to use ingame reports           |
 | staff_report_allowed                |   bool    | false    | if staff can be reported using ingame reports                         |
 | staff_report_message                |   string  | You can not report a staff member                                                |
-|-------------------------------------|----------:|:--------:|:---------------------------------------------------------------------:|
+|                                                                                                                                    |
 | cm_WAPI                                                                                                                            |
 | is_enabled                          |   bool    | true     | If the plugin is enabled                                              |
 | disallowed_web_commands             |   list    | []       | Commands that will not be able to run                                 |
