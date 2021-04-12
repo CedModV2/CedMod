@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using CedMod.INIT;
+﻿using System.Collections.Generic;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using Hints;
@@ -35,7 +33,6 @@ namespace CedMod.LightsPlugin
                 Timing.CallDelayed(1f, () =>
                 {
                     bool _hasflashlight = false;
-                    Initializer.Logger.Info("CedMod-LightsPlugin", "Giving flashlights");
                     if (CedModLightsPlugin.config.GiveFlashlightsNotification)
                     {
                         foreach (var Item in ev.Player.Inventory.items)
@@ -48,9 +45,7 @@ namespace CedMod.LightsPlugin
 
                         if (!_hasflashlight)
                         {
-                            ev.Player.HintDisplay.Show(new TextHint(
-                                "<color=red>You have been given a flashlight.</color>",
-                                new HintParameter[] {new StringHintParameter("")}, null, 10f));
+                            ev.Player.HintDisplay.Show(new TextHint("<color=red>You have been given a flashlight.</color>", new HintParameter[] {new StringHintParameter("")}, null, 10f));
                             ev.Player.Inventory.AddNewItem(ItemType.Flashlight);
                         }
                     }
@@ -63,21 +58,16 @@ namespace CedMod.LightsPlugin
         public IEnumerator<float> Run()
         {
             float chance = Random.Range(1, 100);
-
-            Initializer.Logger.Info("CedMod-LightsPlugin", $"Chance: {chance}");
             if (chance <= CedModLightsPlugin.config.SpawnChance)
             {
-                Initializer.Logger.Info("CedMod-LightsPlugin", $"Chance below {chance} skipping");
                 yield break;
             }
-            Initializer.Logger.Info("CedMod-LightsPlugin", $"Chance above {chance} continueing");
-            
+
             yield return Timing.WaitForSeconds(5f);
             foreach (Player ply in Player.List)
             {
                 if (ply.Role == RoleType.Scp173 && !CedModLightsPlugin.config.BlackoutWhen173Ingame)
                 {
-                    Initializer.Logger.Info("CedMod-LightsPlugin", "173 is ingame not running blackout");
                     Timing.KillCoroutines("CMLightsPluginCoroutines");
                     yield return 0f;
                 }
@@ -85,21 +75,18 @@ namespace CedMod.LightsPlugin
 
             float runin = UnityEngine.Random.Range(CedModLightsPlugin.config.BlackoutWaitMin,
                 CedModLightsPlugin.config.BlackoutWaitMax);
-            Initializer.Logger.Info("CedMod-LightsPlugin", "Running blackout in: " + runin);
             yield return Timing.WaitForSeconds(runin);
             Cassie.Message(CedModLightsPlugin.config.CassieAnnouncementBlackoutStart, true,
                 CedModLightsPlugin.config.CassieBells);
             BlackoutOn = true;
             float dur = Random.Range(CedModLightsPlugin.config.BlackoutDurationMin,
                 CedModLightsPlugin.config.BlackoutDurationMax);
-            Initializer.Logger.Info("CedMod-LightsPlugin", "Running blackout, blackout will last: " + dur);
             Generator079.mainGenerator.ServerOvercharge(dur, false);
             foreach (Player ply in Player.List)
             {
                 if (ply.Team != Team.SCP && ply.Team != Team.RIP && CedModLightsPlugin.config.GiveFlashlights)
                 {
                     bool _hasflashlight = false;
-                    Initializer.Logger.Info("CedMod-LightsPlugin", "Giving flashlights");
                     if (CedModLightsPlugin.config.GiveFlashlightsNotification)
                     {
                         foreach (var Item in ply.Inventory.items)
@@ -122,9 +109,7 @@ namespace CedMod.LightsPlugin
 
             yield return Timing.WaitForSeconds(dur);
             BlackoutOn = false;
-            Cassie.Message(CedModLightsPlugin.config.CassieAnnouncementBlackoutStop, true,
-                CedModLightsPlugin.config.CassieBells);
-            Initializer.Logger.Info("CedMod-LightsPlugin", "Blackout has ended");
+            Cassie.Message(CedModLightsPlugin.config.CassieAnnouncementBlackoutStop, true, CedModLightsPlugin.config.CassieBells);
         }
     }
 }

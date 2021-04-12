@@ -43,7 +43,6 @@
   <ItemGroup>
     <Compile Include="API.cs" />
     <Compile Include="BanSystem.cs" />
-    <Compile Include="Commands\CommandHandler.cs" />
     <Compile Include="Commands\DialogBox.cs" />
     <Compile Include="Commands\Dialog\all.cs" />
     <Compile Include="Commands\Dialog\playerid.cs" />
@@ -60,13 +59,10 @@
     <Compile Include="Commands\TotalBans.cs" />
     <Compile Include="FriendlyFireAutoban.cs" />
     <Compile Include="Handlers\Player.cs" />
-    <Compile Include="INIT\CedModLogger.cs" />
-    <Compile Include="INIT\Initializer.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Handlers\Server.cs" />
     <Compile Include="Patches\BanPatch.cs" />
-    <Compile Include="Patches\ExceptionPatch.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -567,21 +563,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Sentry.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Sentry.PlatformAbstractions.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Sentry.Protocol.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="System.Runtime.InteropServices.RuntimeInformation.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="websocket-sharp.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

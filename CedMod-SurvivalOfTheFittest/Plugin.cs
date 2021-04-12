@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Reflection;
-using CedMod.INIT;
+﻿using System.Collections.Generic;
 using Exiled.API.Enums;
 using Exiled.API.Features;
-using UnityEngine;
 
 namespace CedMod.SurvivalOfTheFittest
 {
@@ -34,7 +28,6 @@ namespace CedMod.SurvivalOfTheFittest
             if (!Config.IsEnabled)
                 return;
             RegisterEvents();
-            Initializer.Logger.Info("CedMod-SurvivalOfTheFittest", "Plugin has loaded");
         }
 
         /// <inheritdoc/>

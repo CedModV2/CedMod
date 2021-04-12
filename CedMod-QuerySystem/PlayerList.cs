@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using CedMod.INIT;
 using CedMod.QuerySystem.WS;
-using CommandSystem;
-using Exiled.API.Extensions;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using Exiled.Permissions.Extensions;
-using GameCore;
 using Newtonsoft.Json;
 using NorthwoodLib;
 using RemoteAdmin;
-using UnityEngine;
 
 namespace CedMod.QuerySystem
 {
@@ -70,10 +64,8 @@ namespace CedMod.QuerySystem
 			            ev.IsAllowed = false;
 			            if (ServerStatic.PermissionsHandler._members.ContainsKey(Player.Get(int.Parse(ev.Arguments[0])).UserId))
 			            {
-				            Initializer.Logger.Info("CedMod-RoleSync", $"{ev.Arguments[0]} already present in RA config ignoring...");
 				            return;
 			            }
-			            Initializer.Logger.Info("CedMod-RoleSync", $"Assigning role: {ev.Arguments[1]} to {ev.Arguments[0]}.");
 			            Player.Get(int.Parse(ev.Arguments[0])).ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler._groups[ev.Arguments[1]], false);
 			            ServerStatic.PermissionsHandler._members[Player.Get(int.Parse(ev.Arguments[0])).UserId] = ev.Arguments[1];
 			            synced.Add(Player.Get(int.Parse(ev.Arguments[0])).UserId);
@@ -156,7 +148,6 @@ namespace CedMod.QuerySystem
 					}
 					catch (Exception ex2)
 					{
-						Initializer.Logger.LogException(ex2, "CedMod.PluginInterface", "PlayerListCommand");
 						sender.RaReply(ev.Name + ":PLAYER_LIST#An unexpected problem has occurred!\nMessage: " + ex2.Message + "\nStackTrace: " + ex2.StackTrace + "\nAt: " + ex2.Source, success: false, logToConsole: true, "");
 						throw;
 					}
@@ -182,7 +173,6 @@ namespace CedMod.QuerySystem
                     }
 					catch (Exception ex2)
 					{
-						Initializer.Logger.LogException(ex2, "CedMod.PluginInterface", "PlayerListCommand");
 						sender.RaReply(ev.Name + ":PLAYER_LIST#An unexpected problem has occurred!\nMessage: " + ex2.Message + "\nStackTrace: " + ex2.StackTrace + "\nAt: " + ex2.Source, success: false, logToConsole: true, "");
 						throw;
 					}

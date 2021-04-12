@@ -45,5 +45,8 @@
         
         [Description("The message that players recieve if they try to report a staff member")]
         public string StaffReportMessage { get; set; } = "You can not report a staff member";
+        
+        [Description("If debug logs are shown")]
+        public bool ShowDebug { get; set; } = false;
     }
 }

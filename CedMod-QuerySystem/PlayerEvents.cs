@@ -82,6 +82,8 @@ namespace CedMod.QuerySystem
 		
 		public void OnPlayerHurt(HurtingEventArgs ev)
 		{
+			if (ev.DamageType == DamageTypes.Scp207)
+				return;
 			foreach (WebSocketSystemBehavior webSocketSystemBehavior in WebSocketSystem.Clients)
 			{
 				if (webSocketSystemBehavior.authed)

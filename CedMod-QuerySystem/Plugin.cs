@@ -3,13 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using CedMod.INIT;
 using Exiled.API.Enums;
 using Exiled.API.Features;
-using Exiled.Events.Handlers;
-using GameCore;
 using HarmonyLib;
-using Console = System.Console;
 
 namespace CedMod.QuerySystem
 {
@@ -92,11 +88,6 @@ namespace CedMod.QuerySystem
             {
                 SecurityKey = Config.SecurityKey;
             }
-            else
-            {
-                Initializer.Logger.Warn("PluginInterface",
-                    "cm_plugininterface_key is depricated, please use the new exiled config system, this option will be removed in future release");
-            }
 
             if (SecurityKey != "None")
             {
@@ -111,8 +102,7 @@ namespace CedMod.QuerySystem
                     WS.WebSocketSystem.Start();
             }
             else
-                Initializer.Logger.Warn("PluginInterface",
-                    "cm_plugininterface_key is set to none plugin will nog load due to security risks");
+                Exiled.API.Features.Log.Warn("security_key is set to none plugin will nog load due to security risks");
 
             MapEvents = new MapEvents();
             ServerEvents = new ServerEvents();

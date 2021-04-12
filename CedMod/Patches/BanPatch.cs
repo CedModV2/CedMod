@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using CedMod.INIT;
 using Exiled.API.Features;
 using HarmonyLib;
 using UnityEngine;
@@ -14,7 +13,7 @@ namespace CedMod.Patches
         {
             try
             {
-                Initializer.Logger.Info("BANSYSTEM", $"MainGame ban patch: banning user. {duration} {reason} {issuer}");
+                Log.Info($"MainGame ban patch: banning user. {duration} {reason} {issuer}");
                 Task.Factory.StartNew(() =>
                 {
                     try
@@ -26,13 +25,13 @@ namespace CedMod.Patches
                     }
                     catch (Exception ex)
                     {
-                        Initializer.Logger.Error("BANSYSTEM", $"MainGame ban patch failed {ex.ToString()}");
+                       Log.Error($"MainGame ban patch failed {ex.ToString()}");
                     }
                 });
             }
             catch (Exception ex)
             {
-                Initializer.Logger.Error("BANSYSTEM", $"MainGame ban patch failed {ex.ToString()}");
+                Log.Error($"MainGame ban patch failed {ex.ToString()}");
             }
 
             return false;

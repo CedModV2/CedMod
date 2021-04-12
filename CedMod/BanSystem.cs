@@ -3,17 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CedMod.Commands;
-using CedMod.INIT;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using Exiled.Permissions.Extensions;
-using GameCore;
-using MEC;
-using Mirror;
 using Newtonsoft.Json;
 using RemoteAdmin;
-using UnityEngine;
-using Console = System.Console;
+using Log = Exiled.API.Features.Log;
 
 namespace CedMod
 {
@@ -36,12 +31,7 @@ namespace CedMod
                 if (info["success"] == "true" && info["vpn"] == "true" && info["isbanned"] == "false")
                 {
                     reason = info["reason"];
-                    Player.characterClassManager.TargetConsolePrint(Player.characterClassManager.connectionToClient,
-                        "CedMod.BANSYSTEM Message from CedMod server (VPN/Proxy detected): " + info,
-                        "yellow");
-                    Initializer.Logger.Info("BANSYSTEM",
-                        "user: " + Player.characterClassManager.UserId +
-                        " attempted connection with blocked ASN/IP/VPN/Hosting service");
+                    Log.Info($"user: {Player.characterClassManager.UserId} attempted connection with blocked ASN/IP/VPN/Hosting service");
                     ev.Player.Disconnect(reason);
                 }
                 else
@@ -49,13 +39,7 @@ namespace CedMod
                     if (info["success"] == "true" && info["vpn"] == "false" && info["isbanned"] == "true")
                     {
                         reason = info["preformattedmessage"];
-                        Initializer.Logger.Info("BANSYSTEM",
-                            "user: " + Player.characterClassManager.UserId +
-                            " attempted connection with active ban disconnecting");
-                        Player.characterClassManager.TargetConsolePrint(
-                            Player.characterClassManager.connectionToClient,
-                            "CedMod.BANSYSTEM Active ban: " + info["preformattedmessage"],
-                            "yellow");
+                        Log.Info($"user: {Player.characterClassManager.UserId} attempted connection with active ban disconnecting");
                         ev.Player.Disconnect(reason);
                     }
                     else
@@ -63,19 +47,14 @@ namespace CedMod
                         if (info["success"] == "true" && info["vpn"] == "false" && info["isbanned"] == "false" &&
                             info["iserror"] == "true")
                         {
-                            Player.characterClassManager.TargetConsolePrint(
-                                Player.characterClassManager.connectionToClient,
-                                "CedMod.BANSYSTEM Message from CedMod server: " + info["error"],
-                                "yellow");
-                            Initializer.Logger.Info("BANSYSTEM",
-                                "Message from CedMod server: " + info["error"]);
+                            Log.Info($"Message from CedMod server: {info["error"]}");
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Initializer.Logger.LogException(ex, "CedMod", "BanSystem.HandleJoin");
+                Log.Error(ex);
             }
         }
 
@@ -160,7 +139,7 @@ namespace CedMod
                                     if (!string.IsNullOrEmpty(text17) && Convert.ToInt32(ev.Arguments[1]) <= 0)
                                     {
                                         string text3;
-                                        text3 = " Reason: " + text17;
+                                        text3 = $" Reason: {text17}";
                                         ServerConsole.Disconnect(player.GameObject, text3);
                                     }
                                 }

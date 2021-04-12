@@ -6,15 +6,12 @@ using System.Net.Http;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using CedMod.INIT;
 using Exiled.API.Features;
 using GameCore;
-using Mirror;
 using Newtonsoft.Json;
 using Sentry;
 using Sentry.Protocol;
-using UnityEngine;
-using Console = System.Console;
+using Log = Exiled.API.Features.Log;
 
 namespace CedMod
 {
@@ -23,16 +20,10 @@ namespace CedMod
         public static readonly Uri APIUrl = new Uri("https://api.cedmod.nl/");
         public static readonly Uri TestAPIUrl = new Uri("https://test.cedmod.nl/");
         
-        public static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain,
-            SslPolicyErrors error)
+        public static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors error)
         {
             // If the certificate is a valid, signed certificate, return true.
             if (error == SslPolicyErrors.None) return true;
-
-            Console.WriteLine("X509Certificate [{0}] Policy Error: '{1}'",
-                cert.Subject,
-                error.ToString());
-
             return false;
         }
         public static object APIRequest(string endpoint, string arguments, bool returnstring = false, string type = "GET")
@@ -46,23 +37,15 @@ namespace CedMod
                 {
                     HttpClient client = new HttpClient();
                     client.DefaultRequestHeaders.Add("ApiKey", CedModMain.config.CedModApiKey);
-                    if (Initializer.TestApiOnly)
-                        response = client.GetAsync(TestAPIUrl + endpoint + arguments).Result.Content.ReadAsStringAsync().Result;
-                    else
-                        response = client.GetAsync(APIUrl + endpoint + arguments).Result.Content.ReadAsStringAsync().Result;
+                    response = client.GetAsync(APIUrl + endpoint + arguments).Result.Content.ReadAsStringAsync().Result;
                 }
 
                 if (type == "POST")
                 {
                     HttpClient client = new HttpClient();
                     client.DefaultRequestHeaders.Add("ApiKey", CedModMain.config.CedModApiKey);
-                    if (Initializer.TestApiOnly)
-                        response = client.PostAsync(TestAPIUrl + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json")).Result.Content.ReadAsStringAsync().Result;
-                    else
-                        response = client.PostAsync(APIUrl + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json")).Result.Content.ReadAsStringAsync().Result;
+                    response = client.PostAsync(APIUrl + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json")).Result.Content.ReadAsStringAsync().Result;
                 }
-                Initializer.Logger.Info("BANSYSTEM",
-                    "Response from API: "+  response);
                 if (!returnstring)
                 {
                     var jsonObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(response);
@@ -76,12 +59,7 @@ namespace CedMod
                 {
                     response = r.ReadToEnd();
                 }
-                if (string.IsNullOrEmpty(response))
-                    SentrySdk.CaptureMessage($"API-Request failed Response code {ex.Status} {ex.Message}", SentryLevel.Warning);
-                else
-                    SentrySdk.CaptureMessage($"API-Request failed Response code {ex.Status} {ex.Message} API response was {response}", SentryLevel.Warning);
-                Initializer.Logger.Error("API",
-                    "API request failed: " + response + " | " + ex.Message);
+                Log.Error($"API request failed: {response} | {ex.Message}");
                 return null;
             }
         }

@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using CedMod.INIT;
 using Exiled.API.Features;
 using Newtonsoft.Json;
 using RemoteAdmin;
-using UnityEngine;
 using WebSocketSharp;
-using WebSocketSharp.Net;
 using WebSocketSharp.Server;
 
 namespace CedMod.QuerySystem.WS
@@ -30,16 +26,14 @@ namespace CedMod.QuerySystem.WS
 	    
         protected override void OnOpen()
         {
-	        Initializer.Logger.Debug("CedMod-WebAPI", "Client connected");
-            WebSocketSystem.Clients.Add(this);
+	        WebSocketSystem.Clients.Add(this);
             Task.Factory.StartNew(delegate() { DieIfNotKepAlive(); });
             Task.Factory.StartNew(delegate() { DieIfNotAuthed(); });
         }
         
         protected override void OnClose(CloseEventArgs e)
         {
-	        Initializer.Logger.Debug("CedMod-WebAPI", "Client disconnected: " + e.Code + " " + e.Reason);
-            WebSocketSystem.Clients.Remove(this);
+	        WebSocketSystem.Clients.Remove(this);
         }
         
         public void DieIfNotKepAlive()
@@ -59,12 +53,6 @@ namespace CedMod.QuerySystem.WS
             {
                 lastkeepalivetime = DateTime.Now;
                 return;
-            }
-
-            Task.Factory.StartNew(delegate() { DieIfNotAuthed(); });
-            if (!ev.Data.Contains("command\":\"PLAYERLISTCOLOREDSTEAMID SILENT") && !ev.Data.Contains("command\":\"PLAYERLISTCOLORED SILENT") && !ev.Data.Contains("command\":\"CMMINIMAP"))
-            {
-                Initializer.Logger.Debug("CedMod-WebAPI", "Message recieved: " + ev.Data);
             }
 
             try
@@ -202,7 +190,7 @@ namespace CedMod.QuerySystem.WS
             }
             catch (Exception ex)
             {
-                Initializer.Logger.Error("CedMod-WebAPI", ex.ToString());
+                Exiled.API.Features.Log.Error(ex.ToString());
                 Context.WebSocket.Close();
             }
         }
@@ -220,7 +208,7 @@ namespace CedMod.QuerySystem.WS
             Server = new WebSocketServer(QuerySystem.config.Port, false);
             Server.AddWebSocketService<WebSocketSystemBehavior>("/");
             Server.Start();
-            Initializer.Logger.Debug("CedMod-WebAPI", "Server started " + Server.Address + " " + Server.Port);
+            Log.Info($"Server started {Server.Address} {Server.Port}");
         }
 	    
         public static void Stop()
@@ -230,7 +218,7 @@ namespace CedMod.QuerySystem.WS
                 Server.Stop();
                 Server = null;
             }
-            Initializer.Logger.Debug("CedMod-WebAPI", "Server stopped");
+            Log.Info("Server stopped");
         }
         
         public static WebSocketServer Server;
