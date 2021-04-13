@@ -56,20 +56,7 @@ namespace CedMod
                 Application.Quit();
             }
             config = Config;
-            CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new StuiterParentCommand());
-            CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new LightsoutCommand());
-            CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new FFADisableCommand());
-            CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new PlayersCommand());
-            CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new TotalBansCommand());
-            CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new PriorBansCommand());
-            CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new RedirectCommand());
-            CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new DiaglogParentCommand());
-            GameCore.Console.singleton.ConsoleCommandHandler.RegisterCommand(new StuiterParentCommand());
-            GameCore.Console.singleton.ConsoleCommandHandler.RegisterCommand(new LightsoutCommand());
-            GameCore.Console.singleton.ConsoleCommandHandler.RegisterCommand(new RedirectCommand());
-            GameCore.Console.singleton.ConsoleCommandHandler.RegisterCommand(new DiaglogParentCommand());
-            QueryProcessor.DotCommandHandler.RegisterCommand(new TotalBansCommand());
-            QueryProcessor.DotCommandHandler.RegisterCommand(new PriorBansCommand());
+            
             RegisterEvents();
         }
 
