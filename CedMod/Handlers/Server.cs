@@ -25,9 +25,9 @@ namespace CedMod.Handlers
             }
             if (ev.Issuer.UserId == ev.Target.UserId)
             {
-                //ev.IsAllowed = false;
+                ev.IsAllowed = false;
                 ev.Issuer.SendConsoleMessage($"[REPORTING] You can't report yourself", "green");
-                //return;
+                return;
             }
             if (reported.ContainsKey(ev.Target.ReferenceHub))
             {
