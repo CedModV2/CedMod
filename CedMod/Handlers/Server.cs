@@ -1,7 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using Exiled.API.Features;
 using Exiled.Events;
 using MEC;
 using Exiled.Events.EventArgs;
+using Newtonsoft.Json;
+using Telepathy;
 
 namespace CedMod.Handlers
 {
@@ -18,9 +25,9 @@ namespace CedMod.Handlers
             }
             if (ev.Issuer.UserId == ev.Target.UserId)
             {
-                ev.IsAllowed = false;
+                //ev.IsAllowed = false;
                 ev.Issuer.SendConsoleMessage($"[REPORTING] You can't report yourself", "green");
-                return;
+                //return;
             }
             if (reported.ContainsKey(ev.Target.ReferenceHub))
             {
@@ -43,6 +50,28 @@ namespace CedMod.Handlers
             
             reported.Add(ev.Target.ReferenceHub, ev.Issuer.ReferenceHub);
             Timing.RunCoroutine(removefromlist(ev.Target.ReferenceHub));
+            
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
+            if (GameCore.ConfigFile.ServerConfig.GetString("report_discord_webhook_url", "PleaseSetWebhookUrlHere") != "PleaseSetWebhookUrlHere")
+            {
+                Task.Factory.StartNew(() =>
+                {
+                    try
+                    {
+                        var hh = client.PostAsync(
+                            GameCore.ConfigFile.ServerConfig.GetString("report_discord_webhook_url",
+                                "PleaseSetWebhookUrlHere"),
+                            new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
+                                {{"content", CedModMain.config.ReportMessage}}), Encoding.Default, "application/json")).Result;
+                        Log.Debug(hh.Content.ReadAsStringAsync().Result, CedModMain.config.ShowDebug);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex);
+                    }
+                });
+            }
         }
 
         public IEnumerator<float> removefromlist(ReferenceHub target)
