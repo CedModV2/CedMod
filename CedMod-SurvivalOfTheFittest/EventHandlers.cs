@@ -66,7 +66,7 @@ namespace CedMod.SurvivalOfTheFittest
                 hub.ReferenceHub.inventory.Clear();
                 hub.ReferenceHub.inventory.AddNewItem(ItemType.Flashlight);
                 hub.ReferenceHub.inventory.AddNewItem(ItemType.KeycardO5);
-                hub.ReferenceHub.playerMovementSync.OverridePosition(Map.GetRandomSpawnPoint(RoleType.Scp096), 0f);
+                hub.ReferenceHub.playerMovementSync.OverridePosition(Exiled.API.Extensions.Role.GetRandomSpawnPoint(RoleType.Scp096), 0f);
             }
         }
 
@@ -79,7 +79,7 @@ namespace CedMod.SurvivalOfTheFittest
                     "<color=red>You are a Nut, once this notice disapears (2 minutes), you will be set loose to kill the Dbois!</color>", Broadcast.BroadcastFlags.Normal);
                 hub.ReferenceHub.serverRoles.BypassMode = true;
                 yield return Timing.WaitForOneFrame * 30;
-                hub.ReferenceHub.playerMovementSync.OverridePosition(Map.GetRandomSpawnPoint(RoleType.Scp173), 0f);
+                hub.ReferenceHub.playerMovementSync.OverridePosition(Exiled.API.Extensions.Role.GetRandomSpawnPoint(RoleType.Scp173), 0f);
             }
         }
         public Random Gen = new Random();
