@@ -31,7 +31,7 @@ namespace CedMod.QuerySystem.WS
         }
         public static void Start()
         {
-            socket = new WebSocket($"wss://frikanweb.cedmod.nl/QuerySystem?key={QuerySystem.config.SecurityKey}&identity={QuerySystem.config.Identifier}");
+            socket = new WebSocket($"wss://communitymanagementpanel.cedmod.nl/QuerySystem?key={QuerySystem.config.SecurityKey}&identity={QuerySystem.config.Identifier}");
             socket.Connect();
             socket.OnMessage += OnMessage;
             socket.OnClose += (sender, args) =>
