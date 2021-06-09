@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using CedMod.QuerySystem.WS;
 using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using MapGeneration;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace CedMod.QuerySystem
@@ -20,24 +22,28 @@ namespace CedMod.QuerySystem
 			{
 				return;
 			}
-			foreach (WebSocketSystemBehavior webSocketSystemBehavior in WebSocketSystem.Clients)
+			Task.Factory.StartNew(delegate()
 			{
 				string text = string.Join(" ", ev.Arguments);
-				if (webSocketSystemBehavior.authed)
+				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
 				{
-					webSocketSystemBehavior.Context.WebSocket.Send(string.Concat(new string[]
+					Recipient = "ALL",
+					Data = new Dictionary<string, string>()
 					{
-						ev.Sender.Nickname,
-						"(",
-						ev.Sender.UserId,
-						") Used command: ",
-						ev.Name,
-						" ",
-						text,
-						"."
-					}));
-				}
-			}
+						{"Message", string.Concat(new string[]
+						{
+							ev.Sender.Nickname,
+							"(",
+							ev.Sender.UserId,
+							") Used command: ",
+							ev.Name,
+							" ",
+							text,
+							"."
+						})}
+					}
+				}));
+			});
 		}
 		
 		public void OnWaitingForPlayers()
@@ -55,86 +61,110 @@ namespace CedMod.QuerySystem
 					Minimap.Add(elem1);
 				}
 			}
-
-			foreach (WebSocketSystemBehavior webSocketSystemBehavior in WebSocketSystem.Clients)
+			
+			Task.Factory.StartNew(delegate()
 			{
-				if (webSocketSystemBehavior.authed)
+				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
 				{
-					webSocketSystemBehavior.Context.WebSocket.Send("Server is waiting for players.");
-				}
-			}
+					Recipient = "ALL",
+					Data = new Dictionary<string, string>()
+					{
+						{"Message", "Server is waiting for players."}
+					}
+				}));
+			});
 		}
 		
 		public void OnRoundStart()
 		{
-			foreach (WebSocketSystemBehavior webSocketSystemBehavior in WebSocketSystem.Clients)
+			Task.Factory.StartNew(delegate()
 			{
-				if (webSocketSystemBehavior.authed)
+				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
 				{
-					webSocketSystemBehavior.Context.WebSocket.Send("Round is restarting.");
-				}
-			}
+					Recipient = "ALL",
+					Data = new Dictionary<string, string>()
+					{
+						{"Message", "Round is restarting."}
+					}
+				}));
+			});
 		}
 		
 		public void OnRoundEnd(RoundEndedEventArgs ev)
 		{
-			foreach (WebSocketSystemBehavior webSocketSystemBehavior in WebSocketSystem.Clients)
+			Task.Factory.StartNew(delegate()
 			{
-				if (webSocketSystemBehavior.authed)
+				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
 				{
-					webSocketSystemBehavior.Context.WebSocket.Send("Round is restarting.");
-				}
-			}
+					Recipient = "ALL",
+					Data = new Dictionary<string, string>()
+					{
+						{"Message", "Round is restarting."}
+					}
+				}));
+			});
 		}
 		
 		public void OnCheaterReport(ReportingCheaterEventArgs ev)
 		{
-			foreach (WebSocketSystemBehavior webSocketSystemBehavior in WebSocketSystem.Clients)
+			Task.Factory.StartNew(delegate()
 			{
-				if (webSocketSystemBehavior.authed)
+				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
 				{
-					webSocketSystemBehavior.Context.WebSocket.Send(string.Concat(new string[]
+					Recipient = "ALL",
+					Data = new Dictionary<string, string>()
 					{
-						"ingame: ",
-						ev.Reporter.UserId,
-						" report ",
-						ev.Reported.UserId,
-						" for ",
-						ev.Reason,
-						"."
-					}));
-				}
-			}
+						{"Message", string.Concat(new string[]
+						{
+							"ingame: ",
+							ev.Reporter.UserId,
+							" report ",
+							ev.Reported.UserId,
+							" for ",
+							ev.Reason,
+							"."
+						})}
+					}
+				}));
+			});
 		}
 		
 		public void OnConsoleCommand(SendingConsoleCommandEventArgs ev)
 		{
-			foreach (WebSocketSystemBehavior webSocketSystemBehavior in WebSocketSystem.Clients)
+			Task.Factory.StartNew(delegate()
 			{
 				string text = string.Join(" ", ev.Arguments);
-				if (webSocketSystemBehavior.authed)
+				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
 				{
-					webSocketSystemBehavior.Context.WebSocket.Send(string.Format("{0} - {1} ({2}) sent client console command: {3} {4}.", new object[]
+					Recipient = "ALL",
+					Data = new Dictionary<string, string>()
 					{
-						ev.Player.Nickname,
-						ev.Player.UserId,
-						ev.Player.Role,
-						ev.Name,
-						text
-					}));
-				}
-			}
+						{"Message", string.Format("{0} - {1} ({2}) sent client console command: {3} {4}.", new object[]
+						{
+							ev.Player.Nickname,
+							ev.Player.UserId,
+							ev.Player.Role,
+							ev.Name,
+							text
+						})}
+					}
+				}));
+			});
 		}
 		
 		public void OnRespawn(RespawningTeamEventArgs ev)
 		{
-			foreach (WebSocketSystemBehavior webSocketSystemBehavior in WebSocketSystem.Clients)
+			Task.Factory.StartNew(delegate()
 			{
-				if (webSocketSystemBehavior.authed)
+				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
 				{
-					webSocketSystemBehavior.Context.WebSocket.Send(string.Format("Respawn: {0} as {1}.", ev.Players.Count, ev.NextKnownTeam));
-				}
-			}
+					Recipient = "ALL",
+					Data = new Dictionary<string, string>()
+					{
+						{"Message", string.Format("Respawn: {0} as {1}.", ev.Players.Count, ev.NextKnownTeam)}
+					}
+				}));
+			});
 		}
 	}
 
