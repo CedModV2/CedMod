@@ -77,11 +77,6 @@ namespace CedMod.QuerySystem
 			            return;
 		            }
 		            ev.IsAllowed = false;
-		            if (!QuerySystem.config.NewWebSocketSystem)
-		            {
-			            ev.ReplyMessage = "Query server is not enabled";
-			            return;
-		            }
 		            WS.WebSocketSystem.Stop();
 		            WS.WebSocketSystem.Start();
 		            ev.ReplyMessage = "Query server restarted";

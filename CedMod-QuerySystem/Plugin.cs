@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using CedMod.QuerySystem.WS;
 using Exiled.API.Enums;
 using Exiled.API.Features;
 using HarmonyLib;
@@ -35,39 +36,35 @@ namespace CedMod.QuerySystem
         {
             // Unload the event handlers.
             // Close the HTTP server.
-            if (Config.NewWebSocketSystem)
-                WS.WebSocketSystem.Stop();
-            else
-                Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += CommandHandler.HandleCommand;
-            if (Config.NewWebSocketSystem)
-            {
-                Exiled.Events.Handlers.Map.Decontaminating -= MapEvents.OnDecon;
-                Exiled.Events.Handlers.Warhead.Starting -= MapEvents.OnWarheadStart;
-                Exiled.Events.Handlers.Warhead.Stopping -= MapEvents.OnWarheadCancelled;
-                Exiled.Events.Handlers.Warhead.Detonated -= MapEvents.OnWarheadDetonation;
+            WebSocketSystem.Stop();
+            Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += CommandHandler.HandleCommand;
 
-                Exiled.Events.Handlers.Server.SendingRemoteAdminCommand -= ServerEvents.OnCommand;
-                Exiled.Events.Handlers.Server.WaitingForPlayers -= ServerEvents.OnWaitingForPlayers;
-                Exiled.Events.Handlers.Server.SendingConsoleCommand -= ServerEvents.OnConsoleCommand;
-                Exiled.Events.Handlers.Server.RoundStarted -= ServerEvents.OnRoundStart;
-                Exiled.Events.Handlers.Server.RoundEnded -= ServerEvents.OnRoundEnd;
-                Exiled.Events.Handlers.Server.RespawningTeam -= ServerEvents.OnRespawn;
-                Exiled.Events.Handlers.Server.ReportingCheater -= ServerEvents.OnCheaterReport;
+            Exiled.Events.Handlers.Map.Decontaminating -= MapEvents.OnDecon;
+            Exiled.Events.Handlers.Warhead.Starting -= MapEvents.OnWarheadStart;
+            Exiled.Events.Handlers.Warhead.Stopping -= MapEvents.OnWarheadCancelled;
+            Exiled.Events.Handlers.Warhead.Detonated -= MapEvents.OnWarheadDetonation;
 
-                Exiled.Events.Handlers.Player.UsingMedicalItem -= PlayerEvents.OnMedicalItem;
-                Exiled.Events.Handlers.Scp079.InteractingTesla -= PlayerEvents.On079Tesla;
-                Exiled.Events.Handlers.Player.EscapingPocketDimension -= PlayerEvents.OnPocketEscape;
-                Exiled.Events.Handlers.Player.EnteringPocketDimension -= PlayerEvents.OnPocketEnter;
-                Exiled.Events.Handlers.Player.ThrowingGrenade -= PlayerEvents.OnGrenadeThrown;
-                Exiled.Events.Handlers.Player.Hurting -= PlayerEvents.OnPlayerHurt;
-                Exiled.Events.Handlers.Player.Dying -= PlayerEvents.OnPlayerDeath;
-                Exiled.Events.Handlers.Player.InteractingElevator -= PlayerEvents.OnElevatorInteraction;
-                Exiled.Events.Handlers.Player.Handcuffing -= PlayerEvents.OnPlayerHandcuffed;
-                Exiled.Events.Handlers.Player.RemovingHandcuffs -= PlayerEvents.OnPlayerFreed;
-                Exiled.Events.Handlers.Player.Verified -= PlayerEvents.OnPlayerJoin;
-                Exiled.Events.Handlers.Player.Left -= PlayerEvents.OnPlayerLeave;
-                Exiled.Events.Handlers.Player.ChangingRole -= PlayerEvents.OnSetClass;
-            }
+            Exiled.Events.Handlers.Server.SendingRemoteAdminCommand -= ServerEvents.OnCommand;
+            Exiled.Events.Handlers.Server.WaitingForPlayers -= ServerEvents.OnWaitingForPlayers;
+            Exiled.Events.Handlers.Server.SendingConsoleCommand -= ServerEvents.OnConsoleCommand;
+            Exiled.Events.Handlers.Server.RoundStarted -= ServerEvents.OnRoundStart;
+            Exiled.Events.Handlers.Server.RoundEnded -= ServerEvents.OnRoundEnd;
+            Exiled.Events.Handlers.Server.RespawningTeam -= ServerEvents.OnRespawn;
+            Exiled.Events.Handlers.Server.ReportingCheater -= ServerEvents.OnCheaterReport;
+
+            Exiled.Events.Handlers.Player.UsingMedicalItem -= PlayerEvents.OnMedicalItem;
+            Exiled.Events.Handlers.Scp079.InteractingTesla -= PlayerEvents.On079Tesla;
+            Exiled.Events.Handlers.Player.EscapingPocketDimension -= PlayerEvents.OnPocketEscape;
+            Exiled.Events.Handlers.Player.EnteringPocketDimension -= PlayerEvents.OnPocketEnter;
+            Exiled.Events.Handlers.Player.ThrowingGrenade -= PlayerEvents.OnGrenadeThrown;
+            Exiled.Events.Handlers.Player.Hurting -= PlayerEvents.OnPlayerHurt;
+            Exiled.Events.Handlers.Player.Dying -= PlayerEvents.OnPlayerDeath;
+            Exiled.Events.Handlers.Player.InteractingElevator -= PlayerEvents.OnElevatorInteraction;
+            Exiled.Events.Handlers.Player.Handcuffing -= PlayerEvents.OnPlayerHandcuffed;
+            Exiled.Events.Handlers.Player.RemovingHandcuffs -= PlayerEvents.OnPlayerFreed;
+            Exiled.Events.Handlers.Player.Verified -= PlayerEvents.OnPlayerJoin;
+            Exiled.Events.Handlers.Player.Left -= PlayerEvents.OnPlayerLeave;
+            Exiled.Events.Handlers.Player.ChangingRole -= PlayerEvents.OnSetClass;
 
             MapEvents = null;
             ServerEvents = null;
@@ -92,14 +89,7 @@ namespace CedMod.QuerySystem
             if (SecurityKey != "None")
             {
                 // Start the HTTP server.
-                if (Config.QueryOverride)
-                {
-                    harmony = new Harmony("com.cedmodWAPI.patch");
-                    harmony.PatchAll();
-                }
-
-                if (Config.NewWebSocketSystem)
-                    WS.WebSocketSystem.Start();
+                WS.WebSocketSystem.Start();
             }
             else
                 Exiled.API.Features.Log.Warn("security_key is set to none plugin will nog load due to security risks");
@@ -108,35 +98,33 @@ namespace CedMod.QuerySystem
             ServerEvents = new ServerEvents();
             PlayerEvents = new PlayerEvents();
             Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += CommandHandler.HandleCommand;
-            if (Config.NewWebSocketSystem)
-            {
-                Exiled.Events.Handlers.Map.Decontaminating += MapEvents.OnDecon;
-                Exiled.Events.Handlers.Warhead.Starting += MapEvents.OnWarheadStart;
-                Exiled.Events.Handlers.Warhead.Stopping += MapEvents.OnWarheadCancelled;
-                Exiled.Events.Handlers.Warhead.Detonated += MapEvents.OnWarheadDetonation;
 
-                Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += ServerEvents.OnCommand;
-                Exiled.Events.Handlers.Server.WaitingForPlayers += ServerEvents.OnWaitingForPlayers;
-                Exiled.Events.Handlers.Server.SendingConsoleCommand += ServerEvents.OnConsoleCommand;
-                Exiled.Events.Handlers.Server.RoundStarted += ServerEvents.OnRoundStart;
-                Exiled.Events.Handlers.Server.RoundEnded += ServerEvents.OnRoundEnd;
-                Exiled.Events.Handlers.Server.RespawningTeam += ServerEvents.OnRespawn;
-                Exiled.Events.Handlers.Server.ReportingCheater += ServerEvents.OnCheaterReport;
+            Exiled.Events.Handlers.Map.Decontaminating += MapEvents.OnDecon;
+            Exiled.Events.Handlers.Warhead.Starting += MapEvents.OnWarheadStart;
+            Exiled.Events.Handlers.Warhead.Stopping += MapEvents.OnWarheadCancelled;
+            Exiled.Events.Handlers.Warhead.Detonated += MapEvents.OnWarheadDetonation;
 
-                Exiled.Events.Handlers.Player.UsingMedicalItem += PlayerEvents.OnMedicalItem;
-                Exiled.Events.Handlers.Scp079.InteractingTesla += PlayerEvents.On079Tesla;
-                Exiled.Events.Handlers.Player.EscapingPocketDimension += PlayerEvents.OnPocketEscape;
-                Exiled.Events.Handlers.Player.EnteringPocketDimension += PlayerEvents.OnPocketEnter;
-                Exiled.Events.Handlers.Player.ThrowingGrenade += PlayerEvents.OnGrenadeThrown;
-                Exiled.Events.Handlers.Player.Hurting += PlayerEvents.OnPlayerHurt;
-                Exiled.Events.Handlers.Player.Dying += PlayerEvents.OnPlayerDeath;
-                Exiled.Events.Handlers.Player.InteractingElevator += PlayerEvents.OnElevatorInteraction;
-                Exiled.Events.Handlers.Player.Handcuffing += PlayerEvents.OnPlayerHandcuffed;
-                Exiled.Events.Handlers.Player.RemovingHandcuffs += PlayerEvents.OnPlayerFreed;
-                Exiled.Events.Handlers.Player.Verified += PlayerEvents.OnPlayerJoin;
-                Exiled.Events.Handlers.Player.Left += PlayerEvents.OnPlayerLeave;
-                Exiled.Events.Handlers.Player.ChangingRole += PlayerEvents.OnSetClass;
-            }
+            Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += ServerEvents.OnCommand;
+            Exiled.Events.Handlers.Server.WaitingForPlayers += ServerEvents.OnWaitingForPlayers;
+            Exiled.Events.Handlers.Server.SendingConsoleCommand += ServerEvents.OnConsoleCommand;
+            Exiled.Events.Handlers.Server.RoundStarted += ServerEvents.OnRoundStart;
+            Exiled.Events.Handlers.Server.RoundEnded += ServerEvents.OnRoundEnd;
+            Exiled.Events.Handlers.Server.RespawningTeam += ServerEvents.OnRespawn;
+            Exiled.Events.Handlers.Server.ReportingCheater += ServerEvents.OnCheaterReport;
+
+            Exiled.Events.Handlers.Player.UsingMedicalItem += PlayerEvents.OnMedicalItem;
+            Exiled.Events.Handlers.Scp079.InteractingTesla += PlayerEvents.On079Tesla;
+            Exiled.Events.Handlers.Player.EscapingPocketDimension += PlayerEvents.OnPocketEscape;
+            Exiled.Events.Handlers.Player.EnteringPocketDimension += PlayerEvents.OnPocketEnter;
+            Exiled.Events.Handlers.Player.ThrowingGrenade += PlayerEvents.OnGrenadeThrown;
+            Exiled.Events.Handlers.Player.Hurting += PlayerEvents.OnPlayerHurt;
+            Exiled.Events.Handlers.Player.Dying += PlayerEvents.OnPlayerDeath;
+            Exiled.Events.Handlers.Player.InteractingElevator += PlayerEvents.OnElevatorInteraction;
+            Exiled.Events.Handlers.Player.Handcuffing += PlayerEvents.OnPlayerHandcuffed;
+            Exiled.Events.Handlers.Player.RemovingHandcuffs += PlayerEvents.OnPlayerFreed;
+            Exiled.Events.Handlers.Player.Verified += PlayerEvents.OnPlayerJoin;
+            Exiled.Events.Handlers.Player.Left += PlayerEvents.OnPlayerLeave;
+            Exiled.Events.Handlers.Player.ChangingRole += PlayerEvents.OnSetClass;
         }
 
         public override void OnReloaded()
