@@ -3,23 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CedMod.Commands;
-using CedMod.INIT;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using Exiled.Permissions.Extensions;
-using GameCore;
-using MEC;
-using Mirror;
 using Newtonsoft.Json;
 using RemoteAdmin;
-using UnityEngine;
-using Console = System.Console;
+using Log = Exiled.API.Features.Log;
 
 namespace CedMod
 {
     public class BanSystem
     {
-        public static void HandleJoin(JoinedEventArgs ev)
+        public static object banlock = new object();
+        public static void HandleJoin(VerifiedEventArgs ev)
         {
             try
             {
@@ -35,29 +31,15 @@ namespace CedMod
                 if (info["success"] == "true" && info["vpn"] == "true" && info["isbanned"] == "false")
                 {
                     reason = info["reason"];
-                    Player.characterClassManager.TargetConsolePrint(
-                        Player.GetComponent<NetworkIdentity>().connectionToClient,
-                        "CedMod.BANSYSTEM Message from CedMod server (VPN/Proxy detected): " + info,
-                        "yellow");
-                    Initializer.Logger.Info("BANSYSTEM",
-                        "user: " + Player.GetComponent<CharacterClassManager>().UserId +
-                        " attempted connection with blocked ASN/IP/VPN/Hosting service");
+                    Log.Info($"user: {Player.characterClassManager.UserId} attempted connection with blocked ASN/IP/VPN/Hosting service");
                     ev.Player.Disconnect(reason);
                 }
                 else
                 {
                     if (info["success"] == "true" && info["vpn"] == "false" && info["isbanned"] == "true")
                     {
-                        reason = info["preformattedmessage"] +
-                                 " You can fill in a ban appeal here: " +
-                                 ConfigFile.ServerConfig.GetString("bansystem_banappealurl", "none");
-                        Initializer.Logger.Info("BANSYSTEM",
-                            "user: " + Player.GetComponent<CharacterClassManager>().UserId +
-                            " attempted connection with active ban disconnecting");
-                        Player.characterClassManager.TargetConsolePrint(
-                            Player.GetComponent<NetworkIdentity>().connectionToClient,
-                            "CedMod.BANSYSTEM Active ban: " + info["preformattedmessage"],
-                            "yellow");
+                        reason = info["preformattedmessage"];
+                        Log.Info($"user: {Player.characterClassManager.UserId} attempted connection with active ban disconnecting");
                         ev.Player.Disconnect(reason);
                     }
                     else
@@ -65,19 +47,14 @@ namespace CedMod
                         if (info["success"] == "true" && info["vpn"] == "false" && info["isbanned"] == "false" &&
                             info["iserror"] == "true")
                         {
-                            Player.characterClassManager.TargetConsolePrint(
-                                Player.GetComponent<NetworkIdentity>().connectionToClient,
-                                "CedMod.BANSYSTEM Message from CedMod server: " + info["error"],
-                                "yellow");
-                            Initializer.Logger.Info("BANSYSTEM",
-                                "Message from CedMod server: " + info["error"]);
+                            Log.Info($"Message from CedMod server: {info["error"]}");
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Initializer.Logger.LogException(ex, "CedMod", "BanSystem.HandleJoin");
+                Log.Error(ex);
             }
         }
 
@@ -89,6 +66,17 @@ namespace CedMod
             if (ev.Name.ToUpper() == "BAN")
             {
                 ev.IsAllowed = false;
+                var num4 = Convert.ToInt64(ev.Arguments[1]);
+                if ((num4 == 0 && !CommandProcessor.CheckPermissions(ev.CommandSender, "BAN", new PlayerPermissions[3]
+                {
+                    PlayerPermissions.KickingAndShortTermBanning,
+                    PlayerPermissions.BanningUpToDay,
+                    PlayerPermissions.LongTermBanning
+                })) || (num4 > 0 && num4 <= 3600 && !CommandProcessor.CheckPermissions(ev.CommandSender, "BAN", PlayerPermissions.KickingAndShortTermBanning)) || (num4 > 3600 && num4 <= 86400 && !CommandProcessor.CheckPermissions(ev.CommandSender, "BAN", PlayerPermissions.BanningUpToDay)) || (num4 > 86400 && !CommandProcessor.CheckPermissions(ev.CommandSender, "BAN", PlayerPermissions.LongTermBanning)))
+                {
+                    ev.CommandSender.Respond("No permission", false);
+                    return;
+                }
                 if (ev.Arguments.Count < 2)
                 {
                     ev.CommandSender.Respond(
@@ -128,11 +116,11 @@ namespace CedMod
                     select item).Select(int.Parse));
                 foreach (int num2 in list)
                 {
-                    foreach (GameObject gameObject in PlayerManager.players)
+                    foreach (Player player in Player.List)
                     {
-                        if (num2 == gameObject.GetComponent<QueryProcessor>().PlayerId)
+                        if (num2 == player.ReferenceHub.queryProcessor.PlayerId)
                         {
-                            if (!gameObject.GetComponent<ServerRoles>().BypassStaff)
+                            if (!player.ReferenceHub.serverRoles.BypassStaff)
                             {
                                 if (Convert.ToInt64(ev.Arguments[1]) >= 1)
                                 {
@@ -140,7 +128,10 @@ namespace CedMod
 
                                     Task.Factory.StartNew(() =>
                                     {
-                                        API.Ban(gameObject, Convert.ToInt64(ev.Arguments[1]), sender1, text17);
+                                        lock (banlock) //so theres only 1 ban at a time
+                                        {
+                                            API.Ban(player, Convert.ToInt64(ev.Arguments[1]), sender1, text17);
+                                        }
                                     });
                                 }
                                 else
@@ -148,8 +139,8 @@ namespace CedMod
                                     if (!string.IsNullOrEmpty(text17) && Convert.ToInt32(ev.Arguments[1]) <= 0)
                                     {
                                         string text3;
-                                        text3 = " Reason: " + text17;
-                                        ServerConsole.Disconnect(gameObject, text3);
+                                        text3 = $" Reason: {text17}";
+                                        ServerConsole.Disconnect(player.GameObject, text3);
                                     }
                                 }
                             }
@@ -182,9 +173,14 @@ namespace CedMod
                     return;
                 }
 
+                string response1 = (string) API.APIRequest($"api/BanLog/UserId/{Ply.UserId}", "", true);
+                if (response1.Contains("\"message\":\"Specified BanLog does not exist\""))
+                {
+                    ev.Sender.RemoteAdminMessage("No banlogs found!", false);
+                    return;
+                }
                 ApiBanResponse resp =
-                    JsonConvert.DeserializeObject<ApiBanResponse>(
-                        (string) API.APIRequest($"api/BanLog/UserId/{Ply.UserId}", "", true));
+                    JsonConvert.DeserializeObject<ApiBanResponse>(response1);
                 foreach (BanModel ban in resp.Message)
                 {
                     ev.Sender.RemoteAdminMessage($"\nIssuer :{ban.Adminname}" +

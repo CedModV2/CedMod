@@ -43,7 +43,6 @@
   <ItemGroup>
     <Compile Include="API.cs" />
     <Compile Include="BanSystem.cs" />
-    <Compile Include="Commands\CommandHandler.cs" />
     <Compile Include="Commands\DialogBox.cs" />
     <Compile Include="Commands\Dialog\all.cs" />
     <Compile Include="Commands\Dialog\playerid.cs" />
@@ -59,14 +58,11 @@
     <Compile Include="Commands\Stuiter\spec.cs" />
     <Compile Include="Commands\TotalBans.cs" />
     <Compile Include="FriendlyFireAutoban.cs" />
-    <Compile Include="Handlers\MiniGameHandler.cs" />
     <Compile Include="Handlers\Player.cs" />
-    <Compile Include="INIT\CedModLogger.cs" />
-    <Compile Include="INIT\Initializer.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Handlers\Server.cs" />
-    <Compile Include="Patches\ExceptionPatch.cs" />
+    <Compile Include="Patches\BanPatch.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -104,37 +100,42 @@
     <Reference Include="CommandSystem.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\CommandSystem.Core.dll</HintPath>
     </Reference>
-    <Reference Include="DiscordIntegration_Plugin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\References\DiscordIntegration_Plugin.dll</HintPath>
-    </Reference>
     <Reference Include="DissonanceVoip, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\DissonanceVoip.dll</HintPath>
     </Reference>
     <Reference Include="dnlib, Version=3.3.2.0, Culture=neutral, PublicKeyToken=50e96378b6e77999">
       <HintPath>..\References\dnlib.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.API, Version=2.1.16.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.2.1.16\lib\net472\Exiled.API.dll</HintPath>
+    <Reference Include="Exiled.API, Version=2.10.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\EXILED.2.10.0-beta\lib\net472\Exiled.API.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Exiled.Bootstrap, Version=2.1.16.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.2.1.16\lib\net472\Exiled.Bootstrap.dll</HintPath>
+    <Reference Include="Exiled.Bootstrap, Version=2.10.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\EXILED.2.10.0-beta\lib\net472\Exiled.Bootstrap.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Exiled.Events, Version=2.1.16.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.2.1.16\lib\net472\Exiled.Events.dll</HintPath>
+    <Reference Include="Exiled.CreditTags, Version=2.10.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\EXILED.2.10.0-beta\lib\net472\Exiled.CreditTags.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Exiled.Loader, Version=2.1.16.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.2.1.16\lib\net472\Exiled.Loader.dll</HintPath>
+    <Reference Include="Exiled.CustomItems, Version=2.10.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\EXILED.2.10.0-beta\lib\net472\Exiled.CustomItems.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Exiled.Permissions, Version=2.1.16.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.2.1.16\lib\net472\Exiled.Permissions.dll</HintPath>
+    <Reference Include="Exiled.Events, Version=2.10.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\EXILED.2.10.0-beta\lib\net472\Exiled.Events.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Exiled.Updater, Version=3.0.3.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.2.1.16\lib\net472\Exiled.Updater.dll</HintPath>
+    <Reference Include="Exiled.Loader, Version=2.10.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\EXILED.2.10.0-beta\lib\net472\Exiled.Loader.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Exiled.Permissions, Version=2.10.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\EXILED.2.10.0-beta\lib\net472\Exiled.Permissions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Exiled.Updater, Version=3.1.1.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\EXILED.2.10.0-beta\lib\net472\Exiled.Updater.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Facepunch.Steamworks.Win64, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
@@ -562,18 +563,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Sentry.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Sentry.PlatformAbstractions.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Sentry.Protocol.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="System.Runtime.InteropServices.RuntimeInformation.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

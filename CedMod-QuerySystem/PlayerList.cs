@@ -1,17 +1,18 @@
 ﻿using System;
-using CedMod.INIT;
-using CommandSystem;
-using Exiled.API.Extensions;
+using System.Collections.Generic;
+using CedMod.QuerySystem.WS;
+using Exiled.API.Features;
 using Exiled.Events.EventArgs;
-using GameCore;
+using Exiled.Permissions.Extensions;
+using Newtonsoft.Json;
 using NorthwoodLib;
 using RemoteAdmin;
-using UnityEngine;
 
 namespace CedMod.QuerySystem
 {
     public class CommandHandler
     {
+	    public static List<string> synced = new List<string>();
 	    public static bool CheckPermissions(CommandSender sender, string queryZero, PlayerPermissions perm,
 		    string replyScreen = "", bool reply = true)
 	    {
@@ -37,15 +38,47 @@ namespace CedMod.QuerySystem
 	        CommandSender sender = ev.CommandSender;
             switch (ev.Name.ToUpper())
             {
-	            case "RESTARTQUERYSERVER":
+	            case "CMMINIMAP":
+		            return;
 		            ev.IsAllowed = false;
-		            if (!QuerySystem.config.NewWebSocketSystem)
+		            MiniMapClass map = new MiniMapClass();
+		            map.MapElements = ServerEvents.Minimap;
+		            foreach (Player plr in Player.List)
 		            {
-			            ev.ReplyMessage = "Query server is not enabled";
+			            if (plr.Team == Team.RIP)
+				            continue;
+			            MiniMapPlayerElement pele = new MiniMapPlayerElement();
+			            pele.Name = plr.Nickname;
+			            pele.Position = plr.Position.ToString();
+			            pele.Zone = plr.CurrentRoom.Zone.ToString();
+			            pele.TeamColor = plr.RoleColor.ToString();
+			            map.PlayerElements.Add(pele);
+		            }
+		            ev.ReplyMessage = JsonConvert.SerializeObject(map);
+					break;
+	            case "CMSYNC":
+		            if (sender is CmSender)
+		            {
+			            if (!CommandProcessor.CheckPermissions(sender, "CMSYNC", PlayerPermissions.SetGroup, "", false))
+				            return;
+			            ev.IsAllowed = false;
+			            if (ServerStatic.PermissionsHandler._members.ContainsKey(Player.Get(int.Parse(ev.Arguments[0])).UserId))
+			            {
+				            return;
+			            }
+			            Player.Get(int.Parse(ev.Arguments[0])).ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler._groups[ev.Arguments[1]], false);
+			            ServerStatic.PermissionsHandler._members[Player.Get(int.Parse(ev.Arguments[0])).UserId] = ev.Arguments[1];
+			            synced.Add(Player.Get(int.Parse(ev.Arguments[0])).UserId);
+		            }
+		            break;
+	            case "RESTARTQUERYSERVER":
+		            if (!sender.CheckPermission("cedmod.restartquery"))
+		            {
 			            return;
 		            }
-		            WS.WebSocketServer.Stop();
-		            WS.WebSocketServer.Start(ConfigFile.ServerConfig.GetInt("cm_port", 8000));
+		            ev.IsAllowed = false;
+		            WS.WebSocketSystem.Stop();
+		            WS.WebSocketSystem.Start();
 		            ev.ReplyMessage = "Query server restarted";
 		            break;
 	            case "PLAYERLISTCOLORED":
@@ -69,14 +102,14 @@ namespace CedMod.QuerySystem
 							flag2 = true;
 							flag3 = true;
 						}
-						foreach (GameObject player in PlayerManager.players)
+						foreach (Player player in Player.List)
 						{
-							QueryProcessor component = player.GetComponent<QueryProcessor>();
+							QueryProcessor component = player.ReferenceHub.queryProcessor;
 							if (!flag)
 							{
 								string text2 = string.Empty;
 								bool flag4 = false;
-								ServerRoles component2 = component.GetComponent<ServerRoles>();
+								ServerRoles component2 = player.ReferenceHub.serverRoles;
 								try
 								{
 									if (string.IsNullOrEmpty(component2.HiddenBadge) || (component2.GlobalHidden && flag3) || (!component2.GlobalHidden && flag2))
@@ -88,14 +121,14 @@ namespace CedMod.QuerySystem
 								catch
 								{
 								}
-								text = text + text2 + "(" + component.PlayerId + ") " + component.GetComponent<NicknameSync>().CombinedName.Replace("\n", string.Empty) + (flag4 ? "<OVRM>" : string.Empty);
-								CharacterClassManager ccm = component.GetComponent<CharacterClassManager>();
+								text = text + text2 + "(" + component.PlayerId + ") " + player.ReferenceHub.nicknameSync.CombinedName.Replace("\n", string.Empty) + (flag4 ? "<OVRM>" : string.Empty);
+								CharacterClassManager ccm = player.ReferenceHub.characterClassManager;
 								text = $"<color={ccm.CurRole.classColor.ToHex()}>" +
 								       text + "</color>";
 							}
 							else
 							{
-								text = text + component.PlayerId + ";" + component.GetComponent<NicknameSync>().CombinedName;
+								text = text + component.PlayerId + ";" + player.ReferenceHub.nicknameSync.CombinedName;
 							}
 							text += "\n";
 						}
@@ -110,7 +143,31 @@ namespace CedMod.QuerySystem
 					}
 					catch (Exception ex2)
 					{
-						Initializer.Logger.LogException(ex2, "CedMod.PluginInterface", "PlayerListCommand");
+						sender.RaReply(ev.Name + ":PLAYER_LIST#An unexpected problem has occurred!\nMessage: " + ex2.Message + "\nStackTrace: " + ex2.StackTrace + "\nAt: " + ex2.Source, success: false, logToConsole: true, "");
+						throw;
+					}
+					break;
+	            
+	            case "PLAYERLISTCOLOREDSTEAMID":
+		            ev.IsAllowed = false;
+                    try
+                    {
+	                    string text = "\n";
+						foreach (Player player in Player.List)
+						{
+							QueryProcessor component = player.ReferenceHub.queryProcessor;
+
+							bool staff = false;
+							if (ServerStatic.PermissionsHandler._members.ContainsKey(player.UserId) && ServerStatic.PermissionsHandler._groups.ContainsKey(ServerStatic.PermissionsHandler._members[player.UserId]))
+							{
+								staff = ServerStatic.PermissionsHandler.IsRaPermitted(ServerStatic.PermissionsHandler._groups[ServerStatic.PermissionsHandler._members[player.UserId]].Permissions);
+							}
+							text += $"{player.UserId}:{player.DoNotTrack}:{staff}\n";
+						}
+						sender.RaReply(ev.Name + ":PLAYER_LIST#" + text, success: true, ev.Arguments.Count < 2 || ev.Arguments[1].ToUpper() != "SILENT", "");
+                    }
+					catch (Exception ex2)
+					{
 						sender.RaReply(ev.Name + ":PLAYER_LIST#An unexpected problem has occurred!\nMessage: " + ex2.Message + "\nStackTrace: " + ex2.StackTrace + "\nAt: " + ex2.Source, success: false, logToConsole: true, "");
 						throw;
 					}

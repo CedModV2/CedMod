@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CommandSystem;
 using Exiled.API.Features;
+using Exiled.Permissions.Extensions;
 using UnityEngine;
 
 namespace CedMod.Commands
@@ -20,6 +21,11 @@ namespace CedMod.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
+            if (!sender.CheckPermission("cedmod.lightintensity"))
+            {
+                response = "no permission";
+                return false;
+            }
             if (arguments.IsEmpty())
             {
                 response = "You must specify a intensity.";

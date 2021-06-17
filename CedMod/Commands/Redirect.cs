@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CommandSystem;
 using Exiled.API.Features;
+using Exiled.Permissions.Extensions;
 using UnityEngine;
 
 namespace CedMod.Commands
@@ -19,6 +20,11 @@ namespace CedMod.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
+            if (!sender.CheckPermission("cedmod.redirect"))
+            {
+                response = "no permission";
+                return false;
+            }
             if (arguments.IsEmpty())
             {
                 response = "you must specify a port";

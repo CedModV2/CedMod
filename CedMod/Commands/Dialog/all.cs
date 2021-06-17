@@ -2,6 +2,7 @@
 using System.Linq;
 using CommandSystem;
 using Exiled.API.Features;
+using Exiled.Permissions.Extensions;
 using UnityEngine;
 
 namespace CedMod.Commands.Dialog
@@ -20,6 +21,11 @@ namespace CedMod.Commands.Dialog
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
+            if (!sender.CheckPermission("cedmod.dialog"))
+            {
+                response = "no permission";
+                return false;
+            }
             if (arguments.IsEmpty())
             {
                 response = "Missing argument <message>";

@@ -1,5 +1,10 @@
-﻿using Exiled.API.Features;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using CedMod.QuerySystem.WS;
+using Exiled.API.Features;
 using Exiled.Events.EventArgs;
+using Newtonsoft.Json;
 
 namespace CedMod.QuerySystem
 {
@@ -7,39 +12,62 @@ namespace CedMod.QuerySystem
     {
         public void OnWarheadDetonation()
         {
-            foreach (WS.WebSocketSession wss in WS.WebSocketServer.ws.Clients)
+            Task.Factory.StartNew(delegate()
             {
-                if (wss.IsAuthenticated)
-                    wss.SendMessage($"Warhead has been detonated");
-            }
+                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                {
+                    Recipient = "ALL",
+                    Data = new Dictionary<string, string>()
+                    {
+                        {"Message", "Warhead has been detonated"}
+                    }
+                }));
+            });
         }
         
         public void OnDecon(DecontaminatingEventArgs ev)
         {
-            foreach (WS.WebSocketSession wss in WS.WebSocketServer.ws.Clients)
+            Task.Factory.StartNew(delegate()
             {
-                if (wss.IsAuthenticated)
-                    wss.SendMessage($"Light containment zone has been decontaminated.");
-            }
+                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                {
+                    Recipient = "ALL",
+                    Data = new Dictionary<string, string>()
+                    {
+                        {"Message", "Light containment zone has been decontaminated."}
+                    }
+                }));
+            });
         }
         
         public void OnWarheadStart(StartingEventArgs ev)
         {
-            foreach (WS.WebSocketSession wss in WS.WebSocketServer.ws.Clients)
+            Task.Factory.StartNew(delegate()
             {
-                if (wss.IsAuthenticated)
-                    wss.SendMessage($"warhead has been started: {Warhead.Controller.NetworktimeToDetonation} seconds");
-            }
+                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                {
+                    Recipient = "ALL",
+                    Data = new Dictionary<string, string>()
+                    {
+                        {"Message", string.Format("warhead has been started: {0} seconds", Warhead.Controller.NetworktimeToDetonation)}
+                    }
+                }));
+            });
         }
-
+        
         public void OnWarheadCancelled(StoppingEventArgs ev)
         {
-            foreach (WS.WebSocketSession wss in WS.WebSocketServer.ws.Clients)
+            Task.Factory.StartNew(delegate()
             {
-                if (wss.IsAuthenticated)
-                    wss.SendMessage($"{ev.Player.Nickname} - {ev.Player.UserId} has stopped the detonation.");
-            }
+                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                {
+                    Recipient = "ALL",
+                    Data = new Dictionary<string, string>()
+                    {
+                        {"Message", ev.Player.Nickname + " - " + ev.Player.UserId + " has stopped the detonation."}
+                    }
+                }));
+            });
         }
-
     }
 }

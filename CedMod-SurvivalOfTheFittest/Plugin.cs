@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Reflection;
-using CedMod.INIT;
+﻿using System.Collections.Generic;
 using Exiled.API.Enums;
 using Exiled.API.Features;
-using UnityEngine;
 
 namespace CedMod.SurvivalOfTheFittest
 {
@@ -34,7 +28,6 @@ namespace CedMod.SurvivalOfTheFittest
             if (!Config.IsEnabled)
                 return;
             RegisterEvents();
-            Initializer.Logger.Info("CedMod-SurvivalOfTheFittest", "Plugin has loaded");
         }
 
         /// <inheritdoc/>
@@ -49,7 +42,7 @@ namespace CedMod.SurvivalOfTheFittest
         private void RegisterEvents()
         {
             handler = new EventHandlers();
-            Exiled.Events.Handlers.Player.Joined += handler.OnJoin;
+            Exiled.Events.Handlers.Player.Verified += handler.OnJoin;
             Exiled.Events.Handlers.Server.RoundStarted += handler.OnRoundStart;
             Exiled.Events.Handlers.Server.RestartingRound += handler.OnRoundRestart;
             Exiled.Events.Handlers.Server.RestartingRound += handler.OnRoundStart;
@@ -64,7 +57,7 @@ namespace CedMod.SurvivalOfTheFittest
         /// </summary>
         private void UnregisterEvents()
         {
-            Exiled.Events.Handlers.Player.Joined -= handler.OnJoin;
+            Exiled.Events.Handlers.Player.Verified -= handler.OnJoin;
             Exiled.Events.Handlers.Server.RoundStarted -= handler.OnRoundStart;
             Exiled.Events.Handlers.Server.RestartingRound -= handler.OnRoundRestart;
             Exiled.Events.Handlers.Server.RestartingRound -= handler.OnRoundStart;

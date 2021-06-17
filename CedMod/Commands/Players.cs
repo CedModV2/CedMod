@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CommandSystem;
+using Exiled.Permissions.Extensions;
 using UnityEngine;
 
 namespace CedMod.Commands
@@ -18,6 +19,11 @@ namespace CedMod.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
+            if (!sender.CheckPermission("cedmod.list"))
+            {
+                response = "no permission";
+                return false;
+            }
             Dictionary<GameObject, ReferenceHub> allHubs = ReferenceHub.GetAllHubs();
             response = string.Format("List of players ({0}):", (object) (ServerStatic.IsDedicated ? allHubs.Count - 1 : allHubs.Count));
             using (Dictionary<GameObject, ReferenceHub>.ValueCollection.Enumerator enumerator = allHubs.Values.GetEnumerator())

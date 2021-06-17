@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using CedMod.Handlers;
 using CommandSystem;
+using Exiled.Permissions.Extensions;
 using Newtonsoft.Json;
 using RemoteAdmin;
 using UnityEngine;
@@ -50,6 +51,11 @@ namespace CedMod.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
+            if (!sender.CheckPermission("cedmod.totalbans"))
+            {
+                response = "no permission";
+                return false;
+            }
             CommandSender sndr = (sender as CommandSender);
             if (Player.Get(sndr.SenderId).ReferenceHub.serverRoles.RemoteAdmin)
             {
@@ -61,9 +67,14 @@ namespace CedMod.Commands
                 Player ply = Player.Get(arguments.At(0));
                 try
                 {
+                    string response1 = (string) API.APIRequest($"api/BanLog/UserId/{ply.UserId}", "", true);
+                    if (response1.Contains("\"message\":\"Specified BanLog does not exist\""))
+                    {
+                        response = "No banlogs found!";
+                        return true;
+                    }
                     ApiBanResponse resp =
-                        JsonConvert.DeserializeObject<ApiBanResponse>(
-                            (string) API.APIRequest($"api/BanLog/UserId/{ply.UserId}", "", true));
+                        JsonConvert.DeserializeObject<ApiBanResponse>(response1);
                     response = resp.Message.Count().ToString();
                     return true;
                 }

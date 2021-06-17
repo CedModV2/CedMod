@@ -1,6 +1,7 @@
 ﻿using System;
 using CommandSystem;
 using Exiled.API.Features;
+using Exiled.Permissions.Extensions;
 using UnityEngine;
 
 namespace CedMod.Commands.Stuiter
@@ -19,14 +20,19 @@ namespace CedMod.Commands.Stuiter
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            Cassie.Message("xmas_bouncyballs", false, false);
-            foreach (GameObject player in PlayerManager.players)
+            if (!sender.CheckPermission("cedmod.stuiter"))
             {
-                CharacterClassManager component = player.GetComponent<CharacterClassManager>();
+                response = "no permission";
+                return false;
+            }
+            Cassie.Message("xmas_bouncyballs", false, false);
+            foreach (Player player in Player.List)
+            {
+                CharacterClassManager component = player.ReferenceHub.characterClassManager;
                 component.SetClassID(RoleType.Tutorial);
-                component.GetComponent<PlayerStats>().Health = 100;
-                component.GetComponent<Inventory>().items.Clear();
-                component.GetComponent<Inventory>().AddNewItem(ItemType.SCP018);
+                player.ReferenceHub.playerStats.Health = 100;
+                player.ReferenceHub.inventory.items.Clear();
+                player.ReferenceHub.inventory.AddNewItem(ItemType.SCP018);
                 component.GodMode = false;
             }
 

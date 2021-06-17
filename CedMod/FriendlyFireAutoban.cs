@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using CedMod.INIT;
+using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using GameCore;
 using Hints;
 using MEC;
 using RemoteAdmin;
+using Log = Exiled.API.Features.Log;
 
 namespace CedMod
 {
@@ -17,30 +18,18 @@ namespace CedMod
         public static bool AdminDisabled = false;
         public static void HandleKill(DyingEventArgs ev)
         {
-            Initializer.Logger.Debug("FFA", "Check 1");
             if (RoundSummary.RoundInProgress() == false) return;
-            if (ConfigFile.ServerConfig.GetBool("ffa_enable", true) == false) return;
+            if (!CedModMain.config.AutobanEnabled) return;
             if (AdminDisabled) return;
-            Initializer.Logger.Debug("FFA", "Check 2");
             if (!IsTeakill(ev))
                 return;
-            string ffatext1 = "<size=25><b><color=yellow>You teamkilled: </color></b><color=red>" +
-                              ev.Target.ReferenceHub.gameObject.GetComponent<NicknameSync>().MyNick +
-                              "</color><color=yellow><b> If you continue teamkilling it will result in a ban</b></color></size>";
-            ev.Killer.ReferenceHub.hints.Show(new TextHint(ffatext1
-                ,
-                new HintParameter[] {new StringHintParameter("")}, null, 20f));
+            string ffatext1 = $"<size=25><b><color=yellow>You teamkilled: </color></b><color=red> {ev.Target.Nickname} </color><color=yellow><b> If you continue teamkilling it will result in a ban</b></color></size>";
+            ev.Killer.ReferenceHub.hints.Show(new TextHint(ffatext1, new HintParameter[] {new StringHintParameter("")}, null, 20f));
             ev.Killer.SendConsoleMessage(ffatext1, "white");
-            string ffatext = string.Concat(
-                "<size=25><b><color=yellow>You have been teamkilled by: </color></b></size>",
-                "<color=red><size=25>", ev.Killer.ReferenceHub.gameObject.GetComponent<NicknameSync>().MyNick, " (",
-                ev.Killer.ReferenceHub.gameObject.GetComponent<CharacterClassManager>().UserId,
-                "), " + ev.Killer.ReferenceHub.characterClassManager.CurClass + " You were a " + ev.Target.ReferenceHub.characterClassManager.CurClass + " </size></color>" +
-                Environment.NewLine,
-                "<size=25><b><color=yellow> Use this as a screenshot as evidence for a report " +
-                Environment.NewLine +
-                "</color></b></size>",
-                "<size=25><i><color=yellow> Note: if he continues to teamkill the server will ban him</color></i></size>");
+            string ffatext = $"<size=25><b><color=yellow>You have been teamkilled by: </color></b></size><color=red><size=25> {ev.Killer.Nickname} ({ev.Killer.UserId} {ev.Killer.ReferenceHub.characterClassManager.CurClass} You were a {ev.Target.ReferenceHub.characterClassManager.CurClass}</size></color>\n<size=25><b><color=yellow> Use this as a screenshot as evidence for a report</color></b></size><size=25><i><color=yellow> Note: if he continues to teamkill the server will ban him</color></i></size>";
+            if (ev.Killer.DoNotTrack)
+                ffatext = ffatext.Replace(ev.Killer.UserId, "DNT");
+            
             ev.Target.ReferenceHub.hints.Show(new TextHint(ffatext,
                 new HintParameter[] {new StringHintParameter("")}, null, 20f));
             ev.Target.SendConsoleMessage(ffatext, "white");
@@ -54,32 +43,20 @@ namespace CedMod
                 Teamkillers[ev.Killer.UserId]++;
             else
                 Teamkillers.Add(ev.Killer.UserId, 1);
-            foreach (KeyValuePair<string, int> s in Teamkillers)
-            {
-                Initializer.Logger.Debug("CMFFA" + s.Key, s.Value.ToString());
-            }
+
             foreach (KeyValuePair<string, int> s in Teamkillers)
             {
                 if (s.Key == ev.Killer.UserId)
                 {
-                    if (s.Value >= ConfigFile.ServerConfig.GetInt("ffa_ammountoftkbeforeban", 3))
+                    if (s.Value >= CedModMain.config.AutobanThreshold)
                     {
-                        Initializer.Logger.Info("FFA",
-                            string.Concat("Player: ",
-                                ev.Killer.Nickname, " ",
-                                ev.Killer.ReferenceHub.queryProcessor.PlayerId.ToString(),
-                                " ", ev.Killer.UserId,
-                                " exeeded teamkill limit"));
-                        Task.Factory.StartNew(() => { API.Ban(ev.Killer.ReferenceHub.gameObject,
-                            ConfigFile.ServerConfig.GetInt("ffa_banduration", 4320),
-                            "Server.Module.FriendlyFireAutoban",
-                            ConfigFile.ServerConfig.GetString("ffa_banreason",
-                                "You have teamkilled too many people"), false); });
-                        QueryProcessor.Localplayer.GetComponent<Broadcast>().RpcAddElement(
-                            "<size=25><b><color=yellow>user: </color></b><color=red>" +
-                            ev.Killer.Nickname +
-                            "</color><color=yellow><b> got banned for teamkilling, dont be like this user please</b></color></size>",
-                            20, Broadcast.BroadcastFlags.Normal);
+                        Log.Info( $"Player: {ev.Killer.Nickname} {ev.Killer.ReferenceHub.queryProcessor.PlayerId.ToString()} {ev.Killer.UserId}  exeeded teamkill limit");
+                        Task.Factory.StartNew(() =>
+                        {
+                            API.Ban(ev.Killer, CedModMain.config.AutobanDuration, "Server.Module.FriendlyFireAutoban", CedModMain.config.AutobanReason);
+                        });
+                        Map.Broadcast(20,
+                            $"<size=25><b><color=yellow>user: </color></b><color=red> {ev.Killer.Nickname} </color><color=yellow><b> got banned for teamkilling, dont be like this user please</b></color></size>", Broadcast.BroadcastFlags.Normal);
                     }
                 }
             }
@@ -98,11 +75,11 @@ namespace CedMod
                 case Team.CHI when ev.Target.Team == Team.CDP:
                 case Team.RSC when ev.Target.Team == Team.MTF:
                 case Team.MTF when ev.Target.Team == Team.RSC:
-                case Team.MTF when ev.Target.Team == Team.CDP && ev.Target.IsCuffed && !ConfigFile.ServerConfig.GetBool("ffa_killingdisarmedclassdsallowed"):
-                case Team.CHI when ev.Target.Team == Team.RSC && ev.Target.IsCuffed && !ConfigFile.ServerConfig.GetBool("ffa_killingdisarmedscientistallowed"):
+                case Team.MTF when ev.Target.Team == Team.CDP && ev.Target.IsCuffed && CedModMain.config.AutobanDisarmedClassDTk:
+                case Team.CHI when ev.Target.Team == Team.RSC && ev.Target.IsCuffed && CedModMain.config.AutobanDisarmedScientistDTk:
                     result = true;
                     break;
-                case Team.CDP when ev.Target.Team == Team.CDP && !ConfigFile.ServerConfig.GetBool("ffa_dclassvsdclasstk", true):
+                case Team.CDP when ev.Target.Team == Team.CDP && CedModMain.config.AutobanClassDvsClassD:
                 default:
                     result = false;
                     break;
