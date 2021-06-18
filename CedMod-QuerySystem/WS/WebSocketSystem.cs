@@ -65,6 +65,18 @@ namespace CedMod.QuerySystem.WS
                 {
                     if (!(text2 == "kicksteamid"))
                     {
+                        if (text2 == "ping")
+                        {
+                            socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                            {
+                                Recipient = cmd.Recipient,
+                                Data = new Dictionary<string, string>()
+                                {
+                                    {"Message", "PONG"}
+                                }
+                            }));
+                            return;
+                        }
                         if (text2 == "custom")
                         {
                             if (!jsonData.ContainsKey("command"))
