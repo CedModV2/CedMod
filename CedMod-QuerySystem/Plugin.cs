@@ -79,12 +79,6 @@ namespace CedMod.QuerySystem
             // Load the event handlers.
             if (!Config.IsEnabled)
                 return;
-            SecurityKey =
-                GameCore.ConfigFile.ServerConfig.GetString("cm_plugininterface_key", "None");
-            if (SecurityKey == "None")
-            {
-                SecurityKey = Config.SecurityKey;
-            }
 
             if (SecurityKey != "None")
             {
@@ -92,7 +86,7 @@ namespace CedMod.QuerySystem
                 WS.WebSocketSystem.Start();
             }
             else
-                Exiled.API.Features.Log.Warn("security_key is set to none plugin will nog load due to security risks");
+                Exiled.API.Features.Log.Warn("security_key is set to none plugin will not load due to security risks");
 
             MapEvents = new MapEvents();
             ServerEvents = new ServerEvents();
