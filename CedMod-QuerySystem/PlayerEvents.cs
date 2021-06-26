@@ -193,7 +193,7 @@ namespace CedMod.QuerySystem
                     if (player.Role == RoleType.Spectator || player.Role == RoleType.None)
                         continue;
                     
-                    if (Vector3.Distance(ev.Killer.Position, player.Position) == 20 && PlayersOnScene.All(plrs => plrs.UserId != player.UserId))
+                    if (Vector3.Distance(ev.Killer.Position, player.Position) <= 20 && PlayersOnScene.All(plrs => plrs.UserId != player.UserId))
                     {
                         PlayersOnScene.Add(new UsersOnScene()
                         {
