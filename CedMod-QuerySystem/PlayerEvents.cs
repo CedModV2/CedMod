@@ -1,13 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using CedMod.QuerySystem.WS;
 using Exiled.API.Extensions;
+using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using Newtonsoft.Json;
+using UnityEngine;
 
 namespace CedMod.QuerySystem
 {
+    public class UsersOnScene
+    {
+        public string UserId;
+        public string Position;
+        public float Distance;
+        public RoleType RoleType;
+        public float CurrentHealth;
+        public bool Killer;
+        public bool Victim;
+        public bool Bystander;
+        public string Room;
+    }
+    
     public class PlayerEvents
     {
         public void OnPlayerLeave(LeftEventArgs ev)
@@ -143,8 +161,74 @@ namespace CedMod.QuerySystem
 
         public void OnPlayerDeath(DyingEventArgs ev)
         {
+            Log.Debug("plrdeath", CedModMain.config.ShowDebug);
             if (FriendlyFireAutoban.IsTeakill(ev))
             {
+                Log.Debug("istk", CedModMain.config.ShowDebug);
+                List<UsersOnScene> PlayersOnScene = new List<UsersOnScene>();
+                PlayersOnScene.Add(new UsersOnScene()
+                {
+                    CurrentHealth = ev.Killer.Health,
+                    Distance = 0,
+                    Position = ev.Killer.Position.ToString(),
+                    RoleType = ev.Killer.Role,
+                    UserId = ev.Killer.UserId,
+                    Killer = true,
+                    Room = ev.Killer.CurrentRoom.Name
+                });
+                
+                PlayersOnScene.Add(new UsersOnScene()
+                {
+                    CurrentHealth = ev.Target.Health,
+                    Distance = Vector3.Distance(ev.Killer.Position, ev.Target.Position),
+                    Position = ev.Target.Position.ToString(),
+                    RoleType = ev.Target.Role,
+                    UserId = ev.Target.UserId,
+                    Victim = true,
+                    Room = ev.Target.CurrentRoom.Name
+                });
+                Log.Debug("resolving on scene players", CedModMain.config.ShowDebug);
+                foreach (var player in Player.List)
+                {
+                    if (player.Role == RoleType.Spectator || player.Role == RoleType.None)
+                        continue;
+                    
+                    if (Vector3.Distance(ev.Killer.Position, player.Position) == 20 && PlayersOnScene.All(plrs => plrs.UserId != player.UserId))
+                    {
+                        PlayersOnScene.Add(new UsersOnScene()
+                        {
+                            CurrentHealth = player.Health,
+                            Distance = Vector3.Distance(ev.Killer.Position, player.Position),
+                            Position = player.Position.ToString(),
+                            RoleType = player.Role,
+                            UserId = player.UserId,
+                            Bystander = true,
+                            Room = player.CurrentRoom.Name
+                        });
+                    }
+                }
+                Log.Debug("sending WR", CedModMain.config.ShowDebug);
+                Task.Factory.StartNew(() =>
+                {
+                    Log.Debug("Thread send", CedModMain.config.ShowDebug);
+                    if (QuerySystem.config.SecurityKey == "None")
+                        return;
+                    Log.Debug("sending WR", CedModMain.config.ShowDebug);
+                    HttpClient client = new HttpClient();
+                    try
+                    {
+                        var response = client
+                            .PostAsync($"https://communitymanagementpanel.cedmod.nl/Api/Teamkill/{QuerySystem.config.SecurityKey}",
+                                new StringContent(JsonConvert.SerializeObject(PlayersOnScene), Encoding.Default,
+                                    "application/json")).Result;
+                        Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.config.ShowDebug);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex);
+                    }
+                });
+                
                 Task.Factory.StartNew(delegate()
                 {
                     WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
