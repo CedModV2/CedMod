@@ -49,6 +49,11 @@ namespace CedMod.QuerySystem.WS
             {
                 Log.Info("Connected.");
             };
+            socket.OnError += (sender, args) =>
+            {
+                Log.Error(args.Message);
+                Log.Error(args.Exception);
+            };
 
         }
 
@@ -123,13 +128,27 @@ namespace CedMod.QuerySystem.WS
 
 
                                 {
-                                    string name = ServerStatic.PermissionsHandler._members[jsonData["user"]];
-                                    UserGroup ugroup = ServerStatic.PermissionsHandler.GetGroup(name);
-                                    MainThreadDispatcher.Dispatch(delegate()
+                                    if (ServerStatic.PermissionsHandler._members.ContainsKey(jsonData["user"]))
                                     {
-                                        CommandProcessor.ProcessQuery(jsonData["command"],
-                                            new CmSender(cmd.Recipient, jsonData["user"], jsonData["user"], ugroup));
-                                    }, 0);
+                                        string name = ServerStatic.PermissionsHandler._members[jsonData["user"]];
+                                        UserGroup ugroup = ServerStatic.PermissionsHandler.GetGroup(name);
+                                        MainThreadDispatcher.Dispatch(delegate()
+                                        {
+                                            CommandProcessor.ProcessQuery(jsonData["command"],
+                                                new CmSender(cmd.Recipient, jsonData["user"], jsonData["user"], ugroup));
+                                        }, 0);
+                                    }
+                                    else
+                                    {
+                                        socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                                        {
+                                            Recipient = cmd.Recipient,
+                                            Data = new Dictionary<string, string>()
+                                            {
+                                                {"Message", "Userid not present in RA config, permission denied"}
+                                            }
+                                        }));
+                                    }
                                 }
                             }
                         }
