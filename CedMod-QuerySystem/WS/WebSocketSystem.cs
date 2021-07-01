@@ -38,7 +38,7 @@ namespace CedMod.QuerySystem.WS
             {
                 lock (reconnectLock)
                 {
-                    Log.Error("Lost connection to CedMod Panel, reconnecting in 1000ms.");
+                    Log.Error($"Lost connection to CedMod Panel {args.Reason}, reconnecting in 1000ms");
                     Thread.Sleep(1000);
                     Log.Info("Reconnecting...");
                     socket.Connect();
@@ -178,7 +178,7 @@ namespace CedMod.QuerySystem.WS
             catch (Exception ex)
             {
                 Exiled.API.Features.Log.Error(ex.ToString());
-                socket.Close();
+                //socket.Close();
             }
         }
     }
