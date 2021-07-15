@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using CedMod.QuerySystem.WS;
 using Exiled.API.Enums;
@@ -107,6 +109,32 @@ namespace CedMod.QuerySystem
 		
 		public void OnCheaterReport(ReportingCheaterEventArgs ev)
 		{
+			Log.Debug("sending report WR", CedModMain.config.ShowDebug);
+			Task.Factory.StartNew(() =>
+			{
+				Log.Debug("Thread report send", CedModMain.config.ShowDebug);
+				if (QuerySystem.config.SecurityKey == "None")
+					return;
+				Log.Debug("sending report WR", CedModMain.config.ShowDebug);
+				HttpClient client = new HttpClient();
+				try
+				{
+					var response = client
+						.PostAsync($"https://frikanweb.cedmod.nl/Api/Reports/{QuerySystem.config.SecurityKey}",
+							new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
+								{
+									{"reporter", ev.Reporter.UserId},
+									{"reported", ev.Reported.UserId},
+									{"reason", ev.Reason},
+								}), Encoding.Default,
+								"application/json")).Result;
+					Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.config.ShowDebug);
+				}
+				catch (Exception ex)
+				{
+					Log.Error(ex);
+				}
+			});
 			Task.Factory.StartNew(delegate()
 			{
 				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
@@ -162,6 +190,55 @@ namespace CedMod.QuerySystem
 					Data = new Dictionary<string, string>()
 					{
 						{"Message", string.Format("Respawn: {0} as {1}.", ev.Players.Count, ev.NextKnownTeam)}
+					}
+				}));
+			});
+		}
+
+		public void OnReport(LocalReportingEventArgs ev)
+		{
+			Log.Debug("sending report WR", CedModMain.config.ShowDebug);
+			Task.Factory.StartNew(() =>
+			{
+				Log.Debug("Thread report send", CedModMain.config.ShowDebug);
+				if (QuerySystem.config.SecurityKey == "None")
+					return;
+				Log.Debug("sending report WR", CedModMain.config.ShowDebug);
+				HttpClient client = new HttpClient();
+				try
+				{
+					var response = client
+						.PostAsync($"https://frikanweb.cedmod.nl/Api/Reports/{QuerySystem.config.SecurityKey}",
+							new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
+								{
+									{"reporter", ev.Issuer.UserId},
+									{"reported", ev.Target.UserId},
+									{"reason", ev.Reason},
+								}), Encoding.Default,
+								"application/json")).Result;
+					Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.config.ShowDebug);
+				}
+				catch (Exception ex)
+				{
+					Log.Error(ex);
+				}
+			});Task.Factory.StartNew(delegate()
+			{
+				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+				{
+					Recipient = "ALL",
+					Data = new Dictionary<string, string>()
+					{
+						{"Message", string.Concat(new string[]
+						{
+							"ingame: ",
+							ev.Issuer.UserId,
+							" report ",
+							ev.Target.UserId,
+							" for ",
+							ev.Reason,
+							"."
+						})}
 					}
 				}));
 			});
