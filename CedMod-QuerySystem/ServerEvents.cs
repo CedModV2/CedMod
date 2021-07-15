@@ -208,7 +208,7 @@ namespace CedMod.QuerySystem
 				try
 				{
 					var response = client
-						.PostAsync($"https://frikanweb.cedmod.nl/Api/Reports/{QuerySystem.config.SecurityKey}",
+						.PostAsync($"https://communitymanagementpanel.cedmod.nl/Api/Reports/{QuerySystem.config.SecurityKey}",
 							new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
 								{
 									{"reporter", ev.Issuer.UserId},
