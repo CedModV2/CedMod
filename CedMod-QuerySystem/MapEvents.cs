@@ -19,6 +19,7 @@ namespace CedMod.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
+                        {"Type", nameof(OnWarheadDetonation)},
                         {"Message", "Warhead has been detonated"}
                     }
                 }));
@@ -34,6 +35,7 @@ namespace CedMod.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
+                        {"Type", nameof(OnDecon)},
                         {"Message", "Light containment zone has been decontaminated."}
                     }
                 }));
@@ -49,6 +51,7 @@ namespace CedMod.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
+                        {"Type", nameof(OnWarheadStart)},
                         {"Message", string.Format("warhead has been started: {0} seconds", Warhead.Controller.NetworktimeToDetonation)}
                     }
                 }));
@@ -64,6 +67,7 @@ namespace CedMod.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
+                        {"Type", nameof(OnWarheadCancelled)},
                         {"Message", ev.Player.Nickname + " - " + ev.Player.UserId + " has stopped the detonation."}
                     }
                 }));

@@ -32,6 +32,7 @@ namespace CedMod.QuerySystem
 					Recipient = "ALL",
 					Data = new Dictionary<string, string>()
 					{
+						{"Type", nameof(OnCommand)},
 						{"Message", string.Concat(new string[]
 						{
 							ev.Sender.Nickname,
@@ -71,6 +72,7 @@ namespace CedMod.QuerySystem
 					Recipient = "ALL",
 					Data = new Dictionary<string, string>()
 					{
+						{"Type", nameof(OnWaitingForPlayers)},
 						{"Message", "Server is waiting for players."}
 					}
 				}));
@@ -86,6 +88,7 @@ namespace CedMod.QuerySystem
 					Recipient = "ALL",
 					Data = new Dictionary<string, string>()
 					{
+						{"Type", nameof(OnRoundStart)},
 						{"Message", "Round is restarting."}
 					}
 				}));
@@ -101,6 +104,7 @@ namespace CedMod.QuerySystem
 					Recipient = "ALL",
 					Data = new Dictionary<string, string>()
 					{
+						{"Type", nameof(OnRoundEnd)},
 						{"Message", "Round is restarting."}
 					}
 				}));
@@ -142,6 +146,9 @@ namespace CedMod.QuerySystem
 					Recipient = "ALL",
 					Data = new Dictionary<string, string>()
 					{
+						{"Type", nameof(OnCheaterReport)},
+						{"UserId", ev.Reported.UserId},
+						{"UserName", ev.Reported.Nickname},
 						{"Message", string.Concat(new string[]
 						{
 							"ingame: ",
@@ -167,6 +174,7 @@ namespace CedMod.QuerySystem
 					Recipient = "ALL",
 					Data = new Dictionary<string, string>()
 					{
+						{"Type", nameof(OnConsoleCommand)},
 						{"Message", string.Format("{0} - {1} ({2}) sent client console command: {3} {4}.", new object[]
 						{
 							ev.Player.Nickname,
@@ -189,6 +197,7 @@ namespace CedMod.QuerySystem
 					Recipient = "ALL",
 					Data = new Dictionary<string, string>()
 					{
+						{"Type", nameof(OnRespawn)},
 						{"Message", string.Format("Respawn: {0} as {1}.", ev.Players.Count, ev.NextKnownTeam)}
 					}
 				}));
@@ -229,6 +238,9 @@ namespace CedMod.QuerySystem
 					Recipient = "ALL",
 					Data = new Dictionary<string, string>()
 					{
+						{"Type", nameof(OnReport)},
+						{"UserId", ev.Target.UserId},
+						{"UserName", ev.Target.Nickname},
 						{"Message", string.Concat(new string[]
 						{
 							"ingame: ",

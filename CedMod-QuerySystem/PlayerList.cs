@@ -39,7 +39,6 @@ namespace CedMod.QuerySystem
             switch (ev.Name.ToUpper())
             {
 	            case "CMMINIMAP":
-		            return;
 		            ev.IsAllowed = false;
 		            MiniMapClass map = new MiniMapClass();
 		            map.MapElements = ServerEvents.Minimap;

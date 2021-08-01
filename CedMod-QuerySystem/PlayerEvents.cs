@@ -37,6 +37,9 @@ namespace CedMod.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
+                        {"UserId", ev.Player.UserId},
+                        {"UserName", ev.Player.Nickname},
+                        {"Type", nameof(OnPlayerLeave)},
                         {"Message", ev.Player.Nickname + " - " + ev.Player.UserId + " has left the server."}
                     }
                 }));
@@ -52,6 +55,9 @@ namespace CedMod.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
+                        {"UserId", ev.Player.UserId},
+                        {"UserName", ev.Player.Nickname},
+                        {"Type", nameof(OnElevatorInteraction)},
                         {"Message", ev.Player.Nickname + " - " + ev.Player.UserId + " has interacted with elevator."}
                     }
                 }));
@@ -67,7 +73,11 @@ namespace CedMod.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
+                        {"UserId", ev.Player.UserId},
+                        {"UserName", ev.Player.Nickname},
+                        {"Type", nameof(OnPocketEnter)},
                         {
+                            
                             "Message", string.Format(
                                 "{0} - {1} (<color={2}>{3}</color>) has entered the pocket dimension.", new object[]
                                 {
@@ -91,6 +101,9 @@ namespace CedMod.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
+                        {"UserId", ev.Player.UserId},
+                        {"UserName", ev.Player.Nickname},
+                        {"Type", nameof(OnPocketEscape)},
                         {
                             "Message", string.Format(
                                 "{0} - {1} (<color={2}>{3}</color>) has escaped the pocket dimension.", new object[]
@@ -115,6 +128,9 @@ namespace CedMod.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
+                        {"UserId", ev.Player.UserId},
+                        {"UserName", ev.Player.Nickname},
+                        {"Type", nameof(On079Tesla)},
                         {
                             "Message", string.Format(
                                 "{0} - {1} (<color={2}>{3}</color>) has activated the tesla as 079.", new object[]
@@ -141,6 +157,14 @@ namespace CedMod.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
+                        {"UserId", ev.Target.UserId},
+                        {"UserName", ev.Target.Nickname},
+                        {"Class", ev.Target.Role.ToString()},
+                        {"AttackerClass", ev.Attacker.Role.ToString()},
+                        {"AttackerId", ev.Attacker.UserId},
+                        {"AttackerName", ev.Attacker.Nickname},
+                        {"Weapon", ev.DamageType.name},
+                        {"Type", nameof(OnPlayerHurt)},
                         {
                             "Message", string.Format(
                                 "{0} damaged {1} - {2} (<color={3}>{4}</color>) ammount {5} with {6}.", new object[]
@@ -236,6 +260,14 @@ namespace CedMod.QuerySystem
                         Recipient = "ALL",
                         Data = new Dictionary<string, string>()
                         {
+                            {"UserId", ev.Target.UserId},
+                            {"UserName", ev.Target.Nickname},
+                            {"Class", ev.Target.Role.ToString()},
+                            {"AttackerClass", ev.Killer.Role.ToString()},
+                            {"AttackerId", ev.Killer.UserId},
+                            {"AttackerName", ev.Killer.Nickname},
+                            {"Weapon", ev.HitInformation.GetDamageType().name},
+                            {"Type", nameof(OnPlayerDeath)},
                             {
                                 "Message", string.Format(
                                     "Teamkill ⚠: {0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8}.",
@@ -265,6 +297,14 @@ namespace CedMod.QuerySystem
                         Recipient = "ALL",
                         Data = new Dictionary<string, string>()
                         {
+                            {"UserId", ev.Target.UserId},
+                            {"UserName", ev.Target.Nickname},
+                            {"Class", ev.Target.Role.ToString()},
+                            {"AttackerClass", ev.Killer.Role.ToString()},
+                            {"AttackerId", ev.Killer.UserId},
+                            {"AttackerName", ev.Killer.Nickname},
+                            {"Weapon", ev.HitInformation.GetDamageType().name},
+                            {"Type", nameof(OnPlayerDeath)},
                             {
                                 "Message", string.Format(
                                     "{0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8}.",
@@ -296,6 +336,9 @@ namespace CedMod.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
+                        {"UserId", ev.Player.UserId},
+                        {"UserName", ev.Player.Nickname},
+                        {"Type", nameof(OnGrenadeThrown)},
                         {"Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) threw a grenade.", new object[]
                             {
@@ -318,6 +361,9 @@ namespace CedMod.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
+                        {"UserId", ev.Player.UserId},
+                        {"UserName", ev.Player.Nickname},
+                        {"Type", nameof(OnMedicalItem)},
                         {"Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) Used a {4}.", new object[]
                             {
@@ -341,6 +387,9 @@ namespace CedMod.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
+                        {"UserId", ev.Player.UserId},
+                        {"UserName", ev.Player.Nickname},
+                        {"Type", nameof(OnSetClass)},
                         {"Message", string.Format("{0} - {1}'s role has been changed to <color={2}>{3}</color>.", new object[]
                         {
                             ev.Player.Nickname,
@@ -370,6 +419,9 @@ namespace CedMod.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
+                        {"UserId", ev.Player.UserId},
+                        {"UserName", ev.Player.Nickname},
+                        {"Type", nameof(OnPlayerJoin)},
                         {"Message", string.Format("({0}) {1} - {2} joined the game.",
                             ev.Player.Id, ev.Player.Nickname, ev.Player.UserId)}
                     }
@@ -386,6 +438,9 @@ namespace CedMod.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
+                        {"UserId", ev.Target.UserId},
+                        {"UserName", ev.Target.Nickname},
+                        {"Type", nameof(OnPlayerFreed)},
                         {"Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has been freed by {4} - {5} (<color={6}>{7}</color>).",
                             new object[]
@@ -413,6 +468,9 @@ namespace CedMod.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
+                        {"UserId", ev.Target.UserId},
+                        {"UserName", ev.Target.Nickname},
+                        {"Type", nameof(OnPlayerHandcuffed)},
                         {"Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has been cuffed by {4} - {5} (<color={6}>{7}</color>).",
                             new object[]
