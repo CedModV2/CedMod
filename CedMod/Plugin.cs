@@ -4,6 +4,7 @@ using System.Net;
 using CedMod.Commands;
 using CedMod.Commands.Dialog;
 using CedMod.Commands.Stuiter;
+using HarmonyLib;
 using RemoteAdmin;
 using UnityEngine;
 
@@ -19,6 +20,8 @@ namespace CedMod
     {
         private Handlers.Server server;
         private Handlers.Player player;
+        private Harmony _harmony;
+        
         /// <inheritdoc/>
         public override PluginPriority Priority { get; } = PluginPriority.First;
 
@@ -36,6 +39,9 @@ namespace CedMod
             if (!Config.IsEnabled)
                 return;
 
+            _harmony = new Harmony("com.cedmod.patch");
+            _harmony.PatchAll();
+            
             if (!File.Exists(Application.dataPath + "/Managed/Newtonsoft.Json.dll"))
             {
                 WebClient wc = new WebClient();
@@ -63,6 +69,7 @@ namespace CedMod
         /// <inheritdoc/>
         public override void OnDisabled()
         {
+            _harmony.UnpatchAll();
             UnregisterEvents();
         }
 

@@ -63,10 +63,10 @@ namespace CedMod.SurvivalOfTheFittest
                 hub.Broadcast(30, "<color=orange>You are a Dboi, you need to find a hiding place and pray you are the last person alive, the nuts wil be release at their chamber in 2 minutes.</color>", Broadcast.BroadcastFlags.Normal);
                 yield return Timing.WaitForOneFrame * 30;
 				
-                hub.ReferenceHub.inventory.Clear();
-                hub.ReferenceHub.inventory.AddNewItem(ItemType.Flashlight);
-                hub.ReferenceHub.inventory.AddNewItem(ItemType.KeycardO5);
-                hub.ReferenceHub.playerMovementSync.OverridePosition(Exiled.API.Extensions.Role.GetRandomSpawnPoint(RoleType.Scp096), 0f);
+                hub.ClearInventory();
+                hub.AddItem(ItemType.Flashlight);
+                hub.AddItem(ItemType.KeycardO5);
+                hub.ReferenceHub.playerMovementSync.OverridePosition(Exiled.API.Extensions.RoleExtensions.GetRandomSpawnProperties(RoleType.Scp096).Item1, 0f);
             }
         }
 
@@ -79,7 +79,7 @@ namespace CedMod.SurvivalOfTheFittest
                     "<color=red>You are a Nut, once this notice disapears (2 minutes), you will be set loose to kill the Dbois!</color>", Broadcast.BroadcastFlags.Normal);
                 hub.ReferenceHub.serverRoles.BypassMode = true;
                 yield return Timing.WaitForOneFrame * 30;
-                hub.ReferenceHub.playerMovementSync.OverridePosition(Exiled.API.Extensions.Role.GetRandomSpawnPoint(RoleType.Scp173), 0f);
+                hub.ReferenceHub.playerMovementSync.OverridePosition(Exiled.API.Extensions.RoleExtensions.GetRandomSpawnProperties(RoleType.Scp173).Item1, 0f);
             }
         }
         public Random Gen = new Random();
@@ -155,7 +155,7 @@ namespace CedMod.SurvivalOfTheFittest
 
         public IEnumerator<float> Blackout()
         {
-            Generator079.Generators[0].ServerOvercharge(59.5f, false);
+            Generator079.ServerOvercharge(59.5f, false);
             yield return Timing.WaitForSeconds(60f);
             Timing.RunCoroutine(Blackout(), "SurvivalOfTheFittest");
         }

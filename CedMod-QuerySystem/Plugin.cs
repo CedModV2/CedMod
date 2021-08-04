@@ -16,6 +16,7 @@ namespace CedMod.QuerySystem
         public ServerEvents ServerEvents;
         public PlayerEvents PlayerEvents;
         public static Harmony harmony;
+        public static List<string> ReservedSlotUserids = new List<string>();
 
         /// <inheritdoc/>
         public override PluginPriority Priority { get; } = PluginPriority.Default;
@@ -32,8 +33,11 @@ namespace CedMod.QuerySystem
 
         public static Config config;
 
+        public static string PanelUrl = "frikanweb.cedmod.nl";
+
         public override void OnDisabled()
         {
+            harmony.UnpatchAll();
             // Unload the event handlers.
             // Close the HTTP server.
             WebSocketSystem.Stop();
@@ -52,7 +56,7 @@ namespace CedMod.QuerySystem
             Exiled.Events.Handlers.Server.RespawningTeam -= ServerEvents.OnRespawn;
             Exiled.Events.Handlers.Server.ReportingCheater -= ServerEvents.OnCheaterReport;
 
-            Exiled.Events.Handlers.Player.UsingMedicalItem -= PlayerEvents.OnMedicalItem;
+            Exiled.Events.Handlers.Player.ItemUsed -= PlayerEvents.OnUsedItem;
             Exiled.Events.Handlers.Scp079.InteractingTesla -= PlayerEvents.On079Tesla;
             Exiled.Events.Handlers.Player.EscapingPocketDimension -= PlayerEvents.OnPocketEscape;
             Exiled.Events.Handlers.Player.EnteringPocketDimension -= PlayerEvents.OnPocketEnter;
@@ -88,6 +92,9 @@ namespace CedMod.QuerySystem
             else
                 Exiled.API.Features.Log.Warn("security_key is set to none plugin will not load due to security risks");
 
+            harmony = new Harmony("com.cedmod.querysystem");
+            harmony.PatchAll();
+            
             MapEvents = new MapEvents();
             ServerEvents = new ServerEvents();
             PlayerEvents = new PlayerEvents();
@@ -107,7 +114,7 @@ namespace CedMod.QuerySystem
             Exiled.Events.Handlers.Server.ReportingCheater += ServerEvents.OnCheaterReport;
             Exiled.Events.Handlers.Server.LocalReporting += ServerEvents.OnReport;
 
-            Exiled.Events.Handlers.Player.UsingMedicalItem += PlayerEvents.OnMedicalItem;
+            Exiled.Events.Handlers.Player.ItemUsed += PlayerEvents.OnUsedItem;
             Exiled.Events.Handlers.Scp079.InteractingTesla += PlayerEvents.On079Tesla;
             Exiled.Events.Handlers.Player.EscapingPocketDimension += PlayerEvents.OnPocketEscape;
             Exiled.Events.Handlers.Player.EnteringPocketDimension += PlayerEvents.OnPocketEnter;

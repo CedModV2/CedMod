@@ -35,9 +35,9 @@ namespace CedMod.LightsPlugin
                     bool _hasflashlight = false;
                     if (CedModLightsPlugin.config.GiveFlashlightsNotification)
                     {
-                        foreach (var Item in ev.Player.Inventory.items)
+                        foreach (var Item in ev.Player.Inventory.UserInventory.Items)
                         {
-                            if (Item.id == ItemType.Flashlight)
+                            if (Item.Value.ItemTypeId == ItemType.Flashlight)
                             {
                                 _hasflashlight = true;
                             }
@@ -46,7 +46,7 @@ namespace CedMod.LightsPlugin
                         if (!_hasflashlight)
                         {
                             ev.Player.HintDisplay.Show(new TextHint("<color=red>You have been given a flashlight.</color>", new HintParameter[] {new StringHintParameter("")}, null, 10f));
-                            ev.Player.Inventory.AddNewItem(ItemType.Flashlight);
+                            ev.Player.AddItem(ItemType.Flashlight);
                         }
                     }
                 });
@@ -81,7 +81,7 @@ namespace CedMod.LightsPlugin
             BlackoutOn = true;
             float dur = Random.Range(CedModLightsPlugin.config.BlackoutDurationMin,
                 CedModLightsPlugin.config.BlackoutDurationMax);
-            Generator079.mainGenerator.ServerOvercharge(dur, false);
+            Generator079.ServerOvercharge(dur, false);
             foreach (Player ply in Player.List)
             {
                 if (ply.Team != Team.SCP && ply.Team != Team.RIP && CedModLightsPlugin.config.GiveFlashlights)
@@ -89,9 +89,9 @@ namespace CedMod.LightsPlugin
                     bool _hasflashlight = false;
                     if (CedModLightsPlugin.config.GiveFlashlightsNotification)
                     {
-                        foreach (var Item in ply.Inventory.items)
+                        foreach (var Item in ply.Inventory.UserInventory.Items)
                         {
-                            if (Item.id == ItemType.Flashlight)
+                            if (Item.Value.ItemTypeId == ItemType.Flashlight)
                             {
                                 _hasflashlight = true;
                             }
@@ -101,7 +101,7 @@ namespace CedMod.LightsPlugin
                         {
                             ply.HintDisplay.Show(new TextHint("<color=red>You have been given a flashlight.</color>",
                                 new HintParameter[] {new StringHintParameter("")}, null, 10f));
-                            ply.Inventory.AddNewItem(ItemType.Flashlight);
+                            ply.AddItem(ItemType.Flashlight);
                         }
                     }
                 }

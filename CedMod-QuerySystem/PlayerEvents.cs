@@ -148,7 +148,7 @@ namespace CedMod.QuerySystem
 
         public void OnPlayerHurt(HurtingEventArgs ev)
         {
-            if (ev.DamageType == DamageTypes.Scp207)
+            if (ev.DamageType == DamageTypes.Scp207 || ev.Target.Role == RoleType.Spectator)
                 return;
             Task.Factory.StartNew(delegate()
             {
@@ -163,7 +163,7 @@ namespace CedMod.QuerySystem
                         {"AttackerClass", ev.Attacker.Role.ToString()},
                         {"AttackerId", ev.Attacker.UserId},
                         {"AttackerName", ev.Attacker.Nickname},
-                        {"Weapon", ev.DamageType.name},
+                        {"Weapon", ev.DamageType.Name},
                         {"Type", nameof(OnPlayerHurt)},
                         {
                             "Message", string.Format(
@@ -175,7 +175,7 @@ namespace CedMod.QuerySystem
                                     Misc.ToHex(ev.Target.Role.GetColor()),
                                     ev.Target.Role,
                                     ev.Amount,
-                                    DamageTypes.FromIndex(ev.Tool).name
+                                    DamageTypes.FromIndex(ev.Tool).Name
                                 })
                         }
                     }
@@ -242,7 +242,7 @@ namespace CedMod.QuerySystem
                     try
                     {
                         var response = client
-                            .PostAsync($"https://communitymanagementpanel.cedmod.nl/Api/Teamkill/{QuerySystem.config.SecurityKey}",
+                            .PostAsync($"https://{QuerySystem.PanelUrl}/Api/Teamkill/{QuerySystem.config.SecurityKey}",
                                 new StringContent(JsonConvert.SerializeObject(PlayersOnScene), Encoding.Default,
                                     "application/json")).Result;
                         Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.config.ShowDebug);
@@ -266,7 +266,7 @@ namespace CedMod.QuerySystem
                             {"AttackerClass", ev.Killer.Role.ToString()},
                             {"AttackerId", ev.Killer.UserId},
                             {"AttackerName", ev.Killer.Nickname},
-                            {"Weapon", ev.HitInformation.GetDamageType().name},
+                            {"Weapon", ev.HitInformation.GetDamageType().Name},
                             {"Type", nameof(OnPlayerDeath)},
                             {
                                 "Message", string.Format(
@@ -281,7 +281,7 @@ namespace CedMod.QuerySystem
                                         ev.Target.UserId,
                                         Misc.ToHex(ev.Target.Role.GetColor()),
                                         ev.Target.Role,
-                                        DamageTypes.FromIndex(ev.HitInformation.Tool).name
+                                        DamageTypes.FromIndex(ev.HitInformation.Tool).Name
                                     })
                             }
                         }
@@ -303,7 +303,7 @@ namespace CedMod.QuerySystem
                             {"AttackerClass", ev.Killer.Role.ToString()},
                             {"AttackerId", ev.Killer.UserId},
                             {"AttackerName", ev.Killer.Nickname},
-                            {"Weapon", ev.HitInformation.GetDamageType().name},
+                            {"Weapon", ev.HitInformation.GetDamageType().Name},
                             {"Type", nameof(OnPlayerDeath)},
                             {
                                 "Message", string.Format(
@@ -318,7 +318,7 @@ namespace CedMod.QuerySystem
                                         ev.Target.UserId,
                                         Misc.ToHex(ev.Target.Role.GetColor()),
                                         ev.Target.Role,
-                                        DamageTypes.FromIndex(ev.HitInformation.Tool).name
+                                        DamageTypes.FromIndex(ev.HitInformation.Tool).Name
                                     })
                             }
                         }
@@ -352,7 +352,7 @@ namespace CedMod.QuerySystem
             });
         }
 
-        public void OnMedicalItem(UsedMedicalItemEventArgs ev)
+        public void OnUsedItem(UsedItemEventArgs ev)
         {
             Task.Factory.StartNew(delegate()
             {
@@ -363,7 +363,7 @@ namespace CedMod.QuerySystem
                     {
                         {"UserId", ev.Player.UserId},
                         {"UserName", ev.Player.Nickname},
-                        {"Type", nameof(OnMedicalItem)},
+                        {"Type", nameof(OnUsedItem)},
                         {"Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) Used a {4}.", new object[]
                             {

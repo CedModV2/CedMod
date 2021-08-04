@@ -6,10 +6,10 @@ using UnityEngine;
 
 namespace CedMod.Patches
 {
-    [HarmonyPatch(typeof(BanPlayer), nameof(BanPlayer.BanUser), new Type[] {typeof(GameObject), typeof(int), typeof(string), typeof(string),  typeof(bool)})]
+    [HarmonyPatch(typeof(BanPlayer), nameof(BanPlayer.BanUser), new Type[] {typeof(GameObject), typeof(long), typeof(string), typeof(string),  typeof(bool)})]
     public static class BanPatch
     {
-        public static bool Prefix(GameObject user, int duration, string reason, string issuer, bool isGlobalBan)
+        public static bool Prefix(GameObject user, long duration, string reason, string issuer, bool isGlobalBan)
         {
             try
             {

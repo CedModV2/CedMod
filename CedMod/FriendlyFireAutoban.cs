@@ -5,6 +5,7 @@ using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using GameCore;
 using Hints;
+using InventorySystem.Disarming;
 using MEC;
 using RemoteAdmin;
 using Log = Exiled.API.Features.Log;
@@ -75,8 +76,8 @@ namespace CedMod
                 case Team.CHI when ev.Target.Team == Team.CDP:
                 case Team.RSC when ev.Target.Team == Team.MTF:
                 case Team.MTF when ev.Target.Team == Team.RSC:
-                case Team.MTF when ev.Target.Team == Team.CDP && ev.Target.IsCuffed && CedModMain.config.AutobanDisarmedClassDTk:
-                case Team.CHI when ev.Target.Team == Team.RSC && ev.Target.IsCuffed && CedModMain.config.AutobanDisarmedScientistDTk:
+                case Team.MTF when ev.Target.Team == Team.CDP && ev.Target.Inventory.IsDisarmed() && CedModMain.config.AutobanDisarmedClassDTk:
+                case Team.CHI when ev.Target.Team == Team.RSC && ev.Target.Inventory.IsDisarmed() && CedModMain.config.AutobanDisarmedScientistDTk:
                     result = true;
                     break;
                 case Team.CDP when ev.Target.Team == Team.CDP && CedModMain.config.AutobanClassDvsClassD:

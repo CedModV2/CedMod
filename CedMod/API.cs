@@ -69,7 +69,7 @@ namespace CedMod
             if (duration >= 1)
             {
                 string json = "{\"Userid\": \"" + player.UserId + "\"," +
-                              "\"Ip\": \"" + player.Connection.address+"\"," +
+                              "\"Ip\": \"" + player.IPAddress+"\"," +
                               "\"AdminName\": \"" + sender.Replace("\"", "'") + "\"," +
                               "\"BanDuration\": "+duration+"," +
                               "\"BanReason\": \""+reason.Replace("\"", "'")+"\"}";

@@ -8,7 +8,6 @@ using Exiled.Events;
 using MEC;
 using Exiled.Events.EventArgs;
 using Newtonsoft.Json;
-using Telepathy;
 
 namespace CedMod.Handlers
 {

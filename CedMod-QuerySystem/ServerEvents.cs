@@ -51,16 +51,88 @@ namespace CedMod.QuerySystem
 		
 		public void OnWaitingForPlayers()
 		{
+			if (QuerySystem.config.SecurityKey != "None")
+			{
+				Log.Debug("Checking configs", CedModMain.config.ShowDebug);
+				if (QuerySystem.config.EnableExternalLookup)
+				{
+					Log.Debug("Setting lookup mode", CedModMain.config.ShowDebug);
+					ServerConfigSynchronizer.Singleton.NetworkRemoteAdminExternalPlayerLookupMode = "fullauth";
+					ServerConfigSynchronizer.Singleton.NetworkRemoteAdminExternalPlayerLookupURL = $"https://{QuerySystem.PanelUrl}/Api/Lookup/";
+					ServerConfigSynchronizer.Singleton.RemoteAdminExternalPlayerLookupToken = QuerySystem.config.SecurityKey;
+				}
+
+				Task.Factory.StartNew(() =>
+				{
+					Log.Debug("Checking configs", CedModMain.config.ShowDebug);
+					if (QuerySystem.config.EnableBanreasonSync)
+					{
+						Log.Debug("Enabling ban reasons", CedModMain.config.ShowDebug);
+						ServerConfigSynchronizer.Singleton.NetworkEnableRemoteAdminPredefinedBanTemplates = true;
+						Log.Debug("Clearing ban reasons", CedModMain.config.ShowDebug);
+						ServerConfigSynchronizer.Singleton.RemoteAdminPredefinedBanTemplates.Clear();
+						HttpClient client = new HttpClient();
+						Log.Debug("Downloading ban reasons", CedModMain.config.ShowDebug);
+						var response =
+							client.GetAsync($"https://{QuerySystem.PanelUrl}/Api/BanReasons/{QuerySystem.config.SecurityKey}");
+						Log.Debug("Addding ban reasons", CedModMain.config.ShowDebug);
+						foreach (var dict in JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(response.Result
+							.Content.ReadAsStringAsync().Result))
+						{
+							Log.Debug($"Addding ban reason {JsonConvert.SerializeObject(dict)}",
+								CedModMain.config.ShowDebug);
+							var DurationNice = "";
+							TimeSpan timeSpan = TimeSpan.FromMinutes(double.Parse(dict["Dur"]));
+							int num2 = timeSpan.Days / 365;
+							if (num2 > 0)
+							{
+								DurationNice = string.Format("{0}y", num2);
+							}
+							else if (timeSpan.Days > 0)
+							{
+								DurationNice = string.Format("{0}d", timeSpan.Days);
+							}
+							else if (timeSpan.Hours > 0)
+							{
+								DurationNice = string.Format("{0}h", timeSpan.Hours);
+							}
+							else if (timeSpan.Minutes > 0)
+							{
+								DurationNice = string.Format("{0}m", timeSpan.Minutes);
+							}
+							else
+							{
+								DurationNice = string.Format("{0}s", timeSpan.Seconds);
+							}
+
+							ServerConfigSynchronizer.Singleton.RemoteAdminPredefinedBanTemplates.Add(
+								new ServerConfigSynchronizer.PredefinedBanTemplate()
+								{
+									Duration = Convert.ToInt32(dict["Dur"]),
+									DurationNice = DurationNice,
+									Reason = dict["Reason"]
+								});
+						}
+					}
+					
+					HttpClient client1 = new HttpClient();
+					Log.Debug("Downloading syncs", CedModMain.config.ShowDebug);
+					var response1 = client1.GetAsync($"https://{QuerySystem.PanelUrl}/Api/ReservedSlotUsers/{QuerySystem.config.SecurityKey}");
+					Log.Debug($"Downloaded Reserved slots: {response1.Result.Content.ReadAsStringAsync().Result}");
+					QuerySystem.ReservedSlotUserids = JsonConvert.DeserializeObject<List<string>>(response1.Result.Content.ReadAsStringAsync().Result);
+				});
+			}
+			
 			Minimap.Clear();
 			foreach (ImageGenerator gen in ImageGenerator.ZoneGenerators)
 			{
 				foreach (ImageGenerator.MinimapElement elem in gen.minimap)
 				{
 					MiniMapElement elem1 = new MiniMapElement();
-					elem1.Name = elem.roomSource.GetComponentsInChildren<RoomInformation>().FirstOrDefault().CurrentRoomType.ToString();
+					elem1.Name = elem.roomSource.GetComponentsInChildren<RoomIdentifier>().FirstOrDefault().Name.ToString();
 					elem1.Position = elem.roomSource.transform.position.ToString();
 					elem1.Rotation = elem.rotation.ToString();
-					elem1.ZoneType = elem.roomSource.GetComponentsInChildren<RoomInformation>().FirstOrDefault().CurrentZoneType.ToString().Replace("HCZ", "HeavyContainment").Replace("LCZ", "LightContainment").Replace("ENTRANCE", "Entrance");
+					elem1.ZoneType = elem.roomSource.GetComponentsInChildren<RoomIdentifier>().FirstOrDefault().Zone.ToString().Replace("HCZ", "HeavyContainment").Replace("LCZ", "LightContainment").Replace("ENTRANCE", "Entrance");
 					Minimap.Add(elem1);
 				}
 			}
@@ -124,7 +196,7 @@ namespace CedMod.QuerySystem
 				try
 				{
 					var response = client
-						.PostAsync($"https://frikanweb.cedmod.nl/Api/Reports/{QuerySystem.config.SecurityKey}",
+						.PostAsync($"https://{QuerySystem.PanelUrl}/Api/Reports/{QuerySystem.config.SecurityKey}",
 							new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
 								{
 									{"reporter", ev.Reporter.UserId},
@@ -217,7 +289,7 @@ namespace CedMod.QuerySystem
 				try
 				{
 					var response = client
-						.PostAsync($"https://communitymanagementpanel.cedmod.nl/Api/Reports/{QuerySystem.config.SecurityKey}",
+						.PostAsync($"https://{QuerySystem.PanelUrl}/Api/Reports/{QuerySystem.config.SecurityKey}",
 							new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
 								{
 									{"reporter", ev.Issuer.UserId},

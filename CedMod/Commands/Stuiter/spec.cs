@@ -33,8 +33,8 @@ namespace CedMod.Commands.Stuiter
                 {
                     component.SetClassID(RoleType.Tutorial);
                     player.ReferenceHub.playerStats.Health = 100;
-                    player.ReferenceHub.inventory.items.Clear();
-                    player.ReferenceHub.inventory.AddNewItem(ItemType.SCP018);
+                    player.ClearInventory();
+                    player.AddItem(ItemType.Flashlight);
                     component.GodMode = false;
                 }
             }

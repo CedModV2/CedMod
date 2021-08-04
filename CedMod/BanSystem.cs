@@ -17,6 +17,7 @@ namespace CedMod
         public static object banlock = new object();
         public static void HandleJoin(VerifiedEventArgs ev)
         {
+            Log.Debug("Join", CedModMain.config.ShowDebug);
             try
             {
                 ReferenceHub Player = ev.Player.ReferenceHub;
@@ -27,6 +28,9 @@ namespace CedMod
 
                 Dictionary<string, string> info = (Dictionary<string, string>) API.APIRequest("Auth/",
                     $"{Player.characterClassManager.UserId}&{ev.Player.IPAddress}");
+                
+                Log.Debug(JsonConvert.SerializeObject(info), CedModMain.config.ShowDebug);
+                
                 string reason;
                 if (info["success"] == "true" && info["vpn"] == "true" && info["isbanned"] == "false")
                 {
@@ -63,97 +67,6 @@ namespace CedMod
             ReferenceHub sender = ev.Sender.Nickname == "SERVER CONSOLE" || ev.Sender.Nickname == "GAME CONSOLE"
                 ? ReferenceHub.LocalHub
                 : ReferenceHub.GetHub(ev.Sender.Id);
-            if (ev.Name.ToUpper() == "BAN")
-            {
-                ev.IsAllowed = false;
-                var num4 = Convert.ToInt64(ev.Arguments[1]);
-                if ((num4 == 0 && !CommandProcessor.CheckPermissions(ev.CommandSender, "BAN", new PlayerPermissions[3]
-                {
-                    PlayerPermissions.KickingAndShortTermBanning,
-                    PlayerPermissions.BanningUpToDay,
-                    PlayerPermissions.LongTermBanning
-                })) || (num4 > 0 && num4 <= 3600 && !CommandProcessor.CheckPermissions(ev.CommandSender, "BAN", PlayerPermissions.KickingAndShortTermBanning)) || (num4 > 3600 && num4 <= 86400 && !CommandProcessor.CheckPermissions(ev.CommandSender, "BAN", PlayerPermissions.BanningUpToDay)) || (num4 > 86400 && !CommandProcessor.CheckPermissions(ev.CommandSender, "BAN", PlayerPermissions.LongTermBanning)))
-                {
-                    ev.CommandSender.Respond("No permission", false);
-                    return;
-                }
-                if (ev.Arguments.Count < 2)
-                {
-                    ev.CommandSender.Respond(
-                        "To run this program, type at least 3 arguments! (some parameters are missing)", false);
-                    return;
-                }
-
-                string text17 = string.Empty;
-                if (ev.Arguments.Count > 2)
-                {
-                    text17 = ev.Arguments.Skip(2).Aggregate((current, n) => current + " " + n);
-                }
-
-                if (text17.Contains("&"))
-                {
-                    ev.CommandSender.Respond("The ban reason must not contain a & or else shit will hit the fan",
-                        false);
-                    return;
-                }
-
-                if (text17 == "")
-                {
-                    ev.CommandSender.Respond(
-                        $"To run this program, you must specify a reason use the text based RA console to do so, Autocorrection:   ban  {ev.Arguments[0]} {ev.Arguments[1]} ReasonHere",
-                        false);
-                    return;
-                }
-
-                ServerLogs.AddLog(ServerLogs.Modules.Administrative,
-                    string.Concat(ev.Sender.Nickname, " ran the ban command (duration: ", ev.Arguments[1], " min) on ",
-                        ev.Arguments[0], " players. Reason: ", (text17 == string.Empty) ? "(none)" : text17, "."),
-                    ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging);
-                List<int> list = new List<int>();
-                string[] source = ev.Arguments[0].Split('.');
-                list.AddRange((from item in source
-                    where !string.IsNullOrEmpty(item)
-                    select item).Select(int.Parse));
-                foreach (int num2 in list)
-                {
-                    foreach (Player player in Player.List)
-                    {
-                        if (num2 == player.ReferenceHub.queryProcessor.PlayerId)
-                        {
-                            if (!player.ReferenceHub.serverRoles.BypassStaff)
-                            {
-                                if (Convert.ToInt64(ev.Arguments[1]) >= 1)
-                                {
-                                    string sender1 = ev.Sender.Nickname;
-
-                                    Task.Factory.StartNew(() =>
-                                    {
-                                        lock (banlock) //so theres only 1 ban at a time
-                                        {
-                                            API.Ban(player, Convert.ToInt64(ev.Arguments[1]), sender1, text17);
-                                        }
-                                    });
-                                }
-                                else
-                                {
-                                    if (!string.IsNullOrEmpty(text17) && Convert.ToInt32(ev.Arguments[1]) <= 0)
-                                    {
-                                        string text3;
-                                        text3 = $" Reason: {text17}";
-                                        ServerConsole.Disconnect(player.GameObject, text3);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (ev.Name.ToUpper() == "UNBAN")
-            {
-                ev.IsAllowed = false;
-                ev.CommandSender.Respond("Use the Webinterface for unbanning", false);
-            }
 
             if (ev.Name.ToUpper() == "JAIL")
             {
