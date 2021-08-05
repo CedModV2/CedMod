@@ -62,7 +62,7 @@ namespace CedMod
             }
         }
 
-        public static void HandleRACommand(SendingRemoteAdminCommandEventArgs ev)
+        /*public static void HandleRACommand(SendingRemoteAdminCommandEventArgs ev)
         {
             ReferenceHub sender = ev.Sender.Nickname == "SERVER CONSOLE" || ev.Sender.Nickname == "GAME CONSOLE"
                 ? ReferenceHub.LocalHub
@@ -102,6 +102,6 @@ namespace CedMod
                                    $"\nTimestamp {ban.Timestamp}", true);
                 }
             }
-        }
+        }*/
     }
 }

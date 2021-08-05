@@ -86,9 +86,9 @@ namespace CedMod.Handlers
             Timing.KillCoroutines("LightsOut");
         }
 
-        public void OnSendingRemoteAdmin(SendingRemoteAdminCommandEventArgs ev)
-        {
-            BanSystem.HandleRACommand(ev);
-        }
+        // public void OnSendingRemoteAdmin(SendingRemoteAdminCommandEventArgs ev)
+        // {
+        //     BanSystem.HandleRACommand(ev);
+        // }
     }
 }

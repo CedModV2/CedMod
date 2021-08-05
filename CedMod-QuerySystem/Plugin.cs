@@ -41,16 +41,16 @@ namespace CedMod.QuerySystem
             // Unload the event handlers.
             // Close the HTTP server.
             WebSocketSystem.Stop();
-            Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += CommandHandler.HandleCommand;
+            //Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += CommandHandler.HandleCommand;
 
             Exiled.Events.Handlers.Map.Decontaminating -= MapEvents.OnDecon;
             Exiled.Events.Handlers.Warhead.Starting -= MapEvents.OnWarheadStart;
             Exiled.Events.Handlers.Warhead.Stopping -= MapEvents.OnWarheadCancelled;
             Exiled.Events.Handlers.Warhead.Detonated -= MapEvents.OnWarheadDetonation;
 
-            Exiled.Events.Handlers.Server.SendingRemoteAdminCommand -= ServerEvents.OnCommand;
+            //Exiled.Events.Handlers.Server.SendingRemoteAdminCommand -= ServerEvents.OnCommand;
             Exiled.Events.Handlers.Server.WaitingForPlayers -= ServerEvents.OnWaitingForPlayers;
-            Exiled.Events.Handlers.Server.SendingConsoleCommand -= ServerEvents.OnConsoleCommand;
+            //Exiled.Events.Handlers.Server.SendingConsoleCommand -= ServerEvents.OnConsoleCommand;
             Exiled.Events.Handlers.Server.RoundStarted -= ServerEvents.OnRoundStart;
             Exiled.Events.Handlers.Server.RoundEnded -= ServerEvents.OnRoundEnd;
             Exiled.Events.Handlers.Server.RespawningTeam -= ServerEvents.OnRespawn;
@@ -98,16 +98,16 @@ namespace CedMod.QuerySystem
             MapEvents = new MapEvents();
             ServerEvents = new ServerEvents();
             PlayerEvents = new PlayerEvents();
-            Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += CommandHandler.HandleCommand;
+            //Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += CommandHandler.HandleCommand;
 
             Exiled.Events.Handlers.Map.Decontaminating += MapEvents.OnDecon;
             Exiled.Events.Handlers.Warhead.Starting += MapEvents.OnWarheadStart;
             Exiled.Events.Handlers.Warhead.Stopping += MapEvents.OnWarheadCancelled;
             Exiled.Events.Handlers.Warhead.Detonated += MapEvents.OnWarheadDetonation;
 
-            Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += ServerEvents.OnCommand;
+            //Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += ServerEvents.OnCommand;
             Exiled.Events.Handlers.Server.WaitingForPlayers += ServerEvents.OnWaitingForPlayers;
-            Exiled.Events.Handlers.Server.SendingConsoleCommand += ServerEvents.OnConsoleCommand;
+            //Exiled.Events.Handlers.Server.SendingConsoleCommand += ServerEvents.OnConsoleCommand;
             Exiled.Events.Handlers.Server.RoundStarted += ServerEvents.OnRoundStart;
             Exiled.Events.Handlers.Server.RoundEnded += ServerEvents.OnRoundEnd;
             Exiled.Events.Handlers.Server.RespawningTeam += ServerEvents.OnRespawn;

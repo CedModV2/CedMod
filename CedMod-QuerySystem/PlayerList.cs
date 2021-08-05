@@ -33,7 +33,7 @@ namespace CedMod.QuerySystem
 		    sender.RaReply(queryZero + "#This command can be executed only from the game level.", success: false, logToConsole: true, replyScreen);
 		    return false;
 	    }
-        public static void HandleCommand(SendingRemoteAdminCommandEventArgs ev)
+        /*public static void HandleCommand(SendingRemoteAdminCommandEventArgs ev)
         {
 	        CommandSender sender = ev.CommandSender;
             switch (ev.Name.ToUpper())
@@ -57,6 +57,6 @@ namespace CedMod.QuerySystem
 					break;
             
             }
-        }
+        }*/
     }
 }

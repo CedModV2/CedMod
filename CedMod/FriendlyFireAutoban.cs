@@ -27,7 +27,7 @@ namespace CedMod
             string ffatext1 = $"<size=25><b><color=yellow>You teamkilled: </color></b><color=red> {ev.Target.Nickname} </color><color=yellow><b> If you continue teamkilling it will result in a ban</b></color></size>";
             ev.Killer.ReferenceHub.hints.Show(new TextHint(ffatext1, new HintParameter[] {new StringHintParameter("")}, null, 20f));
             ev.Killer.SendConsoleMessage(ffatext1, "white");
-            string ffatext = $"<size=25><b><color=yellow>You have been teamkilled by: </color></b></size><color=red><size=25> {ev.Killer.Nickname} ({ev.Killer.UserId} {ev.Killer.ReferenceHub.characterClassManager.CurClass} You were a {ev.Target.ReferenceHub.characterClassManager.CurClass}</size></color>\n<size=25><b><color=yellow> Use this as a screenshot as evidence for a report</color></b></size><size=25><i><color=yellow> Note: if he continues to teamkill the server will ban him</color></i></size>";
+            string ffatext = $"<size=25><b><color=yellow>You have been teamkilled by: </color></b></size><color=red><size=25> {ev.Killer.Nickname} ({ev.Killer.UserId} {ev.Killer.ReferenceHub.characterClassManager.CurClass} You were a {ev.Target.ReferenceHub.characterClassManager.CurClass}</size></color>\n<size=25><b><color=yellow> Use this as a screenshot as evidence for a report</color></b>\n{CedModMain.config.AutobanExtraMessage}\n</size><size=25><i><color=yellow> Note: if they continues to teamkill the server will ban them</color></i></size>";
             if (ev.Killer.DoNotTrack)
                 ffatext = ffatext.Replace(ev.Killer.UserId, "DNT");
             

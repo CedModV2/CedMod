@@ -18,7 +18,7 @@ namespace CedMod.QuerySystem
 	{
 		public static List<ImageGenerator.MinimapElement> map = new List<ImageGenerator.MinimapElement>();
 		public static List<MiniMapElement> Minimap = new List<MiniMapElement>();
-		public void OnCommand(SendingRemoteAdminCommandEventArgs ev)
+		/*public void OnCommand(SendingRemoteAdminCommandEventArgs ev)
 		{
 			if (ev.Name.Contains("playerlistcolored"))
 			{
@@ -47,7 +47,7 @@ namespace CedMod.QuerySystem
 					}
 				}));
 			});
-		}
+		}*/
 		
 		public void OnWaitingForPlayers()
 		{
@@ -236,7 +236,7 @@ namespace CedMod.QuerySystem
 			});
 		}
 		
-		public void OnConsoleCommand(SendingConsoleCommandEventArgs ev)
+		/*public void OnConsoleCommand(SendingConsoleCommandEventArgs ev)
 		{
 			Task.Factory.StartNew(delegate()
 			{
@@ -258,7 +258,7 @@ namespace CedMod.QuerySystem
 					}
 				}));
 			});
-		}
+		}*/
 		
 		public void OnRespawn(RespawningTeamEventArgs ev)
 		{

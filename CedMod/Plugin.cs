@@ -82,7 +82,7 @@ namespace CedMod
             player = new Handlers.Player();
             Exiled.Events.Handlers.Server.RestartingRound += server.OnRoundRestart;
             Exiled.Events.Handlers.Server.LocalReporting += server.OnReport;
-            Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += server.OnSendingRemoteAdmin;
+            //Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += server.OnSendingRemoteAdmin;
             
             Exiled.Events.Handlers.Player.Verified += player.OnJoin;
             Exiled.Events.Handlers.Player.Dying += player.OnDying;
@@ -95,7 +95,7 @@ namespace CedMod
         {
             Exiled.Events.Handlers.Server.RestartingRound -= server.OnRoundRestart;
             Exiled.Events.Handlers.Server.LocalReporting -= server.OnReport;
-            Exiled.Events.Handlers.Server.SendingRemoteAdminCommand -= server.OnSendingRemoteAdmin;
+            //Exiled.Events.Handlers.Server.SendingRemoteAdminCommand -= server.OnSendingRemoteAdmin;
             
             Exiled.Events.Handlers.Player.Verified -= player.OnJoin;
             Exiled.Events.Handlers.Player.Dying -= player.OnDying;

@@ -38,6 +38,9 @@
         [Description("If the autoban will count class D vs class D as teamkill")]
         public bool AutobanClassDvsClassD { get; set; } = !GameCore.ConfigFile.ServerConfig.GetBool("ffa_dclassvsdclasstk", false);
         
+        [Description("If set the FF Autoban will add this onto the message sent to the victim.")]
+        public string AutobanExtraMessage { get; set; } = "";
+        
         public List<string> ReportBlacklist { get; set; } = new List<string>();
         
         [Description("If players are allowed to report staff members")]
