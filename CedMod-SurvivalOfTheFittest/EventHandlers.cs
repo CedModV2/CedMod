@@ -33,7 +33,7 @@ namespace CedMod.SurvivalOfTheFittest
         public void OnJoin(VerifiedEventArgs ev)
         {
             if (RunOnStart)
-                ev.Player.Broadcast(5, "Survival of the fittest is starting", Broadcast.BroadcastFlags.Normal);
+                ev.Player.Broadcast(5, "Survival of the fittest is starting", Broadcast.BroadcastFlags.Normal, false);
         }
         public void TriggerTesla(TriggeringTeslaEventArgs ev)
         {
@@ -60,7 +60,7 @@ namespace CedMod.SurvivalOfTheFittest
             foreach (Player hub in hubs)
             {
                 hub.ReferenceHub.characterClassManager.NetworkCurClass = RoleType.ClassD;
-                hub.Broadcast(30, "<color=orange>You are a Dboi, you need to find a hiding place and pray you are the last person alive, the nuts wil be release at their chamber in 2 minutes.</color>", Broadcast.BroadcastFlags.Normal);
+                hub.Broadcast(30, "<color=orange>You are a Dboi, you need to find a hiding place and pray you are the last person alive, the nuts wil be release at their chamber in 2 minutes.</color>", Broadcast.BroadcastFlags.Normal, false);
                 yield return Timing.WaitForOneFrame * 30;
 				
                 hub.ClearInventory();
@@ -76,7 +76,7 @@ namespace CedMod.SurvivalOfTheFittest
             {
                 hub.ReferenceHub.characterClassManager.NetworkCurClass = RoleType.Scp173;
                 hub.Broadcast(120,
-                    "<color=red>You are a Nut, once this notice disapears (2 minutes), you will be set loose to kill the Dbois!</color>", Broadcast.BroadcastFlags.Normal);
+                    "<color=red>You are a Nut, once this notice disapears (2 minutes), you will be set loose to kill the Dbois!</color>", Broadcast.BroadcastFlags.Normal, false);
                 hub.ReferenceHub.serverRoles.BypassMode = true;
                 yield return Timing.WaitForOneFrame * 30;
                 hub.ReferenceHub.playerMovementSync.OverridePosition(Exiled.API.Extensions.RoleExtensions.GetRandomSpawnProperties(RoleType.Scp173).Item1, 0f);

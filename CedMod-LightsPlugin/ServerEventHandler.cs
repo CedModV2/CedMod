@@ -1,8 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Exiled.API.Features;
+using Exiled.API.Features.Items;
 using Exiled.Events.EventArgs;
 using Hints;
+using InventorySystem;
+using InventorySystem.Items.Flashlight;
+using InventorySystem.Items.Pickups;
 using MEC;
+using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace CedMod.LightsPlugin
@@ -45,8 +52,17 @@ namespace CedMod.LightsPlugin
 
                         if (!_hasflashlight)
                         {
-                            ev.Player.HintDisplay.Show(new TextHint("<color=red>You have been given a flashlight.</color>", new HintParameter[] {new StringHintParameter("")}, null, 10f));
-                            ev.Player.AddItem(ItemType.Flashlight);
+                            Item item = new Item(ItemType.Flashlight);
+                            if (ev.Player.Inventory.UserInventory.Items.Count <= 7)
+                            {
+                                ev.Player.HintDisplay.Show(new TextHint("<color=red>You have been given a flashlight.</color>", new HintParameter[] {new StringHintParameter("")}, null, 10f));
+                                ev.Player.AddItem(ItemType.Flashlight);
+                            }
+                            else
+                            {
+                                ev.Player.HintDisplay.Show(new TextHint("<color=red>A flashlight has been dropped near you.</color>", new HintParameter[] {new StringHintParameter("")}, null, 10f));
+                                item.Spawn(ev.Player.Position, Quaternion.identity);
+                            }
                         }
                     }
                 });
@@ -57,9 +73,11 @@ namespace CedMod.LightsPlugin
 
         public IEnumerator<float> Run()
         {
+            Log.Debug("CMlights-init", CedModMain.config.ShowDebug);
             float chance = Random.Range(1, 100);
             if (chance <= CedModLightsPlugin.config.SpawnChance)
             {
+                Log.Debug($"chance too low {chance} <= {CedModLightsPlugin.config.SpawnChance}", CedModMain.config.ShowDebug);
                 yield break;
             }
 
@@ -69,42 +87,60 @@ namespace CedMod.LightsPlugin
                 if (ply.Role == RoleType.Scp173 && !CedModLightsPlugin.config.BlackoutWhen173Ingame)
                 {
                     Timing.KillCoroutines("CMLightsPluginCoroutines");
+                    Log.Debug("173 stop", CedModMain.config.ShowDebug);
                     yield return 0f;
                 }
             }
 
-            float runin = UnityEngine.Random.Range(CedModLightsPlugin.config.BlackoutWaitMin,
-                CedModLightsPlugin.config.BlackoutWaitMax);
+            float runin = UnityEngine.Random.Range(CedModLightsPlugin.config.BlackoutWaitMin, CedModLightsPlugin.config.BlackoutWaitMax);
             yield return Timing.WaitForSeconds(runin);
-            Cassie.Message(CedModLightsPlugin.config.CassieAnnouncementBlackoutStart, true,
-                CedModLightsPlugin.config.CassieBells);
+            Cassie.Message(CedModLightsPlugin.config.CassieAnnouncementBlackoutStart, true, CedModLightsPlugin.config.CassieBells);
             BlackoutOn = true;
-            float dur = Random.Range(CedModLightsPlugin.config.BlackoutDurationMin,
-                CedModLightsPlugin.config.BlackoutDurationMax);
+            float dur = Random.Range(CedModLightsPlugin.config.BlackoutDurationMin, CedModLightsPlugin.config.BlackoutDurationMax);
+            Log.Debug("Running", CedModMain.config.ShowDebug);
             Generator079.ServerOvercharge(dur, false);
-            foreach (Player ply in Player.List)
+            try
             {
-                if (ply.Team != Team.SCP && ply.Team != Team.RIP && CedModLightsPlugin.config.GiveFlashlights)
+                foreach (Player ply in Player.List)
                 {
-                    bool _hasflashlight = false;
-                    if (CedModLightsPlugin.config.GiveFlashlightsNotification)
+                    if (ply.Team != Team.SCP && ply.Team != Team.RIP && CedModLightsPlugin.config.GiveFlashlights)
                     {
-                        foreach (var Item in ply.Inventory.UserInventory.Items)
+                        bool _hasflashlight = false;
+                        if (CedModLightsPlugin.config.GiveFlashlightsNotification)
                         {
-                            if (Item.Value.ItemTypeId == ItemType.Flashlight)
+                            foreach (var Item in ply.Inventory.UserInventory.Items)
                             {
-                                _hasflashlight = true;
+                                if (Item.Value.ItemTypeId == ItemType.Flashlight)
+                                {
+                                    _hasflashlight = true;
+                                }
                             }
-                        }
 
-                        if (!_hasflashlight)
-                        {
-                            ply.HintDisplay.Show(new TextHint("<color=red>You have been given a flashlight.</color>",
-                                new HintParameter[] {new StringHintParameter("")}, null, 10f));
-                            ply.AddItem(ItemType.Flashlight);
+                            if (!_hasflashlight)
+                            {
+                                Item item = new Item(ItemType.Flashlight);
+                                if (ply.Inventory.UserInventory.Items.Count <= 7)
+                                {
+                                    ply.HintDisplay.Show(new TextHint("<color=red>You have been given a flashlight.</color>", new HintParameter[] {new StringHintParameter("")}, null, 10f));
+                                    ply.AddItem(ItemType.Flashlight);
+                                }
+                                else
+                                {
+                                    ply.HintDisplay.Show(new TextHint("<color=red>A flashlight has been dropped near you.</color>", new HintParameter[] {new StringHintParameter("")}, null, 10f));
+                                    item.Spawn(ply.Position, Quaternion.identity);
+                                    while (true)
+                                    {
+                                        Item.Get(ply.Inventory.UserInventory.Items.Values.FirstOrDefault()).Spawn(ply.Position, Quaternion.identity);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
             }
 
             yield return Timing.WaitForSeconds(dur);

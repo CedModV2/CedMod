@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using CedMod.Patches;
 using CedMod.QuerySystem.WS;
 using Exiled.API.Enums;
 using Exiled.API.Features;
@@ -169,6 +170,7 @@ namespace CedMod.QuerySystem
 		
 		public void OnRoundEnd(RoundEndedEventArgs ev)
 		{
+			BulletHolePatch.HoleCreators.Clear();
 			Task.Factory.StartNew(delegate()
 			{
 				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
