@@ -20,7 +20,7 @@ namespace CedMod.Commands
         public string[] Aliases { get; } = new string[]
         {
             "bulletholes",
-            "neabyholes"
+            "nearbyholes"
         };
 
         public string Description { get; } = "Shows the creators of the nearby bullet holes and how much the bullet holes were";
