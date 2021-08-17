@@ -169,13 +169,13 @@ namespace CedMod.QuerySystem
                             "Message", string.Format(
                                 "{0} damaged {1} - {2} (<color={3}>{4}</color>) ammount {5} with {6}.", new object[]
                                 {
-                                    ev.HitInformations.Attacker,
+                                    ev.HitInformation.Attacker,
                                     ev.Target.Nickname,
                                     ev.Target.UserId,
                                     Misc.ToHex(ev.Target.Role.GetColor()),
                                     ev.Target.Role,
                                     ev.Amount,
-                                    DamageTypes.FromIndex(ev.Tool).Name
+                                    ev.DamageType.Name
                                 })
                         }
                     }
@@ -327,7 +327,7 @@ namespace CedMod.QuerySystem
             }
         }
 
-        public void OnGrenadeThrown(ThrowingGrenadeEventArgs ev)
+        public void OnGrenadeThrown(ThrowingItemEventArgs ev)
         {
             Task.Factory.StartNew(delegate()
             {

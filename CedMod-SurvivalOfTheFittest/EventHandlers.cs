@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using Exiled.Permissions.Extensions;
@@ -109,20 +110,17 @@ namespace CedMod.SurvivalOfTheFittest
             }
             Timing.RunCoroutine(SpawnDbois(hubs), "SurvivalOfTheFittest");
             Timing.RunCoroutine(SpawnNuts(nuts), "SurvivalOfTheFittest");
-            foreach (DoorVariant door in Map.Doors)
+            foreach (Door door in Map.Doors)
             {
-                if (door.tag == "173" || door.tag == "GATE_A" || door.tag == "GATE_B" ||
-                    door.tag == "NUKE_SURFACE")
+                if (door.Nametag == "173" || door.Nametag == "GATE_A" || door.Nametag == "GATE_B" || door.Nametag == "NUKE_SURFACE")
                 {
-                    door.ServerChangeLock(DoorLockReason.AdminCommand, true);
-                    door.NetworkTargetState = false;
-                    door.enabled = false;
+                    door.DoorLockType = DoorLockType.SpecialDoorFeature;
+                    door.Open = false;
                 }
                 else
                 {
-                    door.ServerChangeLock(DoorLockReason.None, false);
-                    door.NetworkTargetState = false;
-                    door.enabled = true;
+                    door.DoorLockType = DoorLockType.None;
+                    door.Open = false;
                 }
             }
             Cassie.Message("90 seconds", false, false);
@@ -140,13 +138,12 @@ namespace CedMod.SurvivalOfTheFittest
                 yield return Timing.WaitForSeconds(1f);
             }
             Cassie.Message("ready or not here come the snap snap", false, false);
-            foreach (DoorVariant door in Map.Doors)
+            foreach (Door door in Map.Doors)
             {
-                if (door.tag == "173")
+                if (door.Nametag == "173")
                 {
-                    door.ServerChangeLock(DoorLockReason.AdminCommand, true);
-                    door.NetworkTargetState = true;
-                    door.enabled = true;
+                    door.DoorLockType = DoorLockType.SpecialDoorFeature;
+                    door.Open = true;
                 }
             }
 

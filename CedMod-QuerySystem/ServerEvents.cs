@@ -10,6 +10,7 @@ using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using MapGeneration;
+using MEC;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -49,9 +50,10 @@ namespace CedMod.QuerySystem
 				}));
 			});
 		}*/
-		
-		public void OnWaitingForPlayers()
+
+		public IEnumerator<float> SyncStart()
 		{
+			yield return Timing.WaitForSeconds(3);
 			if (QuerySystem.config.SecurityKey != "None")
 			{
 				Log.Debug("Checking configs", CedModMain.config.ShowDebug);
@@ -123,6 +125,11 @@ namespace CedMod.QuerySystem
 					QuerySystem.ReservedSlotUserids = JsonConvert.DeserializeObject<List<string>>(response1.Result.Content.ReadAsStringAsync().Result);
 				});
 			}
+		}
+		
+		public void OnWaitingForPlayers()
+		{
+			Timing.RunCoroutine(SyncStart());
 			
 			Minimap.Clear();
 			foreach (ImageGenerator gen in ImageGenerator.ZoneGenerators)
