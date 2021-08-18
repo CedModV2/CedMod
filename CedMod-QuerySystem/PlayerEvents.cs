@@ -186,7 +186,7 @@ namespace CedMod.QuerySystem
         public void OnPlayerDeath(DyingEventArgs ev)
         {
             Log.Debug("plrdeath", CedModMain.config.ShowDebug);
-            if (FriendlyFireAutoban.IsTeakill(ev))
+            if (FriendlyFireAutoban.IsTeamKill(ev))
             {
                 Log.Debug("istk", CedModMain.config.ShowDebug);
                 List<UsersOnScene> PlayersOnScene = new List<UsersOnScene>();

@@ -22,7 +22,7 @@ namespace CedMod
             if (RoundSummary.RoundInProgress() == false) return;
             if (!CedModMain.config.AutobanEnabled) return;
             if (AdminDisabled) return;
-            if (!IsTeakill(ev))
+            if (!IsTeamKill(ev))
                 return;
             string ffatext1 = $"<size=25><b><color=yellow>You teamkilled: </color></b><color=red> {ev.Target.Nickname} </color><color=yellow><b> If you continue teamkilling it will result in a ban</b></color></size>";
             ev.Killer.ReferenceHub.hints.Show(new TextHint(ffatext1, new HintParameter[] {new StringHintParameter("")}, null, 20f));
@@ -63,7 +63,7 @@ namespace CedMod
             }
         }
 
-        public static bool IsTeakill(DyingEventArgs ev)
+        public static bool IsTeamKill(DyingEventArgs ev)
         {
             if (!RoundSummary.RoundInProgress())
                 return false;
@@ -78,14 +78,15 @@ namespace CedMod
                 case Team.MTF when ev.Target.Team == Team.RSC:
                 case Team.MTF when ev.Target.Team == Team.CDP && ev.Target.Inventory.IsDisarmed() && CedModMain.config.AutobanDisarmedClassDTk:
                 case Team.CHI when ev.Target.Team == Team.RSC && ev.Target.Inventory.IsDisarmed() && CedModMain.config.AutobanDisarmedScientistDTk:
+                case Team.CDP when ev.Target.Team == Team.CDP && CedModMain.config.AutobanClassDvsClassD:
                     result = true;
                     break;
-                case Team.CDP when ev.Target.Team == Team.CDP && CedModMain.config.AutobanClassDvsClassD:
+                case Team.CDP when ev.Target.Team == Team.CDP && !CedModMain.config.AutobanClassDvsClassD:
                 default:
                     result = false;
                     break;
             }
-            if (ev.Killer.Team == ev.Target.Team)
+            if (ev.Killer.Team == ev.Target.Team && (ev.Killer.Team != Team.CDP && ev.Target.Team != Team.CDP))
                 result = true;
             if (ev.Killer.Team == Team.TUT)
                 result = false;
