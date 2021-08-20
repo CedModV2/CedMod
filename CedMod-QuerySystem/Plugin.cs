@@ -33,7 +33,7 @@ namespace CedMod.QuerySystem
 
         public static Config config;
 
-        public static string PanelUrl = "frikanweb.cedmod.nl";
+        public static string PanelUrl = "communitymanagementpanel.cedmod.nl";
 
         public override void OnDisabled()
         {
