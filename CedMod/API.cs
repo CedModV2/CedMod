@@ -66,12 +66,13 @@ namespace CedMod
 
         public static void Ban(Player player, long duration, string sender, string reason, bool bc = true)
         {
+            double realduration = TimeSpan.FromSeconds(duration).TotalMinutes;
             if (duration >= 1)
             {
                 string json = "{\"Userid\": \"" + player.UserId + "\"," +
                               "\"Ip\": \"" + player.IPAddress+"\"," +
                               "\"AdminName\": \"" + sender.Replace("\"", "'") + "\"," +
-                              "\"BanDuration\": "+duration+"," +
+                              "\"BanDuration\": "+realduration+"," +
                               "\"BanReason\": \""+reason.Replace("\"", "'")+"\"}";
                 Dictionary<string, string> result = (Dictionary<string, string>) APIRequest("Auth/Ban", json, false, "POST"); 
                 ServerConsole.Disconnect(player.GameObject, result["preformattedmessage"]);
