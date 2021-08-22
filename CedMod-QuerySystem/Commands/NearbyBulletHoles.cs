@@ -42,7 +42,7 @@ namespace CedMod.Commands
                 {
                     if (creat.Value.Rooms.ContainsKey(room))
                     {
-                        response = $"\n{creat.Key.Nickname} ({creat.Key.Id}) - {creat.Value.Rooms[room].Holes.Count} CON: {creat.Key.IsConnected}";
+                        response += $"\n{creat.Key.Nickname} ({creat.Key.Id}) - {creat.Value.Rooms[room].Holes.Count} CON: {creat.Key.IsConnected}";
                     }
                 }
             }
@@ -52,7 +52,7 @@ namespace CedMod.Commands
                 {
                     if (creat.Value.Rooms.ContainsKey(room))
                     {
-                        response = $"\n{creat.Key.Nickname} ({creat.Key.Id}) - {creat.Value.Rooms[room].Holes.Count} CON: {creat.Key.IsConnected}";
+                        response += $"\n{creat.Key.Nickname} ({creat.Key.Id}) - {creat.Value.Rooms[room].Holes.Count} CON: {creat.Key.IsConnected}";
                     }
                 }
             }
