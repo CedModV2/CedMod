@@ -52,6 +52,9 @@
         [Description("The message sent trough the ingame reports webhook.")]
         public string ReportMessage { get; set; } = "";
         
+        [Description("Additional message when a banned member tries to join or gets banned.")]
+        public string AdditionalBanMessage { get; set; } = "";
+        
         [Description("If debug logs are shown")]
         public bool ShowDebug { get; set; } = false;
     }

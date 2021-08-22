@@ -84,7 +84,7 @@ namespace CedMod
             {
                 if (duration <= 0)
                 {
-                    ServerConsole.Disconnect(player.GameObject, reason);
+                    ServerConsole.Disconnect(player.GameObject, reason + "\n" + CedModMain.config.AdditionalBanMessage);
                 }
             }
         }

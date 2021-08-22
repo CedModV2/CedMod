@@ -44,7 +44,7 @@ namespace CedMod
                     {
                         reason = info["preformattedmessage"];
                         Log.Info($"user: {Player.characterClassManager.UserId} attempted connection with active ban disconnecting");
-                        ev.Player.Disconnect(reason);
+                        ev.Player.Disconnect(reason + "\n" + CedModMain.config.AdditionalBanMessage);
                     }
                     else
                     {
