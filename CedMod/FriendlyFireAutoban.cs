@@ -54,7 +54,7 @@ namespace CedMod
                         Log.Info( $"Player: {ev.Killer.Nickname} {ev.Killer.ReferenceHub.queryProcessor.PlayerId.ToString()} {ev.Killer.UserId}  exeeded teamkill limit");
                         Task.Factory.StartNew(() =>
                         {
-                            API.Ban(ev.Killer, CedModMain.config.AutobanDuration, "Server.Module.FriendlyFireAutoban", CedModMain.config.AutobanReason);
+                            API.Ban(ev.Killer, (long) TimeSpan.FromMinutes(CedModMain.config.AutobanDuration).TotalSeconds, "Server.Module.FriendlyFireAutoban", CedModMain.config.AutobanReason);
                         });
                         Map.Broadcast(20,
                             $"<size=25><b><color=yellow>user: </color></b><color=red> {ev.Killer.Nickname} </color><color=yellow><b> got banned for teamkilling, dont be like this user please</b></color></size>", Broadcast.BroadcastFlags.Normal);
