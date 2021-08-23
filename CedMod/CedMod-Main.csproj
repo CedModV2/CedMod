@@ -48,11 +48,12 @@
     <Compile Include="Commands\Dialog\playerid.cs" />
     <Compile Include="Commands\Dialog\userid.cs" />
     <Compile Include="Commands\FFADisable.cs" />
-    <Compile Include="Commands\Funny.cs" />
+    <Compile Include="Commands\Door.cs" />
     <Compile Include="Commands\LightColor.cs" />
     <Compile Include="Commands\Lightsout.cs" />
     <Compile Include="Commands\Players.cs" />
     <Compile Include="Commands\PriorBans.cs" />
+    <Compile Include="Commands\RainbowLights.cs" />
     <Compile Include="Commands\Redirect.cs" />
     <Compile Include="Commands\Stuiter.cs" />
     <Compile Include="Commands\Stuiter\all.cs" />

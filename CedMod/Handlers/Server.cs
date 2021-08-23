@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using CedMod.Commands;
 using Exiled.API.Features;
 using Exiled.Events;
 using MEC;
@@ -81,6 +82,7 @@ namespace CedMod.Handlers
         
         public void OnRoundRestart()
         {
+            DoorCommand.Doors.Clear();
             FriendlyFireAutoban.Teamkillers.Clear();
             FriendlyFireAutoban.Victims.Clear();
             Timing.KillCoroutines("LightsOut");
