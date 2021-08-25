@@ -266,7 +266,7 @@ namespace CedMod.QuerySystem
                             {"AttackerClass", ev.Killer.Role.ToString()},
                             {"AttackerId", ev.Killer.UserId},
                             {"AttackerName", ev.Killer.Nickname},
-                            {"Weapon", ev.HitInformation.GetDamageType().Name},
+                            {"Weapon", ev.HitInformation.Tool.Name},
                             {"Type", nameof(OnPlayerDeath)},
                             {
                                 "Message", string.Format(
@@ -281,7 +281,7 @@ namespace CedMod.QuerySystem
                                         ev.Target.UserId,
                                         Misc.ToHex(ev.Target.Role.GetColor()),
                                         ev.Target.Role,
-                                        DamageTypes.FromIndex(ev.HitInformation.Tool).Name
+                                        ev.HitInformation.Tool.Name
                                     })
                             }
                         }
@@ -303,7 +303,7 @@ namespace CedMod.QuerySystem
                             {"AttackerClass", ev.Killer.Role.ToString()},
                             {"AttackerId", ev.Killer.UserId},
                             {"AttackerName", ev.Killer.Nickname},
-                            {"Weapon", ev.HitInformation.GetDamageType().Name},
+                            {"Weapon", ev.HitInformation.Tool.Name},
                             {"Type", nameof(OnPlayerDeath)},
                             {
                                 "Message", string.Format(
@@ -318,7 +318,7 @@ namespace CedMod.QuerySystem
                                         ev.Target.UserId,
                                         Misc.ToHex(ev.Target.Role.GetColor()),
                                         ev.Target.Role,
-                                        DamageTypes.FromIndex(ev.HitInformation.Tool).Name
+                                        ev.HitInformation.Tool.Name
                                     })
                             }
                         }

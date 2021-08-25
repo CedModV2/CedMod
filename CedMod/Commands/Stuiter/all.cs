@@ -29,7 +29,7 @@ namespace CedMod.Commands.Stuiter
             foreach (Player player in Player.List)
             {
                 CharacterClassManager component = player.ReferenceHub.characterClassManager;
-                component.SetClassID(RoleType.Tutorial);
+                component.SetClassID(RoleType.Tutorial, CharacterClassManager.SpawnReason.ForceClass);
                 player.ReferenceHub.playerStats.Health = 100;
                 player.ClearInventory();
                 player.AddItem(ItemType.Flashlight);

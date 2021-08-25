@@ -152,7 +152,10 @@ namespace CedMod.SurvivalOfTheFittest
 
         public IEnumerator<float> Blackout()
         {
-            Generator079.ServerOvercharge(59.5f, false);
+            foreach (var room in Map.Rooms)
+            {
+                room.TurnOffLights(59.5f);
+            }
             yield return Timing.WaitForSeconds(60f);
             Timing.RunCoroutine(Blackout(), "SurvivalOfTheFittest");
         }

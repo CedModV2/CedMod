@@ -8,6 +8,7 @@ using Hints;
 using InventorySystem;
 using InventorySystem.Items.Flashlight;
 using InventorySystem.Items.Pickups;
+using MapGeneration.Distributors;
 using MEC;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -98,7 +99,11 @@ namespace CedMod.LightsPlugin
             BlackoutOn = true;
             float dur = Random.Range(CedModLightsPlugin.config.BlackoutDurationMin, CedModLightsPlugin.config.BlackoutDurationMax);
             Log.Debug("Running", CedModMain.config.ShowDebug);
-            Generator079.ServerOvercharge(dur, false);
+            List<Room> rooms = Map.Rooms.ToList();
+            foreach (Room r in rooms)
+            {
+                r.TurnOffLights(dur);
+            }
             try
             {
                 foreach (Player ply in Player.List)

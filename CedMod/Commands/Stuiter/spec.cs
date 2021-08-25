@@ -31,7 +31,7 @@ namespace CedMod.Commands.Stuiter
                 CharacterClassManager component = player.ReferenceHub.characterClassManager;
                 if (component.CurClass == RoleType.Spectator)
                 {
-                    component.SetClassID(RoleType.Tutorial);
+                    component.SetClassID(RoleType.Tutorial, CharacterClassManager.SpawnReason.ForceClass);
                     player.ReferenceHub.playerStats.Health = 100;
                     player.ClearInventory();
                     player.AddItem(ItemType.Flashlight);
