@@ -39,7 +39,7 @@ namespace CedMod
                 Victims.Add(ev.Target.UserId, ev.Killer.UserId);
                 //Timing.RunCoroutine(RemoveVictim(victim.UserId, victim), "timer" + victim.UserId);
             }
-
+    
             if (Teamkillers.ContainsKey(ev.Killer.UserId))
                 Teamkillers[ev.Killer.UserId]++;
             else
