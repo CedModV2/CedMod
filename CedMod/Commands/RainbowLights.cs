@@ -51,15 +51,20 @@ namespace CedMod.Commands
             foreach(var light in FlickerableLightController.Instances)
             {
                 if (state)
-                    light.gameObject.AddComponent<RainbowLight>();
-                else
                 {
                     if (light.TryGetComponent(out RainbowLight rainbowLight))
                     {
                         response = "Please remove rainbowlights before trying to re enable it";
                         return false;
                     }
-                    Object.Destroy(rainbowLight);
+                    light.gameObject.AddComponent<RainbowLight>();
+                }
+                else
+                {
+                    if (light.TryGetComponent(out RainbowLight rainbowLight))
+                    {
+                        Object.Destroy(rainbowLight);
+                    }
                 }
             }
             
