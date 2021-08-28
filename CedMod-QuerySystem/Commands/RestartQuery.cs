@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CedMod.QuerySystem.WS;
 using CommandSystem;
 using Exiled.API.Features;
@@ -29,8 +30,12 @@ namespace CedMod.Commands
                 response = "No permission";
                 return false;
             }
-            QuerySystem.WS.WebSocketSystem.Stop();
-            QuerySystem.WS.WebSocketSystem.Start();
+
+            Task.Factory.StartNew(() =>
+            {
+                QuerySystem.WS.WebSocketSystem.Stop();
+                QuerySystem.WS.WebSocketSystem.Start();
+            });
             response = "Query server restarted";
             return true;
         }

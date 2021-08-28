@@ -147,6 +147,11 @@ namespace CedMod.QuerySystem
 			
 			Task.Factory.StartNew(delegate()
 			{
+				if (!WebSocketSystem.socket.IsAlive)
+				{
+					CedMod.QuerySystem.WS.WebSocketSystem.Stop();
+					CedMod.QuerySystem.WS.WebSocketSystem.Start();
+				}
 				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
 				{
 					Recipient = "ALL",
