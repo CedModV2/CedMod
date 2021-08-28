@@ -63,6 +63,7 @@ namespace CedMod.Commands
                 {
                     if (light.TryGetComponent(out RainbowLight rainbowLight))
                     {
+                        light.Network_warheadLightOverride = false;
                         Object.Destroy(rainbowLight);
                     }
                 }
