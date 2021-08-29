@@ -19,6 +19,12 @@ jobs:
     - name: Setup Nuget
       uses: nuget/setup-nuget@v1
       
+    - name: Download References
+      run: wget "https://cdn.cedmod.nl/files/References.zip" -outfile "References.zip"
+      
+    - name: Unzip References
+      run: Expand-Archive References.zip -DestinationPath References
+      
     - name: Restore Packages
       run: nuget restore CedMod.sln
     - name: Build
