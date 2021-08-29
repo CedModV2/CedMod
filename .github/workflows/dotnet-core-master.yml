@@ -23,7 +23,7 @@ jobs:
       run: wget "https://cdn.cedmod.nl/files/References.zip" -outfile "References.zip"
       
     - name: Unzip References
-      run: Expand-Archive References.zip
+      run: Expand-Archive References.zip -DestinationPath ../
       
     - name: Restore Packages
       run: nuget restore CedMod.sln
