@@ -1,7 +1,8 @@
-﻿using CommandSystem;
-using System;
+﻿using System;
+using CedMod.Commands.Dialog;
+using CommandSystem;
 
-namespace CedMod.Commands.Dialog
+namespace CedMod.Commands
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class DiaglogParentCommand : ParentCommand

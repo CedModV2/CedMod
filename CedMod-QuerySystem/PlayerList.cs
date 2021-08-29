@@ -5,7 +5,7 @@ namespace CedMod.QuerySystem
 {
     public class CommandHandler
     {
-	    public static List<string> synced = new List<string>();
+	    public static readonly List<string> Synced = new List<string>();
 	    public static bool CheckPermissions(CommandSender sender, string queryZero, PlayerPermissions perm, string replyScreen = "", bool reply = true)
 	    {
 		    if ((ServerStatic.IsDedicated && sender.FullPermissions) || PermissionsHandler.IsPermitted(sender.Permissions, perm)) 

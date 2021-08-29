@@ -4,7 +4,7 @@ using HarmonyLib;
 using InventorySystem.Items.Firearms.Modules;
 using UnityEngine;
 
-namespace CedMod.Patches
+namespace CedMod.QuerySystem.Patches
 {
     [HarmonyPatch(typeof(StandardHitregBase), nameof(StandardHitregBase.PlaceBullethole))]
     public static class BulletHolePatch

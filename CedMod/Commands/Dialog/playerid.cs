@@ -27,20 +27,20 @@ namespace CedMod.Commands.Dialog
             }
             if (arguments.Count >= 2)
             {
-                Player Ply = null;
+                Player player = null;
                 string msg = arguments.Skip(1).Aggregate((current, n) => current + " " + n);
                 foreach (Player ply in Player.List)
                 {
                     if (ply.ReferenceHub.queryProcessor.PlayerId.ToString() == arguments.At(0))
-                        Ply = ply;
+                        player = ply;
                 }
 
-                if (Ply == null)
+                if (player == null)
                 {
                     response = "Could not find player with the specified playerid";
                     return false;
                 }
-                Ply.SendConsoleMessage("[REPORTING] " + msg + " Press ESC to close", "green");
+                player.SendConsoleMessage("[REPORTING] " + msg + " Press ESC to close", "green");
                 response = "Done";
                 return true;
             }

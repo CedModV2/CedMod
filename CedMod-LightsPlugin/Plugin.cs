@@ -16,35 +16,34 @@ namespace CedMod.LightsPlugin
 
         public override string Prefix { get; } = "cm_lights";
 
-        public static Config config;
+        public static CedModLightsPlugin Singleton;
         
         public override void OnDisabled()
         {
-            Exiled.Events.Handlers.Server.RestartingRound -= server.OnRoundRestart;
-            Exiled.Events.Handlers.Server.RoundStarted -= server.OnRoundStart;
-            Exiled.Events.Handlers.Player.ChangingRole -= server.Onchangerole;
-            Exiled.Events.Handlers.Server.RoundEnded += server.OnRoundEnd;
+            Exiled.Events.Handlers.Server.RestartingRound -= _server.OnRoundRestart;
+            Exiled.Events.Handlers.Server.RoundStarted -= _server.OnRoundStart;
+            Exiled.Events.Handlers.Player.ChangingRole -= _server.Onchangerole;
+            Exiled.Events.Handlers.Server.RoundEnded += _server.OnRoundEnd;
             
-            server = null;
+            _server = null;
             ServerEventHandler.BlackoutOn = true;
             Timing.KillCoroutines("CMLightsPluginCoroutines");
         }
-        public static Harmony harmony;
-        private ServerEventHandler server;
+        
+        public static Harmony Harmony;
+        private ServerEventHandler _server;
         
         public override void OnEnabled()
         {
-            if (!Config.IsEnabled)
-                return;
-            config = Config;
-            harmony = new Harmony("com.cedmodLightsPlugin.patch");
-            harmony.PatchAll();
+            Singleton = this;
+            Harmony = new Harmony("com.cedmodLightsPlugin.patch");
+            Harmony.PatchAll();
             
-            server = new ServerEventHandler();
-            Exiled.Events.Handlers.Server.RestartingRound += server.OnRoundRestart;
-            Exiled.Events.Handlers.Server.RoundStarted += server.OnRoundStart;
-            Exiled.Events.Handlers.Player.ChangingRole += server.Onchangerole;
-            Exiled.Events.Handlers.Server.RoundEnded -= server.OnRoundEnd;
+            _server = new ServerEventHandler();
+            Exiled.Events.Handlers.Server.RestartingRound += _server.OnRoundRestart;
+            Exiled.Events.Handlers.Server.RoundStarted += _server.OnRoundStart;
+            Exiled.Events.Handlers.Player.ChangingRole += _server.Onchangerole;
+            Exiled.Events.Handlers.Server.RoundEnded -= _server.OnRoundEnd;
         }
     }
 }

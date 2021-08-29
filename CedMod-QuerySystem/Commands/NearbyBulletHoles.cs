@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Linq;
 using CedMod.Patches;
+using CedMod.QuerySystem.Patches;
 using CommandSystem;
 using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
 using RemoteAdmin;
 
-namespace CedMod.Commands
+namespace CedMod.QuerySystem.Commands
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class NearbyBulletHolesCommand : ICommand

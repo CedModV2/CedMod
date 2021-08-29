@@ -3,7 +3,7 @@ using CommandSystem;
 using Exiled.API.Features;
 using RemoteAdmin;
 
-namespace CedMod.Commands
+namespace CedMod.QuerySystem.Commands
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class PlayersCommand : ICommand
@@ -62,6 +62,7 @@ namespace CedMod.Commands
                     }
                     catch
                     {
+                        // ignored
                     }
 
                     text = text + text2 + "(" + component.PlayerId + ") " + player.nicknameSync.CombinedName.Replace("\n", string.Empty) + (flag4 ? "<OVRM>" : string.Empty);

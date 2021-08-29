@@ -21,7 +21,7 @@ namespace CedMod.Commands
         };
 
         public string Description { get; } = "Turns off the lämps";
-        bool IsEnabled = false;
+        private bool _isEnabled;
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
@@ -31,7 +31,7 @@ namespace CedMod.Commands
                 response = "no permission";
                 return false;
             }
-            if (IsEnabled == false)
+            if (_isEnabled == false)
             {
                 if (arguments.Count != 5)
                 {
@@ -40,7 +40,7 @@ namespace CedMod.Commands
                     return false;
                 }
 
-                IsEnabled = true;
+                _isEnabled = true;
                 Timing.RunCoroutine(
                     LightsOut(Convert.ToBoolean(arguments.At(0)), Convert.ToBoolean(arguments.At(1)),
                         Convert.ToBoolean(arguments.At(2)), Convert.ToBoolean(arguments.At(3)),
@@ -50,9 +50,9 @@ namespace CedMod.Commands
             }
             else
             {
-                if (IsEnabled)
+                if (_isEnabled)
                 {
-                    IsEnabled = false;
+                    _isEnabled = false;
                     List<Room> rooms = Map.Rooms.ToList();
                     foreach (Room r in rooms)
                     {

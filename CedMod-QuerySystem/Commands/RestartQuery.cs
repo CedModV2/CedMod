@@ -4,7 +4,7 @@ using CedMod.QuerySystem.WS;
 using CommandSystem;
 using Exiled.Permissions.Extensions;
 
-namespace CedMod.Commands
+namespace CedMod.QuerySystem.Commands
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class RestartQueryCommand : ICommand

@@ -11,9 +11,9 @@ namespace CedMod.QuerySystem
     {
         public void OnWarheadDetonation()
         {
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
@@ -27,9 +27,9 @@ namespace CedMod.QuerySystem
         
         public void OnDecon(DecontaminatingEventArgs ev)
         {
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
@@ -43,9 +43,9 @@ namespace CedMod.QuerySystem
         
         public void OnWarheadStart(StartingEventArgs ev)
         {
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
@@ -59,9 +59,9 @@ namespace CedMod.QuerySystem
         
         public void OnWarheadCancelled(StoppingEventArgs ev)
         {
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()

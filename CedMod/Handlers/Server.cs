@@ -15,7 +15,7 @@ namespace CedMod.Handlers
         Dictionary<ReferenceHub, ReferenceHub> reported = new Dictionary<ReferenceHub, ReferenceHub>();
         public void OnReport(LocalReportingEventArgs ev)
         {
-            if (CedModMain.config.ReportBlacklist.Contains(ev.Issuer.UserId))
+            if (CedModMain.Singleton.Config.ReportBlacklist.Contains(ev.Issuer.UserId))
             {
                 ev.IsAllowed = false;
                 ev.Issuer.SendConsoleMessage($"[REPORTING] You are banned from ingame reports", "green");
@@ -33,10 +33,10 @@ namespace CedMod.Handlers
                 ev.Issuer.SendConsoleMessage($"[REPORTING] {ev.Target.Nickname} ({ev.Target.UserId}) has already been reported by {Exiled.API.Features.Player.Get(reported[ev.Target.ReferenceHub]).Nickname}", "green");
                 return;
             }
-            if (ev.Target.RemoteAdminAccess && !CedModMain.config.StaffReportAllowed)
+            if (ev.Target.RemoteAdminAccess && !CedModMain.Singleton.Config.StaffReportAllowed)
             {
                 ev.IsAllowed = false;
-                ev.Issuer.SendConsoleMessage($"[REPORTING] " + CedModMain.config.StaffReportMessage, "green");
+                ev.Issuer.SendConsoleMessage($"[REPORTING] " + CedModMain.Singleton.Config.StaffReportMessage, "green");
                 return;
             }
             if (ev.Reason.IsEmpty())
@@ -61,8 +61,8 @@ namespace CedMod.Handlers
                             GameCore.ConfigFile.ServerConfig.GetString("report_discord_webhook_url",
                                 "PleaseSetWebhookUrlHere"),
                             new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
-                                {{"content", CedModMain.config.ReportMessage}}), Encoding.Default, "application/json")).Result;
-                        Log.Debug(hh.Content.ReadAsStringAsync().Result, CedModMain.config.ShowDebug);
+                                {{"content", CedModMain.Singleton.Config.ReportMessage}}), Encoding.Default, "application/json")).Result;
+                        Log.Debug(hh.Content.ReadAsStringAsync().Result, CedModMain.Singleton.Config.ShowDebug);
                     }
                     catch (Exception ex)
                     {

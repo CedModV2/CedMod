@@ -3,7 +3,7 @@ using CedMod.QuerySystem.WS;
 using CommandSystem;
 using Exiled.API.Features;
 
-namespace CedMod.Commands
+namespace CedMod.QuerySystem.Commands
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class CmSyncCommandCommand : ICommand
@@ -33,7 +33,7 @@ namespace CedMod.Commands
                 }
                 Player.Get(int.Parse(arguments.At(0))).ReferenceHub.serverRoles.SetGroup(ServerStatic.GetPermissionsHandler()._groups[arguments.At(1)], false);
                 ServerStatic.GetPermissionsHandler()._members[Player.Get(int.Parse(arguments.At(0))).UserId] = arguments.At(1);
-                CedMod.QuerySystem.CommandHandler.synced.Add(Player.Get(int.Parse(arguments.At(0))).UserId);
+                CommandHandler.Synced.Add(Player.Get(int.Parse(arguments.At(0))).UserId);
             }
 
             response = "";

@@ -30,9 +30,9 @@ namespace CedMod.QuerySystem
     {
         public void OnPlayerLeave(LeftEventArgs ev)
         {
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
@@ -48,9 +48,9 @@ namespace CedMod.QuerySystem
 
         public void OnElevatorInteraction(InteractingElevatorEventArgs ev)
         {
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
@@ -66,9 +66,9 @@ namespace CedMod.QuerySystem
 
         public void OnPocketEnter(EnteringPocketDimensionEventArgs ev)
         {
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
@@ -94,9 +94,9 @@ namespace CedMod.QuerySystem
 
         public void OnPocketEscape(EscapingPocketDimensionEventArgs ev)
         {
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
@@ -121,9 +121,9 @@ namespace CedMod.QuerySystem
 
         public void On079Tesla(InteractingTeslaEventArgs ev)
         {
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
@@ -150,9 +150,9 @@ namespace CedMod.QuerySystem
         {
             if (ev.DamageType == DamageTypes.Scp207 || ev.Target.Role == RoleType.Spectator)
                 return;
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
@@ -185,12 +185,12 @@ namespace CedMod.QuerySystem
 
         public void OnPlayerDeath(DyingEventArgs ev)
         {
-            Log.Debug("plrdeath", CedModMain.config.ShowDebug);
+            Log.Debug("plrdeath", CedModMain.Singleton.Config.ShowDebug);
             if (FriendlyFireAutoban.IsTeamKill(ev))
             {
-                Log.Debug("istk", CedModMain.config.ShowDebug);
-                List<UsersOnScene> PlayersOnScene = new List<UsersOnScene>();
-                PlayersOnScene.Add(new UsersOnScene()
+                Log.Debug("istk", CedModMain.Singleton.Config.ShowDebug);
+                List<UsersOnScene> playersOnScene = new List<UsersOnScene>();
+                playersOnScene.Add(new UsersOnScene()
                 {
                     CurrentHealth = ev.Killer.Health,
                     Distance = 0,
@@ -201,7 +201,7 @@ namespace CedMod.QuerySystem
                     Room = ev.Killer.CurrentRoom.Name
                 });
                 
-                PlayersOnScene.Add(new UsersOnScene()
+                playersOnScene.Add(new UsersOnScene()
                 {
                     CurrentHealth = ev.Target.Health,
                     Distance = Vector3.Distance(ev.Killer.Position, ev.Target.Position),
@@ -211,15 +211,15 @@ namespace CedMod.QuerySystem
                     Victim = true,
                     Room = ev.Target.CurrentRoom.Name
                 });
-                Log.Debug("resolving on scene players", CedModMain.config.ShowDebug);
+                Log.Debug("resolving on scene players", CedModMain.Singleton.Config.ShowDebug);
                 foreach (var player in Player.List)
                 {
                     if (player.Role == RoleType.Spectator || player.Role == RoleType.None)
                         continue;
                     
-                    if (Vector3.Distance(ev.Killer.Position, player.Position) <= 20 && PlayersOnScene.All(plrs => plrs.UserId != player.UserId))
+                    if (Vector3.Distance(ev.Killer.Position, player.Position) <= 20 && playersOnScene.All(plrs => plrs.UserId != player.UserId))
                     {
-                        PlayersOnScene.Add(new UsersOnScene()
+                        playersOnScene.Add(new UsersOnScene()
                         {
                             CurrentHealth = player.Health,
                             Distance = Vector3.Distance(ev.Killer.Position, player.Position),
@@ -231,21 +231,21 @@ namespace CedMod.QuerySystem
                         });
                     }
                 }
-                Log.Debug("sending WR", CedModMain.config.ShowDebug);
+                Log.Debug("sending WR", CedModMain.Singleton.Config.ShowDebug);
                 Task.Factory.StartNew(() =>
                 {
-                    Log.Debug("Thread send", CedModMain.config.ShowDebug);
-                    if (QuerySystem.config.SecurityKey == "None")
+                    Log.Debug("Thread send", CedModMain.Singleton.Config.ShowDebug);
+                    if (QuerySystem.Singleton.Config.SecurityKey == "None")
                         return;
-                    Log.Debug("sending WR", CedModMain.config.ShowDebug);
+                    Log.Debug("sending WR", CedModMain.Singleton.Config.ShowDebug);
                     HttpClient client = new HttpClient();
                     try
                     {
                         var response = client
-                            .PostAsync($"https://{QuerySystem.PanelUrl}/Api/Teamkill/{QuerySystem.config.SecurityKey}",
-                                new StringContent(JsonConvert.SerializeObject(PlayersOnScene), Encoding.Default,
+                            .PostAsync($"https://{QuerySystem.PanelUrl}/Api/Teamkill/{QuerySystem.Singleton.Config.SecurityKey}",
+                                new StringContent(JsonConvert.SerializeObject(playersOnScene), Encoding.Default,
                                     "application/json")).Result;
-                        Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.config.ShowDebug);
+                        Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.Singleton.Config.ShowDebug);
                     }
                     catch (Exception ex)
                     {
@@ -253,9 +253,9 @@ namespace CedMod.QuerySystem
                     }
                 });
                 
-                Task.Factory.StartNew(delegate()
+                Task.Factory.StartNew(delegate
                 {
-                    WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                    WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                     {
                         Recipient = "ALL",
                         Data = new Dictionary<string, string>()
@@ -290,9 +290,9 @@ namespace CedMod.QuerySystem
             }
             else
             {
-                Task.Factory.StartNew(delegate()
+                Task.Factory.StartNew(delegate
                 {
-                    WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                    WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                     {
                         Recipient = "ALL",
                         Data = new Dictionary<string, string>()
@@ -329,9 +329,9 @@ namespace CedMod.QuerySystem
 
         public void OnGrenadeThrown(ThrowingItemEventArgs ev)
         {
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
@@ -354,9 +354,9 @@ namespace CedMod.QuerySystem
 
         public void OnUsedItem(UsedItemEventArgs ev)
         {
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
@@ -380,9 +380,9 @@ namespace CedMod.QuerySystem
 
         public void OnSetClass(ChangingRoleEventArgs ev)
         {
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
@@ -404,17 +404,17 @@ namespace CedMod.QuerySystem
 
         public void OnPlayerJoin(VerifiedEventArgs ev)
         {
-            if (CommandHandler.synced.Contains(ev.Player.UserId))
+            if (CommandHandler.Synced.Contains(ev.Player.UserId))
             {
                 if (ServerStatic.GetPermissionsHandler()._members.ContainsKey(ev.Player.UserId))
                     ServerStatic.GetPermissionsHandler()._members.Remove(ev.Player.UserId);
                 ev.Player.ReferenceHub.serverRoles.RefreshPermissions();
-                CommandHandler.synced.Remove(ev.Player.UserId);
+                CommandHandler.Synced.Remove(ev.Player.UserId);
             }
 
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
@@ -431,9 +431,9 @@ namespace CedMod.QuerySystem
 
         public void OnPlayerFreed(RemovingHandcuffsEventArgs ev)
         {
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
@@ -461,9 +461,9 @@ namespace CedMod.QuerySystem
 
         public void OnPlayerHandcuffed(HandcuffingEventArgs ev)
         {
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()

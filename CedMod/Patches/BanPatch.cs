@@ -18,20 +18,20 @@ namespace CedMod.Patches
                 {
                     try
                     {
-                        lock (BanSystem.banlock)
+                        lock (BanSystem.Banlock)
                         {
-                            API.Ban(Player.Get(user), duration, issuer, reason, true);
+                            API.Ban(Player.Get(user), duration, issuer, reason);
                         }
                     }
                     catch (Exception ex)
                     {
-                       Log.Error($"MainGame ban patch failed {ex.ToString()}");
+                       Log.Error($"MainGame ban patch failed {ex}");
                     }
                 });
             }
             catch (Exception ex)
             {
-                Log.Error($"MainGame ban patch failed {ex.ToString()}");
+                Log.Error($"MainGame ban patch failed {ex}");
             }
 
             return false;

@@ -36,18 +36,18 @@ namespace CedMod.LightsPlugin
             {
                 Timing.CallDelayed(1f, () =>
                 {
-                    bool _hasflashlight = false;
-                    if (CedModLightsPlugin.config.GiveFlashlightsNotification)
+                    bool hasflashlight = false;
+                    if (CedModLightsPlugin.Singleton.Config.GiveFlashlightsNotification)
                     {
-                        foreach (var Item in ev.Player.Inventory.UserInventory.Items)
+                        foreach (var item in ev.Player.Inventory.UserInventory.Items)
                         {
-                            if (Item.Value.ItemTypeId == ItemType.Flashlight)
+                            if (item.Value.ItemTypeId == ItemType.Flashlight)
                             {
-                                _hasflashlight = true;
+                                hasflashlight = true;
                             }
                         }
 
-                        if (!_hasflashlight)
+                        if (!hasflashlight)
                         {
                             Item item = new Item(ItemType.Flashlight);
                             if (ev.Player.Inventory.UserInventory.Items.Count <= 7)
@@ -70,31 +70,31 @@ namespace CedMod.LightsPlugin
 
         public IEnumerator<float> Run()
         {
-            Log.Debug("CMlights-init", CedModMain.config.ShowDebug);
+            Log.Debug("CMlights-init", CedModMain.Singleton.Config.ShowDebug);
             float chance = Random.Range(1, 100);
-            if (chance <= CedModLightsPlugin.config.SpawnChance)
+            if (chance <= CedModLightsPlugin.Singleton.Config.SpawnChance)
             {
-                Log.Debug($"chance too low {chance} <= {CedModLightsPlugin.config.SpawnChance}", CedModMain.config.ShowDebug);
+                Log.Debug($"chance too low {chance} <= {CedModLightsPlugin.Singleton.Config.SpawnChance}", CedModMain.Singleton.Config.ShowDebug);
                 yield break;
             }
 
             yield return Timing.WaitForSeconds(5f);
             foreach (Player ply in Player.List)
             {
-                if (ply.Role == RoleType.Scp173 && !CedModLightsPlugin.config.BlackoutWhen173Ingame)
+                if (ply.Role == RoleType.Scp173 && !CedModLightsPlugin.Singleton.Config.BlackoutWhen173Ingame)
                 {
                     Timing.KillCoroutines("CMLightsPluginCoroutines");
-                    Log.Debug("173 stop", CedModMain.config.ShowDebug);
+                    Log.Debug("173 stop", CedModMain.Singleton.Config.ShowDebug);
                     yield return 0f;
                 }
             }
 
-            float runin = UnityEngine.Random.Range(CedModLightsPlugin.config.BlackoutWaitMin, CedModLightsPlugin.config.BlackoutWaitMax);
+            float runin = Random.Range(CedModLightsPlugin.Singleton.Config.BlackoutWaitMin, CedModLightsPlugin.Singleton.Config.BlackoutWaitMax);
             yield return Timing.WaitForSeconds(runin);
-            Cassie.Message(CedModLightsPlugin.config.CassieAnnouncementBlackoutStart, true, CedModLightsPlugin.config.CassieBells);
+            Cassie.Message(CedModLightsPlugin.Singleton.Config.CassieAnnouncementBlackoutStart, true, CedModLightsPlugin.Singleton.Config.CassieBells);
             BlackoutOn = true;
-            float dur = Random.Range(CedModLightsPlugin.config.BlackoutDurationMin, CedModLightsPlugin.config.BlackoutDurationMax);
-            Log.Debug("Running", CedModMain.config.ShowDebug);
+            float dur = Random.Range(CedModLightsPlugin.Singleton.Config.BlackoutDurationMin, CedModLightsPlugin.Singleton.Config.BlackoutDurationMax);
+            Log.Debug("Running", CedModMain.Singleton.Config.ShowDebug);
             List<Room> rooms = Map.Rooms.ToList();
             foreach (Room r in rooms)
             {
@@ -104,20 +104,20 @@ namespace CedMod.LightsPlugin
             {
                 foreach (Player ply in Player.List)
                 {
-                    if (ply.Team != Team.SCP && ply.Team != Team.RIP && CedModLightsPlugin.config.GiveFlashlights)
+                    if (ply.Team != Team.SCP && ply.Team != Team.RIP && CedModLightsPlugin.Singleton.Config.GiveFlashlights)
                     {
-                        bool _hasflashlight = false;
-                        if (CedModLightsPlugin.config.GiveFlashlightsNotification)
+                        bool hasflashlight = false;
+                        if (CedModLightsPlugin.Singleton.Config.GiveFlashlightsNotification)
                         {
-                            foreach (var Item in ply.Inventory.UserInventory.Items)
+                            foreach (var item in ply.Inventory.UserInventory.Items)
                             {
-                                if (Item.Value.ItemTypeId == ItemType.Flashlight)
+                                if (item.Value.ItemTypeId == ItemType.Flashlight)
                                 {
-                                    _hasflashlight = true;
+                                    hasflashlight = true;
                                 }
                             }
 
-                            if (!_hasflashlight)
+                            if (!hasflashlight)
                             {
                                 Item item = new Item(ItemType.Flashlight);
                                 if (ply.Inventory.UserInventory.Items.Count <= 7)
@@ -146,7 +146,7 @@ namespace CedMod.LightsPlugin
 
             yield return Timing.WaitForSeconds(dur);
             BlackoutOn = false;
-            Cassie.Message(CedModLightsPlugin.config.CassieAnnouncementBlackoutStop, true, CedModLightsPlugin.config.CassieBells);
+            Cassie.Message(CedModLightsPlugin.Singleton.Config.CassieAnnouncementBlackoutStop, true, CedModLightsPlugin.Singleton.Config.CassieBells);
         }
     }
 }

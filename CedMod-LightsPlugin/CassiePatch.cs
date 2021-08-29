@@ -8,7 +8,7 @@ namespace CedMod.LightsPlugin
     {
         public static bool Prefix(string words, bool makeHold, bool makeNoise)
         {
-            if (ServerEventHandler.BlackoutOn && CedModLightsPlugin.config.CassieMalfunction)
+            if (ServerEventHandler.BlackoutOn && CedModLightsPlugin.Singleton.Config.CassieMalfunction)
             {
                 words = $"pitch_0.1 .g1 pitch_0.75 JAM_4_7 {words} pitch_0.1 .g1 .g3 pitch_1";
                 foreach (RespawnEffectsController respawnEffectsController in RespawnEffectsController.AllControllers)

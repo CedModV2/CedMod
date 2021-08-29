@@ -18,35 +18,35 @@ namespace CedMod.QuerySystem.WS
 
     public class WebSocketSystem
     {
-        public static WebSocket socket = null;
+        public static WebSocket Socket;
         private static object reconnectLock = new object();
 
         public static void Stop()
         {
-            socket.Close();
-            socket = null;
+            Socket.Close();
+            Socket = null;
         }
         public static void Start()
         {
-            socket = new WebSocket($"wss://{QuerySystem.PanelUrl}/QuerySystem?key={QuerySystem.config.SecurityKey}&identity={QuerySystem.config.Identifier}");
-            socket.Connect();
-            socket.OnMessage += OnMessage;
-            socket.OnClose += (sender, args) =>
+            Socket = new WebSocket($"wss://{QuerySystem.PanelUrl}/QuerySystem?key={QuerySystem.Singleton.Config.SecurityKey}&identity={QuerySystem.Singleton.Config.Identifier}");
+            Socket.Connect();
+            Socket.OnMessage += OnMessage;
+            Socket.OnClose += (sender, args) =>
             {
                 lock (reconnectLock)
                 {
                     Log.Error($"Lost connection to CedMod Panel {args.Reason}, reconnecting in 1000ms");
                     Thread.Sleep(1000);
                     Log.Info("Reconnecting...");
-                    socket.Connect();
-                    Log.Debug("Connect", CedModMain.config.ShowDebug);
+                    Socket.Connect();
+                    Log.Debug("Connect", CedModMain.Singleton.Config.ShowDebug);
                 }
             };
-            socket.OnOpen += (sender, args) =>
+            Socket.OnOpen += (sender, args) =>
             {
                 Log.Info("Connected.");
             };
-            socket.OnError += (sender, args) =>
+            Socket.OnError += (sender, args) =>
             {
                 Log.Error(args.Message);
                 Log.Error(args.Exception);
@@ -58,7 +58,7 @@ namespace CedMod.QuerySystem.WS
         {
             try
             {
-                Log.Debug(ev.Data, CedModMain.config.ShowDebug);
+                Log.Debug(ev.Data, CedModMain.Singleton.Config.ShowDebug);
                 QueryCommand cmd = JsonConvert.DeserializeObject<QueryCommand>(ev.Data);
 
                 var jsonData = cmd.Data;
@@ -67,7 +67,7 @@ namespace CedMod.QuerySystem.WS
                 {
                     if (text2 == "ping")
                         {
-                            socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                            Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                             {
                                 Recipient = cmd.Recipient,
                                 Data = new Dictionary<string, string>()
@@ -81,7 +81,7 @@ namespace CedMod.QuerySystem.WS
                         {
                             if (!jsonData.ContainsKey("command"))
                             {
-                                socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                                Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                                 {
                                     Recipient = cmd.Recipient,
                                     Data = new Dictionary<string, string>()
@@ -99,7 +99,7 @@ namespace CedMod.QuerySystem.WS
                                 if (jsonData["command"].ToUpper().Contains("REQUEST_DATA AUTH") ||
                                     jsonData["command"].ToUpper().Contains("SUDO QUIT"))
                                 {
-                                    socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                                    Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                                     {
                                         Recipient = cmd.Recipient,
                                         Data = new Dictionary<string, string>()
@@ -108,10 +108,10 @@ namespace CedMod.QuerySystem.WS
                                         }
                                     }));
                                 }
-                                else if (QuerySystem.config.DisallowedWebCommands.Contains(
+                                else if (QuerySystem.Singleton.Config.DisallowedWebCommands.Contains(
                                     array[0].ToUpper()))
                                 {
-                                    socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                                    Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                                     {
                                         Recipient = cmd.Recipient,
                                         Data = new Dictionary<string, string>()
@@ -127,15 +127,15 @@ namespace CedMod.QuerySystem.WS
                                     {
                                         string name = ServerStatic.PermissionsHandler._members[jsonData["user"]];
                                         UserGroup ugroup = ServerStatic.PermissionsHandler.GetGroup(name);
-                                        MainThreadDispatcher.Dispatch(delegate()
+                                        MainThreadDispatcher.Dispatch(delegate
                                         {
                                             CommandProcessor.ProcessQuery(jsonData["command"],
                                                 new CmSender(cmd.Recipient, jsonData["user"], jsonData["user"], ugroup));
-                                        }, 0);
+                                        });
                                     }
                                     else
                                     {
-                                        socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                                        Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                                         {
                                             Recipient = cmd.Recipient,
                                             Data = new Dictionary<string, string>()
@@ -158,7 +158,7 @@ namespace CedMod.QuerySystem.WS
                             }
                         }
 
-                        socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                        Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                         {
                             Recipient = cmd.Recipient,
                             Data = new Dictionary<string, string>()
@@ -180,9 +180,9 @@ namespace CedMod.QuerySystem.WS
     {
         public override void RaReply(string text, bool success, bool logToConsole, string overrideDisplay)
         {
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = Ses,
                     Data = new Dictionary<string, string>()
@@ -195,9 +195,9 @@ namespace CedMod.QuerySystem.WS
 
         public override void Print(string text)
         {
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = Ses,
                     Data = new Dictionary<string, string>()
@@ -219,9 +219,9 @@ namespace CedMod.QuerySystem.WS
 
         public override void Respond(string text, bool success = true)
         {
-            Task.Factory.StartNew(delegate()
+            Task.Factory.StartNew(delegate
             {
-                WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                 {
                     Recipient = Ses,
                     Data = new Dictionary<string, string>()

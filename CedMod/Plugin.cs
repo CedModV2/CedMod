@@ -10,14 +10,13 @@ namespace CedMod
 
     public class CedModMain : Plugin<Config>
     {
-        private Handlers.Server server;
-        private Handlers.Player player;
+        private Handlers.Server _server;
+        private Handlers.Player _player;
         private Harmony _harmony;
+        public static CedModMain Singleton;
         
         public override PluginPriority Priority { get; } = PluginPriority.First;
-        
-        public static Config config;
-        
+
         public override string Author { get; } = "ced777ric#0001";
 
         public override string Name { get; } = "CedMod";
@@ -51,7 +50,8 @@ namespace CedMod
                 wc.DownloadFile("https://cdn.cedmod.nl/files/websocket-sharp.dll", Paths.Dependencies + "/websocket-sharp.dll");
                 Application.Quit();
             }
-            config = Config;
+
+            Singleton = this;
             
             RegisterEvents();
         }
@@ -64,27 +64,27 @@ namespace CedMod
         
         private void RegisterEvents()
         {
-            server = new Handlers.Server();
-            player = new Handlers.Player();
-            Exiled.Events.Handlers.Server.RestartingRound += server.OnRoundRestart;
-            Exiled.Events.Handlers.Server.LocalReporting += server.OnReport;
+            _server = new Handlers.Server();
+            _player = new Handlers.Player();
+            Exiled.Events.Handlers.Server.RestartingRound += _server.OnRoundRestart;
+            Exiled.Events.Handlers.Server.LocalReporting += _server.OnReport;
             //Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += server.OnSendingRemoteAdmin;
             
-            Exiled.Events.Handlers.Player.Verified += player.OnJoin;
-            Exiled.Events.Handlers.Player.Dying += player.OnDying;
+            Exiled.Events.Handlers.Player.Verified += _player.OnJoin;
+            Exiled.Events.Handlers.Player.Dying += _player.OnDying;
         }
         
         private void UnregisterEvents()
         {
-            Exiled.Events.Handlers.Server.RestartingRound -= server.OnRoundRestart;
-            Exiled.Events.Handlers.Server.LocalReporting -= server.OnReport;
+            Exiled.Events.Handlers.Server.RestartingRound -= _server.OnRoundRestart;
+            Exiled.Events.Handlers.Server.LocalReporting -= _server.OnReport;
             //Exiled.Events.Handlers.Server.SendingRemoteAdminCommand -= server.OnSendingRemoteAdmin;
             
-            Exiled.Events.Handlers.Player.Verified -= player.OnJoin;
-            Exiled.Events.Handlers.Player.Dying -= player.OnDying;
+            Exiled.Events.Handlers.Player.Verified -= _player.OnJoin;
+            Exiled.Events.Handlers.Player.Dying -= _player.OnDying;
 
-            server = null;
-            player = null;
+            _server = null;
+            _player = null;
         }
     }
 }

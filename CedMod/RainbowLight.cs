@@ -6,12 +6,12 @@ namespace Cedmod
     public class RainbowLight : MonoBehaviour
     {
         public static readonly List<RainbowLight> Instances = new List<RainbowLight>();
-        public float _saturation = 1f;
-        public float _hueShiftSpeed = 0.2f;
-        public float _value = 1f;
+        public float saturation = 1f;
+        public float hueShiftSpeed = 0.2f;
+        public float value = 1f;
 
         private FlickerableLightController _light;
-        public FlickerableLightController light
+        public FlickerableLightController Light
         {
             get
             {
@@ -24,7 +24,7 @@ namespace Cedmod
         private void Awake()
         {
             Instances.Add(this);
-            light.Network_warheadLightOverride = true;
+            Light.Network_warheadLightOverride = true;
         }
 
         private void OnDestroy()
@@ -34,9 +34,9 @@ namespace Cedmod
 
         private void Update()
         {
-            float amountToShift = _hueShiftSpeed * Time.deltaTime;
-            Color newColor = ShiftHueBy(light.Network_warheadLightColor, amountToShift);
-            light.Network_warheadLightColor = newColor;
+            float amountToShift = hueShiftSpeed * Time.deltaTime;
+            Color newColor = ShiftHueBy(Light.Network_warheadLightColor, amountToShift);
+            Light.Network_warheadLightColor = newColor;
         }
 
         private Color ShiftHueBy(Color color, float amount)
@@ -46,8 +46,8 @@ namespace Cedmod
 
             // shift hue by amount
             hue += amount;
-            sat = _saturation;
-            val = _value;
+            sat = saturation;
+            val = value;
 
             // convert back to RGB and return the color
             return Color.HSVToRGB(hue, sat, val);

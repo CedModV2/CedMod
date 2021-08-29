@@ -16,20 +16,14 @@ namespace CedMod.Patches
 	[HarmonyPatch(typeof(BanCommand), nameof(BanCommand.Execute))]
     public static class BanCommandPatch
     {
-	    // Token: 0x17000467 RID: 1127
-	    // (get) Token: 0x060020FD RID: 8445 RVA: 0x0008E862 File Offset: 0x0008CA62
 	    public static string Command { get; } = "ban";
 
-	    // Token: 0x17000468 RID: 1128
-	    // (get) Token: 0x060020FE RID: 8446 RVA: 0x0008E86A File Offset: 0x0008CA6A
-	    public static string[] Aliases { get; }
-
-	    // Token: 0x17000469 RID: 1129
-	    // (get) Token: 0x060020FF RID: 8447 RVA: 0x0008E872 File Offset: 0x0008CA72
+	    public static string[] Aliases { get; } = new string[]
+	    {
+	    };
+	    
 	    public static string Description { get; } = "Bans a player.";
-
-	    // Token: 0x1700046A RID: 1130
-	    // (get) Token: 0x06002100 RID: 8448 RVA: 0x0008E87A File Offset: 0x0008CA7A
+	    
 	    public static string[] Usage { get; } = new string[]
 	    {
 		    "%player%",
@@ -46,7 +40,7 @@ namespace CedMod.Patches
 				return false;
 			}
 			string[] array;
-			List<ReferenceHub> list = RAUtils.ProcessPlayerIdOrNamesList(arguments, 0, out array, false);
+			List<ReferenceHub> list = RAUtils.ProcessPlayerIdOrNamesList(arguments, 0, out array);
 			if (list == null)
 			{
 				response = "An unexpected problem has occurred during PlayerId/Name array processing.";
@@ -60,7 +54,7 @@ namespace CedMod.Patches
 			string text = string.Empty;
 			if (array.Length > 1)
 			{
-				text = array.Skip(1).Aggregate((string current, string n) => current + " " + n);
+				text = array.Skip(1).Aggregate((current, n) => current + " " + n);
 			}
 			long num = 0L;
 			try
@@ -77,7 +71,7 @@ namespace CedMod.Patches
 				num = 0L;
 				array[0] = "0";
 			}
-			if (num == 0L && !sender.CheckPermission(new PlayerPermissions[]
+			if (num == 0L && !sender.CheckPermission(new[]
 			{
 				PlayerPermissions.KickingAndShortTermBanning,
 				PlayerPermissions.BanningUpToDay,
@@ -135,14 +129,14 @@ namespace CedMod.Patches
 							". Reason: ",
 							(text == string.Empty) ? "(none)" : text,
 							"."
-						}), ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging, false);
+						}), ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging);
 						if (ServerStatic.PermissionsHandler.IsVerified && referenceHub.serverRoles.BypassStaff)
 						{
 							QueryProcessor.Localplayer.GetComponent<BanPlayer>().BanUser(referenceHub.gameObject, 0L, text, sender.LogName);
 						}
 						else
 						{
-							if (num == 0L && ConfigFile.ServerConfig.GetBool("broadcast_kicks", false))
+							if (num == 0L && ConfigFile.ServerConfig.GetBool("broadcast_kicks"))
 							{
 								QueryProcessor.Localplayer.GetComponent<Broadcast>().RpcAddElement(ConfigFile.ServerConfig.GetString("broadcast_kick_text", "%nick% has been kicked from this server.").Replace("%nick%", combinedName), ConfigFile.ServerConfig.GetUShort("broadcast_kick_duration", 5), Broadcast.BroadcastFlags.Normal);
 							}
@@ -153,7 +147,7 @@ namespace CedMod.Patches
 
 							Task.Factory.StartNew(() =>
 							{
-								lock (BanSystem.banlock)
+								lock (BanSystem.Banlock)
 								{
 									API.Ban(Player.Get(referenceHub), num, sender.LogName, text, false);
 								}

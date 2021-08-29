@@ -42,7 +42,7 @@ namespace CedMod.Commands
             {
                 if (state)
                 {
-                    if (light.TryGetComponent(out RainbowLight rainbowLight))
+                    if (light.TryGetComponent(out RainbowLight _))
                     {
                         response = "Please remove rainbowlights before trying to re enable it";
                         return false;

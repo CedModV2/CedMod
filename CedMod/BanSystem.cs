@@ -8,25 +8,25 @@ namespace CedMod
 {
     public class BanSystem
     {
-        public static object banlock = new object();
+        public static readonly object Banlock = new object();
         public static void HandleJoin(VerifiedEventArgs ev)
         {
-            Log.Debug("Join", CedModMain.config.ShowDebug);
+            Log.Debug("Join", CedModMain.Singleton.Config.ShowDebug);
             try
             {
-                ReferenceHub Player = ev.Player.ReferenceHub;
-                if (ev.Player.ReferenceHub.serverRoles.BypassStaff || Player.characterClassManager.isLocalPlayer)
+                ReferenceHub player = ev.Player.ReferenceHub;
+                if (ev.Player.ReferenceHub.serverRoles.BypassStaff || player.characterClassManager.isLocalPlayer)
                     return;
 
-                Dictionary<string, string> info = (Dictionary<string, string>) API.APIRequest("Auth/", $"{Player.characterClassManager.UserId}&{ev.Player.IPAddress}");
+                Dictionary<string, string> info = (Dictionary<string, string>) API.APIRequest("Auth/", $"{player.characterClassManager.UserId}&{ev.Player.IPAddress}");
                 
-                Log.Debug(JsonConvert.SerializeObject(info), CedModMain.config.ShowDebug);
+                Log.Debug(JsonConvert.SerializeObject(info), CedModMain.Singleton.Config.ShowDebug);
                 
                 string reason;
                 if (info["success"] == "true" && info["vpn"] == "true" && info["isbanned"] == "false")
                 {
                     reason = info["reason"];
-                    Log.Info($"user: {Player.characterClassManager.UserId} attempted connection with blocked ASN/IP/VPN/Hosting service");
+                    Log.Info($"user: {player.characterClassManager.UserId} attempted connection with blocked ASN/IP/VPN/Hosting service");
                     ev.Player.Disconnect(reason);
                 }
                 else
@@ -34,8 +34,8 @@ namespace CedMod
                     if (info["success"] == "true" && info["vpn"] == "false" && info["isbanned"] == "true")
                     {
                         reason = info["preformattedmessage"];
-                        Log.Info($"user: {Player.characterClassManager.UserId} attempted connection with active ban disconnecting");
-                        ev.Player.Disconnect(reason + "\n" + CedModMain.config.AdditionalBanMessage);
+                        Log.Info($"user: {player.characterClassManager.UserId} attempted connection with active ban disconnecting");
+                        ev.Player.Disconnect(reason + "\n" + CedModMain.Singleton.Config.AdditionalBanMessage);
                     }
                     else
                     {

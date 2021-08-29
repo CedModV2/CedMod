@@ -11,7 +11,7 @@ namespace CedMod.QuerySystem
         public MapEvents MapEvents;
         public ServerEvents ServerEvents;
         public PlayerEvents PlayerEvents;
-        public static Harmony harmony;
+        public static Harmony Harmony;
         public static List<string> ReservedSlotUserids = new List<string>();
 
         /// <inheritdoc/>
@@ -24,13 +24,13 @@ namespace CedMod.QuerySystem
 
         public override string Prefix { get; } = "cm_WAPI";
 
-        public static Config config;
+        public static QuerySystem Singleton;
 
         public static string PanelUrl = "communitymanagementpanel.cedmod.nl";
 
         public override void OnDisabled()
         {
-            harmony.UnpatchAll();
+            Harmony.UnpatchAll();
             WebSocketSystem.Stop();
 
             Exiled.Events.Handlers.Map.Decontaminating -= MapEvents.OnDecon;
@@ -67,7 +67,7 @@ namespace CedMod.QuerySystem
 
         public override void OnEnabled()
         {
-            config = Config;
+            Singleton = this;
             
             if (SecurityKey != "None")
             {
@@ -77,8 +77,8 @@ namespace CedMod.QuerySystem
             else
                 Log.Warn("security_key is set to none plugin will not load due to security risks");
 
-            harmony = new Harmony("com.cedmod.querysystem");
-            harmony.PatchAll();
+            Harmony = new Harmony("com.cedmod.querysystem");
+            Harmony.PatchAll();
             
             MapEvents = new MapEvents();
             ServerEvents = new ServerEvents();

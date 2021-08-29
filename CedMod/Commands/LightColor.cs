@@ -2,6 +2,7 @@
 using CommandSystem;
 using Exiled.Permissions.Extensions;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CedMod.Commands
 {
@@ -29,31 +30,31 @@ namespace CedMod.Commands
                 return false;
             }
 
-            if (!float.TryParse(arguments.At(0), out float R))
+            if (!float.TryParse(arguments.At(0), out float r))
             {
                 response = "R must be a float.";
                 return false;
             }
             
-            if (!float.TryParse(arguments.At(1), out float G))
+            if (!float.TryParse(arguments.At(1), out float g))
             {
                 response = "G must be a float.";
                 return false;
             }
             
-            if (!float.TryParse(arguments.At(2), out float B))
+            if (!float.TryParse(arguments.At(2), out float b))
             {
                 response = "B must be a float.";
                 return false;
             }
             
-            foreach (FlickerableLightController flc in GameObject.FindObjectsOfType<FlickerableLightController>())
+            foreach (FlickerableLightController flc in Object.FindObjectsOfType<FlickerableLightController>())
             {
-                flc.WarheadLightColor = new Color(R, G, B);
+                flc.WarheadLightColor = new Color(r, g, b);
                 flc.WarheadLightOverride = true;
             }
 
-            response = "Light intensity set to " + new Color(R, G, B);
+            response = "Light intensity set to " + new Color(r, g, b);
             return true;
         }
     }

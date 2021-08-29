@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using CedMod.Patches;
+using CedMod.QuerySystem.Patches;
 using CedMod.QuerySystem.WS;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
@@ -17,74 +18,75 @@ namespace CedMod.QuerySystem
 		public IEnumerator<float> SyncStart()
 		{
 			yield return Timing.WaitForSeconds(3);
-			if (QuerySystem.config.SecurityKey != "None")
+			if (QuerySystem.Singleton.Config.SecurityKey != "None")
 			{
-				Log.Debug("Checking configs", CedModMain.config.ShowDebug);
-				if (QuerySystem.config.EnableExternalLookup)
+				Log.Debug("Checking configs", CedModMain.Singleton.Config.ShowDebug);
+				if (QuerySystem.Singleton.Config.EnableExternalLookup)
 				{
-					Log.Debug("Setting lookup mode", CedModMain.config.ShowDebug);
+					Log.Debug("Setting lookup mode", CedModMain.Singleton.Config.ShowDebug);
 					ServerConfigSynchronizer.Singleton.NetworkRemoteAdminExternalPlayerLookupMode = "fullauth";
 					ServerConfigSynchronizer.Singleton.NetworkRemoteAdminExternalPlayerLookupURL = $"https://{QuerySystem.PanelUrl}/Api/Lookup/";
-					ServerConfigSynchronizer.Singleton.RemoteAdminExternalPlayerLookupToken = QuerySystem.config.SecurityKey;
+					ServerConfigSynchronizer.Singleton.RemoteAdminExternalPlayerLookupToken = QuerySystem.Singleton.Config.SecurityKey;
 				}
 
 				Task.Factory.StartNew(() =>
 				{
-					Log.Debug("Checking configs", CedModMain.config.ShowDebug);
-					if (QuerySystem.config.EnableBanreasonSync)
+					Log.Debug("Checking configs", CedModMain.Singleton.Config.ShowDebug);
+					if (QuerySystem.Singleton.Config.EnableBanreasonSync)
 					{
-						Log.Debug("Enabling ban reasons", CedModMain.config.ShowDebug);
+						Log.Debug("Enabling ban reasons", CedModMain.Singleton.Config.ShowDebug);
 						ServerConfigSynchronizer.Singleton.NetworkEnableRemoteAdminPredefinedBanTemplates = true;
-						Log.Debug("Clearing ban reasons", CedModMain.config.ShowDebug);
+						Log.Debug("Clearing ban reasons", CedModMain.Singleton.Config.ShowDebug);
 						ServerConfigSynchronizer.Singleton.RemoteAdminPredefinedBanTemplates.Clear();
 						HttpClient client = new HttpClient();
-						Log.Debug("Downloading ban reasons", CedModMain.config.ShowDebug);
+						Log.Debug("Downloading ban reasons", CedModMain.Singleton.Config.ShowDebug);
 						var response =
-							client.GetAsync($"https://{QuerySystem.PanelUrl}/Api/BanReasons/{QuerySystem.config.SecurityKey}");
-						Log.Debug("Addding ban reasons", CedModMain.config.ShowDebug);
+							client.GetAsync($"https://{QuerySystem.PanelUrl}/Api/BanReasons/{QuerySystem.Singleton.Config.SecurityKey}");
+						Log.Debug("Addding ban reasons", CedModMain.Singleton.Config.ShowDebug);
 						foreach (var dict in JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(response.Result
 							.Content.ReadAsStringAsync().Result))
 						{
 							Log.Debug($"Addding ban reason {JsonConvert.SerializeObject(dict)}",
-								CedModMain.config.ShowDebug);
-							var DurationNice = "";
+								CedModMain.Singleton.Config.ShowDebug);
+							
+							var durationNice = "";
 							TimeSpan timeSpan = TimeSpan.FromMinutes(double.Parse(dict["Dur"]));
 							int num2 = timeSpan.Days / 365;
 							if (num2 > 0)
 							{
-								DurationNice = string.Format("{0}y", num2);
+								durationNice = string.Format("{0}y", num2);
 							}
 							else if (timeSpan.Days > 0)
 							{
-								DurationNice = string.Format("{0}d", timeSpan.Days);
+								durationNice = string.Format("{0}d", timeSpan.Days);
 							}
 							else if (timeSpan.Hours > 0)
 							{
-								DurationNice = string.Format("{0}h", timeSpan.Hours);
+								durationNice = string.Format("{0}h", timeSpan.Hours);
 							}
 							else if (timeSpan.Minutes > 0)
 							{
-								DurationNice = string.Format("{0}m", timeSpan.Minutes);
+								durationNice = string.Format("{0}m", timeSpan.Minutes);
 							}
 							else
 							{
-								DurationNice = string.Format("{0}s", timeSpan.Seconds);
+								durationNice = string.Format("{0}s", timeSpan.Seconds);
 							}
 
 							ServerConfigSynchronizer.Singleton.RemoteAdminPredefinedBanTemplates.Add(
 								new ServerConfigSynchronizer.PredefinedBanTemplate()
 								{
 									Duration = Convert.ToInt32(dict["Dur"]),
-									DurationNice = DurationNice,
+									DurationNice = durationNice,
 									Reason = dict["Reason"]
 								});
 						}
 					}
 					
 					HttpClient client1 = new HttpClient();
-					Log.Debug("Downloading syncs", CedModMain.config.ShowDebug);
-					var response1 = client1.GetAsync($"https://{QuerySystem.PanelUrl}/Api/ReservedSlotUsers/{QuerySystem.config.SecurityKey}");
-					Log.Debug($"Downloaded Reserved slots: {response1.Result.Content.ReadAsStringAsync().Result}", CedModMain.config.ShowDebug);
+					Log.Debug("Downloading syncs", CedModMain.Singleton.Config.ShowDebug);
+					var response1 = client1.GetAsync($"https://{QuerySystem.PanelUrl}/Api/ReservedSlotUsers/{QuerySystem.Singleton.Config.SecurityKey}");
+					Log.Debug($"Downloaded Reserved slots: {response1.Result.Content.ReadAsStringAsync().Result}", CedModMain.Singleton.Config.ShowDebug);
 					QuerySystem.ReservedSlotUserids = JsonConvert.DeserializeObject<List<string>>(response1.Result.Content.ReadAsStringAsync().Result);
 				});
 			}
@@ -94,14 +96,14 @@ namespace CedMod.QuerySystem
 		{
 			Timing.RunCoroutine(SyncStart());
 			
-			Task.Factory.StartNew(delegate()
+			Task.Factory.StartNew(delegate
 			{
-				if (!WebSocketSystem.socket.IsAlive)
+				if (!WebSocketSystem.Socket.IsAlive)
 				{
 					CedMod.QuerySystem.WS.WebSocketSystem.Stop();
 					CedMod.QuerySystem.WS.WebSocketSystem.Start();
 				}
-				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+				WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
 				{
 					Recipient = "ALL",
 					Data = new Dictionary<string, string>()
@@ -115,9 +117,9 @@ namespace CedMod.QuerySystem
 		
 		public void OnRoundStart()
 		{
-			Task.Factory.StartNew(delegate()
+			Task.Factory.StartNew(delegate
 			{
-				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+				WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
 				{
 					Recipient = "ALL",
 					Data = new Dictionary<string, string>()
@@ -132,9 +134,9 @@ namespace CedMod.QuerySystem
 		public void OnRoundEnd(RoundEndedEventArgs ev)
 		{
 			BulletHolePatch.HoleCreators.Clear();
-			Task.Factory.StartNew(delegate()
+			Task.Factory.StartNew(delegate
 			{
-				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+				WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
 				{
 					Recipient = "ALL",
 					Data = new Dictionary<string, string>()
@@ -148,18 +150,18 @@ namespace CedMod.QuerySystem
 		
 		public void OnCheaterReport(ReportingCheaterEventArgs ev)
 		{
-			Log.Debug("sending report WR", CedModMain.config.ShowDebug);
+			Log.Debug("sending report WR", CedModMain.Singleton.Config.ShowDebug);
 			Task.Factory.StartNew(() =>
 			{
-				Log.Debug("Thread report send", CedModMain.config.ShowDebug);
-				if (QuerySystem.config.SecurityKey == "None")
+				Log.Debug("Thread report send", CedModMain.Singleton.Config.ShowDebug);
+				if (QuerySystem.Singleton.Config.SecurityKey == "None")
 					return;
-				Log.Debug("sending report WR", CedModMain.config.ShowDebug);
+				Log.Debug("sending report WR", CedModMain.Singleton.Config.ShowDebug);
 				HttpClient client = new HttpClient();
 				try
 				{
 					var response = client
-						.PostAsync($"https://{QuerySystem.PanelUrl}/Api/Reports/{QuerySystem.config.SecurityKey}",
+						.PostAsync($"https://{QuerySystem.PanelUrl}/Api/Reports/{QuerySystem.Singleton.Config.SecurityKey}",
 							new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
 								{
 									{"reporter", ev.Reporter.UserId},
@@ -167,16 +169,16 @@ namespace CedMod.QuerySystem
 									{"reason", ev.Reason},
 								}), Encoding.Default,
 								"application/json")).Result;
-					Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.config.ShowDebug);
+					Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.Singleton.Config.ShowDebug);
 				}
 				catch (Exception ex)
 				{
 					Log.Error(ex);
 				}
 			});
-			Task.Factory.StartNew(delegate()
+			Task.Factory.StartNew(delegate
 			{
-				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+				WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
 				{
 					Recipient = "ALL",
 					Data = new Dictionary<string, string>()
@@ -201,9 +203,9 @@ namespace CedMod.QuerySystem
 
 		public void OnRespawn(RespawningTeamEventArgs ev)
 		{
-			Task.Factory.StartNew(delegate()
+			Task.Factory.StartNew(delegate
 			{
-				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+				WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
 				{
 					Recipient = "ALL",
 					Data = new Dictionary<string, string>()
@@ -217,18 +219,18 @@ namespace CedMod.QuerySystem
 
 		public void OnReport(LocalReportingEventArgs ev)
 		{
-			Log.Debug("sending report WR", CedModMain.config.ShowDebug);
+			Log.Debug("sending report WR", CedModMain.Singleton.Config.ShowDebug);
 			Task.Factory.StartNew(() =>
 			{
-				Log.Debug("Thread report send", CedModMain.config.ShowDebug);
-				if (QuerySystem.config.SecurityKey == "None")
+				Log.Debug("Thread report send", CedModMain.Singleton.Config.ShowDebug);
+				if (QuerySystem.Singleton.Config.SecurityKey == "None")
 					return;
-				Log.Debug("sending report WR", CedModMain.config.ShowDebug);
+				Log.Debug("sending report WR", CedModMain.Singleton.Config.ShowDebug);
 				HttpClient client = new HttpClient();
 				try
 				{
 					var response = client
-						.PostAsync($"https://{QuerySystem.PanelUrl}/Api/Reports/{QuerySystem.config.SecurityKey}",
+						.PostAsync($"https://{QuerySystem.PanelUrl}/Api/Reports/{QuerySystem.Singleton.Config.SecurityKey}",
 							new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
 								{
 									{"reporter", ev.Issuer.UserId},
@@ -236,15 +238,15 @@ namespace CedMod.QuerySystem
 									{"reason", ev.Reason},
 								}), Encoding.Default,
 								"application/json")).Result;
-					Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.config.ShowDebug);
+					Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.Singleton.Config.ShowDebug);
 				}
 				catch (Exception ex)
 				{
 					Log.Error(ex);
 				}
-			});Task.Factory.StartNew(delegate()
+			});Task.Factory.StartNew(delegate
 			{
-				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+				WebSocketSystem.Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
 				{
 					Recipient = "ALL",
 					Data = new Dictionary<string, string>()

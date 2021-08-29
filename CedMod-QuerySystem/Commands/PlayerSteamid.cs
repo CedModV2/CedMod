@@ -2,7 +2,7 @@
 using CommandSystem;
 using Exiled.API.Features;
 
-namespace CedMod.Commands
+namespace CedMod.QuerySystem.Commands
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class PlayerSteamidsCommand : ICommand
