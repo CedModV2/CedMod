@@ -1,17 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using Cedmod;
 using CommandSystem;
-using Exiled.API.Extensions;
-using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
-using Interactables.Interobjects;
-using Interactables.Interobjects.DoorUtils;
-using MapGeneration;
-using MiniGames;
-using Mirror;
-using RemoteAdmin;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace CedMod.Commands

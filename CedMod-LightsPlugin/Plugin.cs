@@ -24,12 +24,14 @@ namespace CedMod.LightsPlugin
             Exiled.Events.Handlers.Server.RoundStarted -= server.OnRoundStart;
             Exiled.Events.Handlers.Player.ChangingRole -= server.Onchangerole;
             Exiled.Events.Handlers.Server.RoundEnded += server.OnRoundEnd;
+            
             server = null;
             ServerEventHandler.BlackoutOn = true;
             Timing.KillCoroutines("CMLightsPluginCoroutines");
         }
         public static Harmony harmony;
         private ServerEventHandler server;
+        
         public override void OnEnabled()
         {
             if (!Config.IsEnabled)
@@ -37,13 +39,12 @@ namespace CedMod.LightsPlugin
             config = Config;
             harmony = new Harmony("com.cedmodLightsPlugin.patch");
             harmony.PatchAll();
+            
             server = new ServerEventHandler();
             Exiled.Events.Handlers.Server.RestartingRound += server.OnRoundRestart;
             Exiled.Events.Handlers.Server.RoundStarted += server.OnRoundStart;
             Exiled.Events.Handlers.Player.ChangingRole += server.Onchangerole;
             Exiled.Events.Handlers.Server.RoundEnded -= server.OnRoundEnd;
         }
-        public override void OnReloaded()
-        {}
     }
 }

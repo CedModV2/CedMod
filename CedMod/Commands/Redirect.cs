@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using CommandSystem;
-using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
-using UnityEngine;
 
 namespace CedMod.Commands
 {
@@ -31,10 +28,7 @@ namespace CedMod.Commands
                 return false;
             }
 
-            foreach (Player p in Player.List)
-            {
-                p.ReferenceHub.playerStats.RpcRoundrestartRedirect(1f, Convert.ToUInt16(arguments.At(0)));
-            }
+            ReferenceHub._hostHub.playerStats.RpcRoundrestartRedirect(1f, Convert.ToUInt16(arguments.At(0)));
             response = "redirecting";
             return true;
         }

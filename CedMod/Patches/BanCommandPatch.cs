@@ -150,7 +150,14 @@ namespace CedMod.Patches
 							{
 								QueryProcessor.Localplayer.GetComponent<Broadcast>().RpcAddElement(ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", combinedName), ConfigFile.ServerConfig.GetUShort("broadcast_ban_duration", 5), Broadcast.BroadcastFlags.Normal);
 							}
-							API.Ban(Player.Get(referenceHub), num, sender.LogName, text, true);
+
+							Task.Factory.StartNew(() =>
+							{
+								lock (BanSystem.banlock)
+								{
+									API.Ban(Player.Get(referenceHub), num, sender.LogName, text, false);
+								}
+							});
 						}
 						num2 += 1;
 					}

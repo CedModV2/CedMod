@@ -17,7 +17,8 @@ namespace CedMod.Handlers
         {
             foreach (var pp in Exiled.API.Features.Player.List)
             {
-                if (pp.UserId == ev.Player.UserId) yield return 0;
+                if (pp.UserId == ev.Player.UserId) 
+                    yield break;
                 if (CedModMain.config.KickSameName)
                 {
                     if (pp.Nickname == ev.Player.Nickname)
@@ -25,7 +26,7 @@ namespace CedMod.Handlers
                         if (ev.Player.ReferenceHub.serverRoles.RemoteAdmin && !pp.ReferenceHub.serverRoles.RemoteAdmin)
                         {
                             pp.Kick("You have been kicked by a plugin: \n Please change your name to something unique (A staff member joined with your name)");
-                            yield return 0f;
+                            yield break;
                         }
                         else if (pp.UserId != ev.Player.UserId)
                         {
@@ -34,8 +35,6 @@ namespace CedMod.Handlers
                     }
                 }
             }
-
-            yield return 0f;
         }
         
         public void OnDying(DyingEventArgs ev)

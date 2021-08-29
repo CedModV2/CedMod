@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using CommandSystem;
 using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
 using RemoteAdmin;
-using UnityEngine;
 
 namespace CedMod.Commands
 {
@@ -67,12 +64,9 @@ namespace CedMod.Commands
                     {
                     }
 
-                    text = text + text2 + "(" + component.PlayerId + ") " +
-                           player.nicknameSync.CombinedName.Replace("\n", string.Empty) +
-                           (flag4 ? "<OVRM>" : string.Empty);
+                    text = text + text2 + "(" + component.PlayerId + ") " + player.nicknameSync.CombinedName.Replace("\n", string.Empty) + (flag4 ? "<OVRM>" : string.Empty);
                     CharacterClassManager ccm = player.characterClassManager;
-                    text = $"<color={ccm.CurRole.classColor.ToHex()}>" +
-                           text + "</color>";
+                    text = $"<color={ccm.CurRole.classColor.ToHex()}>" + text + "</color>";
 
 
                     text += "\n";

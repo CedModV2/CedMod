@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Exiled.API.Features;
 using Newtonsoft.Json;
 using RemoteAdmin;
 using WebSocketSharp;
-using WebSocketSharp.Server;
 
 namespace CedMod.QuerySystem.WS
 {
@@ -68,9 +65,7 @@ namespace CedMod.QuerySystem.WS
                 string text2 = jsonData["action"];
                 if (text2 != null)
                 {
-                    if (!(text2 == "kicksteamid"))
-                    {
-                        if (text2 == "ping")
+                    if (text2 == "ping")
                         {
                             socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                             {
@@ -152,8 +147,7 @@ namespace CedMod.QuerySystem.WS
                                 }
                             }
                         }
-                    }
-                    else
+                    if (text2 == "kicksteamid")
                     {
                         foreach (Player player in Player.List)
                         {
@@ -177,8 +171,7 @@ namespace CedMod.QuerySystem.WS
             }
             catch (Exception ex)
             {
-                Exiled.API.Features.Log.Error(ex.ToString());
-                //socket.Close();
+                Log.Error(ex.ToString());
             }
         }
     }

@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using CedMod.QuerySystem.WS;
 using CommandSystem;
 using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
-using HarmonyLib;
-using RemoteAdmin;
-using UnityEngine;
 
 namespace CedMod.Commands
 {

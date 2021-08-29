@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using CedMod.Commands;
 using Exiled.API.Features;
-using Exiled.Events;
 using MEC;
 using Exiled.Events.EventArgs;
 using Newtonsoft.Json;
@@ -49,7 +47,7 @@ namespace CedMod.Handlers
             }
             
             reported.Add(ev.Target.ReferenceHub, ev.Issuer.ReferenceHub);
-            Timing.RunCoroutine(removefromlist(ev.Target.ReferenceHub));
+            Timing.RunCoroutine(RemoveFromReportList(ev.Target.ReferenceHub));
             
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("Accept", "application/json");
@@ -74,7 +72,7 @@ namespace CedMod.Handlers
             }
         }
 
-        public IEnumerator<float> removefromlist(ReferenceHub target)
+        public IEnumerator<float> RemoveFromReportList(ReferenceHub target)
         {
             yield return Timing.WaitForSeconds(60f);
             reported.Remove(target);
@@ -82,15 +80,8 @@ namespace CedMod.Handlers
         
         public void OnRoundRestart()
         {
-            DoorCommand.Doors.Clear();
             FriendlyFireAutoban.Teamkillers.Clear();
-            FriendlyFireAutoban.Victims.Clear();
             Timing.KillCoroutines("LightsOut");
         }
-
-        // public void OnSendingRemoteAdmin(SendingRemoteAdminCommandEventArgs ev)
-        // {
-        //     BanSystem.HandleRACommand(ev);
-        // }
     }
 }

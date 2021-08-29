@@ -9,8 +9,6 @@ using System.Text;
 using Exiled.API.Features;
 using GameCore;
 using Newtonsoft.Json;
-using Sentry;
-using Sentry.Protocol;
 using Log = Exiled.API.Features.Log;
 
 namespace CedMod
@@ -18,8 +16,7 @@ namespace CedMod
     public static class API
     {
         public static readonly Uri APIUrl = new Uri("https://api.cedmod.nl/");
-        public static readonly Uri TestAPIUrl = new Uri("https://test.cedmod.nl/");
-        
+
         public static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors error)
         {
             // If the certificate is a valid, signed certificate, return true.
@@ -77,8 +74,7 @@ namespace CedMod
                 Dictionary<string, string> result = (Dictionary<string, string>) APIRequest("Auth/Ban", json, false, "POST"); 
                 ServerConsole.Disconnect(player.GameObject, result["preformattedmessage"]);
                 if (bc)
-                    Map.Broadcast((ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", player.Nickname),
-                        Broadcast.BroadcastFlags.Normal);
+                    Map.Broadcast((ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", player.Nickname), Broadcast.BroadcastFlags.Normal);
             }
             else
             {

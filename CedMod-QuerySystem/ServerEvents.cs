@@ -1,56 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using CedMod.Patches;
 using CedMod.QuerySystem.WS;
-using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
-using MapGeneration;
 using MEC;
 using Newtonsoft.Json;
-using UnityEngine;
 
 namespace CedMod.QuerySystem
 {
 	public class ServerEvents
 	{
-		public static List<ImageGenerator.MinimapElement> map = new List<ImageGenerator.MinimapElement>();
-		public static List<MiniMapElement> Minimap = new List<MiniMapElement>();
-		/*public void OnCommand(SendingRemoteAdminCommandEventArgs ev)
-		{
-			if (ev.Name.Contains("playerlistcolored"))
-			{
-				return;
-			}
-			Task.Factory.StartNew(delegate()
-			{
-				string text = string.Join(" ", ev.Arguments);
-				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
-				{
-					Recipient = "ALL",
-					Data = new Dictionary<string, string>()
-					{
-						{"Type", nameof(OnCommand)},
-						{"Message", string.Concat(new string[]
-						{
-							ev.Sender.Nickname,
-							"(",
-							ev.Sender.UserId,
-							") Used command: ",
-							ev.Name,
-							" ",
-							text,
-							"."
-						})}
-					}
-				}));
-			});
-		}*/
-
 		public IEnumerator<float> SyncStart()
 		{
 			yield return Timing.WaitForSeconds(3);
@@ -121,7 +84,7 @@ namespace CedMod.QuerySystem
 					HttpClient client1 = new HttpClient();
 					Log.Debug("Downloading syncs", CedModMain.config.ShowDebug);
 					var response1 = client1.GetAsync($"https://{QuerySystem.PanelUrl}/Api/ReservedSlotUsers/{QuerySystem.config.SecurityKey}");
-					Log.Debug($"Downloaded Reserved slots: {response1.Result.Content.ReadAsStringAsync().Result}");
+					Log.Debug($"Downloaded Reserved slots: {response1.Result.Content.ReadAsStringAsync().Result}", CedModMain.config.ShowDebug);
 					QuerySystem.ReservedSlotUserids = JsonConvert.DeserializeObject<List<string>>(response1.Result.Content.ReadAsStringAsync().Result);
 				});
 			}
@@ -130,20 +93,6 @@ namespace CedMod.QuerySystem
 		public void OnWaitingForPlayers()
 		{
 			Timing.RunCoroutine(SyncStart());
-			
-			Minimap.Clear();
-			foreach (ImageGenerator gen in ImageGenerator.ZoneGenerators)
-			{
-				foreach (ImageGenerator.MinimapElement elem in gen.minimap)
-				{
-					MiniMapElement elem1 = new MiniMapElement();
-					elem1.Name = elem.roomSource.GetComponentsInChildren<RoomIdentifier>().FirstOrDefault().Name.ToString();
-					elem1.Position = elem.roomSource.transform.position.ToString();
-					elem1.Rotation = elem.rotation.ToString();
-					elem1.ZoneType = elem.roomSource.GetComponentsInChildren<RoomIdentifier>().FirstOrDefault().Zone.ToString().Replace("HCZ", "HeavyContainment").Replace("LCZ", "LightContainment").Replace("ENTRANCE", "Entrance");
-					Minimap.Add(elem1);
-				}
-			}
 			
 			Task.Factory.StartNew(delegate()
 			{
@@ -249,31 +198,7 @@ namespace CedMod.QuerySystem
 				}));
 			});
 		}
-		
-		/*public void OnConsoleCommand(SendingConsoleCommandEventArgs ev)
-		{
-			Task.Factory.StartNew(delegate()
-			{
-				string text = string.Join(" ", ev.Arguments);
-				WebSocketSystem.socket.Send(JsonConvert.SerializeObject(new QueryCommand()
-				{
-					Recipient = "ALL",
-					Data = new Dictionary<string, string>()
-					{
-						{"Type", nameof(OnConsoleCommand)},
-						{"Message", string.Format("{0} - {1} ({2}) sent client console command: {3} {4}.", new object[]
-						{
-							ev.Player.Nickname,
-							ev.Player.UserId,
-							ev.Player.Role,
-							ev.Name,
-							text
-						})}
-					}
-				}));
-			});
-		}*/
-		
+
 		public void OnRespawn(RespawningTeamEventArgs ev)
 		{
 			Task.Factory.StartNew(delegate()

@@ -2,7 +2,6 @@
 using Exiled.API.Features;
 using HarmonyLib;
 using InventorySystem.Items.Firearms.Modules;
-using MapGeneration;
 using UnityEngine;
 
 namespace CedMod.Patches

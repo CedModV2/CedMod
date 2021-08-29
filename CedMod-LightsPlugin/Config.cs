@@ -1,12 +1,10 @@
-﻿﻿namespace CedMod.LightsPlugin
-{
-    using System.ComponentModel;
-    using Exiled.API.Interfaces;
+﻿using System.ComponentModel;
+using Exiled.API.Interfaces;
 
-    /// <inheritdoc cref="IConfig"/>
+namespace CedMod.LightsPlugin
+{
     public sealed class Config : IConfig
     {
-        /// <inheritdoc/>
         [Description("Indicates whether the plugin is enabled or not")]
         public bool IsEnabled { get; set; } = true;
 

@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using CommandSystem;
 using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
-using RemoteAdmin;
-using UnityEngine;
 
 namespace CedMod.Commands
 {

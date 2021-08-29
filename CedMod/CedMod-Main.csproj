@@ -48,20 +48,16 @@
     <Compile Include="Commands\Dialog\playerid.cs" />
     <Compile Include="Commands\Dialog\userid.cs" />
     <Compile Include="Commands\FFADisable.cs" />
-    <Compile Include="Commands\Door.cs" />
     <Compile Include="Commands\LightColor.cs" />
     <Compile Include="Commands\Lightsout.cs" />
     <Compile Include="Commands\Players.cs" />
-    <Compile Include="Commands\PriorBans.cs" />
     <Compile Include="Commands\RainbowLights.cs" />
     <Compile Include="Commands\Redirect.cs" />
     <Compile Include="Commands\Stuiter.cs" />
     <Compile Include="Commands\Stuiter\all.cs" />
     <Compile Include="Commands\Stuiter\spec.cs" />
-    <Compile Include="Commands\TotalBans.cs" />
     <Compile Include="FriendlyFireAutoban.cs" />
     <Compile Include="Handlers\Player.cs" />
-    <Compile Include="Logging\Logger.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Handlers\Server.cs" />
     <Compile Include="Patches\BanCommandPatch.cs" />
@@ -111,35 +107,35 @@
       <HintPath>..\References\dnlib.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.API, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.3.0.0-alpha.68\lib\net472\Exiled.API.dll</HintPath>
+      <HintPath>..\packages\EXILED.3.0.0-alpha.75\lib\net472\Exiled.API.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Exiled.Bootstrap, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.3.0.0-alpha.68\lib\net472\Exiled.Bootstrap.dll</HintPath>
+      <HintPath>..\packages\EXILED.3.0.0-alpha.75\lib\net472\Exiled.Bootstrap.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Exiled.CreditTags, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.3.0.0-alpha.68\lib\net472\Exiled.CreditTags.dll</HintPath>
+      <HintPath>..\packages\EXILED.3.0.0-alpha.75\lib\net472\Exiled.CreditTags.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Exiled.CustomItems, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.3.0.0-alpha.68\lib\net472\Exiled.CustomItems.dll</HintPath>
+      <HintPath>..\packages\EXILED.3.0.0-alpha.75\lib\net472\Exiled.CustomItems.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Exiled.Events, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.3.0.0-alpha.68\lib\net472\Exiled.Events.dll</HintPath>
+      <HintPath>..\packages\EXILED.3.0.0-alpha.75\lib\net472\Exiled.Events.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Exiled.Loader, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.3.0.0-alpha.68\lib\net472\Exiled.Loader.dll</HintPath>
+      <HintPath>..\packages\EXILED.3.0.0-alpha.75\lib\net472\Exiled.Loader.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Exiled.Permissions, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.3.0.0-alpha.68\lib\net472\Exiled.Permissions.dll</HintPath>
+      <HintPath>..\packages\EXILED.3.0.0-alpha.75\lib\net472\Exiled.Permissions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Exiled.Updater, Version=3.1.1.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.3.0.0-alpha.68\lib\net472\Exiled.Updater.dll</HintPath>
+      <HintPath>..\packages\EXILED.3.0.0-alpha.75\lib\net472\Exiled.Updater.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Facepunch.Steamworks.Win64, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">

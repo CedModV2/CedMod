@@ -3,7 +3,6 @@ using System.Linq;
 using CommandSystem;
 using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
-using UnityEngine;
 
 namespace CedMod.Commands.Dialog
 {

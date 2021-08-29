@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using CedMod.QuerySystem.WS;
 using CommandSystem;
-using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
-using HarmonyLib;
-using RemoteAdmin;
-using UnityEngine;
 
 namespace CedMod.Commands
 {
@@ -32,9 +27,9 @@ namespace CedMod.Commands
             }
 
             Task.Factory.StartNew(() =>
-            {
-                QuerySystem.WS.WebSocketSystem.Stop();
-                QuerySystem.WS.WebSocketSystem.Start();
+            { 
+                WebSocketSystem.Stop();
+                WebSocketSystem.Start();
             });
             response = "Query server restarted";
             return true;

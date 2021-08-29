@@ -1,31 +1,21 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Net;
-using CedMod.Commands;
-using CedMod.Commands.Dialog;
-using CedMod.Commands.Stuiter;
 using HarmonyLib;
-using RemoteAdmin;
 using UnityEngine;
+using Exiled.API.Enums;
+using Exiled.API.Features;
 
 namespace CedMod
 {
-    using Exiled.API.Enums;
-    using Exiled.API.Features;
 
-    /// <summary>
-    /// The example plugin.
-    /// </summary>
     public class CedModMain : Plugin<Config>
     {
         private Handlers.Server server;
         private Handlers.Player player;
         private Harmony _harmony;
         
-        /// <inheritdoc/>
         public override PluginPriority Priority { get; } = PluginPriority.First;
-
-        /// <inheritdoc/>
+        
         public static Config config;
         
         public override string Author { get; } = "ced777ric#0001";
@@ -65,17 +55,13 @@ namespace CedMod
             
             RegisterEvents();
         }
-
-        /// <inheritdoc/>
+        
         public override void OnDisabled()
         {
             _harmony.UnpatchAll();
             UnregisterEvents();
         }
-
-        /// <summary>
-        /// Registers the plugin events.
-        /// </summary>
+        
         private void RegisterEvents()
         {
             server = new Handlers.Server();
@@ -87,10 +73,7 @@ namespace CedMod
             Exiled.Events.Handlers.Player.Verified += player.OnJoin;
             Exiled.Events.Handlers.Player.Dying += player.OnDying;
         }
-
-        /// <summary>
-        /// Unregisters the plugin events.
-        /// </summary>
+        
         private void UnregisterEvents()
         {
             Exiled.Events.Handlers.Server.RestartingRound -= server.OnRoundRestart;
