@@ -2,8 +2,6 @@ name: .NET Core Master
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
 jobs:
   build:
@@ -22,8 +20,8 @@ jobs:
     - name: Download References
       run: wget "https://cdn.cedmod.nl/files/References.zip" -outfile "References.zip"
       
-    - name: Unzip References
-      run: Expand-Archive References.zip -DestinationPath References
+    - name: Unzip References Zip
+      run: Expand-Archive References.zip -DestinationPath ./
       
     - name: Restore Packages
       run: nuget restore CedMod.sln
