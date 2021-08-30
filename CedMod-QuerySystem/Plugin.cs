@@ -65,6 +65,8 @@ namespace CedMod.QuerySystem
             MapEvents = null;
             ServerEvents = null;
             PlayerEvents = null;
+            Singleton = null;
+            base.OnDisabled();
         }
 
         public static string SecurityKey;
@@ -113,6 +115,7 @@ namespace CedMod.QuerySystem
             Exiled.Events.Handlers.Player.Verified += PlayerEvents.OnPlayerJoin;
             Exiled.Events.Handlers.Player.Left += PlayerEvents.OnPlayerLeave;
             Exiled.Events.Handlers.Player.ChangingRole += PlayerEvents.OnSetClass;
+            base.OnEnabled();
         }
     }
 }

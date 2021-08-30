@@ -29,9 +29,6 @@ namespace CedMod
 
         public override void OnEnabled()
         {
-            if (!Config.IsEnabled)
-                return;
-
             _harmony = new Harmony("com.cedmod.patch");
             _harmony.PatchAll();
             
@@ -58,12 +55,15 @@ namespace CedMod
             Singleton = this;
             
             RegisterEvents();
+            base.OnEnabled();
         }
         
         public override void OnDisabled()
         {
             _harmony.UnpatchAll();
+            Singleton = null;
             UnregisterEvents();
+            base.OnDisabled();
         }
         
         private void RegisterEvents()

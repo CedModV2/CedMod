@@ -32,6 +32,8 @@ namespace CedMod.LightsPlugin
             _server = null;
             ServerEventHandler.BlackoutOn = true;
             Timing.KillCoroutines("CMLightsPluginCoroutines");
+            Singleton = null;
+            base.OnDisabled();
         }
         
         public static Harmony Harmony;
@@ -48,6 +50,7 @@ namespace CedMod.LightsPlugin
             Exiled.Events.Handlers.Server.RoundStarted += _server.OnRoundStart;
             Exiled.Events.Handlers.Player.ChangingRole += _server.Onchangerole;
             Exiled.Events.Handlers.Server.RoundEnded -= _server.OnRoundEnd;
+            base.OnEnabled();
         }
     }
 }
