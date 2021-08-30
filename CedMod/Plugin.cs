@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
 using HarmonyLib;
 using UnityEngine;
@@ -22,6 +23,9 @@ namespace CedMod
         public override string Name { get; } = "CedMod";
 
         public override string Prefix { get; } = "cm";
+
+        public override Version RequiredExiledVersion { get; } = new Version(3, 0, 0);
+        public override Version Version { get; } = new Version(3, 0, 0);
 
         public override void OnEnabled()
         {

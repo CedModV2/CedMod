@@ -1,4 +1,5 @@
-﻿using Exiled.API.Enums;
+﻿using System;
+using Exiled.API.Enums;
 using Exiled.API.Features;
 using HarmonyLib;
 using MEC;
@@ -17,6 +18,9 @@ namespace CedMod.LightsPlugin
         public override string Prefix { get; } = "cm_lights";
 
         public static CedModLightsPlugin Singleton;
+        
+        public override Version RequiredExiledVersion { get; } = new Version(3, 0, 0);
+        public override Version Version { get; } = new Version(3, 0, 0);
         
         public override void OnDisabled()
         {
