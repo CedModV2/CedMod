@@ -1,7 +1,5 @@
 Master Branch: ![.NET Core](https://github.com/CedModV2/CedMod/workflows/.NET%20Core%20Master/badge.svg?branch=master)
 
-Dev Branch: ![.NET Core](https://github.com/CedModV2/CedMod/workflows/.NET%20Core%20Dev/badge.svg?branch=master)
-
 CedMod builds are located on the Actions tab (download is also available on the CedMod Admin panel https://admin.cedmod.nl)
 
 | config                              | type      | default  | description                                                           |
