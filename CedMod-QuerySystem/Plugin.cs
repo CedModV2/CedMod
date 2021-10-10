@@ -4,6 +4,8 @@ using CedMod.QuerySystem.WS;
 using Exiled.API.Enums;
 using Exiled.API.Features;
 using HarmonyLib;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CedMod.QuerySystem
 {
@@ -34,6 +36,9 @@ namespace CedMod.QuerySystem
 
         public override void OnDisabled()
         {
+            ThreadDispatcher dispatcher = Object.FindObjectOfType<ThreadDispatcher>();
+            if (dispatcher != null)
+                Object.Destroy(dispatcher);
             Harmony.UnpatchAll();
             WebSocketSystem.Stop();
 
@@ -73,6 +78,9 @@ namespace CedMod.QuerySystem
 
         public override void OnEnabled()
         {
+            ThreadDispatcher dispatcher = Object.FindObjectOfType<ThreadDispatcher>();
+            if (dispatcher == null)
+                CustomNetworkManager.singleton.gameObject.AddComponent<ThreadDispatcher>();
             Singleton = this;
             
             if (SecurityKey != "None")
