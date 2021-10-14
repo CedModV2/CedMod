@@ -31,6 +31,12 @@ namespace CedMod.QuerySystem.Commands
                     response = "Already synced";
                     return false;
                 }
+
+                if (Player.Get(int.Parse(arguments.At(0))).UserId != arguments.At(2))
+                {
+                    response = "UserId mismatch";
+                    return false;
+                }
                 Player.Get(int.Parse(arguments.At(0))).ReferenceHub.serverRoles.SetGroup(ServerStatic.GetPermissionsHandler()._groups[arguments.At(1)], false);
                 ServerStatic.GetPermissionsHandler()._members[Player.Get(int.Parse(arguments.At(0))).UserId] = arguments.At(1);
                 CommandHandler.Synced.Add(Player.Get(int.Parse(arguments.At(0))).UserId);
