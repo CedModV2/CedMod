@@ -24,20 +24,25 @@ namespace CedMod.QuerySystem.WS
         private static object reconnectLock = new object();
         private static Thread SendThread;
         public static ConcurrentQueue<QueryCommand> SendQueue = new ConcurrentQueue<QueryCommand>();
+        private static bool Reconnect = true;
 
         public static void Stop()
         {
-            SendThread?.Abort();
+            Reconnect = false;
             Socket.Close();
             Socket = null;
+            SendThread?.Abort();
         }
         public static void Start()
         {
+            Reconnect = true;
             Socket = new WebSocket($"wss://{QuerySystem.PanelUrl}/QuerySystem?key={QuerySystem.Singleton.Config.SecurityKey}&identity={QuerySystem.Singleton.Config.Identifier}");
             Socket.Connect();
             Socket.OnMessage += OnMessage;
             Socket.OnClose += (sender, args) =>
             {
+                if (!Reconnect)
+                    return;
                 lock (reconnectLock)
                 {
                     Log.Error($"Lost connection to CedMod Panel {args.Reason}, reconnecting in 1000ms");

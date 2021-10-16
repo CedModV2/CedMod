@@ -52,6 +52,7 @@ namespace CedMod.QuerySystem
             Exiled.Events.Handlers.Server.RoundEnded -= ServerEvents.OnRoundEnd;
             Exiled.Events.Handlers.Server.RespawningTeam -= ServerEvents.OnRespawn;
             Exiled.Events.Handlers.Server.ReportingCheater -= ServerEvents.OnCheaterReport;
+            Exiled.Events.Handlers.Server.LocalReporting -= ServerEvents.OnReport;
 
             Exiled.Events.Handlers.Player.ItemUsed -= PlayerEvents.OnUsedItem;
             Exiled.Events.Handlers.Scp079.InteractingTesla -= PlayerEvents.On079Tesla;
