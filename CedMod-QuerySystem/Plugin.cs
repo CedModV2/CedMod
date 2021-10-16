@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CedMod.QuerySystem.WS;
 using Exiled.API.Enums;
 using Exiled.API.Features;
@@ -87,7 +88,10 @@ namespace CedMod.QuerySystem
             if (SecurityKey != "None")
             {
                 // Start the HTTP server.
-                WebSocketSystem.Start();
+                Task.Factory.StartNew(() =>
+                {
+                    WebSocketSystem.Start();
+                });
             }
             else
                 Log.Warn("security_key is set to none plugin will not load due to security risks");
