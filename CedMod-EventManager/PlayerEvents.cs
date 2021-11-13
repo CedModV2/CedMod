@@ -22,8 +22,7 @@ namespace CedMod.EventManager
             {
                 Timing.CallDelayed(1, () =>
                 {
-                    ev.Player.Broadcast(10,
-                        $"EventManager: This server is currently running an event: {EventManager.Singleton.currentEvent.EventName}\n{EventManager.Singleton.currentEvent.EventDescription}");
+                    ev.Player.Broadcast(10, $"EventManager: This server is currently running an event: {EventManager.Singleton.currentEvent.EventName}\n{EventManager.Singleton.currentEvent.EventDescription}");
                 });
             }
         }
