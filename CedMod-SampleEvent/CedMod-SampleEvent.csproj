@@ -4,16 +4,16 @@
     <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{A80D4256-ABB3-4C47-BA2E-FEC71BB04F98}</ProjectGuid>
+        <ProjectGuid>{2F1B2CB5-0B6B-44DB-9FA4-CB357420C36D}</ProjectGuid>
         <OutputType>Library</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
-        <RootNamespace>CedMod.LightsPlugin</RootNamespace>
-        <AssemblyName>CedMod-LightsOutPlugin</AssemblyName>
+        <RootNamespace>CedMod.SampleEvent</RootNamespace>
+        <AssemblyName>CedMod-SampleEvent</AssemblyName>
         <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-        <PlatformTarget>x64</PlatformTarget>
+        <PlatformTarget>AnyCPU</PlatformTarget>
         <DebugSymbols>true</DebugSymbols>
         <DebugType>full</DebugType>
         <Optimize>false</Optimize>
@@ -21,27 +21,58 @@
         <DefineConstants>DEBUG;TRACE</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <PlatformTarget>x64</PlatformTarget>
-        <DebugType>none</DebugType>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugType>pdbonly</DebugType>
         <Optimize>true</Optimize>
         <OutputPath>..\bin\Release\</OutputPath>
         <DefineConstants>TRACE</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="0Harmony, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\0Harmony.dll</HintPath>
         </Reference>
+        <Reference Include="Accessibility, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\Accessibility.dll</HintPath>
+        </Reference>
+        <Reference Include="AmplifyBloom, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\References\AmplifyBloom.dll</HintPath>
+        </Reference>
         <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\References\Assembly-CSharp_Publicized.dll</HintPath>
+          <HintPath>..\References\Assembly-CSharp_publicized.dll</HintPath>
         </Reference>
         <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\Assembly-CSharp-firstpass.dll</HintPath>
+        </Reference>
+        <Reference Include="BouncyCastle.Crypto, Version=1.8.8.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+          <HintPath>..\References\BouncyCastle.Crypto.dll</HintPath>
+        </Reference>
+        <Reference Include="ch.sycoforge.Decal, Version=1.6.8.1, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\References\ch.sycoforge.Decal.dll</HintPath>
+        </Reference>
+        <Reference Include="ch.sycoforge.Logging, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\References\ch.sycoforge.Logging.dll</HintPath>
+        </Reference>
+        <Reference Include="ch.sycoforge.Unity.Runtime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\References\ch.sycoforge.Unity.Runtime.dll</HintPath>
+        </Reference>
+        <Reference Include="CloudflareSolverRe, Version=1.0.6.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\References\CloudflareSolverRe.dll</HintPath>
+        </Reference>
+        <Reference Include="CommandSystem.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\References\CommandSystem.Core.dll</HintPath>
+        </Reference>
+        <Reference Include="DiscordIntegration_Plugin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\References\DiscordIntegration_Plugin.dll</HintPath>
+        </Reference>
+        <Reference Include="DissonanceVoip, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\References\DissonanceVoip.dll</HintPath>
+        </Reference>
+        <Reference Include="dnlib, Version=3.3.2.0, Culture=neutral, PublicKeyToken=50e96378b6e77999">
+          <HintPath>..\References\dnlib.dll</HintPath>
         </Reference>
         <Reference Include="Exiled.API, Version=3.6.2.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\packages\EXILED.3.6.2\lib\net472\Exiled.API.dll</HintPath>
@@ -79,20 +110,204 @@
           <HintPath>..\packages\EXILED.3.6.2\lib\net472\Exiled.Updater.dll</HintPath>
           <Private>True</Private>
         </Reference>
+        <Reference Include="Facepunch.Steamworks.Win64, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\References\Facepunch.Steamworks.Win64.dll</HintPath>
+        </Reference>
         <Reference Include="Mirror, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\Mirror.dll</HintPath>
+        </Reference>
+        <Reference Include="Mirror.Authenticators, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\References\Mirror.Authenticators.dll</HintPath>
+        </Reference>
+        <Reference Include="Mirror.Components, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\References\Mirror.Components.dll</HintPath>
+        </Reference>
+        <Reference Include="Mono.CecilX, Version=0.11.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e">
+          <HintPath>..\References\Mono.CecilX.dll</HintPath>
+        </Reference>
+        <Reference Include="Mono.CecilX.Mdb, Version=0.11.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e">
+          <HintPath>..\References\Mono.CecilX.Mdb.dll</HintPath>
+        </Reference>
+        <Reference Include="Mono.CecilX.Pdb, Version=0.11.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e">
+          <HintPath>..\References\Mono.CecilX.Pdb.dll</HintPath>
+        </Reference>
+        <Reference Include="Mono.CecilX.Rocks, Version=0.11.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e">
+          <HintPath>..\References\Mono.CecilX.Rocks.dll</HintPath>
+        </Reference>
+        <Reference Include="Mono.Data.Sqlite, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
+          <HintPath>..\References\Mono.Data.Sqlite.dll</HintPath>
+        </Reference>
+        <Reference Include="Mono.Nat, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\References\Mono.Nat.dll</HintPath>
+        </Reference>
+        <Reference Include="Mono.Posix, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
+          <HintPath>..\References\Mono.Posix.dll</HintPath>
+        </Reference>
+        <Reference Include="Mono.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
+          <HintPath>..\References\Mono.Security.dll</HintPath>
+        </Reference>
+        <Reference Include="Mono.WebBrowser, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
+          <HintPath>..\References\Mono.WebBrowser.dll</HintPath>
+        </Reference>
+        <Reference Include="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+          <HintPath>..\References\mscorlib.dll</HintPath>
+        </Reference>
+        <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+          <HintPath>..\References\netstandard.dll</HintPath>
         </Reference>
         <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
           <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
           <Private>True</Private>
         </Reference>
+        <Reference Include="NorthwoodLib, Version=1.2.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\References\NorthwoodLib.dll</HintPath>
+        </Reference>
+        <Reference Include="Novell.Directory.Ldap, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
+          <HintPath>..\References\Novell.Directory.Ldap.dll</HintPath>
+        </Reference>
+        <Reference Include="OpusWrapper, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\References\0OpusWrapper.dll</HintPath>
+        </Reference>
         <Reference Include="System" />
+        <Reference Include="System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+          <HintPath>..\References\System.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+          <HintPath>..\References\System.Buffers.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Collections, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Collections.dll</HintPath>
+        </Reference>
+        <Reference Include="System.ComponentModel.Composition, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+          <HintPath>..\References\System.ComponentModel.Composition.dll</HintPath>
+        </Reference>
+        <Reference Include="System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+          <HintPath>..\References\System.ComponentModel.DataAnnotations.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Configuration, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Configuration.dll</HintPath>
+        </Reference>
         <Reference Include="System.Core" />
+        <Reference Include="System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+          <HintPath>..\References\System.Core.dll</HintPath>
+        </Reference>
         <Reference Include="System.Data" />
-        <Reference Include="System.Net.Http" />
-        <Reference Include="System.Web" />
+        <Reference Include="System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+          <HintPath>..\References\System.Data.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Design.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Diagnostics.Debug, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Diagnostics.Debug.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Diagnostics.StackTrace, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Diagnostics.StackTrace.dll</HintPath>
+        </Reference>
+        <Reference Include="System.DirectoryServices, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.DirectoryServices.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Drawing.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Drawing.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Drawing.Design.dll</HintPath>
+        </Reference>
+        <Reference Include="System.EnterpriseServices, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.EnterpriseServices.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Globalization, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Globalization.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Globalization.Extensions, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Globalization.Extensions.dll</HintPath>
+        </Reference>
+        <Reference Include="System.IO.Compression, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+          <HintPath>..\References\System.IO.Compression.dll</HintPath>
+        </Reference>
+        <Reference Include="System.IO.Compression.FileSystem, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+          <HintPath>..\References\System.IO.Compression.FileSystem.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Linq, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Linq.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+          <HintPath>..\References\System.Memory.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Net.Http.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Net.Primitives, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Net.Primitives.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Numerics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+          <HintPath>..\References\System.Numerics.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Numerics.Vectors.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Runtime, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Runtime.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Runtime.Extensions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Runtime.Extensions.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Runtime.Serialization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+          <HintPath>..\References\System.Runtime.Serialization.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Runtime.Serialization.Formatters.Soap, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Runtime.Serialization.Formatters.Soap.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Runtime.Serialization.Xml, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Runtime.Serialization.Xml.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Security.dll</HintPath>
+        </Reference>
+        <Reference Include="System.ServiceModel.Internals, Version=0.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+          <HintPath>..\References\System.ServiceModel.Internals.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Text.RegularExpressions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Text.RegularExpressions.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Threading, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Threading.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Threading.Tasks, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Threading.Tasks.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Transactions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+          <HintPath>..\References\System.Transactions.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Web.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Web.ApplicationServices, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+          <HintPath>..\References\System.Web.ApplicationServices.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Web.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Web.Services.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+          <HintPath>..\References\System.Windows.Forms.dll</HintPath>
+        </Reference>
         <Reference Include="System.Xml" />
-        <Reference Include="Unity.Mathematics, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Reference Include="System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+          <HintPath>..\References\System.Xml.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Xml.Linq, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+          <HintPath>..\References\System.Xml.Linq.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Xml.XPath.XDocument, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\References\System.Xml.XPath.XDocument.dll</HintPath>
+        </Reference>
+        <Reference Include="Telepathy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\References\Telepathy.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.Mathematics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\Unity.Mathematics.dll</HintPath>
         </Reference>
         <Reference Include="Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
@@ -281,22 +496,34 @@
         <Reference Include="UnityEngine.XRModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\UnityEngine.XRModule.dll</HintPath>
         </Reference>
+        <Reference Include="websocket-sharp, Version=1.0.2.234, Culture=neutral, PublicKeyToken=5660b08a1845a91e">
+          <HintPath>..\References\websocket-sharp.dll</HintPath>
+        </Reference>
+        <Reference Include="YamlDotNet, Version=8.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e">
+          <HintPath>..\References\YamlDotNet.dll</HintPath>
+        </Reference>
+        <Reference Include="zxing.unity, Version=0.16.4.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\References\zxing.unity.dll</HintPath>
+        </Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="CassiePatch.cs" />
         <Compile Include="Config.cs" />
-        <Compile Include="Plugin.cs" />
+        <Compile Include="EventHandler.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="ServerEventHandler.cs" />
+        <Compile Include="SampleEvent.cs" />
     </ItemGroup>
     <ItemGroup>
+      <None Include="packages.config" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\CedMod-EventManager\CedMod-EventManager.csproj">
+        <Project>{03db8a03-a369-4b7a-9edc-87e82cabdd6d}</Project>
+        <Name>CedMod-EventManager</Name>
+      </ProjectReference>
       <ProjectReference Include="..\CedMod\CedMod-Main.csproj">
         <Project>{b404ba59-5c33-41dc-8fee-0f10f087089d}</Project>
         <Name>CedMod-Main</Name>
       </ProjectReference>
-    </ItemGroup>
-    <ItemGroup>
-      <None Include="packages.config" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
