@@ -53,7 +53,7 @@ namespace CedMod.EventManager.Commands
             else
             {
                 response = "";
-                if (!sender.CheckPermission("cedmod.events.list"))
+                if (!sender.CheckPermission("cedmod.events.enable"))
                 {
                     response = "No permission";
                     return false;

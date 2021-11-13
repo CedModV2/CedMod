@@ -38,7 +38,7 @@ namespace CedMod.EventManager.Commands
                         {"Name", ev.EventName},
                         {"Author", ev.EvenAuthor},
                         {"Description", ev.EventDescription},
-                        {"Prefix", ev.EventDescription}
+                        {"Prefix", ev.EventPrefix}
                     });
                 }
 
