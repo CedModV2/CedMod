@@ -19,7 +19,7 @@ namespace CedMod.QuerySystem.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            if (sender is CmSender)
+            if (sender.IsPanelUser())
             {
                 if (!sender.CheckPermission(PlayerPermissions.SetGroup))
                 {
