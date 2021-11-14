@@ -10,9 +10,8 @@ namespace CedMod.Commands.Dialog
     {
         public string Command { get; } = "userid";
 
-        public string[] Aliases { get; } = new string[]
-        {
-            
+        public string[] Aliases { get; } = {
+            "playerid"
         };
 
         public string Description { get; } = "makes a popup appear to a player with a specific userid";
@@ -27,14 +26,10 @@ namespace CedMod.Commands.Dialog
             }
             if (arguments.Count >= 2)
             {
-                Player player = null;
+                Player player;
                 string msg = arguments.Skip(1).Aggregate((current, n) => current + " " + n);
-                foreach (Player ply in Player.List)
-                {
-                    if (ply.UserId.Contains(arguments.At(0)))
-                        player = ply;
-                }
 
+                player = Player.Get(arguments.At(0));
                 if (player == null)
                 {
                     response = "Could not find player with the specified userid";

@@ -17,7 +17,6 @@ namespace CedMod.Commands
         public override void LoadGeneratedCommands()
         {
             RegisterCommand(new DialogAllCommand());
-            RegisterCommand(new DialogPlayeridCommand());
             RegisterCommand(new DialogUseridCommand());
         }
 
