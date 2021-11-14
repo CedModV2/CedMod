@@ -38,7 +38,7 @@
           <HintPath>..\References\0Harmony.dll</HintPath>
         </Reference>
         <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\References\Assembly-CSharp_Publicized.dll</HintPath>
+          <HintPath>..\References\Assembly-CSharp_publicized.dll</HintPath>
         </Reference>
         <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\Assembly-CSharp-firstpass.dll</HintPath>
