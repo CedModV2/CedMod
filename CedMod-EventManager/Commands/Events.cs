@@ -14,15 +14,11 @@ namespace CedMod.EventManager.Commands
         {
         };
         public override string Description => "Main command for CedMod EventSystem";
-        public StuiterParentCommand()
+        public override void LoadGeneratedCommands()
         {
             RegisterCommand(new ListEvents());
             RegisterCommand(new EnableEvent());
             RegisterCommand(new DisableEvent());
-        }
-
-        public override void LoadGeneratedCommands()
-        {
         }
 
         protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender, out string response)

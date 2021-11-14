@@ -13,15 +13,11 @@ namespace CedMod.Commands
         {
         };
         public override string Description => "fun stuff";
-
-        public StuiterParentCommand()
+        
+        public override void LoadGeneratedCommands()
         {
             RegisterCommand(new StuiterAllCommand());
             RegisterCommand(new StuiterSpecCommand());
-        }
-
-        public override void LoadGeneratedCommands()
-        {
         }
 
         protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender, out string response)
