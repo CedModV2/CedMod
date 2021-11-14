@@ -518,7 +518,6 @@
         <Compile Include="MapEvents.cs" />
         <Compile Include="Patches\BulletHolePatch.cs" />
         <Compile Include="PlayerEvents.cs" />
-        <Compile Include="PlayerList.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="ServerEvents.cs" />
     </ItemGroup>
