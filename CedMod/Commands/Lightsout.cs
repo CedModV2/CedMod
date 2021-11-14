@@ -21,7 +21,7 @@ namespace CedMod.Commands
         };
 
         public string Description { get; } = "Turns off the lämps";
-        private bool _isEnabled;
+        internal static bool isEnabled;
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
@@ -31,7 +31,7 @@ namespace CedMod.Commands
                 response = "no permission";
                 return false;
             }
-            if (_isEnabled == false)
+            if (isEnabled == false)
             {
                 if (arguments.Count != 5)
                 {
@@ -40,7 +40,7 @@ namespace CedMod.Commands
                     return false;
                 }
 
-                _isEnabled = true;
+                isEnabled = true;
                 Timing.RunCoroutine(
                     LightsOut(Convert.ToBoolean(arguments.At(0)), Convert.ToBoolean(arguments.At(1)),
                         Convert.ToBoolean(arguments.At(2)), Convert.ToBoolean(arguments.At(3)),
@@ -50,18 +50,13 @@ namespace CedMod.Commands
             }
             else
             {
-                if (_isEnabled)
+                if (isEnabled)
                 {
-                    _isEnabled = false;
+                    isEnabled = false;
                     List<Room> rooms = Map.Rooms.ToList();
-                    foreach (Room r in rooms)
+                    foreach (FlickerableLightController r in FlickerableLightController.Instances)
                     {
-                        GameObject gameObject = GameObject.Find(r.Transform.parent.name + "/" + r.Transform.name);
-                        foreach (FlickerableLightController flc in gameObject
-                            .GetComponentsInChildren<FlickerableLightController>())
-                        {
-                            flc.ServerFlickerLights(0);
-                        }
+                        r.ServerFlickerLights(0);
                     }
 
                     Timing.KillCoroutines("LightsOut");
@@ -76,52 +71,18 @@ namespace CedMod.Commands
 
         public static IEnumerator<float> LightsOut(bool surface, bool entrance, bool heavy, bool light, float dur)
         {
-            List<Room> rooms = Map.Rooms.ToList();
-            foreach (Room r in rooms)
+            while (isEnabled)
             {
-                if (surface && r.Zone == ZoneType.Surface)
-                {
-                    GameObject gameObject = GameObject.Find(r.Transform.parent.name + "/" + r.Transform.name);
-                    foreach (FlickerableLightController flc in gameObject
-                        .GetComponentsInChildren<FlickerableLightController>())
-                    {
-                        flc.ServerFlickerLights(dur);
-                    }
-                }
-
-                if (entrance && r.Zone == ZoneType.Entrance)
-                {
-                    GameObject gameObject = GameObject.Find(r.Transform.parent.name + "/" + r.Transform.name);
-                    foreach (FlickerableLightController flc in gameObject
-                        .GetComponentsInChildren<FlickerableLightController>())
-                    {
-                        flc.ServerFlickerLights(dur);
-                    }
-                }
-
-                if (heavy && r.Zone == ZoneType.HeavyContainment)
-                {
-                    GameObject gameObject = GameObject.Find(r.Transform.parent.name + "/" + r.Transform.name);
-                    foreach (FlickerableLightController flc in gameObject
-                        .GetComponentsInChildren<FlickerableLightController>())
-                    {
-                        flc.ServerFlickerLights(dur);
-                    }
-                }
-
-                if (light && r.Zone == ZoneType.LightContainment)
-                {
-                    GameObject gameObject = GameObject.Find(r.Transform.parent.name + "/" + r.Transform.name);
-                    foreach (FlickerableLightController flc in gameObject
-                        .GetComponentsInChildren<FlickerableLightController>())
-                    {
-                        flc.ServerFlickerLights(dur);
-                    }
-                }
+                if (surface)
+                    Map.TurnOffAllLights(dur, ZoneType.Surface);
+                if (entrance)
+                    Map.TurnOffAllLights(dur, ZoneType.Entrance);
+                if (heavy)
+                    Map.TurnOffAllLights(dur, ZoneType.HeavyContainment);
+                if (light)
+                    Map.TurnOffAllLights(dur, ZoneType.LightContainment);
+                yield return Timing.WaitForSeconds(10f);
             }
-
-            yield return Timing.WaitForSeconds(10f);
-            Timing.RunCoroutine(LightsOut(surface, entrance, heavy, light, dur + 0.6f), "LightsOut");
         }
     }
 }

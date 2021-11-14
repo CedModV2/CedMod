@@ -48,13 +48,14 @@ namespace CedMod.Commands
                 return false;
             }
             
-            foreach (FlickerableLightController flc in Object.FindObjectsOfType<FlickerableLightController>())
+            Color lightColors = new Color(r, g, b);
+            foreach (FlickerableLightController flc in FlickerableLightController.Instances)
             {
-                flc.WarheadLightColor = new Color(r, g, b);
+                flc.WarheadLightColor = lightColors;
                 flc.WarheadLightOverride = true;
             }
 
-            response = "Light intensity set to " + new Color(r, g, b);
+            response = "Light intensity set to " + lightColors;
             return true;
         }
     }

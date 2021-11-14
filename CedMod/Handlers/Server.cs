@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using CedMod.Commands;
 using Exiled.API.Features;
 using MEC;
 using Exiled.Events.EventArgs;
@@ -80,6 +81,7 @@ namespace CedMod.Handlers
         
         public void OnRoundRestart()
         {
+            LightsoutCommand.isEnabled = false;
             FriendlyFireAutoban.Teamkillers.Clear();
             Timing.KillCoroutines("LightsOut");
         }
