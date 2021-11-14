@@ -81,7 +81,7 @@ namespace CedMod.Commands
                     Map.TurnOffAllLights(dur, ZoneType.HeavyContainment);
                 if (light)
                     Map.TurnOffAllLights(dur, ZoneType.LightContainment);
-                yield return Timing.WaitForSeconds(10f);
+                yield return Timing.WaitForSeconds(dur);
             }
         }
     }
