@@ -14,6 +14,8 @@ namespace CedMod.Commands
         };
         public override string Description => "makes a popup appear on a set player(s)";
         
+        public DiaglogParentCommand() => LoadGeneratedCommands();
+        
         public override void LoadGeneratedCommands()
         {
             RegisterCommand(new DialogAllCommand());

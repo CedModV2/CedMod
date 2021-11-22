@@ -6,7 +6,7 @@ using CommandSystem;
 namespace CedMod.EventManager.Commands
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
-    public class StuiterParentCommand : ParentCommand
+    public class EventsCommand : ParentCommand
     {
         public override string Command => "events";
 
@@ -14,6 +14,9 @@ namespace CedMod.EventManager.Commands
         {
         };
         public override string Description => "Main command for CedMod EventSystem";
+
+        public EventsCommand() => LoadGeneratedCommands();
+        
         public override void LoadGeneratedCommands()
         {
             RegisterCommand(new ListEvents());
