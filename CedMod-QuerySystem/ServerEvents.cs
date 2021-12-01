@@ -169,8 +169,8 @@ namespace CedMod.QuerySystem
                             $"https://{QuerySystem.PanelUrl}/Api/Reports/{QuerySystem.Singleton.Config.SecurityKey}",
                             new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
                                 {
-                                    {"reporter", ev.Reporter.UserId},
-                                    {"reported", ev.Reported.UserId},
+                                    {"reporter", ev.Issuer.UserId},
+                                    {"reported", ev.Issuer.UserId},
                                     {"reason", ev.Reason},
                                 }), Encoding.Default,
                                 "application/json")).Result;
@@ -187,15 +187,15 @@ namespace CedMod.QuerySystem
                 Data = new Dictionary<string, string>()
                 {
                     {"Type", nameof(OnCheaterReport)},
-                    {"UserId", ev.Reported.UserId},
-                    {"UserName", ev.Reported.Nickname},
+                    {"UserId", ev.Issuer.UserId},
+                    {"UserName", ev.Issuer.Nickname},
                     {
                         "Message", string.Concat(new string[]
                         {
                             "ingame: ",
-                            ev.Reporter.UserId,
+                            ev.Issuer.UserId,
                             " report ",
-                            ev.Reported.UserId,
+                            ev.Issuer.UserId,
                             " for ",
                             ev.Reason,
                             "."

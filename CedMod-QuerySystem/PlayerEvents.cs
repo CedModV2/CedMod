@@ -8,8 +8,10 @@ using CedMod.QuerySystem.WS;
 using Exiled.API.Extensions;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
+using InventorySystem.Items.Usables;
 using Newtonsoft.Json;
 using UnityEngine;
+using Scp207 = CustomPlayerEffects.Scp207;
 
 namespace CedMod.QuerySystem
 {
@@ -130,40 +132,6 @@ namespace CedMod.QuerySystem
             });
         }
 
-        public void OnPlayerHurt(HurtingEventArgs ev)
-        {
-            if (ev.DamageType == DamageTypes.Scp207 || ev.Target.Role == RoleType.Spectator)
-                return;
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
-            {
-                Recipient = "ALL",
-                Data = new Dictionary<string, string>()
-                {
-                    {"UserId", ev.Target.UserId},
-                    {"UserName", ev.Target.Nickname},
-                    {"Class", ev.Target.Role.ToString()},
-                    {"AttackerClass", ev.Attacker.Role.ToString()},
-                    {"AttackerId", ev.Attacker.UserId},
-                    {"AttackerName", ev.Attacker.Nickname},
-                    {"Weapon", ev.DamageType.Name},
-                    {"Type", nameof(OnPlayerHurt)},
-                    {
-                        "Message", string.Format(
-                            "{0} damaged {1} - {2} (<color={3}>{4}</color>) ammount {5} with {6}.", new object[]
-                            {
-                                ev.HitInformation.Attacker,
-                                ev.Target.Nickname,
-                                ev.Target.UserId,
-                                Misc.ToHex(ev.Target.Role.GetColor()),
-                                ev.Target.Role,
-                                ev.Amount,
-                                ev.DamageType.Name
-                            })
-                    }
-                }
-            });
-        }
-
         public void OnPlayerDeath(DyingEventArgs ev)
         {
             Log.Debug("plrdeath", CedModMain.Singleton.Config.ShowDebug);
@@ -248,7 +216,7 @@ namespace CedMod.QuerySystem
                         {"AttackerClass", ev.Killer.Role.ToString()},
                         {"AttackerId", ev.Killer.UserId},
                         {"AttackerName", ev.Killer.Nickname},
-                        {"Weapon", ev.HitInformation.Tool.Name},
+                        {"Weapon", ev.DamageHandler.ServerLogsText},
                         {"Type", nameof(OnPlayerDeath)},
                         {
                             "Message", string.Format(
@@ -263,7 +231,7 @@ namespace CedMod.QuerySystem
                                     ev.Target.UserId,
                                     Misc.ToHex(ev.Target.Role.GetColor()),
                                     ev.Target.Role,
-                                    ev.HitInformation.Tool.Name
+                                    ev.DamageHandler.ServerLogsText
                                 })
                         }
                     }
@@ -282,7 +250,7 @@ namespace CedMod.QuerySystem
                         {"AttackerClass", ev.Killer.Role.ToString()},
                         {"AttackerId", ev.Killer.UserId},
                         {"AttackerName", ev.Killer.Nickname},
-                        {"Weapon", ev.HitInformation.Tool.Name},
+                        {"Weapon", ev.DamageHandler.ServerLogsText},
                         {"Type", nameof(OnPlayerDeath)},
                         {
                             "Message", string.Format(
@@ -297,7 +265,7 @@ namespace CedMod.QuerySystem
                                     ev.Target.UserId,
                                     Misc.ToHex(ev.Target.Role.GetColor()),
                                     ev.Target.Role,
-                                    ev.HitInformation.Tool.Name
+                                    ev.DamageHandler.ServerLogsText
                                 })
                         }
                     }
