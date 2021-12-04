@@ -39,6 +39,8 @@ namespace CedMod.Handlers
         
         public void OnDying(DyingEventArgs ev)
         {
+            if (ev.Target == null || ev.Killer == null)
+                return;
             FriendlyFireAutoban.HandleKill(ev);
         }
     }

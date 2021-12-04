@@ -134,6 +134,8 @@ namespace CedMod.QuerySystem
 
         public void OnPlayerDeath(DyingEventArgs ev)
         {
+            if (ev.Killer == null || ev.Target == null)
+                return;
             Log.Debug("plrdeath", CedModMain.Singleton.Config.ShowDebug);
             if (FriendlyFireAutoban.IsTeamKill(ev))
             {
@@ -216,7 +218,7 @@ namespace CedMod.QuerySystem
                         {"AttackerClass", ev.Killer.Role.ToString()},
                         {"AttackerId", ev.Killer.UserId},
                         {"AttackerName", ev.Killer.Nickname},
-                        {"Weapon", ev.DamageHandler.ServerLogsText},
+                        {"Weapon", ev.Handler.Type.ToString()},
                         {"Type", nameof(OnPlayerDeath)},
                         {
                             "Message", string.Format(
@@ -231,7 +233,7 @@ namespace CedMod.QuerySystem
                                     ev.Target.UserId,
                                     Misc.ToHex(ev.Target.Role.GetColor()),
                                     ev.Target.Role,
-                                    ev.DamageHandler.ServerLogsText
+                                    ev.Handler.Type.ToString()
                                 })
                         }
                     }
@@ -250,7 +252,7 @@ namespace CedMod.QuerySystem
                         {"AttackerClass", ev.Killer.Role.ToString()},
                         {"AttackerId", ev.Killer.UserId},
                         {"AttackerName", ev.Killer.Nickname},
-                        {"Weapon", ev.DamageHandler.ServerLogsText},
+                        {"Weapon", ev.Handler.Type.ToString()},
                         {"Type", nameof(OnPlayerDeath)},
                         {
                             "Message", string.Format(
@@ -265,7 +267,7 @@ namespace CedMod.QuerySystem
                                     ev.Target.UserId,
                                     Misc.ToHex(ev.Target.Role.GetColor()),
                                     ev.Target.Role,
-                                    ev.DamageHandler.ServerLogsText
+                                    ev.Handler.Type.ToString()
                                 })
                         }
                     }
