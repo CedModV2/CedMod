@@ -5,11 +5,13 @@ on:
 
 jobs:
   build:
-
     runs-on: [self-hosted, windows]
-
     steps:
     - uses: actions/checkout@v2
+    - uses: benjlevesque/short-sha@v1.2
+      id: short-sha
+      with:
+        length: 6
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
@@ -36,7 +38,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         body_path: CHANGELOG.md
-        if: startsWith(github.ref, 'refs/tags/')
+        tag_name: ${{ steps.short-sha.outputs.sha }}
         files: |
           ${{ github.workspace }}/bin/Release/CedModV3.dll
           ${{ github.workspace }}/bin/Release/CedMod-QuerySystem.dll
