@@ -31,4 +31,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
        name: CedMod Build Results
-       path: ${{ github.workspace }}/bin/Release/CedMod*
+       path: ${{ github.workspace }}/bin/Release/CedMod*.dll
