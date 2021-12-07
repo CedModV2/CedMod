@@ -32,3 +32,13 @@ jobs:
       with:
        name: CedMod Build Results
        path: ${{ github.workspace }}/bin/Release/CedMod*.dll
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        body_path: CHANGELOG.md
+        files: |
+          ${{ github.workspace }}/bin/Release/CedModV3.dll
+          ${{ github.workspace }}/bin/Release/CedMod-QuerySystem.dll
+          ${{ github.workspace }}/bin/Release/CedMod-EventManager.dll
+          ${{ github.workspace }}/bin/Release/CedMod-LightsOutPlugin.dll
