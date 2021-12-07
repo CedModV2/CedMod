@@ -31,4 +31,14 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
        name: CedMod Build Results
-       path: ${{ github.workspace }}/bin/Release/CedMod*
+       path: ${{ github.workspace }}/bin/Release/CedMod*.dll
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        body_path: CHANGELOG.md
+        if: startsWith(github.ref, 'refs/tags/')
+        files: |
+          ${{ github.workspace }}/bin/Release/CedModV3.dll
+          ${{ github.workspace }}/bin/Release/CedMod-QuerySystem.dll
+          ${{ github.workspace }}/bin/Release/CedMod-EventManager.dll
+          ${{ github.workspace }}/bin/Release/CedMod-LightsOutPlugin.dll
