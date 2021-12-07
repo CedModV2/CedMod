@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using Exiled.API.Interfaces;
 
-namespace CedMod.EventManager
+namespace CedMod.SampleEvent
 {
     public sealed class Config : IConfig
     {
