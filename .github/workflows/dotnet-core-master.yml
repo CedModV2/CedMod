@@ -5,9 +5,7 @@ on:
 
 jobs:
   build:
-
     runs-on: [self-hosted, windows]
-
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
