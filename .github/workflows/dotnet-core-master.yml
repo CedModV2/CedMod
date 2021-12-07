@@ -34,7 +34,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         body_path: CHANGELOG.md
-        tag_name: ${{ github.sha }}
+        tag_name: ${{ github.sha::7 }}
         files: |
           ${{ github.workspace }}/bin/Release/CedModV3.dll
           ${{ github.workspace }}/bin/Release/CedMod-QuerySystem.dll
