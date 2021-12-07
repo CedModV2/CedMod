@@ -166,7 +166,7 @@ namespace CedMod.QuerySystem
                 {
                     var response = client
                         .PostAsync(
-                            $"https://{QuerySystem.PanelUrl}/Api/Reports/{QuerySystem.Singleton.Config.SecurityKey}",
+                            $"https://{QuerySystem.PanelUrl}/Api/Reports/{QuerySystem.Singleton.Config.SecurityKey}?identity={QuerySystem.Singleton.Config.Identifier}",
                             new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
                                 {
                                     {"reporter", ev.Issuer.UserId},
@@ -232,7 +232,7 @@ namespace CedMod.QuerySystem
                 {
                     var response = client
                         .PostAsync(
-                            $"https://{QuerySystem.PanelUrl}/Api/Reports/{QuerySystem.Singleton.Config.SecurityKey}",
+                            $"https://{QuerySystem.PanelUrl}/Api/Reports/{QuerySystem.Singleton.Config.SecurityKey}?identity={QuerySystem.Singleton.Config.Identifier}",
                             new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
                                 {
                                     {"reporter", ev.Issuer.UserId},
