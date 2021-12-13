@@ -5,7 +5,7 @@ using HarmonyLib;
 
 namespace CedMod.SampleEvent
 {
-    public class SampleEvent : Plugin<EventManager.Config>, IEvent
+    public class SampleEvent : Plugin<Config>, IEvent
     {
         public static Harmony Harmony;
         /// <inheritdoc/>

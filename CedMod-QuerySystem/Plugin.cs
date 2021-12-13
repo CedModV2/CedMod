@@ -33,7 +33,7 @@ namespace CedMod.QuerySystem
         public static string PanelUrl = "communitymanagementpanel.cedmod.nl";
         
         public override Version RequiredExiledVersion { get; } = new Version(3, 0, 0);
-        public override Version Version { get; } = new Version(3, 0, 0);
+        public override Version Version { get; } = new Version(3, 0, 1);
 
         public override void OnDisabled()
         {
@@ -60,7 +60,6 @@ namespace CedMod.QuerySystem
             Exiled.Events.Handlers.Player.EscapingPocketDimension -= PlayerEvents.OnPocketEscape;
             Exiled.Events.Handlers.Player.EnteringPocketDimension -= PlayerEvents.OnPocketEnter;
             Exiled.Events.Handlers.Player.ThrowingItem -= PlayerEvents.OnGrenadeThrown;
-            Exiled.Events.Handlers.Player.Hurting -= PlayerEvents.OnPlayerHurt;
             Exiled.Events.Handlers.Player.Dying -= PlayerEvents.OnPlayerDeath;
             Exiled.Events.Handlers.Player.InteractingElevator -= PlayerEvents.OnElevatorInteraction;
             Exiled.Events.Handlers.Player.Handcuffing -= PlayerEvents.OnPlayerHandcuffed;
@@ -120,7 +119,6 @@ namespace CedMod.QuerySystem
             Exiled.Events.Handlers.Player.EscapingPocketDimension += PlayerEvents.OnPocketEscape;
             Exiled.Events.Handlers.Player.EnteringPocketDimension += PlayerEvents.OnPocketEnter;
             Exiled.Events.Handlers.Player.ThrowingItem += PlayerEvents.OnGrenadeThrown;
-            Exiled.Events.Handlers.Player.Hurting += PlayerEvents.OnPlayerHurt;
             Exiled.Events.Handlers.Player.Dying += PlayerEvents.OnPlayerDeath;
             Exiled.Events.Handlers.Player.InteractingElevator += PlayerEvents.OnElevatorInteraction;
             Exiled.Events.Handlers.Player.Handcuffing += PlayerEvents.OnPlayerHandcuffed;

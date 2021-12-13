@@ -30,15 +30,17 @@ namespace CedMod.EventManager.Commands
                     return false;
                 }
 
-                List<Dictionary<string, string>> events = new List<Dictionary<string, string>>();
+                List<EventModel> events = new List<EventModel>();
                 foreach (var ev in EventManager.Singleton.AvailableEvents)
                 {
-                    events.Add(new Dictionary<string, string>()
+                    events.Add(new EventModel()
                     {
-                        {"Name", ev.EventName},
-                        {"Author", ev.EvenAuthor},
-                        {"Description", ev.EventDescription},
-                        {"Prefix", ev.EventPrefix}
+                        Active = EventManager.Singleton.currentEvent != null && EventManager.Singleton.currentEvent.EventPrefix == ev.EventPrefix,
+                        Author = ev.EvenAuthor,
+                        Description = ev.EventDescription,
+                        Name = ev.EventName,
+                        Prefix = ev.EventPrefix,
+                        Queued = EventManager.Singleton.nextEvent != null && EventManager.Singleton.nextEvent.EventPrefix == ev.EventPrefix
                     });
                 }
 
@@ -60,5 +62,15 @@ namespace CedMod.EventManager.Commands
             
             return true;
         }
+    }
+    
+    public class EventModel
+    {
+        public string Name { get; set; }
+        public string Author { get; set; }
+        public string Description { get; set; }
+        public string Prefix { get; set; }
+        public bool Active { get; set; }
+        public bool Queued { get; set; }
     }
 }

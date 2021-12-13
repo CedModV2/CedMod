@@ -47,8 +47,6 @@ namespace CedMod.EventManager
             base.OnDisabled();
         }
 
-        public static string SecurityKey;
-
         public override void OnEnabled()
         {
             Singleton = this;

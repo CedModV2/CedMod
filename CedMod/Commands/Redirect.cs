@@ -1,6 +1,9 @@
 ﻿using System;
 using CommandSystem;
 using Exiled.Permissions.Extensions;
+using GameCore;
+using Mirror;
+using RoundRestarting;
 
 namespace CedMod.Commands
 {
@@ -27,8 +30,7 @@ namespace CedMod.Commands
                 response = "you must specify a port";
                 return false;
             }
-
-            ReferenceHub._hostHub.playerStats.RpcRoundrestartRedirect(1f, Convert.ToUInt16(arguments.At(0)));
+            NetworkServer.SendToAll<RoundRestartMessage>(new RoundRestartMessage(RoundRestartType.FullRestart, 1, ushort.Parse(arguments.At(0)), true), 0, false);
             response = "redirecting";
             return true;
         }

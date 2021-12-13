@@ -14,6 +14,8 @@ namespace CedMod.Commands
         };
         public override string Description => "fun stuff";
         
+        public StuiterParentCommand() => LoadGeneratedCommands();
+        
         public override void LoadGeneratedCommands()
         {
             RegisterCommand(new StuiterAllCommand());

@@ -5,11 +5,13 @@ on:
 
 jobs:
   build:
-
     runs-on: [self-hosted, windows]
-
     steps:
     - uses: actions/checkout@v2
+    - uses: benjlevesque/short-sha@v1.2
+      id: short-sha
+      with:
+        length: 6
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
@@ -31,4 +33,14 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
        name: CedMod Build Results
-       path: ${{ github.workspace }}/bin/Release/CedMod*
+       path: ${{ github.workspace }}/bin/Release/CedMod*.dll
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        body_path: CHANGELOG.md
+        tag_name: ${{ steps.short-sha.outputs.sha }}
+        files: |
+          ${{ github.workspace }}/bin/Release/CedModV3.dll
+          ${{ github.workspace }}/bin/Release/CedMod-QuerySystem.dll
+          ${{ github.workspace }}/bin/Release/CedMod-EventManager.dll
+          ${{ github.workspace }}/bin/Release/CedMod-LightsOutPlugin.dll
