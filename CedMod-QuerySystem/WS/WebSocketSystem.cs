@@ -207,15 +207,24 @@ namespace CedMod.QuerySystem.WS
                             if (component.UserId == jsonData["steamid"])
                             {
                                 ServerConsole.Disconnect(player.GameObject, jsonData["reason"]);
+                                Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                                {
+                                    Recipient = cmd.Recipient,
+                                    Data = new Dictionary<string, string>()
+                                    {
+                                        {"Message", "User kicked"}
+                                    }
+                                }));
+                                return;
                             }
                         }
-
+                        
                         Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                         {
                             Recipient = cmd.Recipient,
                             Data = new Dictionary<string, string>()
                             {
-                                {"Message", "User kicked"}
+                                {"Message", "User not found"}
                             }
                         }));
                     }
