@@ -15,7 +15,7 @@ namespace CedMod
             try
             {
                 ReferenceHub player = ev.Player.ReferenceHub;
-                if (ev.Player.ReferenceHub.serverRoles.BypassStaff || player.characterClassManager.isLocalPlayer)
+                if (player.serverRoles.BypassStaff || player.characterClassManager.isLocalPlayer)
                     return;
 
                 Dictionary<string, string> info = (Dictionary<string, string>) API.APIRequest("Auth/", $"{player.characterClassManager.UserId}&{ev.Player.IPAddress}");
