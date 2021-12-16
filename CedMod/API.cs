@@ -84,5 +84,35 @@ namespace CedMod
                 }
             }
         }
+        
+        public static void BanId(string UserId, long duration, string sender, string reason, bool bc = true)
+        {
+            double realduration = TimeSpan.FromSeconds(duration).TotalMinutes;
+            if (duration >= 1)
+            {
+                string json = "{\"Userid\": \"" + UserId + "\"," +
+                              "\"Ip\": \"0.0.0.0\"," +
+                              "\"AdminName\": \"" + sender.Replace("\"", "'") + "\"," +
+                              "\"BanDuration\": "+realduration+"," +
+                              "\"BanReason\": \""+reason.Replace("\"", "'")+"\"}";
+                Dictionary<string, string> result = (Dictionary<string, string>) APIRequest("Auth/Ban", json, false, "POST");
+                Player player = Player.Get(UserId);
+                if (player != null)
+                {
+                    ServerConsole.Disconnect(player.GameObject, result.ContainsKey("preformattedmessage") ? result["preformattedmessage"] : $"Failed to execute api request {JsonConvert.SerializeObject(result)}");
+                    if (bc)
+                        Map.Broadcast((ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", player.Nickname));
+                }
+            }
+            else
+            {
+                if (duration <= 0)
+                {
+                    Player player = Player.Get(UserId);
+                    if (player != null)
+                        ServerConsole.Disconnect(player.GameObject, reason + "\n" + CedModMain.Singleton.Config.AdditionalBanMessage);
+                }
+            }
+        }
     }
 }
