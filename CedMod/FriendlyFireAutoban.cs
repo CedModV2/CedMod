@@ -53,7 +53,6 @@ namespace CedMod
 
         public static bool IsTeamKill(DyingEventArgs ev)
         {
-            Log.Debug($"TK Check {RoundSummary.RoundInProgress()} {ev.Target == null} {ev.Killer == null} {ev.Target.Inventory == null} {CedModMain.Singleton == null} {CedModMain.Singleton != null && CedModMain.Singleton.Config == null}");
             if (!RoundSummary.RoundInProgress())
                 return false;
             bool result = false;
