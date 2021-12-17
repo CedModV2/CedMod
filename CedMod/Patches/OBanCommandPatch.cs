@@ -96,7 +96,7 @@ namespace CedMod.Patches
 				}
 			});
 			response = "UserID " + arguments.At(0) + " has been banned from this server.";
-			return true;
+			return false;
         }
     }
 }
