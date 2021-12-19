@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CedMod.QuerySystem;
 using CedMod.QuerySystem.WS;
 using CommandSystem;
@@ -40,7 +41,7 @@ namespace CedMod.EventManager.Commands
                         Description = ev.EventDescription,
                         Name = ev.EventName,
                         Prefix = ev.EventPrefix,
-                        Queued = EventManager.Singleton.nextEvent != null && EventManager.Singleton.nextEvent.EventPrefix == ev.EventPrefix
+                        QueuePos = EventManager.Singleton.nextEvent.Any(ev1 => ev1.EventName == ev.EventName) ? EventManager.Singleton.nextEvent.FindIndex(ev1 => ev1.EventName == ev.EventName) + 1 : -1
                     });
                 }
 
@@ -71,6 +72,6 @@ namespace CedMod.EventManager.Commands
         public string Description { get; set; }
         public string Prefix { get; set; }
         public bool Active { get; set; }
-        public bool Queued { get; set; }
+        public int QueuePos { get; set; }
     }
 }

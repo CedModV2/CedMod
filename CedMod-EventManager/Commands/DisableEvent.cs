@@ -23,7 +23,7 @@ namespace CedMod.EventManager.Commands
 
         public string[] Usage { get; } = new string[]
         {
-            "%nextroundevent%",
+            "%queuepos%",
         };
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
@@ -34,8 +34,8 @@ namespace CedMod.EventManager.Commands
                 response = "To execute this command provide at least 1 arguments!\nUsage: " + this.DisplayCommandUsage();
                 return false;
             }
-            bool nextevent = Convert.ToBoolean(arguments.At(0));
-            if (nextevent)
+            int queuepos = Convert.ToInt16(arguments.At(0));
+            if (queuepos >= 1 && EventManager.Singleton.nextEvent.Count <= 0)
             {
                 if (EventManager.Singleton.nextEvent == null)
                 {
@@ -73,10 +73,11 @@ namespace CedMod.EventManager.Commands
                 }
             }
             
-            if (nextevent)
+            if (queuepos >= 1)
             {
-                Map.Broadcast(5, $"EventManager: {EventManager.Singleton.nextEvent.EventName} is no longer enabled for the next round");
-                EventManager.Singleton.nextEvent = null;
+                var toRemove = EventManager.Singleton.nextEvent[queuepos - 1];
+                EventManager.Singleton.nextEvent.Remove(toRemove);
+                Map.Broadcast(5, $"EventManager: {toRemove.EventName} has been removed from the queue");
             }
             else
             {

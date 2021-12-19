@@ -22,12 +22,14 @@ namespace CedMod.EventManager.Commands
             RegisterCommand(new ListEvents());
             RegisterCommand(new EnableEvent());
             RegisterCommand(new DisableEvent());
+            RegisterCommand(new Queue());
+            RegisterCommand(new BumpEvent());
         }
 
         protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             
-            response = "Please specify a valid subcommand!\n Valid subcommands are: list, enable, disable";
+            response = "Please specify a valid subcommand!\n Valid subcommands are: list, enable, disable, queue, bump";
             return false;
         }
     }

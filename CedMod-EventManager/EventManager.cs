@@ -14,7 +14,7 @@ namespace CedMod.EventManager
     public class EventManager : Plugin<Config>
     {
         public IEvent currentEvent = null;
-        public IEvent nextEvent = null;
+        public List<IEvent> nextEvent = new List<IEvent>();
         public List<IEvent> AvailableEvents = new List<IEvent>();
         public MapEvents MapEvents;
         public ServerEvents ServerEvents;

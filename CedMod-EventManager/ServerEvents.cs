@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,10 +36,11 @@ namespace CedMod.EventManager
 
         public void WaitingForPlayers()
         {
-            if (EventManager.Singleton.nextEvent != null)
+            if (EventManager.Singleton.nextEvent.Count >= 1)
             {
-                EventManager.Singleton.currentEvent = EventManager.Singleton.nextEvent;
-                EventManager.Singleton.nextEvent = null;
+                var next = EventManager.Singleton.nextEvent.FirstOrDefault();
+                EventManager.Singleton.currentEvent = next;
+                EventManager.Singleton.nextEvent.Remove(next);
             }
             if (EventManager.Singleton.currentEvent != null)
             {

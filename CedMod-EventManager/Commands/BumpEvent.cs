@@ -11,15 +11,15 @@ using Newtonsoft.Json;
 
 namespace CedMod.EventManager.Commands
 {
-    public class EnableEvent : ICommand, IUsageProvider
+    public class BumpEvent : ICommand, IUsageProvider
     {
-        public string Command { get; } = "enable";
+        public string Command { get; } = "bump";
 
         public string[] Aliases { get; } = new string[]
         {
         };
 
-        public string Description { get; } = "Enables the specified event, if Force is true the server will restart the round immediately";
+        public string Description { get; } = "moves an event to the front of the queue";
 
         public string[] Usage { get; } = new string[]
         {
@@ -60,14 +60,14 @@ namespace CedMod.EventManager.Commands
                 }
             }
             
+            if (EventManager.Singleton.nextEvent.Any(ev => ev.EventName == @event.EventName))
+            {
+                EventManager.Singleton.nextEvent.Remove(EventManager.Singleton.nextEvent.First(ev => ev.EventName == @event.EventName));
+            }
+            EventManager.Singleton.nextEvent.Insert(0, @event);
             
             if (force)
             {
-                if (EventManager.Singleton.nextEvent.Any(ev => ev.EventName == @event.EventName))
-                {
-                    EventManager.Singleton.nextEvent.Remove(EventManager.Singleton.nextEvent.First(ev => ev.EventName == @event.EventName));
-                }
-                EventManager.Singleton.nextEvent.Insert(0, @event);
                 Map.Broadcast(5, $"EventManager: {@event.EventName} is being enabled.\nRound will restart in 3 seconds");
                 Timing.CallDelayed(3, () =>
                 {
@@ -76,13 +76,7 @@ namespace CedMod.EventManager.Commands
             }
             else
             {
-                if (EventManager.Singleton.nextEvent.Any(ev => ev.EventName == @event.EventName))
-                {
-                    response = "This event is already added to the queue";
-                    return false;
-                }
-                EventManager.Singleton.nextEvent.Add(@event);
-                Map.Broadcast(10, $"EventManager: {@event.EventName} has been added to the event queue: position {EventManager.Singleton.nextEvent.IndexOf(@event)}");
+                Map.Broadcast(10, $"EventManager: {@event.EventName} has been moved to queue position {EventManager.Singleton.nextEvent.IndexOf(@event)}");
             }
             response = "Success";
             return true;
