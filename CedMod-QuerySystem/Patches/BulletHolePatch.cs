@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Exiled.API.Features;
 using HarmonyLib;
 using InventorySystem.Items.Firearms.Modules;
@@ -13,13 +14,22 @@ namespace CedMod.QuerySystem.Patches
         
         public static void Prefix(StandardHitregBase __instance, Ray ray, RaycastHit hit)
         {
-            Player player = Player.Get(__instance.Hub);
-           if (!HoleCreators.ContainsKey(player))
-               HoleCreators.Add(player, new BulletHoleCreator());
-           if (!HoleCreators[player].Rooms.ContainsKey(player.CurrentRoom))
-               HoleCreators[player].Rooms.Add(player.CurrentRoom, new RoomHoles());
+            try
+            {
+                Player player = Player.Get(__instance.Hub);
+                if (player == null)
+                    return;
+                if (!HoleCreators.ContainsKey(player))
+                    HoleCreators.Add(player, new BulletHoleCreator());
+                if (!HoleCreators[player].Rooms.ContainsKey(player.CurrentRoom))
+                    HoleCreators[player].Rooms.Add(player.CurrentRoom, new RoomHoles());
            
-           HoleCreators[player].Rooms[player.CurrentRoom].Holes.Add(hit.point);
+                HoleCreators[player].Rooms[player.CurrentRoom].Holes.Add(hit.point);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
+            }
         }
     }
 
