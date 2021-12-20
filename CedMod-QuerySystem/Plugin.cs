@@ -5,6 +5,7 @@ using CedMod.QuerySystem.WS;
 using Exiled.API.Enums;
 using Exiled.API.Features;
 using HarmonyLib;
+using MEC;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -76,6 +77,17 @@ namespace CedMod.QuerySystem
         }
 
         public static string SecurityKey;
+
+        public override void OnReloaded()
+        {
+            Timing.CallDelayed(2, () =>
+            {
+                ThreadDispatcher dispatcher = Object.FindObjectOfType<ThreadDispatcher>();
+                if (dispatcher == null)
+                    CustomNetworkManager.singleton.gameObject.AddComponent<ThreadDispatcher>();
+            });
+            base.OnReloaded();
+        }
 
         public override void OnEnabled()
         {
