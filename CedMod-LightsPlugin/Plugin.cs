@@ -11,7 +11,7 @@ namespace CedMod.LightsPlugin
         public override PluginPriority Priority { get; } = PluginPriority.Default;
         
 
-        public override string Author { get; } = "ced777ric#0001";
+        public override string Author { get; } = "ced777ric#8321";
 
         public override string Name { get; } = "CedMod-LightsPlugin";
 

@@ -21,7 +21,7 @@ namespace CedMod.EventManager
         public PlayerEvents PlayerEvents;
         public static Harmony Harmony;
         /// <inheritdoc/>
-        public override string Author { get; } = "ced777ric#0001";
+        public override string Author { get; } = "ced777ric#8321";
 
         public override string Name { get; } = "CedMod-Events";
 

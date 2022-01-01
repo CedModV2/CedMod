@@ -19,6 +19,7 @@ namespace CedMod.EventManager
             if (EventManager.Singleton.currentEvent != null && EventManager.Singleton.currentEvent.OverrideWinConditions)
             {
                 bool canEnd = EventManager.Singleton.currentEvent.CanRoundEnd();
+                Log.Debug($"Checking end for event {canEnd}");
                 ev.IsAllowed = canEnd;
                 ev.IsRoundEnded = canEnd;
             }
