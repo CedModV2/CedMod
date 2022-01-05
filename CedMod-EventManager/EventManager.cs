@@ -30,7 +30,7 @@ namespace CedMod.EventManager
         public static EventManager Singleton;
 
         public override Version RequiredExiledVersion { get; } = new Version(3, 0, 0);
-        public override Version Version { get; } = new Version(0, 0, 1);
+        public override Version Version { get; } = new Version(0, 0, 2);
 
         public override void OnDisabled()
         {
