@@ -44,7 +44,7 @@ namespace CedMod.QuerySystem
             Harmony.UnpatchAll();
             WebSocketSystem.Stop();
 
-            Exiled.Events.Handlers.Map.Decontaminating -= MapEvents.OnDecon;
+            //Exiled.Events.Handlers.Map.Decontaminating -= MapEvents.OnDecon;
             Exiled.Events.Handlers.Warhead.Starting -= MapEvents.OnWarheadStart;
             Exiled.Events.Handlers.Warhead.Stopping -= MapEvents.OnWarheadCancelled;
             Exiled.Events.Handlers.Warhead.Detonated -= MapEvents.OnWarheadDetonation;
@@ -114,7 +114,7 @@ namespace CedMod.QuerySystem
             ServerEvents = new ServerEvents();
             PlayerEvents = new PlayerEvents();
 
-            Exiled.Events.Handlers.Map.Decontaminating += MapEvents.OnDecon;
+            //Exiled.Events.Handlers.Map.Decontaminating += MapEvents.OnDecon;
             Exiled.Events.Handlers.Warhead.Starting += MapEvents.OnWarheadStart;
             Exiled.Events.Handlers.Warhead.Stopping += MapEvents.OnWarheadCancelled;
             Exiled.Events.Handlers.Warhead.Detonated += MapEvents.OnWarheadDetonation;
