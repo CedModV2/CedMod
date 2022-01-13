@@ -136,10 +136,10 @@ namespace CedMod.QuerySystem
         {
             if (ev.Killer == null || ev.Target == null)
                 return;
-            Log.Debug("plrdeath", CedModMain.Singleton.Config.ShowDebug);
+            Log.Debug("plrdeath", QuerySystem.Singleton.Config.Debug);
             if (FriendlyFireAutoban.IsTeamKill(ev))
             {
-                Log.Debug("istk", CedModMain.Singleton.Config.ShowDebug);
+                Log.Debug("istk", QuerySystem.Singleton.Config.Debug);
                 List<UsersOnScene> playersOnScene = new List<UsersOnScene>();
                 playersOnScene.Add(new UsersOnScene()
                 {
@@ -162,7 +162,7 @@ namespace CedMod.QuerySystem
                     Victim = true,
                     Room = ev.Target.CurrentRoom.Name
                 });
-                Log.Debug("resolving on scene players", CedModMain.Singleton.Config.ShowDebug);
+                Log.Debug("resolving on scene players", QuerySystem.Singleton.Config.Debug);
                 foreach (var player in Player.List)
                 {
                     if (player.Role == RoleType.Spectator || player.Role == RoleType.None)
@@ -184,13 +184,13 @@ namespace CedMod.QuerySystem
                     }
                 }
 
-                Log.Debug("sending WR", CedModMain.Singleton.Config.ShowDebug);
+                Log.Debug("sending WR", QuerySystem.Singleton.Config.Debug);
                 Task.Factory.StartNew(() =>
                 {
-                    Log.Debug("Thread send", CedModMain.Singleton.Config.ShowDebug);
+                    Log.Debug("Thread send", QuerySystem.Singleton.Config.Debug);
                     if (QuerySystem.Singleton.Config.SecurityKey == "None")
                         return;
-                    Log.Debug("sending WR", CedModMain.Singleton.Config.ShowDebug);
+                    Log.Debug("sending WR", QuerySystem.Singleton.Config.Debug);
                     HttpClient client = new HttpClient();
                     try
                     {
@@ -199,7 +199,7 @@ namespace CedMod.QuerySystem
                                 $"https://{QuerySystem.PanelUrl}/Api/Teamkill/{QuerySystem.Singleton.Config.SecurityKey}",
                                 new StringContent(JsonConvert.SerializeObject(playersOnScene), Encoding.Default,
                                     "application/json")).Result;
-                        Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.Singleton.Config.ShowDebug);
+                        Log.Debug(response.Content.ReadAsStringAsync().Result, QuerySystem.Singleton.Config.Debug);
                     }
                     catch (Exception ex)
                     {

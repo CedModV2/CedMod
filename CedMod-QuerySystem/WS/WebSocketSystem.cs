@@ -49,7 +49,7 @@ namespace CedMod.QuerySystem.WS
                     Thread.Sleep(1000);
                     Log.Info("Reconnecting...");
                     Socket.Connect();
-                    Log.Debug("Connect", CedModMain.Singleton.Config.ShowDebug);
+                    Log.Debug("Connect", QuerySystem.Singleton.Config.Debug);
                 }
             };
             Socket.OnOpen += (sender, args) =>
@@ -69,14 +69,14 @@ namespace CedMod.QuerySystem.WS
 
         public static void HandleSendQueue()
         {
-            Log.Debug("Started SendQueueHandler", CedModMain.Singleton.Config.ShowDebug);
+            Log.Debug("Started SendQueueHandler", QuerySystem.Singleton.Config.Debug);
             while (Socket.IsAlive)
             {
                 while (SendQueue.TryDequeue(out QueryCommand cmd))
                 {
                     try
                     {
-                        Log.Debug($"Handling send {JsonConvert.SerializeObject(cmd)}", CedModMain.Singleton.Config.ShowDebug);
+                        Log.Debug($"Handling send {JsonConvert.SerializeObject(cmd)}", QuerySystem.Singleton.Config.Debug);
                         Socket.Send(JsonConvert.SerializeObject(cmd));
                     }
                     catch (Exception e)
@@ -94,24 +94,24 @@ namespace CedMod.QuerySystem.WS
         {
             try
             {
-                Log.Debug($"Current queue length: {SendQueue.Count}", CedModMain.Singleton.Config.ShowDebug);
+                Log.Debug($"Current queue length: {SendQueue.Count}", QuerySystem.Singleton.Config.Debug);
                 if (SendThread == null || !SendThread.IsAlive)
                 {
                     SendThread?.Abort();
                     SendThread = new Thread(HandleSendQueue);
                     SendThread.Start();
                 }
-                Log.Debug(ev.Data, CedModMain.Singleton.Config.ShowDebug);
+                Log.Debug(ev.Data, QuerySystem.Singleton.Config.Debug);
                 QueryCommand cmd = JsonConvert.DeserializeObject<QueryCommand>(ev.Data);
 
                 var jsonData = cmd.Data;
                 string text2 = jsonData["action"];
-                Log.Debug(text2, CedModMain.Singleton.Config.ShowDebug);
+                Log.Debug(text2, QuerySystem.Singleton.Config.Debug);
                 if (text2 != null)
                 {
                     if (text2 == "ping")
                         {
-                            Log.Debug("IsPing", CedModMain.Singleton.Config.ShowDebug);
+                            Log.Debug("IsPing", QuerySystem.Singleton.Config.Debug);
                             Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                             {
                                 Recipient = cmd.Recipient,
@@ -124,7 +124,7 @@ namespace CedMod.QuerySystem.WS
                         }
                         if (text2 == "custom")
                         {
-                            Log.Debug("CustomCommand", CedModMain.Singleton.Config.ShowDebug);
+                            Log.Debug("CustomCommand", QuerySystem.Singleton.Config.Debug);
                             if (!jsonData.ContainsKey("command"))
                             {
                                 Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
@@ -138,7 +138,7 @@ namespace CedMod.QuerySystem.WS
                             }
                             else
                             {
-                                Log.Debug("CustomCommand", CedModMain.Singleton.Config.ShowDebug);
+                                Log.Debug("CustomCommand", QuerySystem.Singleton.Config.Debug);
                                 string[] array = jsonData["command"].Split(new char[]
                                 {
                                     ' '
@@ -170,13 +170,13 @@ namespace CedMod.QuerySystem.WS
 
 
                                 {
-                                    Log.Debug("CustomCommandCheckPerm", CedModMain.Singleton.Config.ShowDebug);
+                                    Log.Debug("CustomCommandCheckPerm", QuerySystem.Singleton.Config.Debug);
                                     if (ServerStatic.PermissionsHandler._members.ContainsKey(jsonData["user"]))
                                     {
-                                        Log.Debug("CustomCommandPermGood", CedModMain.Singleton.Config.ShowDebug);
+                                        Log.Debug("CustomCommandPermGood", QuerySystem.Singleton.Config.Debug);
                                         string name = ServerStatic.PermissionsHandler._members[jsonData["user"]];
                                         UserGroup ugroup = ServerStatic.PermissionsHandler.GetGroup(name);
-                                        Log.Debug("CustomCommandPermGood, dispatching", CedModMain.Singleton.Config.ShowDebug);
+                                        Log.Debug("CustomCommandPermGood, dispatching", QuerySystem.Singleton.Config.Debug);
                                         ThreadDispatcher.ThreadDispatchQueue.Enqueue(delegate
                                         {
                                             CommandProcessor.ProcessQuery(jsonData["command"],
@@ -185,7 +185,7 @@ namespace CedMod.QuerySystem.WS
                                     }
                                     else
                                     {
-                                        Log.Debug("CustomCommandPermBad, returning", CedModMain.Singleton.Config.ShowDebug);
+                                        Log.Debug("CustomCommandPermBad, returning", QuerySystem.Singleton.Config.Debug);
                                         Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                                         {
                                             Recipient = cmd.Recipient,
@@ -200,7 +200,7 @@ namespace CedMod.QuerySystem.WS
                         }
                     if (text2 == "kicksteamid")
                     {
-                        Log.Debug("KickCmd", CedModMain.Singleton.Config.ShowDebug);
+                        Log.Debug("KickCmd", QuerySystem.Singleton.Config.Debug);
                         foreach (Player player in Player.List)
                         {
                             CharacterClassManager component = player.ReferenceHub.characterClassManager;
@@ -241,7 +241,7 @@ namespace CedMod.QuerySystem.WS
     {
         public override void RaReply(string text, bool success, bool logToConsole, string overrideDisplay)
         {
-            Log.Debug($"RA Reply: {text} Suc: {success}", CedModMain.Singleton.Config.ShowDebug);
+            Log.Debug($"RA Reply: {text} Suc: {success}", QuerySystem.Singleton.Config.Debug);
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = Ses,
@@ -250,12 +250,12 @@ namespace CedMod.QuerySystem.WS
                     {"Message", text}
                 }
             });
-            Log.Debug("Added RA message to queue", CedModMain.Singleton.Config.ShowDebug);
+            Log.Debug("Added RA message to queue", QuerySystem.Singleton.Config.Debug);
         }
 
         public override void Print(string text)
         {
-            Log.Debug($"RA Print: {text}", CedModMain.Singleton.Config.ShowDebug);
+            Log.Debug($"RA Print: {text}", QuerySystem.Singleton.Config.Debug);
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = Ses,
@@ -264,7 +264,7 @@ namespace CedMod.QuerySystem.WS
                     {"Message", text}
                 }
             });
-            Log.Debug("Added RA message to queue", CedModMain.Singleton.Config.ShowDebug);
+            Log.Debug("Added RA message to queue", QuerySystem.Singleton.Config.Debug);
         }
 
         public CmSender(string ses, string name, string userid, UserGroup group)
@@ -278,7 +278,7 @@ namespace CedMod.QuerySystem.WS
 
         public override void Respond(string text, bool success = true)
         {
-            Log.Debug($"RA Response: {text} Suc: {success}", CedModMain.Singleton.Config.ShowDebug);
+            Log.Debug($"RA Response: {text} Suc: {success}", QuerySystem.Singleton.Config.Debug);
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = Ses,
@@ -290,7 +290,7 @@ namespace CedMod.QuerySystem.WS
                     }
                 }
             });
-            Log.Debug("Added RA message to queue", CedModMain.Singleton.Config.ShowDebug);
+            Log.Debug("Added RA message to queue", QuerySystem.Singleton.Config.Debug);
         }
 
         public override string SenderId

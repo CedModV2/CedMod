@@ -43,4 +43,3 @@ jobs:
           ${{ github.workspace }}/bin/Release/CedModV3.dll
           ${{ github.workspace }}/bin/Release/CedMod-QuerySystem.dll
           ${{ github.workspace }}/bin/Release/CedMod-EventManager.dll
-          ${{ github.workspace }}/bin/Release/CedMod-LightsOutPlugin.dll

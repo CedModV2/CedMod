@@ -26,5 +26,8 @@ namespace CedMod.QuerySystem
         
         [Description("If true, the plugin will show a custom message when the server is full, promote your patreon reserved slots here :)")]
         public string CustomServerFullMessage { get; set; } = "";
+        
+        [Description("If debug messages are shown")]
+        public bool Debug { get; set; } = false;
     }
 }

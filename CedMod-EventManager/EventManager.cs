@@ -66,15 +66,15 @@ namespace CedMod.EventManager
             {
                 if (plugin.Name.StartsWith("Exiled.")) //dont check exiled itself
                     continue;
-                Log.Debug($"Checking {plugin.Name} for CedMod-Events functionality", CedModMain.Singleton.Config.ShowDebug);
+                Log.Debug($"Checking {plugin.Name} for CedMod-Events functionality", Config.Debug);
                 foreach (var type in plugin.Assembly.GetTypes().Where(x => typeof(IEvent).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract))
                 {
                     
-                    Log.Debug($"Checked {plugin.Name} for CedMod-Events functionality, IEvent inherited", CedModMain.Singleton.Config.ShowDebug);
+                    Log.Debug($"Checked {plugin.Name} for CedMod-Events functionality, IEvent inherited", Config.Debug);
                     var constructor = type.GetConstructor(Type.EmptyTypes);
                     if (constructor == null)
                     {
-                        Log.Debug($"Checked {plugin.Name} Constructor is null, cannot continue", CedModMain.Singleton.Config.ShowDebug);
+                        Log.Debug($"Checked {plugin.Name} Constructor is null, cannot continue", Config.Debug);
                         continue;
                     }
                     else

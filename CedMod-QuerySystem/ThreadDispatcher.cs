@@ -9,7 +9,7 @@ namespace CedMod.QuerySystem
     {
         public void Start()
         {
-            Log.Debug("ThreadDispatcher started", CedModMain.Singleton.Config.ShowDebug);
+            Log.Debug("ThreadDispatcher started", QuerySystem.Singleton.Config.Debug);
         }
 
         public static ConcurrentQueue<Action> ThreadDispatchQueue = new ConcurrentQueue<Action>();
@@ -17,9 +17,9 @@ namespace CedMod.QuerySystem
         {
             if (ThreadDispatchQueue.TryDequeue(out Action action))
             {
-                Log.Debug($"Invoking action", CedModMain.Singleton.Config.ShowDebug);
+                Log.Debug($"Invoking action", QuerySystem.Singleton.Config.Debug);
                 action.Invoke();
-                Log.Debug($"Action Invoked", CedModMain.Singleton.Config.ShowDebug);
+                Log.Debug($"Action Invoked", QuerySystem.Singleton.Config.Debug);
             }
         }
     }

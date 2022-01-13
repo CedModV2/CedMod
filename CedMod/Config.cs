@@ -56,5 +56,8 @@ namespace CedMod
         
         [Description("If debug logs are shown")]
         public bool ShowDebug { get; set; } = false;
+        
+        [Description("If dependencies should be automatically downloaded")]
+        public bool AutoDownloadDependency { get; set; } = true;
     }
 }

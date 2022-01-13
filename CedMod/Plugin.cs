@@ -31,25 +31,28 @@ namespace CedMod
         {
             _harmony = new Harmony("com.cedmod.patch");
             _harmony.PatchAll();
-            
-            if (!File.Exists(Application.dataPath + "/Managed/Newtonsoft.Json.dll"))
+
+            if (Config.AutoDownloadDependency)
             {
-                WebClient wc = new WebClient();
-                Log.Error("Dependency missing, downloading...");
-                ServicePointManager.ServerCertificateValidationCallback += API.ValidateRemoteCertificate;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                wc.DownloadFile("https://cdn.cedmod.nl/files/Newtonsoft.Json.dll", Application.dataPath + "/Managed/Newtonsoft.Json.dll");
-                Application.Quit();
-            }
+                if (!File.Exists(Application.dataPath + "/Managed/Newtonsoft.Json.dll"))
+                {
+                    WebClient wc = new WebClient();
+                    Log.Error("Dependency missing, downloading...");
+                    ServicePointManager.ServerCertificateValidationCallback += API.ValidateRemoteCertificate;
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                    wc.DownloadFile("https://cdn.cedmod.nl/files/Newtonsoft.Json.dll", Application.dataPath + "/Managed/Newtonsoft.Json.dll");
+                    Application.Quit();
+                }
             
-            if (!File.Exists(Exiled.API.Features.Paths.Dependencies + "/websocket-sharp.dll"))
-            {
-                WebClient wc = new WebClient();
-                Log.Error("Dependency missing, downloading...");
-                ServicePointManager.ServerCertificateValidationCallback += API.ValidateRemoteCertificate;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                wc.DownloadFile("https://cdn.cedmod.nl/files/websocket-sharp.dll", Paths.Dependencies + "/websocket-sharp.dll");
-                Application.Quit();
+                if (!File.Exists(Exiled.API.Features.Paths.Dependencies + "/websocket-sharp.dll"))
+                {
+                    WebClient wc = new WebClient();
+                    Log.Error("Dependency missing, downloading...");
+                    ServicePointManager.ServerCertificateValidationCallback += API.ValidateRemoteCertificate;
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                    wc.DownloadFile("https://cdn.cedmod.nl/files/websocket-sharp.dll", Paths.Dependencies + "/websocket-sharp.dll");
+                    Application.Quit();
+                }
             }
 
             Singleton = this;

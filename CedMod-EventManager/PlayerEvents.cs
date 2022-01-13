@@ -17,7 +17,7 @@ namespace CedMod.EventManager
     {
         public void OnPlayerJoin(JoinedEventArgs ev)
         {
-            Log.Debug($"Join {EventManager.Singleton.currentEvent != null}", CedModMain.Singleton.Config.ShowDebug);
+            Log.Debug($"Join {EventManager.Singleton.currentEvent != null}", EventManager.Singleton.Config.Debug);
             if (EventManager.Singleton.currentEvent != null)
             {
                 Timing.CallDelayed(1, () =>
