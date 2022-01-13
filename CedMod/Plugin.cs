@@ -38,8 +38,6 @@ namespace CedMod
                 {
                     WebClient wc = new WebClient();
                     Log.Error("Dependency missing, downloading...");
-                    ServicePointManager.ServerCertificateValidationCallback += API.ValidateRemoteCertificate;
-                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                     wc.DownloadFile("https://cdn.cedmod.nl/files/Newtonsoft.Json.dll", Application.dataPath + "/Managed/Newtonsoft.Json.dll");
                     Application.Quit();
                 }
@@ -48,8 +46,6 @@ namespace CedMod
                 {
                     WebClient wc = new WebClient();
                     Log.Error("Dependency missing, downloading...");
-                    ServicePointManager.ServerCertificateValidationCallback += API.ValidateRemoteCertificate;
-                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                     wc.DownloadFile("https://cdn.cedmod.nl/files/websocket-sharp.dll", Paths.Dependencies + "/websocket-sharp.dll");
                     Application.Quit();
                 }

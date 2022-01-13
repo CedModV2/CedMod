@@ -16,17 +16,9 @@ namespace CedMod
     public static class API
     {
         public static readonly Uri APIUrl = new Uri("https://api.cedmod.nl/");
-
-        public static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors error)
-        {
-            // If the certificate is a valid, signed certificate, return true.
-            if (error == SslPolicyErrors.None) return true;
-            return false;
-        }
+        
         public static object APIRequest(string endpoint, string arguments, bool returnstring = false, string type = "GET")
         {
-            ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             string response = "";  
             try
             {
