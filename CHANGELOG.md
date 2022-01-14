@@ -1,3 +1,2 @@
-V: 3.0.1
-- Rerelease of 3.0.1 with some useless code removed and preparations for plugin submission:tm:
-- updated exiled to the latest *stable* version
+V: 3.0.2
+- Refactored some commands to be more readable and use Exiled Api functions
