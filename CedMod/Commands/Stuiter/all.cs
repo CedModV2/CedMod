@@ -1,5 +1,6 @@
 ﻿using System;
 using CommandSystem;
+using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
 
@@ -27,12 +28,11 @@ namespace CedMod.Commands.Stuiter
             Cassie.Message("xmas_bouncyballs", false, false);
             foreach (Player player in Player.List)
             {
-                CharacterClassManager component = player.ReferenceHub.characterClassManager;
-                component.SetClassID(RoleType.Tutorial, CharacterClassManager.SpawnReason.ForceClass);
+                player.SetRole(RoleType.Tutorial, SpawnReason.ForceClass, false);
                 player.Health = 100;
                 player.ClearInventory();
                 player.AddItem(ItemType.Flashlight);
-                component.GodMode = false;
+                player.IsGodModeEnabled = false;
             }
 
             response = "Stuiter time";

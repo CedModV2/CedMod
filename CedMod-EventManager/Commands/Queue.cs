@@ -23,26 +23,13 @@ namespace CedMod.EventManager.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            if (sender.IsPanelUser())
+            if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.CheckPermission("cedmod.events.queue"))
             {
-                if (!sender.CheckPermission(PlayerPermissions.FacilityManagement))
-                {
-                    response = "No permission";
-                    return false;
-                }
-
-                response = "";
-            }
-            else
-            {
-                response = "";
-                if (!sender.CheckPermission("cedmod.events.list"))
-                {
-                    response = "No permission";
-                    return false;
-                }
+                response = "No permission";
+                return false;
             }
 
+            response = "";
             response += $"Current event: [0] {(EventManager.Singleton.currentEvent == null ? "None" : $"{EventManager.Singleton.currentEvent.EventName} - ({EventManager.Singleton.currentEvent.EventPrefix})")}\n\n\nQueue:\n";
             foreach (var evnt in EventManager.Singleton.nextEvent)
             {

@@ -23,16 +23,8 @@ namespace CedMod.Commands
                 return false;
             }
             FriendlyFireAutoban.AdminDisabled = !FriendlyFireAutoban.AdminDisabled;
-            if (FriendlyFireAutoban.AdminDisabled)
-            {
-                response = "FFA is now Disabled FFA wil reset at round end unless FFA is disabled";
-                return true;
-            }
-            else
-            {
-                response = "FFA is now Enabled FFA wil reset at round end unless FFA is disabled";
-                return true;
-            }
+            response = FriendlyFireAutoban.AdminDisabled ? "FFA is now Disabled FFA wil reset at round end unless FFA is disabled" : "FFA is now Enabled FFA wil reset at round end unless FFA is disabled";
+            return true;
         }
     }
 }

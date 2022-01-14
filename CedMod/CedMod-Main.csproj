@@ -49,7 +49,6 @@
     <Compile Include="Commands\FFADisable.cs" />
     <Compile Include="Commands\LightColor.cs" />
     <Compile Include="Commands\Lightsout.cs" />
-    <Compile Include="Commands\Players.cs" />
     <Compile Include="Commands\RainbowLights.cs" />
     <Compile Include="Commands\Redirect.cs" />
     <Compile Include="Commands\Stuiter.cs" />

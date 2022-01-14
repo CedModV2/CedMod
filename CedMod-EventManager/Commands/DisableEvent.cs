@@ -51,26 +51,11 @@ namespace CedMod.EventManager.Commands
                     return false;
                 }
             }
-            if (sender.IsPanelUser())
+
+            if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.CheckPermission("cedmod.events.disable"))
             {
-                if (!sender.CheckPermission(PlayerPermissions.FacilityManagement))
-                {
-                    response = "No permission";
-                    return false;
-                }
-            }
-            else
-            {
-                response = "";
-                if (!sender.CheckPermission("cedmod.events.disable"))
-                {
-                    response = "No permission";
-                    return false;
-                }
-                foreach (var ev in EventManager.Singleton.AvailableEvents)
-                {
-                    response += $"{ev.EventName} Author: {ev.EvenAuthor} - {ev.EventDescription}";
-                }
+                response = "No permission";
+                return false;
             }
             
             if (queuepos >= 1)

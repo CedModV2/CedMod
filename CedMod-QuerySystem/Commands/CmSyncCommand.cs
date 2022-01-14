@@ -28,7 +28,7 @@ namespace CedMod.QuerySystem.Commands
                 }
                 if (ServerStatic.PermissionsHandler._members.ContainsKey(Player.Get(int.Parse(arguments.At(0))).UserId))
                 {
-                    response = "Already synced";
+                    response = "User already has a role";
                     return false;
                 }
 
@@ -42,7 +42,7 @@ namespace CedMod.QuerySystem.Commands
                 CommandHandler.Synced.Add(Player.Get(int.Parse(arguments.At(0))).UserId);
             }
 
-            response = "";
+            response = "This command may only be run by the panel";
             return true;
         }
     }

@@ -22,9 +22,9 @@ namespace CedMod.Commands
 
         public string Description { get; } = "Turns off the lämps";
         internal static bool isEnabled;
+        internal static CoroutineHandle CoroutineHandle;
 
-        public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
-            out string response)
+        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             if (!sender.CheckPermission("cedmod.lightsout"))
             {
@@ -41,10 +41,7 @@ namespace CedMod.Commands
                 }
 
                 isEnabled = true;
-                Timing.RunCoroutine(
-                    LightsOut(Convert.ToBoolean(arguments.At(0)), Convert.ToBoolean(arguments.At(1)),
-                        Convert.ToBoolean(arguments.At(2)), Convert.ToBoolean(arguments.At(3)),
-                        Convert.ToInt32(arguments.At(4))), "LightsOut");
+                CoroutineHandle = Timing.RunCoroutine(LightsOut(Convert.ToBoolean(arguments.At(0)), Convert.ToBoolean(arguments.At(1)), Convert.ToBoolean(arguments.At(2)), Convert.ToBoolean(arguments.At(3)), Convert.ToInt32(arguments.At(4))), "LightsOut");
                 response = "Lights have been turned off";
                 return true;
             }
@@ -53,13 +50,11 @@ namespace CedMod.Commands
                 if (isEnabled)
                 {
                     isEnabled = false;
-                    List<Room> rooms = Map.Rooms.ToList();
+                    Timing.KillCoroutines(CoroutineHandle);
                     foreach (FlickerableLightController r in FlickerableLightController.Instances)
                     {
                         r.ServerFlickerLights(0);
                     }
-
-                    Timing.KillCoroutines("LightsOut");
                     response = "Lights have been turned on";
                     return true;
                 }

@@ -31,7 +31,7 @@ namespace CedMod.QuerySystem.Commands
                 return false;
             }
 
-            response = "";
+            response = "List of nearby bulletholes\nFormat: [Playername] ([PlayerId]) - [BulletHoleCreated] CON: [IsConnected]";
             var room = Player.Get((sender as PlayerCommandSender).ReferenceHub).CurrentRoom;
             if (arguments.Count >= 1)
             {
@@ -42,6 +42,8 @@ namespace CedMod.QuerySystem.Commands
                         response += $"\n{creat.Key.Nickname} ({creat.Key.Id}) - {creat.Value.Rooms[room].Holes.Count} CON: {creat.Key.IsConnected}";
                     }
                 }
+
+                return true;
             }
             else
             {
@@ -52,14 +54,9 @@ namespace CedMod.QuerySystem.Commands
                         response += $"\n{creat.Key.Nickname} ({creat.Key.Id}) - {creat.Value.Rooms[room].Holes.Count} CON: {creat.Key.IsConnected}";
                     }
                 }
-            }
 
-            if (response == "")
-            {
-                response = "Could not find any players";
+                return true;
             }
-            
-            return true;
         }
     }
 }

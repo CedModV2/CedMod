@@ -16,7 +16,7 @@ namespace CedMod.Commands
         {
         };
 
-        public string Description { get; } = "redirects ALL to the specified port";
+        public string Description { get; } = "redirects ALL players to the specified port";
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {

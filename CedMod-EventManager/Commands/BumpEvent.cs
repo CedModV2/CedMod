@@ -42,28 +42,14 @@ namespace CedMod.EventManager.Commands
                 response = "Event does not exist";
                 return false;
             }
-            if (sender.IsPanelUser())
+
+            if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.CheckPermission("cedmod.events.bump"))
             {
-                if (!sender.CheckPermission(PlayerPermissions.FacilityManagement))
-                {
-                    response = "No permission";
-                    return false;
-                }
-            }
-            else
-            {
-                response = "";
-                if (!sender.CheckPermission("cedmod.events.enable"))
-                {
-                    response = "No permission";
-                    return false;
-                }
+                response = "No permission";
+                return false;
             }
             
-            if (EventManager.Singleton.nextEvent.Any(ev => ev.EventName == @event.EventName))
-            {
-                EventManager.Singleton.nextEvent.Remove(EventManager.Singleton.nextEvent.First(ev => ev.EventName == @event.EventName));
-            }
+            EventManager.Singleton.nextEvent.RemoveAll(ev => ev.EventName == @event.EventName);
             EventManager.Singleton.nextEvent.Insert(0, @event);
             
             if (force)

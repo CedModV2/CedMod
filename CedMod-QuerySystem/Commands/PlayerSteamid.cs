@@ -15,32 +15,12 @@ namespace CedMod.QuerySystem.Commands
 
         public string Description { get; } = "Gives the list of players for the cedmod panel";
 
-        public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
-            out string response)
+        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            try
+            response = "";
+            foreach (Player player in Player.List)
             {
-                string text = "\n";
-                
-                foreach (ReferenceHub player in ReferenceHub.Hubs.Values)
-                {
-                    if (player.isLocalPlayer)
-                        continue;
-
-                    bool staff = false;
-                    if (ServerStatic.PermissionsHandler._members.ContainsKey(player.characterClassManager.UserId) && ServerStatic.PermissionsHandler._groups.ContainsKey(ServerStatic.PermissionsHandler._members[player.characterClassManager.UserId]))
-                    {
-                        staff = ServerStatic.PermissionsHandler.IsRaPermitted(ServerStatic.PermissionsHandler._groups[ServerStatic.PermissionsHandler._members[player.characterClassManager.UserId]].Permissions);
-                    }
-                    text += $"{player.characterClassManager.UserId}:{player.serverRoles.DoNotTrack}:{staff}\n";
-                }
-                response = text;
-                
-            }
-            catch (Exception ex2)
-            {
-                Log.Error(ex2);
-                throw;
+                response += $"{player.UserId}:{player.DoNotTrack}:{player.RemoteAdminAccess}\n";
             }
 
             return true;

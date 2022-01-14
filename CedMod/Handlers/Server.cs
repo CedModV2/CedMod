@@ -83,7 +83,7 @@ namespace CedMod.Handlers
         {
             LightsoutCommand.isEnabled = false;
             FriendlyFireAutoban.Teamkillers.Clear();
-            Timing.KillCoroutines("LightsOut");
+            Timing.KillCoroutines(LightsoutCommand.CoroutineHandle);
         }
     }
 }
