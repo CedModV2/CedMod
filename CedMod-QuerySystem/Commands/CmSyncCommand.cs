@@ -40,6 +40,8 @@ namespace CedMod.QuerySystem.Commands
                 ServerStatic.GetPermissionsHandler()._members[Player.Get(int.Parse(arguments.At(0))).UserId] = arguments.At(1);
                 Player.Get(int.Parse(arguments.At(0))).ReferenceHub.serverRoles.SetGroup(ServerStatic.GetPermissionsHandler()._groups[arguments.At(1)], false);
                 CommandHandler.Synced.Add(Player.Get(int.Parse(arguments.At(0))).UserId);
+                response = "Done.";
+                return true;
             }
 
             response = "This command may only be run by the panel";
