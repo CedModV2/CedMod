@@ -89,6 +89,9 @@
     <Reference Include="BouncyCastle.Crypto, Version=1.8.8.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
       <HintPath>..\References\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
+    <Reference Include="CedMod-EventManager, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\bin\Debug\CedMod-EventManager.dll</HintPath>
+    </Reference>
     <Reference Include="ch.sycoforge.Decal, Version=1.6.8.1, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\ch.sycoforge.Decal.dll</HintPath>
     </Reference>

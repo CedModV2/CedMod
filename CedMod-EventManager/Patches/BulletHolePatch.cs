@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace CedMod.EventManager.Patches
 {
-    [HarmonyPatch(typeof(StandardHitregBase), nameof(StandardHitregBase.PlaceBullethole))]
+    [HarmonyPatch(typeof(StandardHitregBase), nameof(StandardHitregBase.PlaceBulletholeDecal))]
     public static class BulletHolePatch
     {
         public static bool Prefix(StandardHitregBase __instance, Ray ray, RaycastHit hit)

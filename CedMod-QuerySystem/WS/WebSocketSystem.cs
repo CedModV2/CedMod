@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CedMod.EventManager.Commands;
+using CedMod.QuerySystem.Commands;
 using Exiled.API.Features;
 using Newtonsoft.Json;
 using RemoteAdmin;
@@ -110,94 +114,146 @@ namespace CedMod.QuerySystem.WS
                 if (text2 != null)
                 {
                     if (text2 == "ping")
+                    {
+                        Log.Debug("IsPing", QuerySystem.Singleton.Config.Debug);
+                        Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                         {
-                            Log.Debug("IsPing", QuerySystem.Singleton.Config.Debug);
+                            Recipient = cmd.Recipient,
+                            Data = new Dictionary<string, string>()
+                            {
+                                {"Message", "PONG"}
+                            }
+                        }));
+                        return;
+                    }
+
+                    if (text2 == "custom")
+                    {
+                        Log.Debug("CustomCommand", QuerySystem.Singleton.Config.Debug);
+                        if (!jsonData.ContainsKey("command"))
+                        {
                             Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                             {
                                 Recipient = cmd.Recipient,
                                 Data = new Dictionary<string, string>()
                                 {
-                                    {"Message", "PONG"}
+                                    {"Message", "Missing argument"}
                                 }
                             }));
-                            return;
                         }
-                        if (text2 == "custom")
+                        else
                         {
                             Log.Debug("CustomCommand", QuerySystem.Singleton.Config.Debug);
-                            if (!jsonData.ContainsKey("command"))
+                            string[] array = jsonData["command"].Split(new char[]
+                            {
+                                ' '
+                            });
+                            if (jsonData["command"].ToUpper().Contains("REQUEST_DATA AUTH") ||
+                                jsonData["command"].ToUpper().Contains("SUDO QUIT"))
                             {
                                 Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                                 {
                                     Recipient = cmd.Recipient,
                                     Data = new Dictionary<string, string>()
                                     {
-                                        {"Message", "Missing argument"}
+                                        {"Message", "This command is disabled"}
                                     }
                                 }));
                             }
-                            else
+                            else if (QuerySystem.Singleton.Config.DisallowedWebCommands.Contains(array[0].ToUpper()))
                             {
-                                Log.Debug("CustomCommand", QuerySystem.Singleton.Config.Debug);
-                                string[] array = jsonData["command"].Split(new char[]
+                                Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                                 {
-                                    ' '
-                                });
-                                if (jsonData["command"].ToUpper().Contains("REQUEST_DATA AUTH") ||
-                                    jsonData["command"].ToUpper().Contains("SUDO QUIT"))
-                                {
-                                    Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                                    Recipient = cmd.Recipient,
+                                    Data = new Dictionary<string, string>()
                                     {
-                                        Recipient = cmd.Recipient,
-                                        Data = new Dictionary<string, string>()
-                                        {
-                                            {"Message", "This command is disabled"}
-                                        }
-                                    }));
-                                }
-                                else if (QuerySystem.Singleton.Config.DisallowedWebCommands.Contains(
-                                    array[0].ToUpper()))
-                                {
-                                    Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
-                                    {
-                                        Recipient = cmd.Recipient,
-                                        Data = new Dictionary<string, string>()
-                                        {
-                                            {"Message", "This command is disabled"}
-                                        }
-                                    }));
-                                }
+                                        {"Message", "This command is disabled"}
+                                    }
+                                }));
+                            }
 
-
+                            Log.Debug("CustomCommandCheckPerm", QuerySystem.Singleton.Config.Debug);
+                            if (ServerStatic.PermissionsHandler._members.ContainsKey(jsonData["user"]))
+                            {
+                                Log.Debug("CustomCommandPermGood", QuerySystem.Singleton.Config.Debug);
+                                string name = ServerStatic.PermissionsHandler._members[jsonData["user"]];
+                                UserGroup ugroup = ServerStatic.PermissionsHandler.GetGroup(name);
+                                Log.Debug("CustomCommandPermGood, dispatching", QuerySystem.Singleton.Config.Debug);
+                                switch (jsonData["command"].Split(' ')[0].ToUpper())
                                 {
-                                    Log.Debug("CustomCommandCheckPerm", QuerySystem.Singleton.Config.Debug);
-                                    if (ServerStatic.PermissionsHandler._members.ContainsKey(jsonData["user"]))
-                                    {
-                                        Log.Debug("CustomCommandPermGood", QuerySystem.Singleton.Config.Debug);
-                                        string name = ServerStatic.PermissionsHandler._members[jsonData["user"]];
-                                        UserGroup ugroup = ServerStatic.PermissionsHandler.GetGroup(name);
-                                        Log.Debug("CustomCommandPermGood, dispatching", QuerySystem.Singleton.Config.Debug);
+                                    case "PLAYERLISTCOLORED":
+                                        new PlayersCommand().Execute(
+                                            new ArraySegment<string>(jsonData["command"].Split(' ').Skip(1).ToArray()),
+                                            new CmSender(cmd.Recipient, jsonData["user"], jsonData["user"], ugroup),
+                                            out string response);
+                                        SendQueue.Enqueue(new QueryCommand()
+                                        {
+                                            Recipient = cmd.Recipient,
+                                            Data = new Dictionary<string, string>()
+                                            {
+                                                {
+                                                    "Message", 
+                                                    $"PLAYERLISTCOLORED#{response}"
+                                                }
+                                            }
+                                        });
+                                        
+                                        break;
+                                    case "PLAYERLISTCOLOREDSTEAMID":
+                                        new PlayerSteamidsCommand().Execute(
+                                            new ArraySegment<string>(jsonData["command"].Split(' ').Skip(1).ToArray()),
+                                            new CmSender(cmd.Recipient, jsonData["user"], jsonData["user"], ugroup),
+                                            out string response1);
+                                        SendQueue.Enqueue(new QueryCommand()
+                                        {
+                                            Recipient = cmd.Recipient,
+                                            Data = new Dictionary<string, string>()
+                                            {
+                                                {
+                                                    "Message", 
+                                                    $"PLAYERLISTCOLOREDSTEAMID#{response1}"
+                                                }
+                                            }
+                                        });
+                                        
+                                        break;
+                                    case "EVENTS":
+                                        if (jsonData["command"].Split(' ')[1].ToUpper() == "LIST")
+                                        {
+                                            try
+                                            {
+                                                //have to do this in a separate method as C# will get angry if the referenced plugin is not installed and this method runs
+                                                EventsListCommand(cmd, jsonData["command"], jsonData["user"], ugroup);
+                                            }
+                                            catch
+                                            {
+                                            }
+                                        }
+                                        break;
+                                    default:
                                         ThreadDispatcher.ThreadDispatchQueue.Enqueue(delegate
                                         {
                                             CommandProcessor.ProcessQuery(jsonData["command"],
                                                 new CmSender(cmd.Recipient, jsonData["user"], jsonData["user"], ugroup));
                                         });
-                                    }
-                                    else
-                                    {
-                                        Log.Debug("CustomCommandPermBad, returning", QuerySystem.Singleton.Config.Debug);
-                                        Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
-                                        {
-                                            Recipient = cmd.Recipient,
-                                            Data = new Dictionary<string, string>()
-                                            {
-                                                {"Message", "Userid not present in RA config, permission denied"}
-                                            }
-                                        }));
-                                    }
+                                        break;
                                 }
                             }
+                            else
+                            {
+                                Log.Debug("CustomCommandPermBad, returning", QuerySystem.Singleton.Config.Debug);
+                                Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                                {
+                                    Recipient = cmd.Recipient,
+                                    Data = new Dictionary<string, string>()
+                                    {
+                                        {"Message", "Userid not present in RA config, permission denied"}
+                                    }
+                                }));
+                            }
                         }
+                    }
+
                     if (text2 == "kicksteamid")
                     {
                         Log.Debug("KickCmd", QuerySystem.Singleton.Config.Debug);
@@ -218,7 +274,7 @@ namespace CedMod.QuerySystem.WS
                                 return;
                             }
                         }
-                        
+
                         Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                         {
                             Recipient = cmd.Recipient,
@@ -234,6 +290,25 @@ namespace CedMod.QuerySystem.WS
             {
                 Log.Error(ex.ToString());
             }
+        }
+
+        private static void EventsListCommand(QueryCommand cmd, string s, string user, UserGroup userGroup)
+        {
+            new ListEvents().Execute(
+                new ArraySegment<string>(s.Split(' ').Skip(1).ToArray()),
+                new CmSender(cmd.Recipient, user, user, userGroup),
+                out string response1);
+            SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = cmd.Recipient,
+                Data = new Dictionary<string, string>()
+                {
+                    {
+                        "Message", 
+                        $"EVENTS#{response1}"
+                    }
+                }
+            });
         }
     }
 

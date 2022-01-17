@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
+using CedMod.QuerySystem.Patches;
 using CedMod.QuerySystem.WS;
 using Exiled.API.Enums;
 using Exiled.API.Features;
@@ -31,7 +33,7 @@ namespace CedMod.QuerySystem
 
         public static QuerySystem Singleton;
 
-        public static string PanelUrl = "communitymanagementpanel.cedmod.nl";
+        public static string PanelUrl = "frikanweb.cedmod.nl";
         
         public override Version RequiredExiledVersion { get; } = new Version(3, 0, 0);
         public override Version Version { get; } = new Version(3, 0, 2);
@@ -108,7 +110,7 @@ namespace CedMod.QuerySystem
                 Log.Warn("security_key is set to none plugin will not load due to security risks");
 
             Harmony = new Harmony("com.cedmod.querysystem");
-            Harmony.PatchAll();
+            Harmony.PatchAll(); ;
             
             MapEvents = new MapEvents();
             ServerEvents = new ServerEvents();

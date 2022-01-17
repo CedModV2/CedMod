@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace CedMod.QuerySystem.Patches
 {
-    [HarmonyPatch(typeof(StandardHitregBase), nameof(StandardHitregBase.PlaceBullethole))]
+    [HarmonyPatch(typeof(StandardHitregBase), nameof(StandardHitregBase.PlaceBulletholeDecal))]
     public static class BulletHolePatch
     {
         public static Dictionary<Player, BulletHoleCreator> HoleCreators = new Dictionary<Player, BulletHoleCreator>();

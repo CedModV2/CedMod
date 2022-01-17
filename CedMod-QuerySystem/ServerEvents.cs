@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using CedMod.Patches;
 using CedMod.QuerySystem.Patches;
 using CedMod.QuerySystem.WS;
 using Exiled.API.Features;
