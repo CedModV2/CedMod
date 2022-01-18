@@ -13,7 +13,7 @@ namespace CedMod
         [Description("kick a player if they have a name someone else already has")]
         public bool KickSameName { get; set; } = true;
         
-        [Description("API key for the plugin to use, find yours here https://admin.cedmod.nl/Stats")]
+        [Description("API key for the plugin to use, find yours here https://admin.cedmod.nl/ On the Statistics page of your server (Create one if you didnt already)")]
         public string CedModApiKey { get; set; } = "None";
         
         [Description("If true the CedMod FF Autoban will be used")]

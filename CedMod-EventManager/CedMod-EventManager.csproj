@@ -51,6 +51,9 @@
         <Reference Include="BouncyCastle.Crypto, Version=1.8.8.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
           <HintPath>..\References\BouncyCastle.Crypto.dll</HintPath>
         </Reference>
+        <Reference Include="CedMod-QuerySystem, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\References\CedMod-QuerySystem2.dll</HintPath>
+        </Reference>
         <Reference Include="ch.sycoforge.Decal, Version=1.6.8.1, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\ch.sycoforge.Decal.dll</HintPath>
         </Reference>
@@ -527,10 +530,6 @@
       <None Include="packages.config" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\CedMod-QuerySystem\CedMod-QuerySystem.csproj">
-        <Project>{64db39c5-3875-4e36-bbb8-430f2354d2cd}</Project>
-        <Name>CedMod-QuerySystem</Name>
-      </ProjectReference>
       <ProjectReference Include="..\CedMod\CedMod-Main.csproj">
         <Project>{b404ba59-5c33-41dc-8fee-0f10f087089d}</Project>
         <Name>CedMod-Main</Name>
