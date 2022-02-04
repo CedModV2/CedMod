@@ -218,7 +218,7 @@ namespace CedMod.QuerySystem.WS
                                         
                                         break;
                                     case "EVENTS":
-                                        if (jsonData["command"].Split(' ')[1].ToUpper() == "LIST")
+                                        if (jsonData["command"].Split(' ').Length != 0 && jsonData["command"].Split(' ')[1].ToUpper() == "LIST")
                                         {
                                             try
                                             {
@@ -228,6 +228,14 @@ namespace CedMod.QuerySystem.WS
                                             catch
                                             {
                                             }
+                                        }
+                                        else
+                                        {
+                                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(delegate
+                                            {
+                                                CommandProcessor.ProcessQuery(jsonData["command"],
+                                                    new CmSender(cmd.Recipient, jsonData["user"], jsonData["user"], ugroup));
+                                            });
                                         }
                                         break;
                                     default:
