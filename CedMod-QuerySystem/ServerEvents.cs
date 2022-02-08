@@ -169,7 +169,7 @@ namespace CedMod.QuerySystem
                             new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
                                 {
                                     {"reporter", ev.Issuer.UserId},
-                                    {"reported", ev.Issuer.UserId},
+                                    {"reported", ev.Target.UserId},
                                     {"reason", ev.Reason},
                                 }), Encoding.Default,
                                 "application/json")).Result;
@@ -194,7 +194,7 @@ namespace CedMod.QuerySystem
                             "ingame: ",
                             ev.Issuer.UserId,
                             " report ",
-                            ev.Issuer.UserId,
+                            ev.Target.UserId,
                             " for ",
                             ev.Reason,
                             "."
