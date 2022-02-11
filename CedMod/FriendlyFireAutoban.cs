@@ -60,25 +60,25 @@ namespace CedMod
                 return false;
             if (ev.Killer == ev.Target)
                 return false;
-            switch (ev.Killer.Team)
+            switch (ev.Killer.Role.Team)
             {
-                case Team.CDP when ev.Target.Team == Team.CHI:
-                case Team.CHI when ev.Target.Team == Team.CDP:
-                case Team.RSC when ev.Target.Team == Team.MTF:
-                case Team.MTF when ev.Target.Team == Team.RSC:
-                case Team.MTF when ev.Target.Team == Team.CDP && ev.Target.Inventory.IsDisarmed() && CedModMain.Singleton.Config.AutobanDisarmedClassDTk:
-                case Team.CHI when ev.Target.Team == Team.RSC && ev.Target.Inventory.IsDisarmed() && CedModMain.Singleton.Config.AutobanDisarmedScientistDTk:
-                case Team.CDP when ev.Target.Team == Team.CDP && CedModMain.Singleton.Config.AutobanClassDvsClassD:
+                case Team.CDP when ev.Target.Role.Team == Team.CHI:
+                case Team.CHI when ev.Target.Role.Team == Team.CDP:
+                case Team.RSC when ev.Target.Role.Team == Team.MTF:
+                case Team.MTF when ev.Target.Role.Team == Team.RSC:
+                case Team.MTF when ev.Target.Role.Team == Team.CDP && ev.Target.Inventory.IsDisarmed() && CedModMain.Singleton.Config.AutobanDisarmedClassDTk:
+                case Team.CHI when ev.Target.Role.Team == Team.RSC && ev.Target.Inventory.IsDisarmed() && CedModMain.Singleton.Config.AutobanDisarmedScientistDTk:
+                case Team.CDP when ev.Target.Role.Team == Team.CDP && CedModMain.Singleton.Config.AutobanClassDvsClassD:
                     result = true;
                     break;
-                case Team.CDP when ev.Target.Team == Team.CDP && !CedModMain.Singleton.Config.AutobanClassDvsClassD:
+                case Team.CDP when ev.Target.Role.Team == Team.CDP && !CedModMain.Singleton.Config.AutobanClassDvsClassD:
                 default:
                     result = false;
                     break;
             }
-            if (ev.Killer.Team == ev.Target.Team && (ev.Killer.Team != Team.CDP && ev.Target.Team != Team.CDP))
+            if (ev.Killer.Role.Team == ev.Target.Role.Team && (ev.Killer.Role.Team != Team.CDP && ev.Target.Role.Team != Team.CDP))
                 result = true;
-            if (ev.Killer.Team == Team.TUT)
+            if (ev.Killer.Role.Team == Team.TUT)
                 result = false;
 
             return result;

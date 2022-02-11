@@ -26,7 +26,7 @@ namespace CedMod.QuerySystem.Commands
                 string prefixText = player.IsNorthwoodStaff ? "[@] " : player.RemoteAdminAccess ? "[RA] " : string.Empty;
                 playerText = $"{prefixText} ({player.Id}) {player.Nickname.Replace("\n", "")} {(player.IsOverwatchEnabled ? "<OVRM>" : "")}";
 
-                response += $"<color={player.RoleColor.ToHex()}>" + playerText + "</color>\n";
+                response += $"<color={player.Role.Color.ToHex()}>" + playerText + "</color>\n";
             }
             return true;
         }

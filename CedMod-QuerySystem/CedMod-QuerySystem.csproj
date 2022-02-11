@@ -115,39 +115,39 @@
       <HintPath>..\References\dnlib.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.API, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.0.0-alpha.7\lib\net472\Exiled.API.dll</HintPath>
+      <HintPath>..\packages\EXILED.5.0.0-alpha.13\lib\net472\Exiled.API.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Exiled.Bootstrap, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.0.0-alpha.7\lib\net472\Exiled.Bootstrap.dll</HintPath>
+      <HintPath>..\packages\EXILED.5.0.0-alpha.13\lib\net472\Exiled.Bootstrap.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Exiled.CreditTags, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.0.0-alpha.7\lib\net472\Exiled.CreditTags.dll</HintPath>
+      <HintPath>..\packages\EXILED.5.0.0-alpha.13\lib\net472\Exiled.CreditTags.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Exiled.CustomItems, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.0.0-alpha.7\lib\net472\Exiled.CustomItems.dll</HintPath>
+      <HintPath>..\packages\EXILED.5.0.0-alpha.13\lib\net472\Exiled.CustomItems.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Exiled.CustomRoles, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.0.0-alpha.7\lib\net472\Exiled.CustomRoles.dll</HintPath>
+      <HintPath>..\packages\EXILED.5.0.0-alpha.13\lib\net472\Exiled.CustomRoles.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Exiled.Events, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.0.0-alpha.7\lib\net472\Exiled.Events.dll</HintPath>
+      <HintPath>..\packages\EXILED.5.0.0-alpha.13\lib\net472\Exiled.Events.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Exiled.Loader, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.0.0-alpha.7\lib\net472\Exiled.Loader.dll</HintPath>
+      <HintPath>..\packages\EXILED.5.0.0-alpha.13\lib\net472\Exiled.Loader.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Exiled.Permissions, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.0.0-alpha.7\lib\net472\Exiled.Permissions.dll</HintPath>
+      <HintPath>..\packages\EXILED.5.0.0-alpha.13\lib\net472\Exiled.Permissions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Exiled.Updater, Version=3.1.1.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.0.0-alpha.7\lib\net472\Exiled.Updater.dll</HintPath>
+      <HintPath>..\packages\EXILED.5.0.0-alpha.13\lib\net472\Exiled.Updater.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Facepunch.Steamworks.Win64, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
