@@ -28,7 +28,8 @@ namespace CedMod.QuerySystem.Patches
             }
             catch (Exception e)
             {
-                Log.Error(e);
+                if (QuerySystem.Singleton.Config.Debug)
+                    Log.Error(e);
             }
         }
     }
