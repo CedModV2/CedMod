@@ -49,6 +49,7 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="MapEvents.cs" />
     <Compile Include="Patches\BulletHolePatch.cs" />
+    <Compile Include="Patches\CommandProcessorPatch.cs" />
     <Compile Include="Patches\ReservedSlotsPatch.cs" />
     <Compile Include="PlayerEvents.cs" />
     <Compile Include="PlayerList.cs" />
@@ -59,7 +60,6 @@
     <Compile Include="WS\WebSocketSystem.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
