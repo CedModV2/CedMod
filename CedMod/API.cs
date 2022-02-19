@@ -25,14 +25,14 @@ namespace CedMod
                 if (type == "GET")
                 {
                     HttpClient client = new HttpClient();
-                    client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedModApiKey);
+                    client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                     response = client.GetAsync(APIUrl + endpoint + arguments).Result.Content.ReadAsStringAsync().Result;
                 }
 
                 if (type == "POST")
                 {
                     HttpClient client = new HttpClient();
-                    client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedModApiKey);
+                    client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                     response = client.PostAsync(APIUrl + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json")).Result.Content.ReadAsStringAsync().Result;
                 }
                 if (!returnstring)
@@ -72,7 +72,7 @@ namespace CedMod
             {
                 if (duration <= 0)
                 {
-                    ServerConsole.Disconnect(player.GameObject, reason + "\n" + CedModMain.Singleton.Config.AdditionalBanMessage);
+                    ServerConsole.Disconnect(player.GameObject, reason + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage);
                 }
             }
         }
@@ -102,7 +102,7 @@ namespace CedMod
                 {
                     Player player = Player.Get(UserId);
                     if (player != null)
-                        ServerConsole.Disconnect(player.GameObject, reason + "\n" + CedModMain.Singleton.Config.AdditionalBanMessage);
+                        ServerConsole.Disconnect(player.GameObject, reason + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage);
                 }
             }
         }

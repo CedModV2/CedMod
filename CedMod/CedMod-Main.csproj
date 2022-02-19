@@ -22,7 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>8</LangVersion>
     <Prefer32Bit>false</Prefer32Bit>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
@@ -41,8 +41,39 @@
     <RootNamespace>CedMod</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Addons\Events\Commands\BumpEvent.cs" />
+    <Compile Include="Addons\Events\Commands\DisableEvent.cs" />
+    <Compile Include="Addons\Events\Commands\EnableEvent.cs" />
+    <Compile Include="Addons\Events\Commands\Events.cs" />
+    <Compile Include="Addons\Events\Commands\ListEvents.cs" />
+    <Compile Include="Addons\Events\Commands\Queue.cs" />
+    <Compile Include="Addons\Events\Config.cs" />
+    <Compile Include="Addons\Events\EventManager.cs" />
+    <Compile Include="Addons\Events\IEvent.cs" />
+    <Compile Include="Addons\Events\Patches\BulletHolePatch.cs" />
+    <Compile Include="Addons\Events\EventManagerPlayerEvents.cs" />
+    <Compile Include="Addons\Events\EventManagerServerEvents.cs" />
+    <Compile Include="Addons\QuerySystem\Commands\CmSyncCommand.cs" />
+    <Compile Include="Addons\QuerySystem\Commands\NearbyBulletHoles.cs" />
+    <Compile Include="Addons\QuerySystem\Commands\PlayerList.cs" />
+    <Compile Include="Addons\QuerySystem\Commands\PlayerSteamid.cs" />
+    <Compile Include="Addons\QuerySystem\Commands\RestartQuery.cs" />
+    <Compile Include="Addons\QuerySystem\Config.cs" />
+    <Compile Include="Addons\QuerySystem\Extensions.cs" />
+    <Compile Include="Addons\QuerySystem\QueryMapEvents.cs" />
+    <Compile Include="Addons\QuerySystem\Patches\BulletHolePatch.cs" />
+    <Compile Include="Addons\QuerySystem\Patches\CommandProcessorPatch.cs" />
+    <Compile Include="Addons\QuerySystem\Patches\ReservedSlotsPatch.cs" />
+    <Compile Include="Addons\QuerySystem\QueryPlayerEvents.cs" />
+    <Compile Include="Addons\QuerySystem\PlayerList.cs" />
+    <Compile Include="Addons\QuerySystem\QuerySystem.cs" />
+    <Compile Include="Addons\QuerySystem\QueryServerEvents.cs" />
+    <Compile Include="Addons\QuerySystem\ThreadDispatcher.cs" />
+    <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
     <Compile Include="API.cs" />
     <Compile Include="BanSystem.cs" />
+    <Compile Include="CedModConfig.cs" />
+    <Compile Include="Commands\CedModSetupCommand.cs" />
     <Compile Include="Commands\DialogBox.cs" />
     <Compile Include="Commands\Dialog\all.cs" />
     <Compile Include="Commands\Dialog\userid.cs" />
@@ -81,7 +112,7 @@
     <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
-    <Reference Include="BouncyCastle.Crypto, Version=1.8.6.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.8.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
       <HintPath>..\References\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="ch.sycoforge.Decal, Version=1.6.8.1, Culture=neutral, PublicKeyToken=null">
@@ -556,6 +587,9 @@
     </Reference>
     <Reference Include="UnityEngine.XRModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\UnityEngine.XRModule.dll</HintPath>
+    </Reference>
+    <Reference Include="websocket-sharp, Version=1.0.2.234, Culture=neutral, PublicKeyToken=5660b08a1845a91e">
+      <HintPath>..\References\websocket-sharp.dll</HintPath>
     </Reference>
     <Reference Include="YamlDotNet, Version=8.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e">
       <HintPath>..\References\YamlDotNet.dll</HintPath>

@@ -11,7 +11,7 @@ namespace CedMod
         public static readonly object Banlock = new object();
         public static void HandleJoin(VerifiedEventArgs ev)
         {
-            Log.Debug("Join", CedModMain.Singleton.Config.ShowDebug);
+            Log.Debug("Join", CedModMain.Singleton.Config.CedMod.ShowDebug);
             try
             {
                 ReferenceHub player = ev.Player.ReferenceHub;
@@ -20,7 +20,7 @@ namespace CedMod
 
                 Dictionary<string, string> info = (Dictionary<string, string>) API.APIRequest("Auth/", $"{player.characterClassManager.UserId}&{ev.Player.IPAddress}");
                 
-                Log.Debug(JsonConvert.SerializeObject(info), CedModMain.Singleton.Config.ShowDebug);
+                Log.Debug(JsonConvert.SerializeObject(info), CedModMain.Singleton.Config.CedMod.ShowDebug);
                 
                 string reason;
                 if (info["success"] == "true" && info["vpn"] == "true" && info["isbanned"] == "false")
@@ -35,7 +35,7 @@ namespace CedMod
                     {
                         reason = info["preformattedmessage"];
                         Log.Info($"user: {player.characterClassManager.UserId} attempted connection with active ban disconnecting");
-                        ev.Player.Disconnect(reason + "\n" + CedModMain.Singleton.Config.AdditionalBanMessage);
+                        ev.Player.Disconnect(reason + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage);
                     }
                     else
                     {
