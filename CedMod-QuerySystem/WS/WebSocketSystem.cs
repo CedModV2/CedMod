@@ -49,8 +49,8 @@ namespace CedMod.QuerySystem.WS
                     return;
                 lock (reconnectLock)
                 {
-                    Log.Error($"Lost connection to CedMod Panel {args.Reason}, reconnecting in 1000ms");
-                    Thread.Sleep(1000);
+                    Log.Error($"Lost connection to CedMod Panel {args.Reason}, reconnecting in 5000ms");
+                    Thread.Sleep(5000);
                     Log.Info("Reconnecting...");
                     Socket.Connect();
                     Log.Debug("Connect", QuerySystem.Singleton.Config.Debug);
