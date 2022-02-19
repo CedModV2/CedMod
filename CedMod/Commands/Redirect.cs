@@ -30,7 +30,7 @@ namespace CedMod.Commands
                 response = "you must specify a port";
                 return false;
             }
-            NetworkServer.SendToAll<RoundRestartMessage>(new RoundRestartMessage(RoundRestartType.FullRestart, 1, ushort.Parse(arguments.At(0)), true), 0, false);
+            NetworkServer.SendToAll<RoundRestarting.RoundRestartMessage>(new RoundRestartMessage(RoundRestartType.RedirectRestart, 1f, ushort.Parse(arguments.At(0)), true, false));
             response = "redirecting";
             return true;
         }
