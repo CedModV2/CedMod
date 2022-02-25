@@ -99,8 +99,7 @@ namespace CedMod
             Exiled.Events.Handlers.Server.RespawningTeam += QuerySystem.QueryServerEvents.OnRespawn;
             Exiled.Events.Handlers.Server.ReportingCheater += QuerySystem.QueryServerEvents.OnCheaterReport;
             Exiled.Events.Handlers.Server.LocalReporting += QuerySystem.QueryServerEvents.OnReport;
-
-            Exiled.Events.Handlers.Player.ItemUsed += QuerySystem.QueryPlayerEvents.OnUsedItem;
+            
             Exiled.Events.Handlers.Scp079.InteractingTesla += QuerySystem.QueryPlayerEvents.On079Tesla;
             Exiled.Events.Handlers.Player.EscapingPocketDimension += QuerySystem.QueryPlayerEvents.OnPocketEscape;
             Exiled.Events.Handlers.Player.EnteringPocketDimension += QuerySystem.QueryPlayerEvents.OnPocketEnter;
@@ -191,8 +190,7 @@ namespace CedMod
             Exiled.Events.Handlers.Server.RespawningTeam -= QuerySystem.QueryServerEvents.OnRespawn;
             Exiled.Events.Handlers.Server.ReportingCheater -= QuerySystem.QueryServerEvents.OnCheaterReport;
             Exiled.Events.Handlers.Server.LocalReporting -= QuerySystem.QueryServerEvents.OnReport;
-
-            Exiled.Events.Handlers.Player.ItemUsed -= QuerySystem.QueryPlayerEvents.OnUsedItem;
+            
             Exiled.Events.Handlers.Scp079.InteractingTesla -= QuerySystem.QueryPlayerEvents.On079Tesla;
             Exiled.Events.Handlers.Player.EscapingPocketDimension -= QuerySystem.QueryPlayerEvents.OnPocketEscape;
             Exiled.Events.Handlers.Player.EnteringPocketDimension -= QuerySystem.QueryPlayerEvents.OnPocketEnter;

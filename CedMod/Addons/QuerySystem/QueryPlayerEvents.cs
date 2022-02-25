@@ -74,7 +74,7 @@ namespace CedMod.Addons.QuerySystem
                             {
                                 ev.Player.Nickname,
                                 ev.Player.Role,
-                                Misc.ToHex(ev.Player.Role.GetColor()),
+                                Misc.ToHex(ev.Player.Role.Color),
                                 ev.Player.Role
                             })
                     }
@@ -98,7 +98,7 @@ namespace CedMod.Addons.QuerySystem
                             {
                                 ev.Player.Nickname,
                                 ev.Player.Role,
-                                Misc.ToHex(ev.Player.Role.GetColor()),
+                                Misc.ToHex(ev.Player.Role.Color),
                                 ev.Player.Role
                             })
                     }
@@ -122,7 +122,7 @@ namespace CedMod.Addons.QuerySystem
                             {
                                 ev.Player.Nickname,
                                 ev.Player.UserId,
-                                Misc.ToHex(ev.Player.Role.GetColor()),
+                                Misc.ToHex(ev.Player.Role.Color),
                                 ev.Player.Role
                             })
                     }
@@ -225,11 +225,11 @@ namespace CedMod.Addons.QuerySystem
                                 {
                                     ev.Killer.Nickname,
                                     ev.Killer.UserId,
-                                    Misc.ToHex(ev.Killer.Role.GetColor()),
+                                    Misc.ToHex(ev.Killer.Role.Color),
                                     ev.Killer.Role,
                                     ev.Target.Nickname,
                                     ev.Target.UserId,
-                                    Misc.ToHex(ev.Target.Role.GetColor()),
+                                    Misc.ToHex(ev.Target.Role.Color),
                                     ev.Target.Role,
                                     ev.Handler.Type.ToString()
                                 })
@@ -259,11 +259,11 @@ namespace CedMod.Addons.QuerySystem
                                 {
                                     ev.Killer.Nickname,
                                     ev.Killer.UserId,
-                                    Misc.ToHex(ev.Killer.Role.GetColor()),
+                                    Misc.ToHex(ev.Killer.Role.Color),
                                     ev.Killer.Role,
                                     ev.Target.Nickname,
                                     ev.Target.UserId,
-                                    Misc.ToHex(ev.Target.Role.GetColor()),
+                                    Misc.ToHex(ev.Target.Role.Color),
                                     ev.Target.Role,
                                     ev.Handler.Type.ToString()
                                 })
@@ -289,7 +289,7 @@ namespace CedMod.Addons.QuerySystem
                             {
                                 ev.Player.Nickname,
                                 ev.Player.UserId,
-                                Misc.ToHex(ev.Player.Role.GetColor()),
+                                Misc.ToHex(ev.Player.Role.Color),
                                 ev.Player.Role
                             })
                     }
@@ -313,7 +313,7 @@ namespace CedMod.Addons.QuerySystem
                             {
                                 ev.Player.Nickname,
                                 ev.Player.UserId,
-                                Misc.ToHex(ev.Player.Role.GetColor()),
+                                Misc.ToHex(ev.Player.Role.Color),
                                 ev.Player.Role,
                                 ev.Item
                             })
@@ -389,11 +389,11 @@ namespace CedMod.Addons.QuerySystem
                             {
                                 ev.Target.Nickname,
                                 ev.Target.UserId,
-                                Misc.ToHex(ev.Target.Role.GetColor()),
+                                Misc.ToHex(ev.Target.Role.Color),
                                 ev.Target.Role,
                                 ev.Cuffer.Nickname,
                                 ev.Cuffer.UserId,
-                                Misc.ToHex(ev.Cuffer.Role.GetColor()),
+                                Misc.ToHex(ev.Cuffer.Role.Color),
                                 ev.Cuffer.Role
                             })
                     }
@@ -418,11 +418,11 @@ namespace CedMod.Addons.QuerySystem
                             {
                                 ev.Target.Nickname,
                                 ev.Target.UserId,
-                                Misc.ToHex(ev.Target.Role.GetColor()),
+                                Misc.ToHex(ev.Target.Role.Color),
                                 ev.Target.Role,
                                 ev.Cuffer.Nickname,
                                 ev.Cuffer.UserId,
-                                Misc.ToHex(ev.Cuffer.Role.GetColor()),
+                                Misc.ToHex(ev.Cuffer.Role.Color),
                                 ev.Cuffer.Role
                             })
                     }
