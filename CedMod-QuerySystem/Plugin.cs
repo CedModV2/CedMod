@@ -35,7 +35,7 @@ namespace CedMod.QuerySystem
 
         public static string PanelUrl = "communitymanagementpanel.cedmod.nl";
         
-        public override Version RequiredExiledVersion { get; } = new Version(3, 0, 0);
+        public override Version RequiredExiledVersion { get; } = new Version(5, 0, 0);
         public override Version Version { get; } = new Version(3, 0, 3);
 
         public override void OnDisabled()
