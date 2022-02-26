@@ -53,21 +53,5 @@ namespace CedMod.Commands
             RoundRestart.ChangeLevel(true);
             return true;
         }
-
-        public static IEnumerator<float> LightsOut(bool surface, bool entrance, bool heavy, bool light, float dur)
-        {
-            while (isEnabled)
-            {
-                if (surface)
-                    Map.TurnOffAllLights(dur, ZoneType.Surface);
-                if (entrance)
-                    Map.TurnOffAllLights(dur, ZoneType.Entrance);
-                if (heavy)
-                    Map.TurnOffAllLights(dur, ZoneType.HeavyContainment);
-                if (light)
-                    Map.TurnOffAllLights(dur, ZoneType.LightContainment);
-                yield return Timing.WaitForSeconds(dur);
-            }
-        }
     }
 }
