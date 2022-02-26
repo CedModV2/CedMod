@@ -217,14 +217,21 @@ namespace CedMod.Addons.QuerySystem.WS
                                     case "EVENTS":
                                         if (jsonData["command"].Split(' ').Length != 0 && jsonData["command"].Split(' ')[1].ToUpper() == "LIST")
                                         {
-                                            try
+                                            new ListEvents().Execute(
+                                                new ArraySegment<string>(jsonData["command"].Split(' ').Skip(1).ToArray()),
+                                                new CmSender(cmd.Recipient, jsonData["user"], jsonData["user"], ugroup),
+                                                out string response2);
+                                            SendQueue.Enqueue(new QueryCommand()
                                             {
-                                                //have to do this in a separate method as C# will get angry if the referenced plugin is not installed and this method runs
-                                                EventsListCommand(cmd, jsonData["command"], jsonData["user"], ugroup);
-                                            }
-                                            catch
-                                            {
-                                            }
+                                                Recipient = cmd.Recipient,
+                                                Data = new Dictionary<string, string>()
+                                                {
+                                                    {
+                                                        "Message", 
+                                                        $"EVENTS#{response2}"
+                                                    }
+                                                }
+                                            });
                                         }
                                         else
                                         {
@@ -295,25 +302,6 @@ namespace CedMod.Addons.QuerySystem.WS
             {
                 Log.Error(ex.ToString());
             }
-        }
-
-        private static void EventsListCommand(QueryCommand cmd, string s, string user, UserGroup userGroup)
-        {
-            new ListEvents().Execute(
-                new ArraySegment<string>(s.Split(' ').Skip(1).ToArray()),
-                new CmSender(cmd.Recipient, user, user, userGroup),
-                out string response1);
-            SendQueue.Enqueue(new QueryCommand()
-            {
-                Recipient = cmd.Recipient,
-                Data = new Dictionary<string, string>()
-                {
-                    {
-                        "Message", 
-                        $"EVENTS#{response1}"
-                    }
-                }
-            });
         }
     }
 
