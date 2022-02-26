@@ -10,6 +10,7 @@ using HarmonyLib;
 using UnityEngine;
 using Exiled.API.Enums;
 using Exiled.API.Features;
+using Exiled.Loader;
 using MEC;
 using Object = UnityEngine.Object;
 
@@ -120,14 +121,26 @@ namespace CedMod
             Exiled.Events.Handlers.Server.RestartingRound += EventManager.EventManagerServerEvents.RestartingRound;
             Exiled.Events.Handlers.Player.Joined += EventManager.EventManagerPlayerEvents.OnPlayerJoin;
             
-            foreach (var plugin in Exiled.Loader.Loader.Plugins)
+            if (!Directory.Exists(Path.Combine(Paths.Plugins, "CedModEvents")))
             {
-                if (plugin.Name.StartsWith("Exiled.")) //dont check exiled itself
+                Directory.CreateDirectory(Path.Combine(Paths.Plugins, "CedModEvents"));
+            }
+            
+            foreach (var file in Directory.GetFiles(Path.Combine(Paths.Plugins, "CedModEvents"), "*.dll"))
+            {
+                var assembly = Loader.LoadAssembly(file);
+                var plugin = Loader.CreatePlugin(assembly);
+                if (EventManager.AvailableEventPlugins.Contains(plugin))
+                {
+                    Log.Error($"Found duplicate Event: {plugin.Name} Located at: {file} Please only have one of each Event installed");
                     continue;
-                Log.Debug($"Checking {plugin.Name} for CedMod-Events functionality", Config.EventManager.Debug);
+                }
+                EventManager.AvailableEventPlugins.Add(plugin);
+                plugin.OnEnabled();
+                plugin.OnRegisteringCommands();
+                
                 foreach (var type in plugin.Assembly.GetTypes().Where(x => typeof(IEvent).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract))
                 {
-                    
                     Log.Debug($"Checked {plugin.Name} for CedMod-Events functionality, IEvent inherited", Config.EventManager.Debug);
                     var constructor = type.GetConstructor(Type.EmptyTypes);
                     if (constructor == null)
@@ -145,7 +158,7 @@ namespace CedMod
                     }
                 }
             }
-            
+
             base.OnEnabled();
         }
         
@@ -214,6 +227,19 @@ namespace CedMod
             Exiled.Events.Handlers.Player.Joined -= EventManager.EventManagerPlayerEvents.OnPlayerJoin;
             EventManager.EventManagerServerEvents = null;
             EventManager.EventManagerPlayerEvents = null;
+
+            foreach (var plugin in EventManager.AvailableEventPlugins)
+            {
+                try
+                {
+                    plugin.OnUnregisteringCommands();
+                    plugin.OnDisabled();
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"Failed to disable GameMode: {plugin}\n{e}");
+                }
+            }
             
             base.OnDisabled();
         }
