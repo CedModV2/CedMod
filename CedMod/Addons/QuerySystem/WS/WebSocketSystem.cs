@@ -311,39 +311,47 @@ namespace CedMod.Addons.QuerySystem.WS
         public override void RaReply(string text, bool success, bool logToConsole, string overrideDisplay)
         {
             Log.Debug($"RA Reply: {text} Suc: {success}", CedModMain.Singleton.Config.QuerySystem.Debug);
-            IEnumerable<string> chunks = Enumerable.Range(0, text.Length / chunksize).Select(i => text.Substring(i * chunksize, chunksize));
-            foreach (var str in chunks) //WS becomes unstable if we send a large chunk of text
-            {
-                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
-                {
-                    Recipient = Ses,
-                    Data = new Dictionary<string, string>()
-                    {
-                        {"Message", str}
-                    }
-                });
-            }
+            SendText(text);
             Log.Debug("Added RA message to queue", CedModMain.Singleton.Config.QuerySystem.Debug);
         }
 
         public override void Print(string text)
         {
             Log.Debug($"RA Print: {text}", CedModMain.Singleton.Config.QuerySystem.Debug);
-            IEnumerable<string> chunks = Enumerable.Range(0, text.Length / chunksize).Select(i => text.Substring(i * chunksize, chunksize));
-            foreach (var str in chunks) //WS becomes unstable if we send a large chunk of text
+            SendText(text);
+            Log.Debug("Added RA message to queue", CedModMain.Singleton.Config.QuerySystem.Debug);
+        }
+
+        public void SendText(string text)
+        {
+            if (text.Length >= chunksize)
+            {
+                IEnumerable<string> chunks = Enumerable.Range(0, text.Length / chunksize).Select(i => text.Substring(i * chunksize, chunksize));
+                foreach (var str in chunks) //WS becomes unstable if we send a large chunk of text
+                {
+                    WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                    {
+                        Recipient = Ses,
+                        Data = new Dictionary<string, string>()
+                        {
+                            {"Message", str}
+                        }
+                    });
+                }
+            }
+            else
             {
                 WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
                 {
                     Recipient = Ses,
                     Data = new Dictionary<string, string>()
                     {
-                        {"Message", str}
+                        {"Message", text}
                     }
                 });
             }
-            Log.Debug("Added RA message to queue", CedModMain.Singleton.Config.QuerySystem.Debug);
         }
-
+        
         public CmSender(string ses, string name, string userid, UserGroup group)
         {
             Ses = ses;
@@ -356,18 +364,7 @@ namespace CedMod.Addons.QuerySystem.WS
         public override void Respond(string text, bool success = true)
         {
             Log.Debug($"RA Response: {text} Suc: {success}", CedModMain.Singleton.Config.QuerySystem.Debug);
-            IEnumerable<string> chunks = Enumerable.Range(0, text.Length / chunksize).Select(i => text.Substring(i * chunksize, chunksize));
-            foreach (var str in chunks) //WS becomes unstable if we send a large chunk of text
-            {
-                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
-                {
-                    Recipient = Ses,
-                    Data = new Dictionary<string, string>()
-                    {
-                        {"Message", str}
-                    }
-                });
-            }
+            SendText(text);
             Log.Debug("Added RA message to queue", CedModMain.Singleton.Config.QuerySystem.Debug);
         }
 
