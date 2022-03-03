@@ -55,8 +55,6 @@
     <Compile Include="Addons\Events\EventManagerServerEvents.cs" />
     <Compile Include="Addons\QuerySystem\Commands\CmSyncCommand.cs" />
     <Compile Include="Addons\QuerySystem\Commands\NearbyBulletHoles.cs" />
-    <Compile Include="Addons\QuerySystem\Commands\PlayerList.cs" />
-    <Compile Include="Addons\QuerySystem\Commands\PlayerSteamid.cs" />
     <Compile Include="Addons\QuerySystem\Commands\RestartQuery.cs" />
     <Compile Include="Addons\QuerySystem\Config.cs" />
     <Compile Include="Addons\QuerySystem\Extensions.cs" />
@@ -71,6 +69,10 @@
     <Compile Include="Addons\QuerySystem\ThreadDispatcher.cs" />
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
     <Compile Include="API.cs" />
+    <Compile Include="ApiModals\EventModal.cs" />
+    <Compile Include="ApiModals\HeartbeatRequest.cs" />
+    <Compile Include="ApiModals\HelloMessage.cs" />
+    <Compile Include="ApiModals\PlayerObject.cs" />
     <Compile Include="BanSystem.cs" />
     <Compile Include="CedModConfig.cs" />
     <Compile Include="Commands\CedModSetupCommand.cs" />
@@ -606,6 +608,11 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="version.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
