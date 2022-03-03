@@ -42,12 +42,10 @@ namespace CedMod
             _harmony = new Harmony("com.cedmod.patch");
             _harmony.PatchAll();
             
-            string gitVersion= String.Empty;
-            using (Stream stream = Assembly.GetExecutingAssembly()
-                       .GetManifestResourceStream("GetGitVersion." + "version.txt"))
+            using (Stream stream = Assembly.GetManifestResourceStream("CedMod.version.txt"))
             using (StreamReader reader = new StreamReader(stream))
             {
-                gitVersion = reader.ReadToEnd();
+                GitCommitHash = reader.ReadToEnd();
             }
 
             if (Config.CedMod.AutoDownloadDependency)
