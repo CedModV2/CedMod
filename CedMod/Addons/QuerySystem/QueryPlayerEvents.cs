@@ -363,6 +363,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
+                    {"PlayerId", ev.Player.Id.ToString()},
                     {"Type", nameof(OnPlayerJoin)},
                     {
                         "Message", string.Format("({0}) {1} - {2} joined the game.",

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Threading.Tasks;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem;
@@ -33,11 +34,20 @@ namespace CedMod
 
         public override Version RequiredExiledVersion { get; } = new Version(3, 0, 0);
         public override Version Version { get; } = new Version(3, 0, 3);
+        public static string GitCommitHash = String.Empty;
 
         public override void OnEnabled()
         {
             _harmony = new Harmony("com.cedmod.patch");
             _harmony.PatchAll();
+            
+            string gitVersion= String.Empty;
+            using (Stream stream = Assembly.GetExecutingAssembly()
+                       .GetManifestResourceStream("GetGitVersion." + "version.txt"))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                gitVersion = reader.ReadToEnd();
+            }
 
             if (Config.CedMod.AutoDownloadDependency)
             {
