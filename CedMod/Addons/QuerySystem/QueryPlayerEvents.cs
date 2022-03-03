@@ -30,6 +30,7 @@ namespace CedMod.Addons.QuerySystem
     {
         public void OnPlayerLeave(LeftEventArgs ev)
         {
+            ThreadDispatcher.SendHeartbeatMessage(true);
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
@@ -348,6 +349,7 @@ namespace CedMod.Addons.QuerySystem
 
         public void OnPlayerJoin(VerifiedEventArgs ev)
         {
+            ThreadDispatcher.SendHeartbeatMessage(true);
             if (CommandHandler.Synced.Contains(ev.Player.UserId))
             {
                 if (ServerStatic.GetPermissionsHandler()._members.ContainsKey(ev.Player.UserId))

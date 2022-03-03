@@ -9,5 +9,6 @@ namespace CedMod.ApiModals
         public List<EventModal> Events { get; set; } //is only sent if events are enabled
         public string PluginVersion { get; set; }
         public string PluginCommitHash { get; set; }
+        public bool UpdateStats { get; set; }
     }
 }
