@@ -48,31 +48,37 @@ namespace CedMod.Addons.QuerySystem
         {
             List<EventModal> events = new List<EventModal>();
             List<PlayerObject> players = new List<PlayerObject>();
-            foreach (var ev in EventManager.AvailableEvents)
+            if (WebSocketSystem.HelloMessage.SendEvents)
             {
-                events.Add(new EventModal()
+                foreach (var ev in EventManager.AvailableEvents)
                 {
-                    Active = EventManager.currentEvent != null &&
-                             EventManager.currentEvent.EventPrefix == ev.EventPrefix,
-                    Author = ev.EvenAuthor,
-                    Description = ev.EventDescription,
-                    Name = ev.EventName,
-                    Prefix = ev.EventPrefix,
-                    QueuePos = EventManager.nextEvent.Any(ev1 => ev1.EventName == ev.EventName)
-                        ? EventManager.nextEvent.FindIndex(ev1 => ev1.EventName == ev.EventName) + 1
-                        : -1
-                });
+                    events.Add(new EventModal()
+                    {
+                        Active = EventManager.currentEvent != null &&
+                                 EventManager.currentEvent.EventPrefix == ev.EventPrefix,
+                        Author = ev.EvenAuthor,
+                        Description = ev.EventDescription,
+                        Name = ev.EventName,
+                        Prefix = ev.EventPrefix,
+                        QueuePos = EventManager.nextEvent.Any(ev1 => ev1.EventName == ev.EventName)
+                            ? EventManager.nextEvent.FindIndex(ev1 => ev1.EventName == ev.EventName) + 1
+                            : -1
+                    });
+                }
             }
 
-            foreach (var player in Player.List)
+            if (WebSocketSystem.HelloMessage.SendStats)
             {
-                players.Add(new PlayerObject()
+                foreach (var player in Player.List)
                 {
-                    DoNotTrack = player.DoNotTrack,
-                    Name = player.Nickname,
-                    Staff = player.RemoteAdminAccess,
-                    UserId = player.UserId
-                });
+                    players.Add(new PlayerObject()
+                    {
+                        DoNotTrack = player.DoNotTrack,
+                        Name = player.Nickname,
+                        Staff = player.RemoteAdminAccess,
+                        UserId = player.UserId
+                    });
+                }
             }
 
 
