@@ -19,21 +19,30 @@ namespace CedMod
         
         public static object APIRequest(string endpoint, string arguments, bool returnstring = false, string type = "GET")
         {
-            string response = "";  
+            String response = "";  
             try
             {
+                HttpResponseMessage resp = null;
                 if (type == "GET")
                 {
                     HttpClient client = new HttpClient();
                     client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedModApiKey);
-                    response = client.GetAsync(APIUrl + endpoint + arguments).Result.Content.ReadAsStringAsync().Result;
+                    resp = client.GetAsync(APIUrl + endpoint + arguments).Result;
+                    response = resp.Content.ReadAsStringAsync().Result;
                 }
 
                 if (type == "POST")
                 {
                     HttpClient client = new HttpClient();
                     client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedModApiKey);
-                    response = client.PostAsync(APIUrl + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json")).Result.Content.ReadAsStringAsync().Result;
+                    resp = client.PostAsync(APIUrl + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json")).Result;
+                    response = resp.Content.ReadAsStringAsync().Result;
+                }
+
+                if (!resp.IsSuccessStatusCode)
+                {
+                    Log.Error($"API request failed: {resp.StatusCode} | {response}");
+                    return null;
                 }
                 if (!returnstring)
                 {
