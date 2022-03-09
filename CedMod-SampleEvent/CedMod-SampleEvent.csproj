@@ -63,7 +63,8 @@
           <HintPath>..\References\CloudflareSolverRe.dll</HintPath>
         </Reference>
         <Reference Include="CommandSystem.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\References\CommandSystem.Core.dll</HintPath>
+          <HintPath>..\packages\EXILED.5.0.0-beta.5\lib\net472\CommandSystem.Core.dll</HintPath>
+          <Private>True</Private>
         </Reference>
         <Reference Include="DiscordIntegration_Plugin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\DiscordIntegration_Plugin.dll</HintPath>
@@ -75,39 +76,39 @@
           <HintPath>..\References\dnlib.dll</HintPath>
         </Reference>
         <Reference Include="Exiled.API, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.0.0-alpha.22\lib\net472\Exiled.API.dll</HintPath>
+          <HintPath>..\packages\EXILED.5.0.0-beta.5\lib\net472\Exiled.API.dll</HintPath>
           <Private>True</Private>
         </Reference>
         <Reference Include="Exiled.Bootstrap, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.0.0-alpha.22\lib\net472\Exiled.Bootstrap.dll</HintPath>
+          <HintPath>..\packages\EXILED.5.0.0-beta.5\lib\net472\Exiled.Bootstrap.dll</HintPath>
           <Private>True</Private>
         </Reference>
         <Reference Include="Exiled.CreditTags, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.0.0-alpha.22\lib\net472\Exiled.CreditTags.dll</HintPath>
+          <HintPath>..\packages\EXILED.5.0.0-beta.5\lib\net472\Exiled.CreditTags.dll</HintPath>
           <Private>True</Private>
         </Reference>
         <Reference Include="Exiled.CustomItems, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.0.0-alpha.22\lib\net472\Exiled.CustomItems.dll</HintPath>
+          <HintPath>..\packages\EXILED.5.0.0-beta.5\lib\net472\Exiled.CustomItems.dll</HintPath>
           <Private>True</Private>
         </Reference>
         <Reference Include="Exiled.CustomRoles, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.0.0-alpha.22\lib\net472\Exiled.CustomRoles.dll</HintPath>
+          <HintPath>..\packages\EXILED.5.0.0-beta.5\lib\net472\Exiled.CustomRoles.dll</HintPath>
           <Private>True</Private>
         </Reference>
         <Reference Include="Exiled.Events, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.0.0-alpha.22\lib\net472\Exiled.Events.dll</HintPath>
+          <HintPath>..\packages\EXILED.5.0.0-beta.5\lib\net472\Exiled.Events.dll</HintPath>
           <Private>True</Private>
         </Reference>
         <Reference Include="Exiled.Loader, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.0.0-alpha.22\lib\net472\Exiled.Loader.dll</HintPath>
+          <HintPath>..\packages\EXILED.5.0.0-beta.5\lib\net472\Exiled.Loader.dll</HintPath>
           <Private>True</Private>
         </Reference>
         <Reference Include="Exiled.Permissions, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.0.0-alpha.22\lib\net472\Exiled.Permissions.dll</HintPath>
+          <HintPath>..\packages\EXILED.5.0.0-beta.5\lib\net472\Exiled.Permissions.dll</HintPath>
           <Private>True</Private>
         </Reference>
         <Reference Include="Exiled.Updater, Version=3.1.1.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.0.0-alpha.22\lib\net472\Exiled.Updater.dll</HintPath>
+          <HintPath>..\packages\EXILED.5.0.0-beta.5\lib\net472\Exiled.Updater.dll</HintPath>
           <Private>True</Private>
         </Reference>
         <Reference Include="Facepunch.Steamworks.Win64, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
@@ -159,8 +160,9 @@
           <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
           <Private>True</Private>
         </Reference>
-        <Reference Include="NorthwoodLib, Version=1.2.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\References\NorthwoodLib.dll</HintPath>
+        <Reference Include="NorthwoodLib, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\packages\EXILED.5.0.0-beta.5\lib\net472\NorthwoodLib.dll</HintPath>
+          <Private>True</Private>
         </Reference>
         <Reference Include="Novell.Directory.Ldap, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
           <HintPath>..\References\Novell.Directory.Ldap.dll</HintPath>
@@ -513,6 +515,7 @@
         <Compile Include="SampleEvent.cs" />
     </ItemGroup>
     <ItemGroup>
+      <None Include="App.config" />
       <None Include="packages.config" />
     </ItemGroup>
     <ItemGroup>
