@@ -339,7 +339,7 @@ namespace CedMod.Addons.QuerySystem
                             {
                                 ev.Player.Nickname,
                                 ev.Player.UserId,
-                                Misc.ToHex(ev.NewRole.GetColor()),
+                                Misc.ToHex(RoleExtensions.GetColor(ev.NewRole)),
                                 ev.NewRole
                             })
                     }

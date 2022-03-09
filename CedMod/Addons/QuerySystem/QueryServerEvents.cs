@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -212,7 +213,7 @@ namespace CedMod.Addons.QuerySystem
                 Data = new Dictionary<string, string>()
                 {
                     {"Type", nameof(OnRespawn)},
-                    {"Message", string.Format("Respawn: {0} as {1}.", ev.Players.Count, ev.NextKnownTeam)}
+                    {"Message", string.Format("Respawn: {0} as {1}.", ev.Players.Count(), ev.NextKnownTeam)}
                 }
             });
         }
