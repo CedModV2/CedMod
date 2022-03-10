@@ -46,6 +46,8 @@ namespace CedMod.Addons.QuerySystem
 
         public static void SendHeartbeatMessage(bool updateStats)
         {
+            if (WebSocketSystem.HelloMessage == null)
+                return;
             List<EventModal> events = new List<EventModal>();
             List<PlayerObject> players = new List<PlayerObject>();
             if (WebSocketSystem.HelloMessage.SendEvents)

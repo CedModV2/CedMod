@@ -16,6 +16,6 @@ namespace CedMod.Addons.QuerySystem
         public static QueryServerEvents QueryServerEvents;
         public static QueryPlayerEvents QueryPlayerEvents;
         public static List<string> ReservedSlotUserids = new List<string>();
-        public static string PanelUrl = "frikanweb.cedmod.nl";
+        public static string PanelUrl = "cedmodcommunitymanagementpanelv2.cedmod.nl";
     }
 }
