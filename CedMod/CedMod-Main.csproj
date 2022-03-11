@@ -60,7 +60,6 @@
     <Compile Include="Addons\QuerySystem\Extensions.cs" />
     <Compile Include="Addons\QuerySystem\QueryMapEvents.cs" />
     <Compile Include="Addons\QuerySystem\Patches\BulletHolePatch.cs" />
-    <Compile Include="Addons\QuerySystem\Patches\CommandProcessorPatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\ReservedSlotsPatch.cs" />
     <Compile Include="Addons\QuerySystem\QueryPlayerEvents.cs" />
     <Compile Include="Addons\QuerySystem\PlayerList.cs" />
