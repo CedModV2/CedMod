@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Cryptography;
 using GameCore;
 using HarmonyLib;
@@ -79,6 +80,15 @@ namespace CedMod.Addons.QuerySystem.Patches
                         if (!request.Data.TryGetBytesWithLength(out byte[] array))
                         {
                             flag2 = false;
+                        }
+                        string s = Encoding.Default.GetString(array);
+                        if (s.EndsWith("@steam") && !s.StartsWith("7656"))
+                        {
+                            CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
+                            CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Custom);
+                            CustomLiteNetLib4MirrorTransport.RequestWriter.Put($"Your account has been blocked for suspicious activity, please contact server staff");
+                            request.RejectForce(CustomLiteNetLib4MirrorTransport.RequestWriter);
+                            return;
                         }
                         if (!flag2)
                         {
