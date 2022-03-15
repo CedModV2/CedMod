@@ -8,6 +8,8 @@ using HarmonyLib;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using Mirror.LiteNetLib4Mirror;
+using SlProxy;
+using Log = Exiled.API.Features.Log;
 
 namespace CedMod.Addons.QuerySystem.Patches
 {
@@ -81,12 +83,25 @@ namespace CedMod.Addons.QuerySystem.Patches
                         {
                             flag2 = false;
                         }
+
                         string s = Encoding.Default.GetString(array);
-                        if (s.EndsWith("@steam") && !s.StartsWith("7656"))
+                        var reader = new NetDataReader(request.Data.RawData);
+                        reader._position = 30;
+                        var preauthdata = PreAuthModel.ReadPreAuth(reader);
+                        if (preauthdata == null)
                         {
+                            Log.Debug($"Rejected preauth due to null data", CedModMain.Singleton.Config.CedMod.ShowDebug);
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Custom);
-                            CustomLiteNetLib4MirrorTransport.RequestWriter.Put($"Your account has been blocked for suspicious activity, please contact server staff");
+                            CustomLiteNetLib4MirrorTransport.RequestWriter.Put($"[CedModAntiPreAuthSpam]\nYour connection has been rejected as the 'PreAuth' data sent from your client appears to be invalid, please contact server staff");
+                            return;
+                        }
+                        if (!ECDSA.VerifyBytes($"{s};{preauthdata.Flags};{preauthdata.Region};{preauthdata.Expiration}", preauthdata.Signature, ServerConsole.PublicKey) )
+                        {
+                            Log.Debug($"Rejected preauth due to invalidity\n{preauthdata}");
+                            CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
+                            CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Custom);
+                            CustomLiteNetLib4MirrorTransport.RequestWriter.Put($"[CedModAntiPreAuthSpam]\nYour connection has been rejected as the 'PreAuth' data sent from your client appears to be invalid, please contact server staff");
                             request.RejectForce(CustomLiteNetLib4MirrorTransport.RequestWriter);
                             return;
                         }
