@@ -98,7 +98,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                         }
                         if (!ECDSA.VerifyBytes($"{s};{preauthdata.Flags};{preauthdata.Region};{preauthdata.Expiration}", preauthdata.Signature, ServerConsole.PublicKey) )
                         {
-                            Log.Debug($"Rejected preauth due to invalidity\n{preauthdata}");
+                            Log.Debug($"Rejected preauth due to invalidity\n{preauthdata}", CedModMain.Singleton.Config.CedMod.ShowDebug);
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Custom);
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Put($"[CedModAntiPreAuthSpam]\nYour connection has been rejected as the 'PreAuth' data sent from your client appears to be invalid, please contact server staff");

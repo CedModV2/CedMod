@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using CedMod.Addons.QuerySystem;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 
@@ -39,6 +40,7 @@ namespace CedMod.Addons.Events
                 EventManager.currentEvent.PrepareEvent();
                 Log.Info($"Enabled {EventManager.currentEvent.EventName} for this round");
             }
+            ThreadDispatcher.SendHeartbeatMessage(true);
         }
 
         public void RestartingRound()

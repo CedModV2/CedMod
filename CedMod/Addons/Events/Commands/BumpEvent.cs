@@ -61,6 +61,7 @@ namespace CedMod.Addons.Events.Commands
             {
                 Map.Broadcast(10, $"EventManager: {@event.EventName} has been moved to queue position {EventManager.nextEvent.IndexOf(@event)}");
             }
+            ThreadDispatcher.SendHeartbeatMessage(true);
             response = "Success";
             return true;
         }

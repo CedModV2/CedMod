@@ -68,6 +68,7 @@ namespace CedMod.Addons.Events.Commands
                     Round.Restart(false, false);
                 });
             }
+            ThreadDispatcher.SendHeartbeatMessage(true);
             response = "Success";
             return true;
         }
