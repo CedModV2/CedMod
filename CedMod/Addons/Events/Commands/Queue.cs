@@ -30,7 +30,7 @@ namespace CedMod.Addons.Events.Commands
             {
                 response += $"[{EventManager.nextEvent.IndexOf(evnt)}] {evnt.EventName} - ({evnt.EventPrefix})\n";
             }
-
+            ThreadDispatcher.SendHeartbeatMessage(true);
             return true;
         }
     }

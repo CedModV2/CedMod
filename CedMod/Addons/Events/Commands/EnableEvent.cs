@@ -66,6 +66,7 @@ namespace CedMod.Addons.Events.Commands
                 EventManager.nextEvent.Add(@event);
                 Map.Broadcast(10, $"EventManager: {@event.EventName} has been added to the event queue: position {EventManager.nextEvent.IndexOf(@event)}");
             }
+            ThreadDispatcher.SendHeartbeatMessage(true);
             response = "Success";
             return true;
         }
