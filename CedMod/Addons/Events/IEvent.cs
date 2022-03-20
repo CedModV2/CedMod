@@ -2,15 +2,15 @@
 {
     public interface IEvent
     {
-        public string EventName { get; }
-        public string EvenAuthor { get; }
-        public string EventDescription { get; set; }
-        public string EventPrefix { get; }
-        public bool OverrideWinConditions { get; }
-        public bool BulletHolesAllowed { get; set; }
+        string EventName { get; }
+        string EvenAuthor { get; }
+        string EventDescription { get; set; }
+        string EventPrefix { get; }
+        bool OverrideWinConditions { get; }
+        bool BulletHolesAllowed { get; set; }
 
-        public bool CanRoundEnd();
-        public void PrepareEvent();
-        public void StopEvent();
+        bool CanRoundEnd();
+        void PrepareEvent();
+        void StopEvent();
     }
 }
