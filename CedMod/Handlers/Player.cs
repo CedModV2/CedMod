@@ -19,7 +19,7 @@ namespace CedMod.Handlers
             {
                 if (pp.UserId == ev.Player.UserId) 
                     yield break;
-                if (CedModMain.Singleton.Config.KickSameName)
+                if (CedModMain.Singleton.Config.CedMod.KickSameName)
                 {
                     if (pp.Nickname == ev.Player.Nickname)
                     {
