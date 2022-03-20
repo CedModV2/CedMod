@@ -41,5 +41,3 @@ jobs:
         tag_name: ${{ steps.short-sha.outputs.sha }}
         files: |
           ${{ github.workspace }}/bin/Release/CedModV3.dll
-          ${{ github.workspace }}/bin/Release/CedMod-QuerySystem.dll
-          ${{ github.workspace }}/bin/Release/CedMod-EventManager.dll
