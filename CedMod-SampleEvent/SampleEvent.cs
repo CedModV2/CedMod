@@ -1,5 +1,5 @@
 ﻿using System;
-using CedMod.EventManager;
+using CedMod.Addons.Events;
 using Exiled.API.Features;
 using HarmonyLib;
 

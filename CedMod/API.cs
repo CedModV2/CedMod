@@ -19,14 +19,14 @@ namespace CedMod
         
         public static object APIRequest(string endpoint, string arguments, bool returnstring = false, string type = "GET")
         {
-            String response = "";  
+            string response = "";  
             try
             {
                 HttpResponseMessage resp = null;
                 if (type == "GET")
                 {
                     HttpClient client = new HttpClient();
-                    client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedModApiKey);
+                    client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                     resp = client.GetAsync(APIUrl + endpoint + arguments).Result;
                     response = resp.Content.ReadAsStringAsync().Result;
                 }
@@ -34,7 +34,7 @@ namespace CedMod
                 if (type == "POST")
                 {
                     HttpClient client = new HttpClient();
-                    client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedModApiKey);
+                    client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                     resp = client.PostAsync(APIUrl + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json")).Result;
                     response = resp.Content.ReadAsStringAsync().Result;
                 }
@@ -81,7 +81,7 @@ namespace CedMod
             {
                 if (duration <= 0)
                 {
-                    ServerConsole.Disconnect(player.GameObject, reason + "\n" + CedModMain.Singleton.Config.AdditionalBanMessage);
+                    ServerConsole.Disconnect(player.GameObject, reason + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage);
                 }
             }
         }
@@ -111,7 +111,7 @@ namespace CedMod
                 {
                     Player player = Player.Get(UserId);
                     if (player != null)
-                        ServerConsole.Disconnect(player.GameObject, reason + "\n" + CedModMain.Singleton.Config.AdditionalBanMessage);
+                        ServerConsole.Disconnect(player.GameObject, reason + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage);
                 }
             }
         }

@@ -1,3 +1,3 @@
-V: 3.0.2
-- Rereleased but for 11.1.2
-- Made the 3 commands ran by the pannel not be logged by command logging plugins
+V: 3.0.3
+- Fixed the redirect command.
+- Added a temporary serverside fix for the ExternalLookup issue caused by RA messing up arguments.

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Cedmod
+namespace CedMod
 {
     public class RainbowLight : MonoBehaviour
     {

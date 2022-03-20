@@ -1,5 +1,4 @@
 ﻿using System;
-using Cedmod;
 using CommandSystem;
 using Exiled.Permissions.Extensions;
 using Object = UnityEngine.Object;

@@ -516,10 +516,6 @@
       <None Include="packages.config" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\CedMod-EventManager\CedMod-EventManager.csproj">
-        <Project>{03db8a03-a369-4b7a-9edc-87e82cabdd6d}</Project>
-        <Name>CedMod-EventManager</Name>
-      </ProjectReference>
       <ProjectReference Include="..\CedMod\CedMod-Main.csproj">
         <Project>{b404ba59-5c33-41dc-8fee-0f10f087089d}</Project>
         <Name>CedMod-Main</Name>
