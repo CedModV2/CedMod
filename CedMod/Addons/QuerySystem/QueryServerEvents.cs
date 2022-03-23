@@ -135,6 +135,7 @@ namespace CedMod.Addons.QuerySystem
                     {"Message", "Round is restarting."}
                 }
             });
+            LevelerStore.TrackingEnabled = WebSocketSystem.HelloMessage.ExpEnabled;
 
             if (LevelerStore.TrackingEnabled)
             {
