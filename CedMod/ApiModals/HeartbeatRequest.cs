@@ -10,6 +10,6 @@ namespace CedMod.ApiModals
         public string PluginVersion { get; set; }
         public string PluginCommitHash { get; set; }
         public bool UpdateStats { get; set; }
-        public bool DisableExpTrackingLocal { get; set; }
+        public bool TrackingEnabled { get; set; }
     }
 }
