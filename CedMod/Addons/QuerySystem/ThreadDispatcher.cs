@@ -99,7 +99,7 @@ namespace CedMod.Addons.QuerySystem
                             PluginCommitHash = CedModMain.GitCommitHash,
                             PluginVersion = CedModMain.Singleton.Version.ToString(),
                             UpdateStats = updateStats,
-                            DisableExpTrackingLocal = !LevelerStore.TrackingEnabled || EventManager.currentEvent != null
+                            TrackingEnabled = LevelerStore.TrackingEnabled && EventManager.currentEvent == null
                         })
                     }
                 }
