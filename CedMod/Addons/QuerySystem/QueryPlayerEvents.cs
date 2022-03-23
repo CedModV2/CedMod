@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem.WS;
+using Exiled.API.Enums;
 using Exiled.API.Extensions;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
@@ -345,6 +346,14 @@ namespace CedMod.Addons.QuerySystem
                     }
                 }
             });
+
+            if (LevelerStore.TrackingEnabled && LevelerStore.InitialPlayerRoles.ContainsKey(ev.Player))
+            {
+                if (ev.Reason != SpawnReason.Escaped)
+                    LevelerStore.InitialPlayerRoles.Remove(ev.Player);
+                else
+                    LevelerStore.InitialPlayerRoles[ev.Player] = ev.NewRole;
+            }
         }
 
         public void OnPlayerJoin(VerifiedEventArgs ev)
@@ -431,6 +440,63 @@ namespace CedMod.Addons.QuerySystem
                     }
                 }
             });
+        }
+
+        public void OnEscape(EscapingEventArgs ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnPlayerHandcuffed)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has escaped, Cuffed: {4}",
+                            new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.Role.Color),
+                                ev.Player.Role,
+                                ev.Player.IsCuffed
+                            })
+                    }
+                }
+            });
+
+            if (LevelerStore.TrackingEnabled)
+            {
+                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                {
+                    Recipient = "PANEL",
+                    Data = new Dictionary<string, string>()
+                    {
+                        {"Message", "GRANTEXP"},
+                        {"GrantType", "Escape"},
+                        {"UserId", ev.Player.UserId},
+                        {"RoleType", ev.Player.Role.Type.ToString()},
+                        {"Cuffed", ev.Player.IsCuffed.ToString()}
+                    }
+                });
+
+                if (ev.Player.Cuffer != null)
+                {
+                    WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                    {
+                        Recipient = "PANEL",
+                        Data = new Dictionary<string, string>()
+                        {
+                            {"Message", "GRANTEXP"},
+                            {"GrantType", "AssistEscapeCuff"},
+                            {"UserId", ev.Player.Cuffer.UserId},
+                            {"RoleType", ev.Player.Cuffer.Role.Type.ToString()},
+                        }
+                    });
+                }
+            }
         }
     }
 }

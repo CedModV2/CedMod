@@ -8,5 +8,7 @@ namespace CedMod.ApiModals
         public bool Staff { get; set; }
         public bool DoNotTrack { get; set; }
         public string UserId { get; set; }
+        public int PlayerId { get; set; }
+        public RoleType RoleType { get; set; }
     }
 }
