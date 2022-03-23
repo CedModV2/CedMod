@@ -459,7 +459,7 @@ namespace CedMod.Addons.QuerySystem
                             {
                                 ev.Player.Nickname,
                                 ev.Player.UserId,
-                                Misc.ToHex(ev.Player.Role.Color),
+                                Misc.ToHex(ev.Player.RoleColor),
                                 ev.Player.Role,
                                 ev.Player.IsCuffed
                             })
@@ -477,7 +477,7 @@ namespace CedMod.Addons.QuerySystem
                         {"Message", "GRANTEXP"},
                         {"GrantType", "Escape"},
                         {"UserId", ev.Player.UserId},
-                        {"RoleType", ev.Player.Role.Type.ToString()},
+                        {"RoleType", ev.Player.Role.ToString()},
                         {"Cuffed", ev.Player.IsCuffed.ToString()}
                     }
                 });
@@ -492,7 +492,7 @@ namespace CedMod.Addons.QuerySystem
                             {"Message", "GRANTEXP"},
                             {"GrantType", "AssistEscapeCuff"},
                             {"UserId", ev.Player.Cuffer.UserId},
-                            {"RoleType", ev.Player.Cuffer.Role.Type.ToString()},
+                            {"RoleType", ev.Player.Cuffer.Role.ToString()},
                         }
                     });
                 }

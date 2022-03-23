@@ -143,7 +143,7 @@ namespace CedMod.Addons.QuerySystem
                     LevelerStore.InitialPlayerRoles.Clear();
                     foreach (var plr in Player.List)
                     {
-                        LevelerStore.InitialPlayerRoles.Add(plr, plr.Role.Type);
+                        LevelerStore.InitialPlayerRoles.Add(plr, plr.Role);
                     }
                 });
             }

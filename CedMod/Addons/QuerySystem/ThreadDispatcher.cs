@@ -80,7 +80,7 @@ namespace CedMod.Addons.QuerySystem
                         Staff = player.RemoteAdminAccess,
                         UserId = player.UserId,
                         PlayerId = player.Id,
-                        RoleType = player.Role.Type
+                        RoleType = player.Role
                     });
                 }
             }

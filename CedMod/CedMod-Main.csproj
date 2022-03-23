@@ -77,7 +77,6 @@
     <Compile Include="ApiModals\PlayerObject.cs" />
     <Compile Include="BanSystem.cs" />
     <Compile Include="CedModConfig.cs" />
-    <Compile Include="Commands\AirstrikeCommand.cs" />
     <Compile Include="Commands\CedModSetupCommand.cs" />
     <Compile Include="Commands\DialogBox.cs" />
     <Compile Include="Commands\Dialog\all.cs" />
