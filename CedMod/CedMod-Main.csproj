@@ -56,8 +56,10 @@
     <Compile Include="Addons\QuerySystem\Commands\CmSyncCommand.cs" />
     <Compile Include="Addons\QuerySystem\Commands\NearbyBulletHoles.cs" />
     <Compile Include="Addons\QuerySystem\Commands\RestartQuery.cs" />
+    <Compile Include="Addons\QuerySystem\Commands\ToggleExpTracking.cs" />
     <Compile Include="Addons\QuerySystem\Config.cs" />
     <Compile Include="Addons\QuerySystem\Extensions.cs" />
+    <Compile Include="Addons\QuerySystem\LevelerStore.cs" />
     <Compile Include="Addons\QuerySystem\Patches\PreAuthModel.cs" />
     <Compile Include="Addons\QuerySystem\QueryMapEvents.cs" />
     <Compile Include="Addons\QuerySystem\Patches\BulletHolePatch.cs" />
@@ -75,6 +77,7 @@
     <Compile Include="ApiModals\PlayerObject.cs" />
     <Compile Include="BanSystem.cs" />
     <Compile Include="CedModConfig.cs" />
+    <Compile Include="Commands\AirstrikeCommand.cs" />
     <Compile Include="Commands\CedModSetupCommand.cs" />
     <Compile Include="Commands\DialogBox.cs" />
     <Compile Include="Commands\Dialog\all.cs" />
@@ -91,6 +94,7 @@
     <Compile Include="Handlers\Player.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Handlers\Server.cs" />
+    <Compile Include="OutsideBombPos.cs" />
     <Compile Include="Patches\BanCommandPatch.cs" />
     <Compile Include="Patches\BanPatch.cs" />
     <Compile Include="Patches\OBanCommandPatch.cs" />

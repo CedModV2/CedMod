@@ -78,12 +78,13 @@ namespace CedMod.Addons.QuerySystem
                         DoNotTrack = player.DoNotTrack,
                         Name = player.Nickname,
                         Staff = player.RemoteAdminAccess,
-                        UserId = player.UserId
+                        UserId = player.UserId,
+                        PlayerId = player.Id,
+                        RoleType = player.Role.Type
                     });
                 }
             }
-
-
+            
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "PANEL",
@@ -98,6 +99,7 @@ namespace CedMod.Addons.QuerySystem
                             PluginCommitHash = CedModMain.GitCommitHash,
                             PluginVersion = CedModMain.Singleton.Version.ToString(),
                             UpdateStats = updateStats,
+                            DisableExpTrackingLocal = !LevelerStore.TrackingEnabled || EventManager.currentEvent != null
                         })
                     }
                 }

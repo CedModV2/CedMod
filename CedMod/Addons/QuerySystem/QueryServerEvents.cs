@@ -135,6 +135,18 @@ namespace CedMod.Addons.QuerySystem
                     {"Message", "Round is restarting."}
                 }
             });
+
+            if (LevelerStore.TrackingEnabled)
+            {
+                Timing.CallDelayed(2, () =>
+                {
+                    LevelerStore.InitialPlayerRoles.Clear();
+                    foreach (var plr in Player.List)
+                    {
+                        LevelerStore.InitialPlayerRoles.Add(plr, plr.Role.Type);
+                    }
+                });
+            }
         }
 
         public void OnRoundEnd(RoundEndedEventArgs ev)
@@ -149,6 +161,27 @@ namespace CedMod.Addons.QuerySystem
                     {"Message", "Round is restarting."}
                 }
             });
+
+            if (LevelerStore.TrackingEnabled)
+            {
+                foreach (var plr in LevelerStore.InitialPlayerRoles)
+                {
+                    if (plr.Key == null || !plr.Key.IsConnected)
+                        continue;
+                    WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                    {
+                        Recipient = "PANEL",
+                        Data = new Dictionary<string, string>()
+                        {
+                            {"Message", "GRANTEXP"},
+                            {"GrantType", "SurvivalEndRound"},
+                            {"UserId", plr.Key.UserId},
+                            {"RoleType", plr.Value.ToString()}
+                        }
+                    });
+                }
+                LevelerStore.InitialPlayerRoles.Clear();
+            }
         }
 
         public void OnCheaterReport(ReportingCheaterEventArgs ev)

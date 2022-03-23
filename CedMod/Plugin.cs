@@ -121,6 +121,7 @@ namespace CedMod
             Exiled.Events.Handlers.Player.Verified += QuerySystem.QueryPlayerEvents.OnPlayerJoin;
             Exiled.Events.Handlers.Player.Left += QuerySystem.QueryPlayerEvents.OnPlayerLeave;
             Exiled.Events.Handlers.Player.ChangingRole += QuerySystem.QueryPlayerEvents.OnSetClass;
+            Exiled.Events.Handlers.Player.Escaping += QuerySystem.QueryPlayerEvents.OnEscape;
             
             EventManager.EventManagerServerEvents = new EventManagerServerEvents();
             EventManager.EventManagerPlayerEvents = new EventManagerPlayerEvents();
@@ -233,6 +234,7 @@ namespace CedMod
             Exiled.Events.Handlers.Player.Verified -= QuerySystem.QueryPlayerEvents.OnPlayerJoin;
             Exiled.Events.Handlers.Player.Left -= QuerySystem.QueryPlayerEvents.OnPlayerLeave;
             Exiled.Events.Handlers.Player.ChangingRole -= QuerySystem.QueryPlayerEvents.OnSetClass;
+            Exiled.Events.Handlers.Player.Escaping -= QuerySystem.QueryPlayerEvents.OnEscape;
 
             QuerySystem.QueryMapEvents = null;
             QuerySystem.QueryServerEvents = null;
