@@ -93,7 +93,6 @@
     <Compile Include="Handlers\Player.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Handlers\Server.cs" />
-    <Compile Include="OutsideBombPos.cs" />
     <Compile Include="Patches\BanCommandPatch.cs" />
     <Compile Include="Patches\BanPatch.cs" />
     <Compile Include="Patches\OBanCommandPatch.cs" />
