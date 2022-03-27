@@ -308,6 +308,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
+                    {"ItemType", ev.Item.Type.ToString()},
                     {"Type", nameof(OnUsedItem)},
                     {
                         "Message", string.Format(
@@ -333,6 +334,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
+                    {"Reason", ev.Reason.ToString()},
                     {"Type", nameof(OnSetClass)},
                     {
                         "Message", string.Format("{0} - {1}'s role has been changed to <color={2}>{3}</color>.",
@@ -451,6 +453,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
+                    {"Time", Round.ElapsedTime.ToString()},
                     {"Type", nameof(OnPlayerHandcuffed)},
                     {
                         "Message", string.Format(
