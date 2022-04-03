@@ -60,6 +60,7 @@
     <Compile Include="Addons\QuerySystem\Config.cs" />
     <Compile Include="Addons\QuerySystem\Extensions.cs" />
     <Compile Include="Addons\QuerySystem\LevelerStore.cs" />
+    <Compile Include="Addons\QuerySystem\Patches\CommandProcessorPatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\PreAuthModel.cs" />
     <Compile Include="Addons\QuerySystem\QueryMapEvents.cs" />
     <Compile Include="Addons\QuerySystem\Patches\BulletHolePatch.cs" />
@@ -229,10 +230,6 @@
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NorthwoodLib, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.0.0-beta.5\lib\net472\NorthwoodLib.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Novell.Directory.Ldap, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
@@ -613,7 +610,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

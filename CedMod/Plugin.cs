@@ -87,7 +87,6 @@ namespace CedMod
             _server = new Handlers.Server();
             _player = new Handlers.Player();
             Exiled.Events.Handlers.Server.RestartingRound += _server.OnRoundRestart;
-            Exiled.Events.Handlers.Server.LocalReporting += _server.OnReport;
             //Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += server.OnSendingRemoteAdmin;
             
             Exiled.Events.Handlers.Player.Verified += _player.OnJoin;
@@ -145,9 +144,17 @@ namespace CedMod
                     continue;
                 }
                 EventManager.AvailableEventPlugins.Add(plugin);
-                plugin.OnEnabled();
-                plugin.OnRegisteringCommands();
-                
+                try
+                {
+                    plugin.OnEnabled();
+                    plugin.OnRegisteringCommands();
+                }
+                catch (Exception e)
+                {
+                    Log.Info($"Failed to load {plugin.Name}.\n{e}");
+                    continue;
+                }
+
                 foreach (var type in plugin.Assembly.GetTypes().Where(x => typeof(IEvent).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract))
                 {
                     Log.Debug($"Checked {plugin.Name} for CedMod-Events functionality, IEvent inherited", Config.EventManager.Debug);
@@ -187,7 +194,6 @@ namespace CedMod
             Singleton = null;
             
             Exiled.Events.Handlers.Server.RestartingRound -= _server.OnRoundRestart;
-            Exiled.Events.Handlers.Server.LocalReporting -= _server.OnReport;
             //Exiled.Events.Handlers.Server.SendingRemoteAdminCommand -= server.OnSendingRemoteAdmin;
             
             Exiled.Events.Handlers.Player.Verified -= _player.OnJoin;

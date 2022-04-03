@@ -10,6 +10,7 @@ using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using MEC;
 using Newtonsoft.Json;
+using Server = CedMod.Handlers.Server;
 
 namespace CedMod.Addons.QuerySystem
 {
@@ -254,6 +255,40 @@ namespace CedMod.Addons.QuerySystem
 
         public void OnReport(LocalReportingEventArgs ev)
         {
+            if (CedModMain.Singleton.Config.QuerySystem.ReportBlacklist.Contains(ev.Issuer.UserId))
+            {
+                ev.IsAllowed = false;
+                ev.Issuer.SendConsoleMessage($"[REPORTING] You are blacklisted from ingame reporting", "green");
+                return;
+            }
+            if (ev.Issuer.UserId == ev.Target.UserId)
+            {
+                ev.IsAllowed = false;
+                ev.Issuer.SendConsoleMessage($"[REPORTING] You can't report yourself", "green");
+                return;
+            }
+            if (Server.reported.ContainsKey(ev.Target.ReferenceHub))
+            {
+                ev.IsAllowed = false;
+                ev.Issuer.SendConsoleMessage($"[REPORTING] {ev.Target.Nickname} ({ev.Target.UserId}) has already been reported by {Exiled.API.Features.Player.Get(Server.reported[ev.Target.ReferenceHub]).Nickname}", "green");
+                return;
+            }
+            if (ev.Target.RemoteAdminAccess && !CedModMain.Singleton.Config.QuerySystem.StaffReportAllowed)
+            {
+                ev.IsAllowed = false;
+                ev.Issuer.SendConsoleMessage($"[REPORTING] " + CedModMain.Singleton.Config.QuerySystem.StaffReportMessage, "green");
+                return;
+            }
+            if (ev.Reason.IsEmpty())
+            {
+                ev.IsAllowed = false;
+                ev.Issuer.SendConsoleMessage($"[REPORTING] You have to enter a reason", "green");
+                return;
+            }
+            
+            Server.reported.Add(ev.Target.ReferenceHub, ev.Issuer.ReferenceHub);
+            Timing.RunCoroutine(RemoveFromReportList(ev.Target.ReferenceHub));
+            
             Log.Debug("sending report WR", CedModMain.Singleton.Config.QuerySystem.Debug);
             Task.Factory.StartNew(() =>
             {
@@ -264,6 +299,10 @@ namespace CedMod.Addons.QuerySystem
                 HttpClient client = new HttpClient();
                 try
                 {
+                    ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                    {
+                        ev.Issuer.SendConsoleMessage($"[REPORTING] Sending report to server staff...", "green");
+                    });
                     var response = client
                         .PostAsync(
                             $"https://{QuerySystem.PanelUrl}/Api/Reports/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}?identity={CedModMain.Singleton.Config.QuerySystem.Identifier}",
@@ -274,10 +313,30 @@ namespace CedMod.Addons.QuerySystem
                                     {"reason", ev.Reason},
                                 }), Encoding.Default,
                                 "application/json")).Result;
+                    if (response.IsSuccessStatusCode)
+                    {
+                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                        {
+                            ev.Issuer.SendConsoleMessage($"[REPORTING] {CedModMain.Singleton.Config.QuerySystem.ReportSuccessMessage}", "green");
+                        });
+                    }
+                    else
+                    {
+                        string textResponse = response.Content.ReadAsStringAsync().Result;
+                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                        {
+                            ev.Issuer.SendConsoleMessage($"[REPORTING] Failed to send report, please let server staff know: {textResponse}", "green");
+                        });
+                        Log.Error($"Failed to send report: {textResponse}");
+                    }
                     Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.Singleton.Config.QuerySystem.Debug);
                 }
                 catch (Exception ex)
                 {
+                    ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                    {
+                        ev.Issuer.SendConsoleMessage($"[REPORTING] Failed to send report, please let server staff know: {ex}", "green");
+                    });
                     Log.Error(ex);
                 }
             });
@@ -303,6 +362,14 @@ namespace CedMod.Addons.QuerySystem
                     }
                 }
             });
+            ev.IsAllowed = false;
+            return;
+        }
+        
+        public IEnumerator<float> RemoveFromReportList(ReferenceHub target)
+        {
+            yield return Timing.WaitForSeconds(60f);
+            Server.reported.Remove(target);
         }
     }
 

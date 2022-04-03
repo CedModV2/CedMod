@@ -126,7 +126,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                                         Log.Debug($"Rejected preauth due to null data", CedModMain.Singleton.Config.CedMod.ShowDebug);
                                         CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                                         CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Custom);
-                                        CustomLiteNetLib4MirrorTransport.RequestWriter.Put($"[CedModAntiPreAuthSpam]\nYour connection has been rejected as the 'PreAuth' data sent from your client appears to be invalid, please contact server staff");
+                                        CustomLiteNetLib4MirrorTransport.RequestWriter.Put($"[CedModAntiPreAuthSpam]\nYour connection has been rejected as the 'PreAuth' data sent from your client appears to be invalid, please restart your game or run 'ar' in your client console, You can usually open the client console by pressing ` or ~");
                                         return;
                                     }
                                     if (!ECDSA.VerifyBytes($"{s};{preauthdata.Flags};{preauthdata.Region};{preauthdata.Expiration}", preauthdata.Signature, ServerConsole.PublicKey) )
@@ -134,7 +134,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                                         Log.Debug($"Rejected preauth due to invalidity\n{preauthdata}", CedModMain.Singleton.Config.CedMod.ShowDebug);
                                         CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                                         CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Custom);
-                                        CustomLiteNetLib4MirrorTransport.RequestWriter.Put($"[CedModAntiPreAuthSpam]\nYour connection has been rejected as the 'PreAuth' data sent from your client appears to be invalid, please contact server staff");
+                                        CustomLiteNetLib4MirrorTransport.RequestWriter.Put($"[CedModAntiPreAuthSpam]\nYour connection has been rejected as the 'PreAuth' data sent from your client appears to be invalid, please restart your game or run 'ar' in your client console, You can usually open the client console by pressing ` or ~");
                                         request.RejectForce(CustomLiteNetLib4MirrorTransport.RequestWriter);
                                         return;
                                     }

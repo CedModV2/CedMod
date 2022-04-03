@@ -24,6 +24,18 @@ namespace CedMod.Addons.QuerySystem
         [Description("If true, the plugin will show a custom message when the server is full, promote your patreon reserved slots here :)")]
         public string CustomServerFullMessage { get; set; } = "";
         
+        [Description("Users that are not allowed to create reports.")]
+        public List<string> ReportBlacklist { get; set; } = new List<string>();
+        
+        [Description("If players are allowed to report staff members")]
+        public bool StaffReportAllowed { get; set; } = false;
+        
+        [Description("The message that players recieve if they try to report a staff member")]
+        public string StaffReportMessage { get; set; } = "You can not report a staff member";
+        
+        [Description("The message that players recieve when their report has been sent")]
+        public string ReportSuccessMessage { get; set; } = "Report has been sent, Server staff will assist you as soon as possible";
+        
         [Description("If debug messages are shown")]
         public bool Debug { get; set; } = false;
     }
