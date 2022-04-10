@@ -1,3 +1,3 @@
-V: 3.1.0
-- Merged all the plugin DLL's into one
-- Support for the new panel.
+V: 3.1.1
+- Added compatability for the panel's Leveling system, more info on this later.
+- Added compatability for the new Instance Location system.
