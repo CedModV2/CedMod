@@ -56,6 +56,7 @@
     <Compile Include="Addons\QuerySystem\Commands\CmSyncCommand.cs" />
     <Compile Include="Addons\QuerySystem\Commands\NearbyBulletHoles.cs" />
     <Compile Include="Addons\QuerySystem\Commands\RestartQuery.cs" />
+    <Compile Include="Addons\QuerySystem\Commands\SwitchDevCommand.cs" />
     <Compile Include="Addons\QuerySystem\Commands\ToggleExpTracking.cs" />
     <Compile Include="Addons\QuerySystem\Config.cs" />
     <Compile Include="Addons\QuerySystem\Extensions.cs" />

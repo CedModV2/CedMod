@@ -2,7 +2,10 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 using CedMod.Addons.Events.Commands;
 using CedMod.Addons.QuerySystem.Commands;
 using CedMod.ApiModals;
@@ -39,6 +42,30 @@ namespace CedMod.Addons.QuerySystem.WS
 
         public static void Start()
         {
+            try
+            {
+                HttpClient client = new HttpClient();
+                var resp = client.SendAsync(new HttpRequestMessage()
+                {
+                    Method = HttpMethod.Options,
+                    RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/QuerySystem/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}"),
+                }).Result;
+                string data1 = resp.Content.ReadAsStringAsync().Result;
+                if (resp.StatusCode != HttpStatusCode.OK)
+                {
+                    Log.Error($"Failed to retrieve panel location, API rejected request: {data1}, Retrying");
+                    Thread.Sleep(2000);
+                    Start(); //retry until we succeed or the thread gets aborted.
+                    return;
+                }
+                Log.Info($"Retrieved panel location from API, Connecting to {data1} as {CedModMain.Singleton.Config.QuerySystem.Identifier}");
+                QuerySystem.PanelUrl = data1;
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Failed to retrieve server location\n{e}");
+                return;
+            }
             Reconnect = true;
             Socket = new WebSocket($"wss://{QuerySystem.PanelUrl}/QuerySystem?key={CedModMain.Singleton.Config.QuerySystem.SecurityKey}&identity={CedModMain.Singleton.Config.QuerySystem.Identifier}&version=2");
             Socket.Connect();
@@ -47,13 +74,26 @@ namespace CedMod.Addons.QuerySystem.WS
             {
                 if (!Reconnect)
                     return;
-                lock (reconnectLock)
+                if (args.Reason == "LOCATION SWITCH")
                 {
-                    Log.Error($"Lost connection to CedMod Panel {args.Reason}, reconnecting in 5000ms");
-                    Thread.Sleep(5000);
-                    Log.Info("Reconnecting...");
-                    Socket.Connect();
-                    Log.Debug("Connect", CedModMain.Singleton.Config.QuerySystem.Debug);
+                    Log.Error($"Lost connection to CedMod Panel Instance location switched");
+                    Task.Factory.StartNew(() =>
+                    { 
+                        WebSocketSystem.Stop();
+                        WebSocketSystem.Start();
+                    });
+                    return;
+                }
+                else
+                {
+                    lock (reconnectLock)
+                    {
+                        Log.Error($"Lost connection to CedMod Panel {args.Reason}, reconnecting in 5000ms");
+                        Thread.Sleep(5000);
+                        Log.Info("Reconnecting...");
+                        Socket.Connect();
+                        Log.Debug("Connect", CedModMain.Singleton.Config.QuerySystem.Debug);
+                    }
                 }
             };
             Socket.OnOpen += (sender, args) => { Log.Info("Connected."); };
