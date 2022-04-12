@@ -26,6 +26,19 @@ namespace CedMod.Addons.QuerySystem
         public bool Bystander;
         public string Room;
     }
+    
+    public class RoomsInvolved
+    {
+        public string Position;
+        public RoomType RoomType;
+        public string Rotation;
+    }
+    
+    public class TeamkillData
+    {
+        public List<UsersOnScene> PlayersOnScene = new List<UsersOnScene>();
+        public List<RoomsInvolved> RoomsInvolved = new List<RoomsInvolved>();
+    }
 
     public class QueryPlayerEvents
     {
@@ -140,8 +153,8 @@ namespace CedMod.Addons.QuerySystem
             if (FriendlyFireAutoban.IsTeamKill(ev))
             {
                 Log.Debug("istk", CedModMain.Singleton.Config.QuerySystem.Debug);
-                List<UsersOnScene> playersOnScene = new List<UsersOnScene>();
-                playersOnScene.Add(new UsersOnScene()
+                TeamkillData data = new TeamkillData();
+                data.PlayersOnScene.Add(new UsersOnScene()
                 {
                     CurrentHealth = ev.Killer.Health,
                     Distance = 0,
@@ -152,7 +165,7 @@ namespace CedMod.Addons.QuerySystem
                     Room = ev.Killer.CurrentRoom.Name
                 });
 
-                playersOnScene.Add(new UsersOnScene()
+                data.PlayersOnScene.Add(new UsersOnScene()
                 {
                     CurrentHealth = ev.Target.Health,
                     Distance = Vector3.Distance(ev.Killer.Position, ev.Target.Position),
@@ -162,16 +175,41 @@ namespace CedMod.Addons.QuerySystem
                     Victim = true,
                     Room = ev.Target.CurrentRoom.Name
                 });
+                
+                data.RoomsInvolved.Add(new RoomsInvolved()
+                {
+                    Position = ev.Killer.CurrentRoom.Position.ToString(),
+                    RoomType = ev.Killer.CurrentRoom.Type
+                });
+
+                if (!data.RoomsInvolved.Any(s => s.RoomType == ev.Target.CurrentRoom.Type))
+                {
+                    data.RoomsInvolved.Add(new RoomsInvolved()
+                    {
+                        Position = ev.Target.CurrentRoom.Position.ToString(),
+                        RoomType = ev.Target.CurrentRoom.Type
+                    });
+                }
+                
                 Log.Debug("resolving on scene players", CedModMain.Singleton.Config.QuerySystem.Debug);
                 foreach (var player in Player.List)
                 {
                     if (player.Role == RoleType.Spectator || player.Role == RoleType.None)
                         continue;
 
-                    if (Vector3.Distance(ev.Killer.Position, player.Position) <= 20 &&
-                        playersOnScene.All(plrs => plrs.UserId != player.UserId))
+                    if (Vector3.Distance(ev.Killer.Position, player.Position) <= 20 && data.PlayersOnScene.All(plrs => plrs.UserId != player.UserId))
                     {
-                        playersOnScene.Add(new UsersOnScene()
+                        if (!data.RoomsInvolved.Any(s => s.RoomType == player.CurrentRoom.Type))
+                        {
+                            data.RoomsInvolved.Add(new RoomsInvolved()
+                            {
+                                Position = player.CurrentRoom.Position.ToString(),
+                                Rotation = player.CurrentRoom.transform.rotation.ToString(),
+                                RoomType = player.CurrentRoom.Type
+                            });
+                        }
+                        
+                        data.PlayersOnScene.Add(new UsersOnScene()
                         {
                             CurrentHealth = player.Health,
                             Distance = Vector3.Distance(ev.Killer.Position, player.Position),
@@ -183,6 +221,7 @@ namespace CedMod.Addons.QuerySystem
                         });
                     }
                 }
+                
 
                 Log.Debug("sending WR", CedModMain.Singleton.Config.QuerySystem.Debug);
                 Task.Factory.StartNew(() =>
@@ -196,8 +235,8 @@ namespace CedMod.Addons.QuerySystem
                     {
                         var response = client
                             .PostAsync(
-                                $"https://{QuerySystem.PanelUrl}/Api/Teamkill/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}",
-                                new StringContent(JsonConvert.SerializeObject(playersOnScene), Encoding.Default,
+                                $"https://{QuerySystem.PanelUrl}/Api/Teamkill/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}?v=2",
+                                new StringContent(JsonConvert.SerializeObject(data), Encoding.Default,
                                     "application/json")).Result;
                         Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.Singleton.Config.QuerySystem.Debug);
                     }
