@@ -73,6 +73,7 @@
     <Compile Include="Addons\QuerySystem\ThreadDispatcher.cs" />
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
     <Compile Include="API.cs" />
+    <Compile Include="ApiModals\AutoSlPermsSlRequest.cs" />
     <Compile Include="ApiModals\EventModal.cs" />
     <Compile Include="ApiModals\HeartbeatRequest.cs" />
     <Compile Include="ApiModals\HelloMessage.cs" />

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -10,6 +11,8 @@ using CedMod.Addons.Events.Commands;
 using CedMod.Addons.QuerySystem.Commands;
 using CedMod.ApiModals;
 using Exiled.API.Features;
+using Exiled.Permissions.Extensions;
+using Exiled.Permissions.Features;
 using Newtonsoft.Json;
 using RemoteAdmin;
 using WebSocketSharp;
@@ -277,12 +280,151 @@ namespace CedMod.Addons.QuerySystem.WS
                         case "hello":
                             HelloMessage = JsonConvert.DeserializeObject<HelloMessage>(jsonData["data"]);
                             break;
+                        case "ImportRA":
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                            {
+                                List<SLPermissionEntry> Groups = new List<SLPermissionEntry>();
+                                foreach (var group in ServerStatic.GetPermissionsHandler()._groups)
+                                {
+                                    var perms = Permissions.Groups.FirstOrDefault(s => s.Key == group.Key);
+                                    Groups.Add(new SLPermissionEntry()
+                                    {
+                                        Name = group.Key,
+                                        KickPower = group.Value.KickPower,
+                                        RequiredKickPower = group.Value.RequiredKickPower,
+                                        Hidden = group.Value.HiddenByDefault,
+                                        Cover = group.Value.Cover,
+                                        ReservedSlot = false,
+                                        BadgeText = group.Value.BadgeText,
+                                        BadgeColor = group.Value.BadgeColor,
+                                        RoleId = 0,
+                                        Permissions = (PlayerPermissions) group.Value.Permissions,
+                                        ExiledPermissions = perms.Value == null ? new List<string>() : perms.Value.CombinedPermissions,
+                                    });
+                                }
+
+                                SendQueue.Enqueue(new QueryCommand()
+                                {
+                                    Recipient = cmd.Recipient,
+                                    Data = new Dictionary<string, string>()
+                                    {
+                                        {"Message", "ImportRAResponse"},
+                                        {"Data", JsonConvert.SerializeObject(Groups)}
+                                    }
+                                });
+                            });
+                            break;
+                        case "ApplyRA":
+                            Log.Info($"Panel requested AutoSlPerms reload: {jsonData["reason"]}");
+                            Task.Factory.StartNew(ApplyRa);
+                            break;
                     }
                 }
             }
             catch (Exception ex)
             {
                 Log.Error(ex.ToString());
+            }
+        }
+
+        public static void ApplyRa()
+        {
+            AutoSlPermsSlRequest permsSlRequest = null;
+            try
+            {
+                HttpClient client = new HttpClient();
+                var responsePerms = client.SendAsync(new HttpRequestMessage()
+                {
+                    Method = HttpMethod.Options,
+                    RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/GetPermissions/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}"),
+                }).Result;
+                if (!responsePerms.IsSuccessStatusCode)
+                {
+                    Log.Error($"Failed to request RA: {responsePerms.Content.ReadAsStringAsync().Result}");
+                    responsePerms.EnsureSuccessStatusCode();
+                }
+                permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(responsePerms.Content.ReadAsStringAsync().Result);
+                if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+                    Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
+                File.WriteAllText(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json"), JsonConvert.SerializeObject(permsSlRequest));
+            }
+            catch (Exception e)
+            {
+                if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+                    Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
+                if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")))
+                {
+                    Log.Error($"Failed to fetch RA from panel, using cache...\n{e}");
+                    permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(File.ReadAllText(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")));
+                }
+                else
+                {
+                    Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
+                    return;
+                }
+            }
+
+            try
+            {
+                var handler = ServerStatic.GetPermissionsHandler();
+                var oldMembers = new Dictionary<string, string>(handler._members);
+                handler._groups.Clear();
+                handler._members.Clear();
+                Permissions.Groups.Clear();
+
+                foreach (var perm in permsSlRequest.PermissionEntries)
+                {
+                    handler._groups.Add(perm.Name, new UserGroup()
+                    {
+                        BadgeColor = perm.BadgeColor,
+                        BadgeText = perm.BadgeText,
+                        Cover = perm.Cover,
+                        HiddenByDefault = perm.Hidden,
+                        KickPower = (byte)perm.KickPower,
+                        Permissions = (ulong)perm.Permissions,
+                        RequiredKickPower = (byte)perm.RequiredKickPower,
+                        Shared = false
+                    });
+
+                    var epGroup = new Group();
+                    epGroup.Permissions.AddRange(perm.ExiledPermissions);
+                    epGroup.Permissions.AddRange(perm.ExiledPermissions);
+                    epGroup.Inheritance.Clear();
+                    epGroup.IsDefault = false;
+                    Permissions.Groups.Add(perm.Name, epGroup);
+                }
+
+                foreach (var member in permsSlRequest.MembersList)
+                {
+                    if (member.ReservedSlot && !QuerySystem.ReservedSlotUserids.Contains(member.UserId))
+                        QuerySystem.ReservedSlotUserids.Add(member.UserId);
+                    handler._members.Add(member.UserId, member.Group);
+
+                    if (Player.Get(member.UserId) != null)
+                    {
+                        Player.Get(member.UserId).Group = handler._groups[member.Group];
+                        Log.Info($"Refreshed Permissions from {member.UserId} as they were present in the AutoSlPerms response while ingame");
+                    }
+                }
+
+                foreach (var member in oldMembers)
+                {
+                    if (Player.Get(member.Key) != null)
+                    {
+                        if (permsSlRequest.MembersList.All(s => s.UserId != member.Key))
+                        {
+                            Log.Info(member.Key + " 3");
+                            Player.Get(member.Key).Group = null;
+                            Log.Info($"Removed Permissions from {member.Key} as they were no longer present in the AutoSlPerms response while ingame");
+                        }
+                    }
+                }
+                Log.Info($"Successfully applied {permsSlRequest.PermissionEntries.Count} Groups and {permsSlRequest.MembersList.Count} members for AutoSlPerms");
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
+                ServerStatic.PermissionsHandler = ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
             }
         }
     }

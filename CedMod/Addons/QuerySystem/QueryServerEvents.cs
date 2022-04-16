@@ -34,25 +34,21 @@ namespace CedMod.Addons.QuerySystem
 
                 Task.Factory.StartNew(() =>
                 {
+                    WebSocketSystem.ApplyRa();
                     Log.Debug("Checking configs", CedModMain.Singleton.Config.QuerySystem.Debug);
+                    HttpClient client = new HttpClient();
                     if (CedModMain.Singleton.Config.QuerySystem.EnableBanreasonSync)
                     {
                         Log.Debug("Enabling ban reasons", CedModMain.Singleton.Config.QuerySystem.Debug);
                         ServerConfigSynchronizer.Singleton.NetworkEnableRemoteAdminPredefinedBanTemplates = true;
                         Log.Debug("Clearing ban reasons", CedModMain.Singleton.Config.QuerySystem.Debug);
                         ServerConfigSynchronizer.Singleton.RemoteAdminPredefinedBanTemplates.Clear();
-                        HttpClient client = new HttpClient();
                         Log.Debug("Downloading ban reasons", CedModMain.Singleton.Config.QuerySystem.Debug);
-                        var response =
-                            client.GetAsync(
-                                $"https://{QuerySystem.PanelUrl}/Api/BanReasons/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}");
+                        var response = client.GetAsync($"https://{QuerySystem.PanelUrl}/Api/BanReasons/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}");
                         Log.Debug("Addding ban reasons", CedModMain.Singleton.Config.QuerySystem.Debug);
-                        foreach (var dict in JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(response
-                            .Result
-                            .Content.ReadAsStringAsync().Result))
+                        foreach (var dict in JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(response.Result.Content.ReadAsStringAsync().Result))
                         {
-                            Log.Debug($"Addding ban reason {JsonConvert.SerializeObject(dict)}",
-                                CedModMain.Singleton.Config.QuerySystem.Debug);
+                            Log.Debug($"Addding ban reason {JsonConvert.SerializeObject(dict)}", CedModMain.Singleton.Config.QuerySystem.Debug);
 
                             var durationNice = "";
                             TimeSpan timeSpan = TimeSpan.FromMinutes(double.Parse(dict["Dur"]));
@@ -87,17 +83,11 @@ namespace CedMod.Addons.QuerySystem
                                 });
                         }
                     }
-
-                    HttpClient client1 = new HttpClient();
+                    
                     Log.Debug("Downloading syncs", CedModMain.Singleton.Config.QuerySystem.Debug);
-                    var response1 =
-                        client1.GetAsync(
-                            $"https://{QuerySystem.PanelUrl}/Api/ReservedSlotUsers/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}");
-                    Log.Debug($"Downloaded Reserved slots: {response1.Result.Content.ReadAsStringAsync().Result}",
-                        CedModMain.Singleton.Config.QuerySystem.Debug);
-                    QuerySystem.ReservedSlotUserids =
-                        JsonConvert.DeserializeObject<List<string>>(response1.Result.Content.ReadAsStringAsync()
-                            .Result);
+                    var response1 = client.GetAsync($"https://{QuerySystem.PanelUrl}/Api/ReservedSlotUsers/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}");
+                    Log.Debug($"Downloaded Reserved slots: {response1.Result.Content.ReadAsStringAsync().Result}", CedModMain.Singleton.Config.QuerySystem.Debug);
+                    QuerySystem.ReservedSlotUserids = JsonConvert.DeserializeObject<List<string>>(response1.Result.Content.ReadAsStringAsync().Result);
                 });
             }
         }

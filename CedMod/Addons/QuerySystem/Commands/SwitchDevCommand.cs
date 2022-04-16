@@ -38,7 +38,7 @@ namespace CedMod.Addons.QuerySystem.Commands
                 WebSocketSystem.Start();
             });
 
-            response = $"Plugin will now connect to {QuerySystem.PanelUrl}";
+            response = $"Plugin will now connect to {QuerySystem.CurrentMaster}";
             return true;
         }
     }
