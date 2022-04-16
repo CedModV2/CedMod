@@ -390,7 +390,7 @@ namespace CedMod.Addons.QuerySystem.WS
 
                     var epGroup = new Group();
                     epGroup.Permissions.AddRange(perm.ExiledPermissions);
-                    epGroup.Permissions.AddRange(perm.ExiledPermissions);
+                    epGroup.CombinedPermissions.AddRange(perm.ExiledPermissions);
                     epGroup.Inheritance.Clear();
                     epGroup.IsDefault = false;
                     Permissions.Groups.Add(perm.Name, epGroup);
