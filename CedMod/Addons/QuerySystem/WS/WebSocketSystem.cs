@@ -344,6 +344,8 @@ namespace CedMod.Addons.QuerySystem.WS
                     responsePerms.EnsureSuccessStatusCode();
                 }
                 permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(responsePerms.Content.ReadAsStringAsync().Result);
+                if (permsSlRequest.PermissionEntries.Count == 0)
+                    return;
                 if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
                     Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
                 File.WriteAllText(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json"), JsonConvert.SerializeObject(permsSlRequest));
