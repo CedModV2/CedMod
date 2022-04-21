@@ -120,7 +120,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 {
                     try
                     {
-                        Log.Debug($"Handling send {JsonConvert.SerializeObject(cmd)}", CedModMain.Singleton.Config.QuerySystem.Debug);
+                        Log.Debug($"Handling send {Socket.IsAlive} {Socket.ReadyState} {JsonConvert.SerializeObject(cmd)}", CedModMain.Singleton.Config.QuerySystem.Debug);
                         if (Socket.IsAlive && Socket.ReadyState == WebSocketState.Open)
                             Socket.Send(JsonConvert.SerializeObject(cmd));
                         else 
