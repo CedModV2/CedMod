@@ -114,14 +114,17 @@ namespace CedMod.Addons.QuerySystem.WS
         public static void HandleSendQueue()
         {
             Log.Debug("Started SendQueueHandler", CedModMain.Singleton.Config.QuerySystem.Debug);
-            while (Socket.IsAlive)
+            while (SendThread.IsAlive)
             {
                 while (SendQueue.TryDequeue(out QueryCommand cmd))
                 {
                     try
                     {
                         Log.Debug($"Handling send {JsonConvert.SerializeObject(cmd)}", CedModMain.Singleton.Config.QuerySystem.Debug);
-                        Socket.Send(JsonConvert.SerializeObject(cmd));
+                        if (Socket.IsAlive && Socket.ReadyState == WebSocketState.Open)
+                            Socket.Send(JsonConvert.SerializeObject(cmd));
+                        else 
+                            SendQueue.Enqueue(cmd);
                     }
                     catch (Exception e)
                     {
@@ -278,6 +281,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             }));
                             break;
                         case "hello":
+                            Log.Debug($"Received hello: {ev.Data}", CedModMain.Singleton.Config.QuerySystem.Debug);
                             HelloMessage = JsonConvert.DeserializeObject<HelloMessage>(jsonData["data"]);
                             break;
                         case "ImportRA":
