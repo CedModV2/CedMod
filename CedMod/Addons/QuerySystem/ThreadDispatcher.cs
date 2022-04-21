@@ -35,9 +35,9 @@ namespace CedMod.Addons.QuerySystem
             if (WebSocketSystem.HelloMessage != null)
             {
                 timeLeftbeforeHeartBeat -= Time.deltaTime;
-                Log.Debug("Invoking heartbeat", CedModMain.Singleton.Config.QuerySystem.Debug);
                 if (timeLeftbeforeHeartBeat <= 0)
                 {
+                    Log.Debug("Invoking heartbeat", CedModMain.Singleton.Config.QuerySystem.Debug);
                     timeLeftbeforeHeartBeat = 20;
                     SendHeartbeatMessage(true);
                 }
