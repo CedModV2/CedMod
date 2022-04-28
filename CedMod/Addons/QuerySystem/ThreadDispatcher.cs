@@ -8,6 +8,7 @@ using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem.WS;
 using CedMod.ApiModals;
 using Exiled.API.Features;
+using Exiled.Permissions.Extensions;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -77,7 +78,7 @@ namespace CedMod.Addons.QuerySystem
                     {
                         DoNotTrack = player.DoNotTrack,
                         Name = player.Nickname,
-                        Staff = player.RemoteAdminAccess,
+                        Staff = PermissionsHandler.IsPermitted(player.ReferenceHub.serverRoles.Permissions, new PlayerPermissions[3] { PlayerPermissions.KickingAndShortTermBanning, PlayerPermissions.BanningUpToDay, PlayerPermissions.LongTermBanning}),
                         UserId = player.UserId,
                         PlayerId = player.Id,
                         RoleType = player.Role.Type
