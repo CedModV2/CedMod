@@ -10,6 +10,7 @@ using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using MEC;
 using Newtonsoft.Json;
+using UnityEngine.XR;
 using Server = CedMod.Handlers.Server;
 
 namespace CedMod.Addons.QuerySystem

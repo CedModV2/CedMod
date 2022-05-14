@@ -228,9 +228,13 @@ namespace CedMod.Addons.QuerySystem.WS
                                         default:
                                             ThreadDispatcher.ThreadDispatchQueue.Enqueue(delegate
                                             {
-                                                CommandProcessor.ProcessQuery(jsonData["command"],
-                                                    new CmSender(cmd.Recipient, jsonData["user"], jsonData["user"],
-                                                        ugroup));
+                                                var sender = new CmSender(cmd.Recipient, jsonData["user"], jsonData["user"], ugroup);
+                                                if (Player.Get(jsonData["user"]) == null)
+                                                {
+                                                    HandleQueryplayer.CreateDummy(sender);
+                                                    Log.Info($"Created Dummy player for {jsonData["user"]} Remote Commands Functionality");
+                                                }
+                                                CommandProcessor.ProcessQuery(jsonData["command"], sender);
                                             });
                                             break;
                                     }
@@ -331,111 +335,143 @@ namespace CedMod.Addons.QuerySystem.WS
             }
         }
 
+        public static bool UseRa = true;
+        public static object LockObj = new object();
+
         public static void ApplyRa()
         {
-            AutoSlPermsSlRequest permsSlRequest = null;
-            try
+            lock (LockObj)
             {
-                HttpClient client = new HttpClient();
-                var responsePerms = client.SendAsync(new HttpRequestMessage()
+                AutoSlPermsSlRequest permsSlRequest = null;
+                try
                 {
-                    Method = HttpMethod.Options,
-                    RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/GetPermissions/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}"),
-                }).Result;
-                if (!responsePerms.IsSuccessStatusCode)
-                {
-                    Log.Error($"Failed to request RA: {responsePerms.Content.ReadAsStringAsync().Result}");
-                    responsePerms.EnsureSuccessStatusCode();
-                }
-                permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(responsePerms.Content.ReadAsStringAsync().Result);
-                if (permsSlRequest.PermissionEntries.Count == 0)
-                    return;
-                if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
-                    Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
-                File.WriteAllText(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json"), JsonConvert.SerializeObject(permsSlRequest));
-            }
-            catch (Exception e)
-            {
-                if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
-                    Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
-                if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")))
-                {
-                    Log.Error($"Failed to fetch RA from panel, using cache...\n{e}");
-                    permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(File.ReadAllText(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")));
-                }
-                else
-                {
-                    Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
-                    return;
-                }
-            }
-
-            try
-            {
-                var handler = ServerStatic.GetPermissionsHandler();
-                var oldMembers = new Dictionary<string, string>(handler._members);
-                handler._groups.Clear();
-                handler._members.Clear();
-                Permissions.Groups.Clear();
-
-                foreach (var perm in permsSlRequest.PermissionEntries)
-                {
-                    handler._groups.Add(perm.Name, new UserGroup()
+                    HttpClient client = new HttpClient();
+                    var responsePerms = client.SendAsync(new HttpRequestMessage()
                     {
-                        BadgeColor = perm.BadgeColor,
-                        BadgeText = perm.BadgeText,
-                        Cover = perm.Cover,
-                        HiddenByDefault = perm.Hidden,
-                        KickPower = (byte)perm.KickPower,
-                        Permissions = (ulong)perm.Permissions,
-                        RequiredKickPower = (byte)perm.RequiredKickPower,
-                        Shared = false
-                    });
-
-                    var epGroup = new Group();
-                    epGroup.Permissions.AddRange(perm.ExiledPermissions);
-                    epGroup.CombinedPermissions.AddRange(perm.ExiledPermissions);
-                    epGroup.Inheritance.Clear();
-                    epGroup.IsDefault = false;
-                    Permissions.Groups.Add(perm.Name, epGroup);
-                }
-
-                foreach (var member in permsSlRequest.MembersList)
-                {
-                    if (member.ReservedSlot && !QuerySystem.ReservedSlotUserids.Contains(member.UserId))
-                        QuerySystem.ReservedSlotUserids.Add(member.UserId);
-                    handler._members.Add(member.UserId, member.Group);
-
-                    if (Player.Get(member.UserId) != null)
+                        Method = HttpMethod.Options,
+                        RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/GetPermissions/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}"),
+                    }).Result;
+                    if (!responsePerms.IsSuccessStatusCode)
                     {
-                        Player.Get(member.UserId).Group = handler._groups[member.Group];
-                        Log.Info($"Refreshed Permissions from {member.UserId} as they were present in the AutoSlPerms response while ingame");
+                        if (responsePerms.Content.ReadAsStringAsync().Result == "No entries defined.")
+                        {
+                            if (!UseRa)
+                                ServerStatic.PermissionsHandler = ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
+                            UseRa = true;
+                            if (Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+                            {
+                                if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")))
+                                    File.Delete(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json"));
+                            }
+                            return;
+                        }
+                        Log.Error($"Failed to request RA: {responsePerms.Content.ReadAsStringAsync().Result}");
+                        responsePerms.EnsureSuccessStatusCode();
+                    }
+                    permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(responsePerms.Content.ReadAsStringAsync().Result);
+                    if (permsSlRequest.PermissionEntries.Count == 0)
+                    {
+                        if (!UseRa)
+                            ServerStatic.PermissionsHandler = ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
+                        UseRa = true;
+                        if (Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+                        {
+                            if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")))
+                                File.Delete(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json"));
+                        }
+                        return;
+                    }
+                    if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+                        Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
+                    File.WriteAllText(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json"), JsonConvert.SerializeObject(permsSlRequest));
+                    UseRa = false;
+                }
+                catch (Exception e)
+                {
+                    if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+                        Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
+                    if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")))
+                    {
+                        UseRa = false;
+                        Log.Error($"Failed to fetch RA from panel, using cache...\n{e}");
+                        permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(File.ReadAllText(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")));
+                    }
+                    else
+                    {
+                        UseRa = true;
+                        Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
+                        return;
                     }
                 }
 
-                foreach (var member in oldMembers)
+                try
                 {
-                    if (Player.Get(member.Key) != null)
+                    var handler = ServerStatic.GetPermissionsHandler();
+                    var oldMembers = new Dictionary<string, string>(handler._members);
+                    handler._groups.Clear();
+                    handler._members.Clear();
+                    Permissions.Groups.Clear();
+
+                    foreach (var perm in permsSlRequest.PermissionEntries)
                     {
-                        if (permsSlRequest.MembersList.All(s => s.UserId != member.Key))
+                        handler._groups.Add(perm.Name, new UserGroup()
                         {
-                            Log.Info(member.Key + " 3");
-                            Player.Get(member.Key).Group = null;
-                            Log.Info($"Removed Permissions from {member.Key} as they were no longer present in the AutoSlPerms response while ingame");
+                            BadgeColor = perm.BadgeColor,
+                            BadgeText = perm.BadgeText,
+                            Cover = perm.Cover,
+                            HiddenByDefault = perm.Hidden,
+                            KickPower = (byte)perm.KickPower,
+                            Permissions = (ulong)perm.Permissions,
+                            RequiredKickPower = (byte)perm.RequiredKickPower,
+                            Shared = false
+                        });
+
+                        var epGroup = new Group();
+                        epGroup.Permissions.AddRange(perm.ExiledPermissions);
+                        epGroup.CombinedPermissions.AddRange(perm.ExiledPermissions);
+                        epGroup.Inheritance.Clear();
+                        epGroup.IsDefault = false;
+                        Permissions.Groups.Add(perm.Name, epGroup);
+                    }
+
+                    foreach (var member in permsSlRequest.MembersList)
+                    {
+                        if (member.ReservedSlot && !QuerySystem.ReservedSlotUserids.Contains(member.UserId))
+                            QuerySystem.ReservedSlotUserids.Add(member.UserId);
+                        handler._members.Add(member.UserId, member.Group);
+
+                        if (Player.Get(member.UserId) != null)
+                        {
+                            Player.Get(member.UserId).Group = handler._groups[member.Group];
+                            Log.Info($"Refreshed Permissions from {member.UserId} as they were present in the AutoSlPerms response while ingame");
                         }
                     }
+
+                    foreach (var member in oldMembers)
+                    {
+                        if (Player.Get(member.Key) != null)
+                        {
+                            if (permsSlRequest.MembersList.All(s => s.UserId != member.Key))
+                            {
+                                Log.Info(member.Key + " 3");
+                                Player.Get(member.Key).Group = null;
+                                Log.Info($"Removed Permissions from {member.Key} as they were no longer present in the AutoSlPerms response while ingame");
+                            }
+                        }
+                    }
+                    Log.Info($"Successfully applied {permsSlRequest.PermissionEntries.Count} Groups and {permsSlRequest.MembersList.Count} members for AutoSlPerms");
                 }
-                Log.Info($"Successfully applied {permsSlRequest.PermissionEntries.Count} Groups and {permsSlRequest.MembersList.Count} members for AutoSlPerms");
-            }
-            catch (Exception e)
-            {
-                Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
-                ServerStatic.PermissionsHandler = ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
+                catch (Exception e)
+                {
+                    UseRa = true;
+                    Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
+                    ServerStatic.PermissionsHandler = ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
+                }
             }
         }
     }
 
-    internal class CmSender : CommandSender
+    public class CmSender : CommandSender
     {
         public const int chunksize = 1000;
         public override void RaReply(string text, bool success, bool logToConsole, string overrideDisplay)

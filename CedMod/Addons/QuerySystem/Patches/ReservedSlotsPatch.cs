@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Cryptography;
+using Exiled.API.Features;
 using GameCore;
 using HarmonyLib;
 using LiteNetLib;
 using LiteNetLib.Utils;
+using Mirror;
 using Mirror.LiteNetLib4Mirror;
 using SlProxy;
 using Log = Exiled.API.Features.Log;
@@ -440,7 +442,17 @@ namespace CedMod.Addons.QuerySystem.Patches
                                                     }
                                                 }
 
-                                                
+                                                string s = Encoding.Default.GetString(array);
+                                                var reader = new NetDataReader(request.Data.RawData);
+                                                reader._position = 30;
+                                                var preauthdata = PreAuthModel.ReadPreAuth(reader);
+                                                if (HandleQueryplayer.PlayerDummies.Any(s => s.UserId == preauthdata.UserID))
+                                                {
+                                                    Log.Info("Real user joining... removing leftover dummy");
+                                                    var dum = HandleQueryplayer.PlayerDummies.FirstOrDefault(s => s.UserId == preauthdata.UserID);
+                                                    Player.Dictionary.Remove(dum.GameObject);
+                                                    NetworkServer.Destroy(dum.GameObject);
+                                                }
                                                 request.Accept();
                                                 ServerConsole.AddLog(string.Format("Player {0} preauthenticated from endpoint {1}.", text, text4));
                                                 ServerLogs.AddLog(ServerLogs.Modules.Networking, string.Format("{0} preauthenticated from endpoint {1}.", text, text4), ServerLogs.ServerLogType.ConnectionUpdate);
