@@ -15,6 +15,7 @@ using Exiled.Permissions.Extensions;
 using Exiled.Permissions.Features;
 using Newtonsoft.Json;
 using RemoteAdmin;
+using UnityEngine.Networking;
 using WebSocketSharp;
 
 namespace CedMod.Addons.QuerySystem.WS
@@ -229,12 +230,20 @@ namespace CedMod.Addons.QuerySystem.WS
                                             ThreadDispatcher.ThreadDispatchQueue.Enqueue(delegate
                                             {
                                                 var sender = new CmSender(cmd.Recipient, jsonData["user"], jsonData["user"], ugroup);
+                                                bool removeDummy = false;
                                                 if (Player.Get(jsonData["user"]) == null)
                                                 {
                                                     HandleQueryplayer.CreateDummy(sender);
+                                                    removeDummy = true;
                                                     Log.Info($"Created Dummy player for {jsonData["user"]} Remote Commands Functionality");
                                                 }
                                                 CommandProcessor.ProcessQuery(jsonData["command"], sender);
+                                                if (removeDummy)
+                                                {
+                                                    var dum = HandleQueryplayer.PlayerDummies.FirstOrDefault(s => s.UserId == jsonData["user"]);
+                                                    Player.Dictionary.Remove(dum.GameObject);
+                                                    NetworkServer.Destroy(dum.GameObject);
+                                                }
                                             });
                                             break;
                                     }
