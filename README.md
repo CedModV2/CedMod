@@ -2,9 +2,9 @@ Builds: ![.NET Core](https://github.com/CedModV2/CedMod/workflows/.NET%20Core%20
 
 CedMod builds are located on the Releases tab (download is also available on the CedMod Admin panel https://admin.cedmod.nl)
 
-About CedMod: https://cedmod.nl/Home/About
+About CedMod: https://cedmod.nl/About
 
-Setup guide located here: https://admin.cedmod.nl/Setup/PluginDownload
+Setup guide located here: https://cedmod.nl/Servers/Setup
 
 Support discord: https://discord.gg/p69SGfwxxm
 
