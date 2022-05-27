@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Assets._Scripts.Dissonance;
 using Exiled.Events.EventArgs;
 using Newtonsoft.Json;
 using Log = Exiled.API.Features.Log;
@@ -46,11 +48,27 @@ namespace CedMod
                         }
                     }
                 }
+
+                if (info["success"] == "true" && info.ContainsKey("mute") && info.ContainsKey("mutereason") && info.ContainsKey("muteduration"))
+                {
+                    Log.Info($"user: {player.characterClassManager.UserId} joined while muted, issuing mute...");
+                    Enum.TryParse(info["mute"], out MuteType muteType);
+                    ev.Player.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", info["muteduration"]).Replace("{reason}", info["mutereason"]), "red");
+                    ev.Player.Broadcast(5, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", info["muteduration"]).Replace("{reason}", info["mutereason"]), Broadcast.BroadcastFlags.Normal);
+                    ev.Player.IsMuted = muteType == MuteType.Global;
+                    ev.Player.IsIntercomMuted = muteType == MuteType.Intercom;
+                }
             }
             catch (Exception ex)
             {
                 Log.Error(ex);
             }
         }
+    }
+    
+    public enum MuteType
+    {
+        Intercom,
+        Global
     }
 }

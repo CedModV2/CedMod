@@ -280,6 +280,37 @@ namespace CedMod.Addons.QuerySystem.WS
                                 }
                             }));
                             break;
+                        case "mutesteamid":
+                            Log.Debug("MuteCmd", CedModMain.Singleton.Config.QuerySystem.Debug);
+                            var plr = Player.Get(jsonData["steamid"]);
+                            if (plr != null)
+                            {
+                                Log.Info($"user: {plr.UserId} muted trough panel, issuing mute...");
+                                Enum.TryParse(jsonData["type"], out MuteType muteType);
+                                plr.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), "red");
+                                plr.Broadcast(5, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), Broadcast.BroadcastFlags.Normal);
+                                plr.IsMuted = muteType == MuteType.Global;
+                                plr.IsIntercomMuted = muteType == MuteType.Intercom;
+                                Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                                {
+                                    Recipient = cmd.Recipient,
+                                    Data = new Dictionary<string, string>()
+                                    {
+                                        { "Message", "User muted" }
+                                    }
+                                }));
+                                return;
+                            }
+                            
+                            Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                            {
+                                Recipient = cmd.Recipient,
+                                Data = new Dictionary<string, string>()
+                                {
+                                    { "Message", "User not found" }
+                                }
+                            }));
+                            break;
                         case "hello":
                             Log.Debug($"Received hello: {ev.Data}", CedModMain.Singleton.Config.QuerySystem.Debug);
                             HelloMessage = JsonConvert.DeserializeObject<HelloMessage>(jsonData["data"]);
