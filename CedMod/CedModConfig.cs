@@ -41,6 +41,9 @@ namespace CedMod
         [Description("Message sent to the user when they get muted or join while muted")]
         public string MuteMessage { get; set; } = "You have been {type} muted on this server by an Admin.\nDuration: {duration}\nReason: {reason}";
         
+        [Description("Message shown on the players 'CustomInfo' to indicate that they are muted")]
+        public string MuteCustomInfo { get; set; } = "{type} muted by an admin.";
+        
         [Description("If debug logs are shown")]
         public bool ShowDebug { get; set; } = false;
         

@@ -291,6 +291,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 plr.Broadcast(5, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), Broadcast.BroadcastFlags.Normal);
                                 plr.IsMuted = muteType == MuteType.Global;
                                 plr.IsIntercomMuted = muteType == MuteType.Intercom;
+                                plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
                                 Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                                 {
                                     Recipient = cmd.Recipient,

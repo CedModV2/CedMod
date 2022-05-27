@@ -57,6 +57,7 @@ namespace CedMod
                     ev.Player.Broadcast(5, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", info["muteduration"]).Replace("{reason}", info["mutereason"]), Broadcast.BroadcastFlags.Normal);
                     ev.Player.IsMuted = muteType == MuteType.Global;
                     ev.Player.IsIntercomMuted = muteType == MuteType.Intercom;
+                    ev.Player.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
                 }
             }
             catch (Exception ex)
