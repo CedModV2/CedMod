@@ -72,7 +72,7 @@ namespace CedMod
         
         public static void Mute(Player player, string adminname, double duration, string reason, MuteType Type)
         {
-            double realduration = TimeSpan.FromSeconds(duration).TotalMinutes;
+            long realduration = (long)TimeSpan.FromSeconds(duration).TotalMinutes;
             string req = "{\"AdminName\": \"" + adminname + "\"," +
                          "\"Muteduration\": " + realduration + "," +
                          "\"Type\": " + (int)Type + "," +
@@ -87,7 +87,7 @@ namespace CedMod
 
         public static void Ban(Player player, long duration, string sender, string reason, bool bc = true)
         {
-            double realduration = TimeSpan.FromSeconds(duration).TotalMinutes;
+            long realduration = (long)TimeSpan.FromSeconds(duration).TotalMinutes;
             if (duration >= 1)
             {
                 string json = "{\"Userid\": \"" + player.UserId + "\"," +

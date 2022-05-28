@@ -59,7 +59,7 @@ namespace CedMod.Patches
 
             if (arguments.Count < 3 && CedModMain.Singleton.Config.CedMod.UseMuteDurationAndReason)
             {
-	            response = "To execute this command provide at least 3 arguments!\nUsage: " + arguments.Array[0] + " " + __instance.DisplayCommandUsage();
+	            response = "To execute this command provide at least 3 arguments!\nUsage: mute [PlayerIDs/PlayerNames] [Duration] [Reason]";
 	            return false;
             }
             
@@ -70,9 +70,9 @@ namespace CedMod.Patches
 				response = "An unexpected problem has occurred during PlayerId/Name array processing.";
 				return false;
 			}
-			if (array == null)
+			if (array == null && CedModMain.Singleton.Config.CedMod.UseMuteDurationAndReason)
 			{
-				response = "An error occured while processing this command.\nUsage: " + __instance.DisplayCommandUsage();
+				response = "An error occured while processing this command.\nUsage: [PlayerIDs/PlayerNames] [Duration] [Reason]";
 				return false;
 			}
 			string text = "None Specified";
@@ -84,7 +84,7 @@ namespace CedMod.Patches
 				}
 			}
 			
-			long num = int.MaxValue;
+			long num = (long)TimeSpan.FromMinutes(143998560).TotalSeconds;
 			if (CedModMain.Singleton.Config.CedMod.UseMuteDurationAndReason)
 			{
 				try
@@ -123,10 +123,10 @@ namespace CedMod.Patches
 						plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", MuteType.Global.ToString());
 						Task.Factory.StartNew(() =>
 						{
-							API.Mute(plr, sender.LogName, num, text, MuteType.Intercom);
+							API.Mute(plr, sender.LogName, num, text, MuteType.Global);
 						});
 						global::ServerLogs.AddLog(global::ServerLogs.Modules.Administrative, sender.LogName + " muted player " + referenceHub.LoggedNameFromRefHub() + ".", global::ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging, false);
-						num++;
+						num2++;
 					}
 				}
 				catch (Exception ex)

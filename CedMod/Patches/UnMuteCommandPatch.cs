@@ -62,38 +62,6 @@ namespace CedMod.Patches
 				response = "An unexpected problem has occurred during PlayerId/Name array processing.";
 				return false;
 			}
-			if (array == null)
-			{
-				response = "An error occured while processing this command.\nUsage: " + __instance.DisplayCommandUsage();
-				return false;
-			}
-			string text = "None Specified";
-			if (CedModMain.Singleton.Config.CedMod.UseMuteDurationAndReason)
-			{
-				if (array.Length > 1)
-				{
-					text = array.Skip(1).Aggregate((current, n) => current + " " + n);
-				}
-			}
-			
-			long num = int.MaxValue;
-			if (CedModMain.Singleton.Config.CedMod.UseMuteDurationAndReason)
-			{
-				try
-				{
-					num = Misc.RelativeTimeToSeconds(array[0], 60);
-				}
-				catch
-				{
-					response = "Invalid time: " + array[0];
-					return false;
-				}
-				if (num < 0L)
-				{
-					num = 0L;
-					array[0] = "0";
-				}
-			}
 			
 			ushort num2 = 0;
 			ushort num3 = 0;
@@ -118,7 +86,7 @@ namespace CedMod.Patches
 							API.UnMute(plr);
 						});
 						global::ServerLogs.AddLog(global::ServerLogs.Modules.Administrative, sender.LogName + " unmuted player " + referenceHub.LoggedNameFromRefHub() + ".", global::ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging, false);
-						num++;
+						num2++;
 					}
 				}
 				catch (Exception ex)
