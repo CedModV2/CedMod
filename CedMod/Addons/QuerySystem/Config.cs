@@ -21,6 +21,9 @@ namespace CedMod.Addons.QuerySystem
         [Description("If true, the plugin will automatically enable and setup the External lookup function in remote admin")]
         public bool EnableExternalLookup { get; set; } = true;
         
+        [Description("Server full text.")]
+        public string ServerFullBase { get; set; } = "Server is full.";
+        
         [Description("If true, the plugin will show a custom message when the server is full, promote your patreon reserved slots here :)")]
         public string CustomServerFullMessage { get; set; } = "";
         

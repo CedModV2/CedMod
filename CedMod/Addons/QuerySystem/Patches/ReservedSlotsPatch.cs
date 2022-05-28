@@ -453,7 +453,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                                                 {
                                                     CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                                                     CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Custom);
-                                                    CustomLiteNetLib4MirrorTransport.RequestWriter.Put($"Server is full\n{CedModMain.Singleton.Config.QuerySystem.CustomServerFullMessage}");
+                                                    CustomLiteNetLib4MirrorTransport.RequestWriter.Put($"{CedModMain.Singleton.Config.QuerySystem.ServerFullBase}\n{CedModMain.Singleton.Config.QuerySystem.CustomServerFullMessage}");
                                                 }
                                                 else
                                                 {
