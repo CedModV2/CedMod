@@ -44,6 +44,11 @@ namespace CedMod
         [Description("Message shown on the players 'CustomInfo' to indicate that they are muted")]
         public string MuteCustomInfo { get; set; } = "{type} muted by an admin.";
         
+        [Description("If mutes are required to set and use a Duration and Reason")]
+        public bool UseMuteDurationAndReason { get; set; } = false;
+        [Description("If mutes will only be possible using the panel")]
+        public bool OnlyAllowPanelMutes { get; set; } = false;
+        
         [Description("If debug logs are shown")]
         public bool ShowDebug { get; set; } = false;
         

@@ -30,6 +30,14 @@ namespace CedMod
                     resp = client.GetAsync(APIUrl + endpoint + arguments).Result;
                     response = resp.Content.ReadAsStringAsync().Result;
                 }
+                
+                if (type == "DELETE")
+                {
+                    HttpClient client = new HttpClient();
+                    client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
+                    resp = client.DeleteAsync(APIUrl + endpoint + arguments).Result;
+                    response = resp.Content.ReadAsStringAsync().Result;
+                }
 
                 if (type == "POST")
                 {
@@ -60,6 +68,21 @@ namespace CedMod
                 Log.Error($"API request failed: {response} | {ex.Message}");
                 return null;
             }
+        }
+        
+        public static void Mute(Player player, string adminname, double duration, string reason, MuteType Type)
+        {
+            double realduration = TimeSpan.FromSeconds(duration).TotalMinutes;
+            string req = "{\"AdminName\": \"" + adminname + "\"," +
+                         "\"Muteduration\": " + realduration + "," +
+                         "\"Type\": " + (int)Type + "," +
+                         "\"Mutereason\": \"" + reason + "\"}";
+            Dictionary<string, string> result = (Dictionary<string, string>) APIRequest($"api/Mute/{player.UserId}", req, false, "POST");
+        }
+        
+        public static void UnMute(Player player)
+        {
+            Dictionary<string, string> result = (Dictionary<string, string>) APIRequest($"api/Mute/{player.UserId}", "", false, "DELETE");
         }
 
         public static void Ban(Player player, long duration, string sender, string reason, bool bc = true)
