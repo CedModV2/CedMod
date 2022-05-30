@@ -22,7 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>8</LangVersion>
+    <LangVersion>9</LangVersion>
     <Prefer32Bit>false</Prefer32Bit>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
@@ -62,6 +62,7 @@
     <Compile Include="Addons\QuerySystem\Extensions.cs" />
     <Compile Include="Addons\QuerySystem\LevelerStore.cs" />
     <Compile Include="Addons\QuerySystem\Patches\CommandProcessorPatch.cs" />
+    <Compile Include="Addons\QuerySystem\Patches\ExiledPermissionsPatchPlayer.cs" />
     <Compile Include="Addons\QuerySystem\Patches\PreAuthModel.cs" />
     <Compile Include="Addons\QuerySystem\QueryMapEvents.cs" />
     <Compile Include="Addons\QuerySystem\Patches\BulletHolePatch.cs" />

@@ -29,8 +29,7 @@ namespace CedMod.Patches
 
         public static IEnumerator<float> RaPlayerCoRoutine(RaPlayer __instance, CommandSender sender, string data)
         {
-	        sender.RaReply(string.Format("${0} {1}", __instance.DataId, "Loading, please wait..."), true, true, string.Empty);
-            string[] array = data.Split(new char[]
+	        string[] array = data.Split(new char[]
 			{
 				' '
 			});

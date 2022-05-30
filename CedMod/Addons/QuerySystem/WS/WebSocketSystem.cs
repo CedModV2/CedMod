@@ -406,12 +406,15 @@ namespace CedMod.Addons.QuerySystem.WS
             {
                 var handler = ServerStatic.GetPermissionsHandler();
                 var oldMembers = new Dictionary<string, string>(handler._members);
+                Log.Debug($"Wiping Ra data, {handler._groups.Count} {handler._members.Count} {Exiled.Permissions.Extensions.Permissions.Groups.Count}", CedModMain.Singleton.Config.QuerySystem.Debug);
                 handler._groups.Clear();
                 handler._members.Clear();
                 Permissions.Groups.Clear();
+                Log.Debug($"Wiped Ra data, {handler._groups.Count} {handler._members.Count} {Exiled.Permissions.Extensions.Permissions.Groups.Count}", CedModMain.Singleton.Config.QuerySystem.Debug);
 
                 foreach (var perm in permsSlRequest.PermissionEntries)
                 {
+                    Log.Debug($"Constructing group {perm.Name} {perm.BadgeText} {perm.BadgeColor}", CedModMain.Singleton.Config.QuerySystem.Debug);
                     handler._groups.Add(perm.Name, new UserGroup()
                     {
                         BadgeColor = perm.BadgeColor,
@@ -430,6 +433,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     epGroup.Inheritance.Clear();
                     epGroup.IsDefault = false;
                     Permissions.Groups.Add(perm.Name, epGroup);
+                    Log.Debug($"Constructed group {perm.Name} {perm.BadgeText} {perm.BadgeColor}", CedModMain.Singleton.Config.QuerySystem.Debug);
                 }
 
                 foreach (var member in permsSlRequest.MembersList)
@@ -437,6 +441,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     if (member.ReservedSlot && !QuerySystem.ReservedSlotUserids.Contains(member.UserId))
                         QuerySystem.ReservedSlotUserids.Add(member.UserId);
                     handler._members.Add(member.UserId, member.Group);
+                    Log.Debug($"Applied {member.Group} to {member.UserId}", CedModMain.Singleton.Config.QuerySystem.Debug);
 
                     if (Player.Get(member.UserId) != null)
                     {
