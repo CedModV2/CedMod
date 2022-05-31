@@ -23,13 +23,20 @@ namespace CedMod.Addons.QuerySystem.Patches
         public static bool Prefix(ref bool __result, Player player, string permission)
         {
             if (string.IsNullOrEmpty(permission))
+            {
+                __result = false;
                 return false;
+            }
 
             if (Server.Host == player)
-                return true;
+            {
+                __result = true;
+                return false;
+            }
 
             if (player is null || player.GameObject is null || Permissions.Groups is null || Permissions.Groups.Count == 0)
             {
+                __result = false;
                 return false;
             }
             
@@ -48,6 +55,8 @@ namespace CedMod.Addons.QuerySystem.Patches
             if (group is null)
             {
                 Log.Debug("There's no default group, returning false...", Exiled.Permissions.Permissions.Instance.Config.ShouldDebugBeShown);
+                
+                __result = false;
                 return false;
             }
 
@@ -55,7 +64,10 @@ namespace CedMod.Addons.QuerySystem.Patches
             const string allPerms = ".*";
 
             if (group.CombinedPermissions.Contains(allPerms))
-                return true;
+            {
+                __result = true;
+                return false;
+            }
 
             if (permission.Contains(permSeparator))
             {
@@ -98,13 +110,15 @@ namespace CedMod.Addons.QuerySystem.Patches
                 StringBuilderPool.Shared.Return(strBuilder);
 
                 Log.Debug($"Result in the block: {result}", Exiled.Permissions.Permissions.Instance.Config.ShouldDebugBeShown);
-                return result;
+                __result = result;
+                return false;
             }
 
             // It'll work when there is no dot in the permission.
             bool result2 = group.CombinedPermissions.Contains(permission, StringComparison.OrdinalIgnoreCase);
             Log.Debug($"Result outside the block: {result2}", Exiled.Permissions.Permissions.Instance.Config.ShouldDebugBeShown);
-            return result2;
+            __result = result2;
+            return false;
         }
     }
 }
