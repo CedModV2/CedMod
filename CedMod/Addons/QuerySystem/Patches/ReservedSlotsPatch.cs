@@ -419,8 +419,10 @@ namespace CedMod.Addons.QuerySystem.Patches
                                             {
                                                 num4 += QuerySystem.ReservedSlotUserids.Count;
                                             }
-                                            PreAuthenticatingEventArgs ev = new PreAuthenticatingEventArgs(text, request, request.Data.Position, b3, text2, num);
+                                            Log.Info("Preauth ev");
+                                            PreAuthenticatingEventArgs ev = new PreAuthenticatingEventArgs(text, request, request.Data.Position, b3, text2, num4);
                                             Player.OnPreAuthenticating(ev);
+                                            Log.Info("Preauth ev exec");
                                             if (LiteNetLib4MirrorCore.Host.ConnectedPeersCount < num4)
                                             {
                                                 if (CustomLiteNetLib4MirrorTransport.UserIds.ContainsKey(request.RemoteEndPoint))
@@ -453,8 +455,10 @@ namespace CedMod.Addons.QuerySystem.Patches
                                                 */
 
                                                 //>Exiled
+                                                Log.Info("Preauth allow check");
                                                 if (ev.IsAllowed)
                                                 {
+                                                    Log.Info("Preauth allowed");
                                                     request.Accept();
                                                     CustomLiteNetLib4MirrorTransport.PreauthDisableIdleMode();
                                                     ServerConsole.AddLog($"Player {text} preauthenticated from endpoint {request.RemoteEndPoint}.");
@@ -462,6 +466,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                                                 }
                                                 else
                                                 {
+                                                    Log.Info("Preauth not allowed");
                                                     ServerConsole.AddLog($"Player {text} tried to preauthenticated from endpoint {request.RemoteEndPoint}, but the request has been rejected by a plugin.");
                                                     ServerLogs.AddLog(ServerLogs.Modules.Networking, $"{text} tried to preauthenticated from endpoint {request.RemoteEndPoint}, but the request has been rejected by a plugin.", ServerLogs.ServerLogType.ConnectionUpdate);
                                                 }
@@ -469,11 +474,12 @@ namespace CedMod.Addons.QuerySystem.Patches
                                             }
                                             else
                                             {
-                                                if (ev.ServerFull)
+                                                if (!ev.IsAllowed)
                                                 {
                                                     if (CedModMain.Singleton.Config.QuerySystem.CustomServerFullMessage != "")
                                                     { 
-                                                        CustomLiteNetLib4MirrorTransport.RequestWriter.Reset(); CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Custom);
+                                                        CustomLiteNetLib4MirrorTransport.RequestWriter.Reset(); 
+                                                        CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Custom);
                                                         CustomLiteNetLib4MirrorTransport.RequestWriter.Put($"{CedModMain.Singleton.Config.QuerySystem.ServerFullBase}\n{CedModMain.Singleton.Config.QuerySystem.CustomServerFullMessage}");
                                                     }
                                                     else
@@ -483,17 +489,13 @@ namespace CedMod.Addons.QuerySystem.Patches
                                                     }
                                                     request.Reject(CustomLiteNetLib4MirrorTransport.RequestWriter);
                                                 }
-                                                else if (ev.IsAllowed)
+                                                else
                                                 {
                                                     request.Accept();
+                                                    Log.Info("Preauth Full");
                                                     CustomLiteNetLib4MirrorTransport.PreauthDisableIdleMode();
                                                     ServerConsole.AddLog($"Player {text} preauthenticated from endpoint {request.RemoteEndPoint}.");
                                                     ServerLogs.AddLog(ServerLogs.Modules.Networking, $"{text} preauthenticated from endpoint {request.RemoteEndPoint}.", ServerLogs.ServerLogType.ConnectionUpdate);
-                                                }
-                                                else
-                                                {
-                                                    ServerConsole.AddLog($"Player {text} tried to preauthenticated from endpoint {request.RemoteEndPoint}, but the request has been rejected by a plugin.");
-                                                    ServerLogs.AddLog(ServerLogs.Modules.Networking, $"{text} tried to preauthenticated from endpoint {request.RemoteEndPoint}, but the request has been rejected by a plugin.", ServerLogs.ServerLogType.ConnectionUpdate);
                                                 }
                                             }
                                         }

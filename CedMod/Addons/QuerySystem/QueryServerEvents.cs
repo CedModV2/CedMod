@@ -34,60 +34,67 @@ namespace CedMod.Addons.QuerySystem
 
                 Task.Factory.StartNew(() =>
                 {
-                    WebSocketSystem.ApplyRa();
                     Log.Debug("Checking configs", CedModMain.Singleton.Config.QuerySystem.Debug);
-                    HttpClient client = new HttpClient();
-                    if (CedModMain.Singleton.Config.QuerySystem.EnableBanreasonSync)
+                    try
                     {
-                        Log.Debug("Enabling ban reasons", CedModMain.Singleton.Config.QuerySystem.Debug);
-                        ServerConfigSynchronizer.Singleton.NetworkEnableRemoteAdminPredefinedBanTemplates = true;
-                        Log.Debug("Clearing ban reasons", CedModMain.Singleton.Config.QuerySystem.Debug);
-                        ServerConfigSynchronizer.Singleton.RemoteAdminPredefinedBanTemplates.Clear();
-                        Log.Debug("Downloading ban reasons", CedModMain.Singleton.Config.QuerySystem.Debug);
-                        var response = client.GetAsync($"https://{QuerySystem.PanelUrl}/Api/BanReasons/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}");
-                        Log.Debug("Addding ban reasons", CedModMain.Singleton.Config.QuerySystem.Debug);
-                        foreach (var dict in JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(response.Result.Content.ReadAsStringAsync().Result))
+                        HttpClient client = new HttpClient();
+                        if (CedModMain.Singleton.Config.QuerySystem.EnableBanreasonSync)
                         {
-                            Log.Debug($"Addding ban reason {JsonConvert.SerializeObject(dict)}", CedModMain.Singleton.Config.QuerySystem.Debug);
+                            Log.Debug("Enabling ban reasons", CedModMain.Singleton.Config.QuerySystem.Debug);
+                            ServerConfigSynchronizer.Singleton.NetworkEnableRemoteAdminPredefinedBanTemplates = true;
+                            Log.Debug("Clearing ban reasons", CedModMain.Singleton.Config.QuerySystem.Debug);
+                            ServerConfigSynchronizer.Singleton.RemoteAdminPredefinedBanTemplates.Clear();
+                            Log.Debug("Downloading ban reasons", CedModMain.Singleton.Config.QuerySystem.Debug);
+                            var response = client.GetAsync($"https://{QuerySystem.PanelUrl}/Api/BanReasons/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}");
+                            Log.Debug("Addding ban reasons", CedModMain.Singleton.Config.QuerySystem.Debug);
+                            foreach (var dict in JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(response.Result.Content.ReadAsStringAsync().Result))
+                            {
+                                Log.Debug($"Addding ban reason {JsonConvert.SerializeObject(dict)}", CedModMain.Singleton.Config.QuerySystem.Debug);
 
-                            var durationNice = "";
-                            TimeSpan timeSpan = TimeSpan.FromMinutes(double.Parse(dict["Dur"]));
-                            int num2 = timeSpan.Days / 365;
-                            if (num2 > 0)
-                            {
-                                durationNice = string.Format("{0}y", num2);
-                            }
-                            else if (timeSpan.Days > 0)
-                            {
-                                durationNice = string.Format("{0}d", timeSpan.Days);
-                            }
-                            else if (timeSpan.Hours > 0)
-                            {
-                                durationNice = string.Format("{0}h", timeSpan.Hours);
-                            }
-                            else if (timeSpan.Minutes > 0)
-                            {
-                                durationNice = string.Format("{0}m", timeSpan.Minutes);
-                            }
-                            else
-                            {
-                                durationNice = string.Format("{0}s", timeSpan.Seconds);
-                            }
-
-                            ServerConfigSynchronizer.Singleton.RemoteAdminPredefinedBanTemplates.Add(
-                                new ServerConfigSynchronizer.PredefinedBanTemplate()
+                                var durationNice = "";
+                                TimeSpan timeSpan = TimeSpan.FromMinutes(double.Parse(dict["Dur"]));
+                                int num2 = timeSpan.Days / 365;
+                                if (num2 > 0)
                                 {
-                                    Duration = Convert.ToInt32(dict["Dur"]),
-                                    DurationNice = durationNice,
-                                    Reason = dict["Reason"]
-                                });
+                                    durationNice = string.Format("{0}y", num2);
+                                }
+                                else if (timeSpan.Days > 0)
+                                {
+                                    durationNice = string.Format("{0}d", timeSpan.Days);
+                                }
+                                else if (timeSpan.Hours > 0)
+                                {
+                                    durationNice = string.Format("{0}h", timeSpan.Hours);
+                                }
+                                else if (timeSpan.Minutes > 0)
+                                {
+                                    durationNice = string.Format("{0}m", timeSpan.Minutes);
+                                }
+                                else
+                                {
+                                    durationNice = string.Format("{0}s", timeSpan.Seconds);
+                                }
+
+                                ServerConfigSynchronizer.Singleton.RemoteAdminPredefinedBanTemplates.Add(
+                                    new ServerConfigSynchronizer.PredefinedBanTemplate()
+                                    {
+                                        Duration = Convert.ToInt32(dict["Dur"]),
+                                        DurationNice = durationNice,
+                                        Reason = dict["Reason"]
+                                    });
+                            }
                         }
-                    }
                     
-                    Log.Debug("Downloading syncs", CedModMain.Singleton.Config.QuerySystem.Debug);
-                    var response1 = client.GetAsync($"https://{QuerySystem.PanelUrl}/Api/ReservedSlotUsers/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}");
-                    Log.Debug($"Downloaded Reserved slots: {response1.Result.Content.ReadAsStringAsync().Result}", CedModMain.Singleton.Config.QuerySystem.Debug);
-                    QuerySystem.ReservedSlotUserids = JsonConvert.DeserializeObject<List<string>>(response1.Result.Content.ReadAsStringAsync().Result);
+                        Log.Debug("Downloading syncs", CedModMain.Singleton.Config.QuerySystem.Debug);
+                        var response1 = client.GetAsync($"https://{QuerySystem.PanelUrl}/Api/ReservedSlotUsers/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}");
+                        Log.Debug($"Downloaded Reserved slots: {response1.Result.Content.ReadAsStringAsync().Result}", CedModMain.Singleton.Config.QuerySystem.Debug);
+                        QuerySystem.ReservedSlotUserids = JsonConvert.DeserializeObject<List<string>>(response1.Result.Content.ReadAsStringAsync().Result);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e);
+                    }
+                    WebSocketSystem.ApplyRa();
                 });
             }
         }
