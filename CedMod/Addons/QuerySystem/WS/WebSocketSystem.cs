@@ -237,14 +237,14 @@ namespace CedMod.Addons.QuerySystem.WS
                         case "ping":
                             Log.Debug("IsPing", CedModMain.Singleton.Config.QuerySystem.Debug);
                             
-                            var encoded = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(JsonConvert.SerializeObject(new QueryCommand()
+                            var encoded = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new QueryCommand()
                             {
                                 Recipient = cmd.Recipient,
                                 Data = new Dictionary<string, string>()
                                 {
                                     { "Message", "PONG" }
                                 }
-                            })));
+                            }));
                             var buffer = new ArraySegment<Byte>(encoded, 0, encoded.Length);
                             Socket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None).Wait();
                             return;
@@ -252,7 +252,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             Log.Debug("CustomCommand", CedModMain.Singleton.Config.QuerySystem.Debug);
                             if (!jsonData.ContainsKey("command"))
                             {
-                                var encoded1 = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(JsonConvert.SerializeObject(new QueryCommand()
+                                var encoded1 = Encoding.UTF8.GetBytes((JsonConvert.SerializeObject(new QueryCommand()
                                 {
                                     Recipient = cmd.Recipient,
                                     Data = new Dictionary<string, string>()
@@ -273,27 +273,27 @@ namespace CedMod.Addons.QuerySystem.WS
                                 if (jsonData["command"].ToUpper().Contains("REQUEST_DATA AUTH") ||
                                     jsonData["command"].ToUpper().Contains("SUDO QUIT"))
                                 {
-                                    var encoded1 = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(JsonConvert.SerializeObject(new QueryCommand()
+                                    var encoded1 = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new QueryCommand()
                                     {
                                         Recipient = cmd.Recipient,
                                         Data = new Dictionary<string, string>()
                                         {
                                             { "Message", "This command is disabled" }
                                         }
-                                    })));
+                                    }));
                                     var buffer1 = new ArraySegment<Byte>(encoded1, 0, encoded1.Length);
                                     Socket.SendAsync(buffer1, WebSocketMessageType.Text, true, CancellationToken.None).Wait();
                                 }
                                 else if (CedModMain.Singleton.Config.QuerySystem.DisallowedWebCommands.Contains(array[0].ToUpper()))
                                 {
-                                    var encoded1 = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(JsonConvert.SerializeObject(new QueryCommand()
+                                    var encoded1 = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new QueryCommand()
                                     {
                                         Recipient = cmd.Recipient,
                                         Data = new Dictionary<string, string>()
                                         {
                                             { "Message", "This command is disabled" }
                                         }
-                                    })));
+                                    }));
                                     var buffer1 = new ArraySegment<Byte>(encoded1, 0, encoded1.Length);
                                     Socket.SendAsync(buffer1, WebSocketMessageType.Text, true, CancellationToken.None).Wait();
                                 }
@@ -321,7 +321,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 else
                                 {
                                     Log.Debug("CustomCommandPermBad, returning", CedModMain.Singleton.Config.QuerySystem.Debug);
-                                    var encoded1 = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(JsonConvert.SerializeObject(new QueryCommand()
+                                    var encoded1 = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject((new QueryCommand()
                                     {
                                         Recipient = cmd.Recipient,
                                         Data = new Dictionary<string, string>()
@@ -343,7 +343,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 if (component.UserId == jsonData["steamid"])
                                 {
                                     ServerConsole.Disconnect(player.GameObject, jsonData["reason"]);
-                                    var encoded1 = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(JsonConvert.SerializeObject(new QueryCommand()
+                                    var encoded1 = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject((new QueryCommand()
                                     {
                                         Recipient = cmd.Recipient,
                                         Data = new Dictionary<string, string>()
@@ -357,7 +357,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 }
                             }
 
-                            var encoded11 = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(JsonConvert.SerializeObject(new QueryCommand()
+                            var encoded11 = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject((new QueryCommand()
                             {
                                 Recipient = cmd.Recipient,
                                 Data = new Dictionary<string, string>()
@@ -380,7 +380,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 plr.IsMuted = muteType == MuteType.Global;
                                 plr.IsIntercomMuted = muteType == MuteType.Intercom;
                                 plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
-                                var encoded1 = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(JsonConvert.SerializeObject(new QueryCommand()
+                                var encoded1 = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject((new QueryCommand()
                                 {
                                     Recipient = cmd.Recipient,
                                     Data = new Dictionary<string, string>()
@@ -393,7 +393,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 return;
                             }
                             
-                            var encoded111 = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(JsonConvert.SerializeObject(new QueryCommand()
+                            var encoded111 = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject((new QueryCommand()
                             {
                                 Recipient = cmd.Recipient,
                                 Data = new Dictionary<string, string>()
