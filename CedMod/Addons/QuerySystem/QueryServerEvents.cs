@@ -11,6 +11,7 @@ using Exiled.Events.EventArgs;
 using MEC;
 using Newtonsoft.Json;
 using Server = CedMod.Handlers.Server;
+using WebSocketState = WebSocketSharp.WebSocketState;
 
 namespace CedMod.Addons.QuerySystem
 {
@@ -105,7 +106,7 @@ namespace CedMod.Addons.QuerySystem
 
             Task.Factory.StartNew(delegate
             {
-                if (!WebSocketSystem.Socket.IsAlive)
+                if (WebSocketSystem.Socket.State != System.Net.WebSockets.WebSocketState.Open)
                 {
                     WebSocketSystem.Stop();
                     WebSocketSystem.Start();
