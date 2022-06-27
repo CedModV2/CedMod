@@ -23,13 +23,19 @@ namespace CedMod.Addons.QuerySystem.Commands
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (QuerySystem.CurrentMaster == QuerySystem.DevPanelUrl)
-            {
-                QuerySystem.CurrentMaster = QuerySystem.MainPanelUrl;
-            }
+            if (arguments.Count >= 1)
+                QuerySystem.CurrentMaster = arguments.At(0);
             else
             {
-                QuerySystem.CurrentMaster = QuerySystem.DevPanelUrl;
+                if (QuerySystem.CurrentMaster == QuerySystem.DevPanelUrl)
+                {
+                    QuerySystem.CurrentMaster = QuerySystem.MainPanelUrl;
+                }
+                else
+                {
+                    QuerySystem.CurrentMaster = QuerySystem.DevPanelUrl;
+                }
+
             }
             
             Task.Factory.StartNew(() =>

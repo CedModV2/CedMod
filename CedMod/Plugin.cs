@@ -48,25 +48,6 @@ namespace CedMod
                 GitCommitHash = reader.ReadToEnd();
             }
 
-            if (Config.CedMod.AutoDownloadDependency)
-            {
-                if (!File.Exists(Application.dataPath + "/Managed/Newtonsoft.Json.dll"))
-                {
-                    WebClient wc = new WebClient();
-                    Log.Error("Dependency missing, downloading...");
-                    wc.DownloadFile("https://cdn.cedmod.nl/files/Newtonsoft.Json.dll", Application.dataPath + "/Managed/Newtonsoft.Json.dll");
-                    Application.Quit();
-                }
-            
-                if (!File.Exists(Exiled.API.Features.Paths.Dependencies + "/websocket-sharp.dll"))
-                {
-                    WebClient wc = new WebClient();
-                    Log.Error("Dependency missing, downloading...");
-                    wc.DownloadFile("https://cdn.cedmod.nl/files/websocket-sharp.dll", Paths.Dependencies + "/websocket-sharp.dll");
-                    Application.Quit();
-                }
-            }
-
             Singleton = this;
             
             ThreadDispatcher dispatcher = Object.FindObjectOfType<ThreadDispatcher>();
@@ -78,7 +59,14 @@ namespace CedMod
                 // Start the HTTP server.
                 Task.Factory.StartNew(() =>
                 {
-                    WebSocketSystem.Start();
+                    try
+                    {
+                        WebSocketSystem.Start();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e);
+                    }
                 });
             }
             else
