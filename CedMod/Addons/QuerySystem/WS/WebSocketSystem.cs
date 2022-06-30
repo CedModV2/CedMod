@@ -15,6 +15,7 @@ using CedMod.ApiModals;
 using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
 using Exiled.Permissions.Features;
+using MEC;
 using Newtonsoft.Json;
 using RemoteAdmin;
 using Websocket.Client;
@@ -320,7 +321,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 CharacterClassManager component = player.ReferenceHub.characterClassManager;
                                 if (component.UserId == jsonData["steamid"])
                                 {
-                                    ServerConsole.Disconnect(player.GameObject, jsonData["reason"]);
+                                    ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>  Timing.RunCoroutine(API.StrikeBad(player, jsonData["reason"] + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage)));
                                     Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                                     {
                                         Recipient = cmd.Recipient,
