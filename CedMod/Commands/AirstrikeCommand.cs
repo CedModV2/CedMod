@@ -11,7 +11,7 @@ using UnityEngine;
 namespace CedMod.Commands
 {
     /// <summary>
-    /// 
+    /// <see cref="Description"/>
     /// </summary>
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class AirstrikeCommand: ICommand
