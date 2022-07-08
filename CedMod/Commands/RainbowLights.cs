@@ -5,6 +5,9 @@ using Object = UnityEngine.Object;
 
 namespace CedMod.Commands
 {
+    /// <summary>
+    /// <see cref="Description"/>.
+    /// </summary>
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class RainbowLightsCommand : ICommand
     {

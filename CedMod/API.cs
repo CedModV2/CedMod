@@ -17,10 +17,24 @@ using Log = Exiled.API.Features.Log;
 
 namespace CedMod
 {
+    /// <summary>
+    /// Used to manage communication with the panel.
+    /// </summary>
     public static class API
     {
+        /// <summary>
+        /// The url of the api.
+        /// </summary>
         public static readonly Uri APIUrl = new Uri("https://api.cedmod.nl/");
         
+        /// <summary>
+        /// Sends an api request to the panel.
+        /// </summary>
+        /// <param name="endpoint">The api endpoint.</param>
+        /// <param name="arguments">The arguments.</param>
+        /// <param name="returnstring">Whether or not to deserialize the respone.</param>
+        /// <param name="type">The type of the request.</param>
+        /// <returns>The response. Maybe be <see langword="null"/></returns>
         public static object APIRequest(string endpoint, string arguments, bool returnstring = false, string type = "GET")
         {
             string response = "";  
@@ -74,6 +88,14 @@ namespace CedMod
             }
         }
         
+        /// <summary>
+        /// Sends a mute request to the panel.
+        /// </summary>
+        /// <param name="player">The player to mute.</param>
+        /// <param name="adminname">The issuer of them mute.</param>
+        /// <param name="duration">The duration of the mute.</param>
+        /// <param name="reason">The reason of the mute.</param>
+        /// <param name="Type">The type of the mute.</param>
         public static void Mute(Player player, string adminname, double duration, string reason, MuteType Type)
         {
             long realduration = (long)TimeSpan.FromSeconds(duration).TotalMinutes;
@@ -84,11 +106,23 @@ namespace CedMod
             Dictionary<string, string> result = (Dictionary<string, string>) APIRequest($"api/Mute/{player.UserId}", req, false, "POST");
         }
         
+        /// <summary>
+        /// Sends a unmute request to the panel.
+        /// </summary>
+        /// <param name="player">The player to unmute.</param>
         public static void UnMute(Player player)
         {
             Dictionary<string, string> result = (Dictionary<string, string>) APIRequest($"api/Mute/{player.UserId}", "", false, "DELETE");
         }
 
+        /// <summary>
+        /// Sends a ban request to the panel.
+        /// </summary>
+        /// <param name="player">The player to ban.</param>
+        /// <param name="duration">The duration of the ban.</param>
+        /// <param name="sender">The issues of the ban.</param>
+        /// <param name="reason">The reason of the ban.</param>
+        /// <param name="bc">Whether or not to broadcast the ban</param>
         public static void Ban(Player player, long duration, string sender, string reason, bool bc = true)
         {
             long realduration = (long)TimeSpan.FromSeconds(duration).TotalMinutes;
@@ -113,6 +147,15 @@ namespace CedMod
             }
         }
         
+        /// <summary>
+        /// Sends a ban request to the panel using the players UserID.
+        /// </summary>
+        /// <param name="UserId">The players UserID.</param>
+        /// <param name="duration">The duration of the ban.</param>
+        /// <param name="sender">The issuer of the ban.</param>
+        /// <param name="reason">The reason of the ban.</param>
+        /// <param name="bc">Whether or not to broadcast the ban.</param>
+        /// <see cref="Ban(Player, long, string, string, bool)"/>
         public static void BanId(string UserId, long duration, string sender, string reason, bool bc = true)
         {
             double realduration = TimeSpan.FromSeconds(duration).TotalMinutes;
@@ -149,6 +192,11 @@ namespace CedMod
             }
         }
 
+        /// <summary>
+        /// Kills and kicks a player.
+        /// </summary>
+        /// <param name="player">The player to kill and kick.</param>
+        /// <param name="reason">The reason for doing so.</param>
         public static IEnumerator<float> StrikeBad(Player player, string reason)
         {
             player.ReferenceHub.playerStats.KillPlayer(new DisruptorDamageHandler(player.Footprint, -1));

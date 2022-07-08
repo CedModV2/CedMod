@@ -13,6 +13,9 @@ using Utils;
 
 namespace CedMod.Patches
 {
+	/// <summary>
+	/// Patches <see cref="OfflineBanCommand"/>.
+	/// </summary>
 	[HarmonyPatch(typeof(OfflineBanCommand), nameof(OfflineBanCommand.Execute))]
     public static class OBanCommandPatch
     {

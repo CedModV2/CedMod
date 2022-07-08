@@ -9,10 +9,17 @@ using Log = Exiled.API.Features.Log;
 
 namespace CedMod
 {
+    /// <summary>
+    /// Handles friendlyFire events.
+    /// </summary>
     public static class FriendlyFireAutoban
     {
         public static Dictionary<string, int> Teamkillers = new Dictionary<string, int>();
         public static bool AdminDisabled = false;
+        /// <summary>
+        /// Called when a player dies.
+        /// </summary>
+        /// <param name="ev">The <see cref="DyingEventArgs"/>.</param>
         public static void HandleKill(DyingEventArgs ev)
         {
             if (!RoundSummary.RoundInProgress() || !CedModMain.Singleton.Config.CedMod.AutobanEnabled || AdminDisabled || !IsTeamKill(ev))
@@ -51,6 +58,11 @@ namespace CedMod
             }
         }
 
+        /// <summary>
+        /// Checks if a player was teamkilled.
+        /// </summary>
+        /// <param name="ev">The <see cref="DyingEventArgs"/>.</param>
+        /// <returns>Whether or not the player was teamkilled</returns>
         public static bool IsTeamKill(DyingEventArgs ev)
         {
             if (!RoundSummary.RoundInProgress())

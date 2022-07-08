@@ -6,7 +6,9 @@ using Exiled.API.Interfaces;
 
 namespace CedMod
 {
-
+    /// <summary>
+    /// A plugin config.
+    /// </summary>
     public sealed class Config : IConfig
     {
         [Description("Indicates whether the plugin is enabled or not")]

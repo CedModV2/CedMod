@@ -8,9 +8,19 @@ using Log = Exiled.API.Features.Log;
 
 namespace CedMod
 {
+    /// <summary>
+    /// Used to handle bans.
+    /// </summary>
     public class BanSystem
     {
+        /// <summary>
+        /// The lock used to prevent concurrent access to the ban list.
+        /// </summary>
         public static readonly object Banlock = new object();
+        /// <summary>
+        /// Called when a player joins.
+        /// </summary>
+        /// <param name="ev">The <see cref="VerifiedEventArgs"/>.</param>
         public static void HandleJoin(VerifiedEventArgs ev)
         {
             Log.Debug("Join", CedModMain.Singleton.Config.CedMod.ShowDebug);
@@ -67,6 +77,9 @@ namespace CedMod
         }
     }
     
+    /// <summary>
+    /// The type of a mute.
+    /// </summary>
     public enum MuteType
     {
         Intercom,

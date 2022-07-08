@@ -14,6 +14,9 @@ using UnityEngine;
 
 namespace CedMod.Commands
 {
+    /// <summary>
+    /// <see cref="Description"/>.
+    /// </summary>
     [CommandHandler(typeof(GameConsoleCommandHandler))]
     public class CedModsetupCommand : ICommand
     {

@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace CedMod
 {
+    /// <summary>
+    /// The rainbow light component. Attached to lights.
+    /// </summary>
     public class RainbowLight : MonoBehaviour
     {
         public static readonly List<RainbowLight> Instances = new List<RainbowLight>();
@@ -11,6 +14,9 @@ namespace CedMod
         public float value = 1f;
 
         private FlickerableLightController _light;
+        /// <summary>
+        /// Gets the <see cref="FlickerableLightController"/> component of this <see cref="GameObject"/>.
+        /// </summary>
         public FlickerableLightController Light
         {
             get
@@ -21,17 +27,26 @@ namespace CedMod
             }
         }
 
+        /// <summary>
+        /// Called when the component is added.
+        /// </summary>
         private void Awake()
         {
             Instances.Add(this);
             Light.Network_warheadLightOverride = true;
         }
 
+        /// <summary>
+        /// Called when the component is destroyed.
+        /// </summary>
         private void OnDestroy()
         {
             Instances.Remove(this);
         }
 
+        /// <summary>
+        /// Called every frame.
+        /// </summary>
         private void Update()
         {
             float amountToShift = hueShiftSpeed * Time.deltaTime;
@@ -39,6 +54,12 @@ namespace CedMod
             Light.Network_warheadLightColor = newColor;
         }
 
+        /// <summary>
+        /// Shits the hue of the <see cref="Color"/> by the specified amount.
+        /// </summary>
+        /// <param name="color">The <see cref="Color"/> to shift.</param>
+        /// <param name="amount">The amount to shift by.</param>
+        /// <returns>The shifted <see cref="Color"/>.</returns>
         private Color ShiftHueBy(Color color, float amount)
         {
             // convert from RGB to HSV

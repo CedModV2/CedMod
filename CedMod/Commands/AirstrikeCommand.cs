@@ -10,6 +10,9 @@ using UnityEngine;
 
 namespace CedMod.Commands
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class AirstrikeCommand: ICommand
     {

@@ -1,14 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Reflection;
 using System.Threading.Tasks;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
 using HarmonyLib;
-using UnityEngine;
 using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.Loader;
@@ -17,7 +14,9 @@ using Object = UnityEngine.Object;
 
 namespace CedMod
 {
-
+    /// <summary>
+    /// The main plugin class.
+    /// </summary>
     public class CedModMain : Plugin<Config>
     {
         private Handlers.Server _server;
@@ -25,18 +24,39 @@ namespace CedMod
         private Harmony _harmony;
         public static CedModMain Singleton;
         
+        /// <summary>
+        /// Gets the plugin priority.
+        /// </summary>
         public override PluginPriority Priority { get; } = PluginPriority.First;
 
+        /// <summary>
+        /// Gets the plugin author.
+        /// </summary>
         public override string Author { get; } = "ced777ric#8321";
 
+        /// <summary>
+        /// Gets the plugin name.
+        /// </summary>
         public override string Name { get; } = "CedMod";
 
+        /// <summary>
+        /// Gets the plugin prefix.
+        /// </summary>
         public override string Prefix { get; } = "cm";
 
+        /// <summary>
+        /// Gets the required Exiled version of the plugin.
+        /// </summary>
         public override Version RequiredExiledVersion { get; } = new Version(5, 0, 0);
-        public override Version Version { get; } = new Version(3, 1, 3);
+        /// <summary>
+        /// Gets the version of the plugin.
+        /// </summary>
+        public override Version Version { get; } = new Version(3, 1, 4);
         public static string GitCommitHash = String.Empty;
 
+        /// <summary>
+        /// Called when the plugin is enabled.
+        /// </summary>
         public override void OnEnabled()
         {
             _harmony = new Harmony("com.cedmod.patch");
@@ -166,6 +186,9 @@ namespace CedMod
             base.OnEnabled();
         }
         
+        /// <summary>
+        /// Called when the plugin is reloaded.
+        /// </summary>
         public override void OnReloaded()
         {
             Timing.CallDelayed(2, () =>
@@ -176,6 +199,9 @@ namespace CedMod
             });
         }
         
+        /// <summary>
+        /// Called when the plugin is disabled.
+        /// </summary>
         public override void OnDisabled()
         {
             _harmony.UnpatchAll();

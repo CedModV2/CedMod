@@ -11,10 +11,19 @@ using Newtonsoft.Json;
 
 namespace CedMod.Handlers
 {
+    /// <summary>
+    /// Used to handle server events.
+    /// </summary>
     public class Server
     {
+        /// <summary>
+        /// A dictionary of people and who they reported.
+        /// </summary>
         public static Dictionary<ReferenceHub, ReferenceHub> reported = new Dictionary<ReferenceHub, ReferenceHub>();
 
+        /// <summary>
+        /// Called when the round starts.
+        /// </summary>
         public void OnRoundRestart()
         {
             LightsoutCommand.isEnabled = false;

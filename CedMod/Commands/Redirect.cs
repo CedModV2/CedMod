@@ -7,6 +7,9 @@ using RoundRestarting;
 
 namespace CedMod.Commands
 {
+    /// <summary>
+    /// <see cref="Description"/>.
+    /// </summary>
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class RedirectCommand : ICommand
     {

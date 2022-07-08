@@ -1,10 +1,18 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using CedMod.Commands;
 
 namespace CedMod
 {
+    /// <summary>
+    /// Collection of positions. Used for <see cref="AirstrikeCommand"/>
+    /// </summary>
     public static class OutsideRandomAirbombPos
     {
+        /// <summary>
+        /// Loads the positions.
+        /// </summary>
+        /// <returns>The positions as <see cref="Vector3"/></returns>
         public static List<Vector3> Load()
         {
             return new List<Vector3>

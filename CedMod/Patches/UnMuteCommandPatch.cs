@@ -14,6 +14,9 @@ using Utils;
 
 namespace CedMod.Patches
 {
+	/// <summary>
+	/// Patches <see cref="UnmuteCommand"/>
+	/// </summary>
 	[HarmonyPatch(typeof(UnmuteCommand), nameof(UnmuteCommand.Execute))]
     public static class UnMuteCommandPatch
     {
