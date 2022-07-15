@@ -88,7 +88,7 @@ namespace CedMod.Addons.QuerySystem
                             "{0} - {1} (<color={2}>{3}</color>) has entered the pocket dimension.", new object[]
                             {
                                 ev.Player.Nickname,
-                                ev.Player.Role,
+                                ev.Player.Role.Type,
                                 Misc.ToHex(ev.Player.Role.Color),
                                 ev.Player.Role
                             })
@@ -112,7 +112,7 @@ namespace CedMod.Addons.QuerySystem
                             "{0} - {1} (<color={2}>{3}</color>) has escaped the pocket dimension.", new object[]
                             {
                                 ev.Player.Nickname,
-                                ev.Player.Role,
+                                ev.Player.Role.Type,
                                 Misc.ToHex(ev.Player.Role.Color),
                                 ev.Player.Role
                             })
@@ -267,11 +267,11 @@ namespace CedMod.Addons.QuerySystem
                                     ev.Killer.Nickname,
                                     ev.Killer.UserId,
                                     Misc.ToHex(ev.Killer.Role.Color),
-                                    ev.Killer.Role,
+                                    ev.Killer.Role.Type,
                                     ev.Target.Nickname,
                                     ev.Target.UserId,
                                     Misc.ToHex(ev.Target.Role.Color),
-                                    ev.Target.Role,
+                                    ev.Target.Role.Type,
                                     ev.Handler.Type.ToString()
                                 })
                         }
@@ -301,11 +301,11 @@ namespace CedMod.Addons.QuerySystem
                                     ev.Killer.Nickname,
                                     ev.Killer.UserId,
                                     Misc.ToHex(ev.Killer.Role.Color),
-                                    ev.Killer.Role,
+                                    ev.Killer.Role.Type,
                                     ev.Target.Nickname,
                                     ev.Target.UserId,
                                     Misc.ToHex(ev.Target.Role.Color),
-                                    ev.Target.Role,
+                                    ev.Target.Role.Type,
                                     ev.Handler.Type.ToString()
                                 })
                         }
@@ -356,7 +356,7 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.Nickname,
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.Role.Color),
-                                ev.Player.Role,
+                                ev.Player.Role.Type,
                                 ev.Item
                             })
                     }
@@ -443,7 +443,7 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Target.Nickname,
                                 ev.Target.UserId,
                                 Misc.ToHex(ev.Target.Role.Color),
-                                ev.Target.Role,
+                                ev.Target.Role.Type,
                                 ev.Cuffer.Nickname,
                                 ev.Cuffer.UserId,
                                 Misc.ToHex(ev.Cuffer.Role.Color),
@@ -472,7 +472,7 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Target.Nickname,
                                 ev.Target.UserId,
                                 Misc.ToHex(ev.Target.Role.Color),
-                                ev.Target.Role,
+                                ev.Target.Role.Type,
                                 ev.Cuffer.Nickname,
                                 ev.Cuffer.UserId,
                                 Misc.ToHex(ev.Cuffer.Role.Color),
@@ -502,7 +502,7 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.Nickname,
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.Role.Color),
-                                ev.Player.Role,
+                                ev.Player.Role.Type,
                                 ev.Player.IsCuffed
                             })
                     }
