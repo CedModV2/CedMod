@@ -54,7 +54,14 @@ namespace CedMod
             if (dispatcher == null)
                 CustomNetworkManager.singleton.gameObject.AddComponent<ThreadDispatcher>();
 
-            if (Config.QuerySystem.SecurityKey != "None")
+            if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "dev.txt")))
+            {
+                Log.Info("Plugin running as Dev");
+                QuerySystem.CurrentMaster = QuerySystem.DevPanelUrl;
+                QuerySystem.PanelUrl = QuerySystem.CurrentMaster;
+            }
+            
+            if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "QuerySystemSecretKey.txt")))
             {
                 // Start the HTTP server.
                 Task.Factory.StartNew(() =>
@@ -70,7 +77,7 @@ namespace CedMod
                 });
             }
             else
-                Log.Warn("security_key is set to none plugin will not load due to security risks");
+                Log.Warn("Plugin is not setup properly, please use refer to the cedmod setup guide"); //todo link guide
             
             _server = new Handlers.Server();
             _player = new Handlers.Player();

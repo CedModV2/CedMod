@@ -70,7 +70,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 var resp = client.SendAsync(new HttpRequestMessage()
                 {
                     Method = HttpMethod.Options,
-                    RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/QuerySystem/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}"),
+                    RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/v3/QuerySystem/{QuerySystem.QuerySystemKey}"),
                 }).Result;
                 string data1 = resp.Content.ReadAsStringAsync().Result;
                 if (resp.StatusCode != HttpStatusCode.OK)
@@ -80,7 +80,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     Start(); //retry until we succeed or the thread gets aborted.
                     return;
                 }
-                Log.Info($"Retrieved panel location from API, Connecting to {data1} as {CedModMain.Singleton.Config.QuerySystem.Identifier}");
+                Log.Info($"Retrieved panel location from API, Connecting to {data1}");
                 QuerySystem.PanelUrl = data1;
             }
             catch (Exception e)
@@ -91,7 +91,7 @@ namespace CedMod.Addons.QuerySystem.WS
 
             try
             {
-                Socket = new WebsocketClient(new Uri($"wss://{QuerySystem.PanelUrl}/QuerySystem?key={CedModMain.Singleton.Config.QuerySystem.SecurityKey}&identity={CedModMain.Singleton.Config.QuerySystem.Identifier}&version=2"));
+                Socket = new WebsocketClient(new Uri($"wss://{QuerySystem.PanelUrl}/QuerySystem?key={QuerySystem.QuerySystemKey}&identity=SCPSL&version=3"));
                 Socket.ReconnectTimeout = TimeSpan.FromSeconds(5);
                 Socket.ErrorReconnectTimeout = TimeSpan.FromSeconds(5);
                 Socket.IsReconnectionEnabled = false;
@@ -435,7 +435,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 var responsePerms = client.SendAsync(new HttpRequestMessage()
                 {
                     Method = HttpMethod.Options,
-                    RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/GetPermissions/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}"),
+                    RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/v3/GetPermissions/{QuerySystem.QuerySystemKey}"),
                 }).Result;
                 if (!responsePerms.IsSuccessStatusCode)
                 {

@@ -227,7 +227,7 @@ namespace CedMod.Addons.QuerySystem
                 Task.Factory.StartNew(() =>
                 {
                     Log.Debug("Thread send", CedModMain.Singleton.Config.QuerySystem.Debug);
-                    if (CedModMain.Singleton.Config.QuerySystem.SecurityKey == "None")
+                    if (QuerySystem.QuerySystemKey == "None")
                         return;
                     Log.Debug("sending WR", CedModMain.Singleton.Config.QuerySystem.Debug);
                     HttpClient client = new HttpClient();
@@ -235,7 +235,7 @@ namespace CedMod.Addons.QuerySystem
                     {
                         var response = client
                             .PostAsync(
-                                $"https://{QuerySystem.PanelUrl}/Api/Teamkill/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}?v=2",
+                                $"https://{QuerySystem.PanelUrl}/Api/v3/Teamkill/{QuerySystem.QuerySystemKey}?v=2",
                                 new StringContent(JsonConvert.SerializeObject(data), Encoding.Default,
                                     "application/json")).Result;
                         Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.Singleton.Config.QuerySystem.Debug);
