@@ -35,5 +35,8 @@ namespace CedMod.Addons.QuerySystem
         
         [Description("If debug messages are shown")]
         public bool Debug { get; set; } = false;
+        
+        [Description("Experimental RemoteCommands Feature, if the executing player is not present, the server will spawn a dummy player, run the command, and despawn the dummy")]
+        public bool DummyExperimental { get; set; } = false;
     }
 }

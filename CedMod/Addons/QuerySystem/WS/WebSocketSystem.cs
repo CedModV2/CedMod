@@ -16,6 +16,7 @@ using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
 using Exiled.Permissions.Features;
 using MEC;
+using Mirror;
 using Newtonsoft.Json;
 using RemoteAdmin;
 using Websocket.Client;
@@ -294,7 +295,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                             {
                                                 var sender = new CmSender(cmd.Recipient, jsonData["user"], jsonData["user"], ugroup);
                                                 bool removeDummy = false;
-                                                if (Player.Get(jsonData["user"]) == null)
+                                                if (Player.Get(jsonData["user"]) == null && CedModMain.Singleton.Config.QuerySystem.DummyExperimental)
                                                 {
                                                     HandleQueryplayer.CreateDummy(sender);
                                                     removeDummy = true;
@@ -453,7 +454,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     var responsePerms = client.SendAsync(new HttpRequestMessage()
                     {
                         Method = HttpMethod.Options,
-                        RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/GetPermissions/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}"),
+                        RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/v3/GetPermissions/{QuerySystem.QuerySystemKey}"),
                     }).Result;
                     if (!responsePerms.IsSuccessStatusCode)
                     {

@@ -14,6 +14,7 @@ using Mirror;
 using Mirror.LiteNetLib4Mirror;
 using SlProxy;
 using Log = Exiled.API.Features.Log;
+using Player = Exiled.Events.Handlers.Player;
 
 namespace CedMod.Addons.QuerySystem.Patches
 {
@@ -468,7 +469,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                                                     {
                                                         Log.Info("Real user joining... removing leftover dummy");
                                                         var dum = HandleQueryplayer.PlayerDummies.FirstOrDefault(s => s.UserId == preauthdata.UserID);
-                                                        Player.Dictionary.Remove(dum.GameObject);
+                                                        Exiled.API.Features.Player.Dictionary.Remove(dum.GameObject);
                                                         NetworkServer.Destroy(dum.GameObject);
                                                     }
                                                     Log.Info("Preauth allowed");
