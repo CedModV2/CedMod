@@ -28,13 +28,21 @@ namespace CedMod.Addons.QuerySystem
         {
             if (ThreadDispatchQueue.TryDequeue(out Action action))
             {
-                Log.Debug($"Invoking action", CedModMain.Singleton.Config.QuerySystem.Debug);
-                action.Invoke();
-                Log.Debug($"Action Invoked", CedModMain.Singleton.Config.QuerySystem.Debug);
+                try
+                {
+                    Log.Debug($"Invoking action", CedModMain.Singleton.Config.QuerySystem.Debug);
+                    action.Invoke();
+                    Log.Debug($"Action Invoked", CedModMain.Singleton.Config.QuerySystem.Debug);
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"Failed to invoke Dispatch\n{e}");
+                }
             }
 
             if (WebSocketSystem.HelloMessage != null)
             {
+                HandleQueryplayer.PlayerDummies.RemoveAll(s => s.GameObject == null);
                 timeLeftbeforeHeartBeat -= Time.deltaTime;
                 if (timeLeftbeforeHeartBeat <= 0)
                 {

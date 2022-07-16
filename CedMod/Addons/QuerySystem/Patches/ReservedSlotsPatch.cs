@@ -5,10 +5,12 @@ using System.Text;
 using Cryptography;
 using Exiled.Events.EventArgs;
 using Exiled.Events.Handlers;
+using Exiled.API.Features;
 using GameCore;
 using HarmonyLib;
 using LiteNetLib;
 using LiteNetLib.Utils;
+using Mirror;
 using Mirror.LiteNetLib4Mirror;
 using SlProxy;
 using Log = Exiled.API.Features.Log;
@@ -458,6 +460,17 @@ namespace CedMod.Addons.QuerySystem.Patches
                                                 Log.Info("Preauth allow check");
                                                 if (ev.IsAllowed)
                                                 {
+                                                    string s = Encoding.Default.GetString(array);
+                                                    var reader = new NetDataReader(request.Data.RawData);
+                                                    reader._position = 30;
+                                                    var preauthdata = PreAuthModel.ReadPreAuth(reader);
+                                                    if (HandleQueryplayer.PlayerDummies.Any(s => s.UserId == preauthdata.UserID))
+                                                    {
+                                                        Log.Info("Real user joining... removing leftover dummy");
+                                                        var dum = HandleQueryplayer.PlayerDummies.FirstOrDefault(s => s.UserId == preauthdata.UserID);
+                                                        Player.Dictionary.Remove(dum.GameObject);
+                                                        NetworkServer.Destroy(dum.GameObject);
+                                                    }
                                                     Log.Info("Preauth allowed");
                                                     request.Accept();
                                                     CustomLiteNetLib4MirrorTransport.PreauthDisableIdleMode();

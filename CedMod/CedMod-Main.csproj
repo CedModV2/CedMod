@@ -61,10 +61,16 @@
     <Compile Include="Addons\QuerySystem\Commands\ToggleExpTracking.cs" />
     <Compile Include="Addons\QuerySystem\Config.cs" />
     <Compile Include="Addons\QuerySystem\Extensions.cs" />
+    <Compile Include="Addons\QuerySystem\HandleQueryplayer.cs" />
     <Compile Include="Addons\QuerySystem\LevelerStore.cs" />
     <Compile Include="Addons\QuerySystem\Patches\CommandProcessorPatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\ExiledPermissionsPatchPlayer.cs" />
+    <Compile Include="Addons\QuerySystem\Patches\DummySpecific\StatsBaseUpdatePatch.cs" />
+    <Compile Include="Addons\QuerySystem\Patches\DummySpecific\TransmitPositionDataPatch.cs" />
+    <Compile Include="Addons\QuerySystem\Patches\ExiledPermissionsPatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\PreAuthModel.cs" />
+    <Compile Include="Addons\QuerySystem\Patches\RefreshExiledPermissions.cs" />
+    <Compile Include="Addons\QuerySystem\Patches\RefreshPermissionsHandlerPatch.cs" />
     <Compile Include="Addons\QuerySystem\QueryMapEvents.cs" />
     <Compile Include="Addons\QuerySystem\Patches\BulletHolePatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\ReservedSlotsPatch.cs" />
