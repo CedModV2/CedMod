@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
@@ -35,7 +36,15 @@ namespace CedMod.Commands
             string key = arguments.At(0);
             Config cedModCnf = pluginConfigs[CedModMain.Singleton.Prefix] as Config;
             HttpClient client = new HttpClient();
-            var panelResponse = client.GetAsync($"https://{QuerySystem.CurrentMaster}/Api/v3/AutomaticSetup?key={key}").Result;
+            HttpResponseMessage panelResponse = null;
+            if (arguments.Count >= 2)
+            {
+                panelResponse = client.GetAsync($"https://{QuerySystem.CurrentMaster}/Api/v3/AutomaticSetup?key={key}&token={arguments.At(1)}").Result;
+            }
+            else
+            {
+                panelResponse = client.GetAsync($"https://{QuerySystem.CurrentMaster}/Api/v3/AutomaticSetup?key={key}").Result;
+            }
             string result = panelResponse.Content.ReadAsStringAsync().Result;
             if (!panelResponse.IsSuccessStatusCode)
             {

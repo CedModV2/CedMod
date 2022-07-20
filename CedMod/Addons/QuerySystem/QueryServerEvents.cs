@@ -132,7 +132,7 @@ namespace CedMod.Addons.QuerySystem
                 Data = new Dictionary<string, string>()
                 {
                     {"Type", nameof(OnRoundStart)},
-                    {"Message", "Round is restarting."}
+                    {"Message", "Round is starting."}
                 }
             });
             LevelerStore.TrackingEnabled = WebSocketSystem.HelloMessage.ExpEnabled;
@@ -159,7 +159,7 @@ namespace CedMod.Addons.QuerySystem
                 Data = new Dictionary<string, string>()
                 {
                     {"Type", nameof(OnRoundEnd)},
-                    {"Message", "Round is restarting."}
+                    {"Message", "Round has ended."}
                 }
             });
 

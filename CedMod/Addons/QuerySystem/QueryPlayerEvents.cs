@@ -493,7 +493,7 @@ namespace CedMod.Addons.QuerySystem
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
                     {"Time", Round.ElapsedTime.ToString()},
-                    {"Type", nameof(OnPlayerHandcuffed)},
+                    {"Type", nameof(OnEscape)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has escaped, Cuffed: {4}",
