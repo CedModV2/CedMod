@@ -47,21 +47,24 @@ namespace CedMod.Addons.QuerySystem.WS
         {
             try
             {
-                HttpClient client = new HttpClient();
-                var resp = client.SendAsync(new HttpRequestMessage()
+                string data1 = "";
+                using (HttpClient client = new HttpClient())
                 {
-                    Method = HttpMethod.Options,
-                    RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/QuerySystem/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}"),
-                }).Result;
-                string data1 = resp.Content.ReadAsStringAsync().Result;
-                if (resp.StatusCode != HttpStatusCode.OK)
-                {
-                    Log.Error($"Failed to retrieve panel location, API rejected request: {data1}, Retrying");
-                    Thread.Sleep(2000);
-                    Start(); //retry until we succeed or the thread gets aborted.
-                    return;
+                    var resp = client.SendAsync(new HttpRequestMessage()
+                    {
+                        Method = HttpMethod.Options,
+                        RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/QuerySystem/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}"),
+                    }).Result;
+                    data1 = resp.Content.ReadAsStringAsync().Result;
+                    if (resp.StatusCode != HttpStatusCode.OK)
+                    {
+                        Log.Error($"Failed to retrieve panel location, API rejected request: {data1}, Retrying");
+                        Thread.Sleep(2000);
+                        Start(); //retry until we succeed or the thread gets aborted.
+                        return;
+                    }
+                    Log.Info($"Retrieved panel location from API, Connecting to {data1} as {CedModMain.Singleton.Config.QuerySystem.Identifier}");
                 }
-                Log.Info($"Retrieved panel location from API, Connecting to {data1} as {CedModMain.Singleton.Config.QuerySystem.Identifier}");
                 QuerySystem.PanelUrl = data1;
             }
             catch (Exception e)
@@ -368,18 +371,20 @@ namespace CedMod.Addons.QuerySystem.WS
             AutoSlPermsSlRequest permsSlRequest = null;
             try
             {
-                HttpClient client = new HttpClient();
-                var responsePerms = client.SendAsync(new HttpRequestMessage()
+                using (HttpClient client = new HttpClient())
                 {
-                    Method = HttpMethod.Options,
-                    RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/GetPermissions/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}"),
-                }).Result;
-                if (!responsePerms.IsSuccessStatusCode)
-                {
-                    Log.Error($"Failed to request RA: {responsePerms.Content.ReadAsStringAsync().Result}");
-                    responsePerms.EnsureSuccessStatusCode();
+                    var responsePerms = client.SendAsync(new HttpRequestMessage()
+                    {
+                        Method = HttpMethod.Options,
+                        RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/GetPermissions/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}"),
+                    }).Result;
+                    if (!responsePerms.IsSuccessStatusCode)
+                    {
+                        Log.Error($"Failed to request RA: {responsePerms.Content.ReadAsStringAsync().Result}");
+                        responsePerms.EnsureSuccessStatusCode();
+                    }
+                    permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(responsePerms.Content.ReadAsStringAsync().Result);
                 }
-                permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(responsePerms.Content.ReadAsStringAsync().Result);
                 if (permsSlRequest.PermissionEntries.Count == 0)
                     return;
                 if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))

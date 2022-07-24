@@ -230,19 +230,21 @@ namespace CedMod.Addons.QuerySystem
                     if (CedModMain.Singleton.Config.QuerySystem.SecurityKey == "None")
                         return;
                     Log.Debug("sending WR", CedModMain.Singleton.Config.QuerySystem.Debug);
-                    HttpClient client = new HttpClient();
-                    try
+                    using (HttpClient client = new HttpClient())
                     {
-                        var response = client
-                            .PostAsync(
-                                $"https://{QuerySystem.PanelUrl}/Api/Teamkill/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}?v=2",
-                                new StringContent(JsonConvert.SerializeObject(data), Encoding.Default,
-                                    "application/json")).Result;
-                        Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.Singleton.Config.QuerySystem.Debug);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error(ex);
+                        try
+                        {
+                            var response = client
+                                .PostAsync(
+                                    $"https://{QuerySystem.PanelUrl}/Api/Teamkill/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}?v=2",
+                                    new StringContent(JsonConvert.SerializeObject(data), Encoding.Default,
+                                        "application/json")).Result;
+                            Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.Singleton.Config.QuerySystem.Debug);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error(ex);
+                        }
                     }
                 });
 

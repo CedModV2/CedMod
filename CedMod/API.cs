@@ -25,26 +25,32 @@ namespace CedMod
                 HttpResponseMessage resp = null;
                 if (type == "GET")
                 {
-                    HttpClient client = new HttpClient();
-                    client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
-                    resp = client.GetAsync(APIUrl + endpoint + arguments).Result;
-                    response = resp.Content.ReadAsStringAsync().Result;
+                    using (HttpClient client = new HttpClient())
+                    {
+                        client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
+                        resp = client.GetAsync(APIUrl + endpoint + arguments).Result;
+                        response = resp.Content.ReadAsStringAsync().Result;
+                    }
                 }
                 
                 if (type == "DELETE")
                 {
-                    HttpClient client = new HttpClient();
-                    client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
-                    resp = client.DeleteAsync(APIUrl + endpoint + arguments).Result;
-                    response = resp.Content.ReadAsStringAsync().Result;
+                    using (HttpClient client = new HttpClient())
+                    {
+                        client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
+                        resp = client.DeleteAsync(APIUrl + endpoint + arguments).Result;
+                        response = resp.Content.ReadAsStringAsync().Result;
+                    }
                 }
 
                 if (type == "POST")
                 {
-                    HttpClient client = new HttpClient();
-                    client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
-                    resp = client.PostAsync(APIUrl + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json")).Result;
-                    response = resp.Content.ReadAsStringAsync().Result;
+                    using (HttpClient client = new HttpClient())
+                    {
+                        client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
+                        resp = client.PostAsync(APIUrl + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json")).Result;
+                        response = resp.Content.ReadAsStringAsync().Result;
+                    }
                 }
 
                 if (!resp.IsSuccessStatusCode)
