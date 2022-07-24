@@ -68,21 +68,24 @@ namespace CedMod.Addons.QuerySystem.WS
             Log.Error($"ST5 {Socket == null}");
             try
             {
-                HttpClient client = new HttpClient();
-                var resp = client.SendAsync(new HttpRequestMessage()
+                string data1 = "";
+                using (HttpClient client = new HttpClient())
                 {
-                    Method = HttpMethod.Options,
-                    RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/v3/QuerySystem/{QuerySystem.QuerySystemKey}"),
-                }).Result;
-                string data1 = resp.Content.ReadAsStringAsync().Result;
-                if (resp.StatusCode != HttpStatusCode.OK)
-                {
-                    Log.Error($"Failed to retrieve panel location, API rejected request: {data1}, Retrying");
-                    Thread.Sleep(2000);
-                    Start(); //retry until we succeed or the thread gets aborted.
-                    return;
+                    var resp = client.SendAsync(new HttpRequestMessage()
+                    {
+                        Method = HttpMethod.Options,
+                        RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/v3/QuerySystem/{QuerySystem.QuerySystemKey}"),
+                    }).Result;
+                    data1 = resp.Content.ReadAsStringAsync().Result;
+                    if (resp.StatusCode != HttpStatusCode.OK)
+                    {
+                        Log.Error($"Failed to retrieve panel location, API rejected request: {data1}, Retrying");
+                        Thread.Sleep(2000);
+                        Start(); //retry until we succeed or the thread gets aborted.
+                        return;
+                    }
+                    Log.Info($"Retrieved panel location from API, Connecting to {data1}");
                 }
-                Log.Info($"Retrieved panel location from API, Connecting to {data1}");
                 QuerySystem.PanelUrl = data1;
             }
             catch (Exception e)
@@ -450,30 +453,32 @@ namespace CedMod.Addons.QuerySystem.WS
                 AutoSlPermsSlRequest permsSlRequest = null;
                 try
                 {
-                    HttpClient client = new HttpClient();
-                    var responsePerms = client.SendAsync(new HttpRequestMessage()
+                    using (HttpClient client = new HttpClient())
                     {
-                        Method = HttpMethod.Options,
-                        RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/v3/GetPermissions/{QuerySystem.QuerySystemKey}"),
-                    }).Result;
-                    if (!responsePerms.IsSuccessStatusCode)
-                    {
-                        if (responsePerms.Content.ReadAsStringAsync().Result == "No entries defined.")
+                        var responsePerms = client.SendAsync(new HttpRequestMessage()
                         {
-                            if (!UseRa)
-                                ServerStatic.PermissionsHandler = ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
-                            UseRa = true;
-                            if (Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+                            Method = HttpMethod.Options,
+                            RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/v3/GetPermissions/{QuerySystem.QuerySystemKey}"),
+                        }).Result;
+                        if (!responsePerms.IsSuccessStatusCode)
+                        {
+                            if (responsePerms.Content.ReadAsStringAsync().Result == "No entries defined.")
                             {
-                                if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")))
-                                    File.Delete(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json"));
+                                if (!UseRa)
+                                    ServerStatic.PermissionsHandler = ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
+                                UseRa = true;
+                                if (Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+                                {
+                                    if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")))
+                                        File.Delete(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json"));
+                                }
+                                return;
                             }
-                            return;
+                            Log.Error($"Failed to request RA: {responsePerms.Content.ReadAsStringAsync().Result}");
+                            responsePerms.EnsureSuccessStatusCode();
                         }
-                        Log.Error($"Failed to request RA: {responsePerms.Content.ReadAsStringAsync().Result}");
-                        responsePerms.EnsureSuccessStatusCode();
+                        permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(responsePerms.Content.ReadAsStringAsync().Result);
                     }
-                    permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(responsePerms.Content.ReadAsStringAsync().Result);
                     if (permsSlRequest.PermissionEntries.Count == 0)
                     {
                         if (!UseRa)

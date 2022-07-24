@@ -35,31 +35,34 @@ namespace CedMod.Commands
             bool queryInstalled = pluginConfigs.ContainsKey("cm_WAPI");
             string key = arguments.At(0);
             Config cedModCnf = pluginConfigs[CedModMain.Singleton.Prefix] as Config;
-            HttpClient client = new HttpClient();
-            HttpResponseMessage panelResponse = null;
-            if (arguments.Count >= 2)
-            {
-                panelResponse = client.GetAsync($"https://{QuerySystem.CurrentMaster}/Api/v3/AutomaticSetup?key={key}&token={arguments.At(1)}").Result;
-            }
-            else
-            {
-                panelResponse = client.GetAsync($"https://{QuerySystem.CurrentMaster}/Api/v3/AutomaticSetup?key={key}").Result;
-            }
-            string result = panelResponse.Content.ReadAsStringAsync().Result;
-            if (!panelResponse.IsSuccessStatusCode)
-            {
-                response = result;
-                return false;
-            }
             
-            Dictionary<string, string> PanelResponse = JsonConvert.DeserializeObject<Dictionary<string, string>>(result);
-            cedModCnf.CedMod.CedModApiKey = key;
-            QuerySystem.QuerySystemKey = PanelResponse["QueryKey"];
-            ConfigManager.Save(pluginConfigs);
+            using (HttpClient client = new HttpClient())
+            {
+                HttpResponseMessage panelResponse = null;
+                if (arguments.Count >= 2)
+                {
+                    panelResponse = client.GetAsync($"https://{QuerySystem.CurrentMaster}/Api/v3/AutomaticSetup?key={key}&token={arguments.At(1)}").Result;
+                }
+                else
+                {
+                    panelResponse = client.GetAsync($"https://{QuerySystem.CurrentMaster}/Api/v3/AutomaticSetup?key={key}").Result;
+                }
+                string result = panelResponse.Content.ReadAsStringAsync().Result;
+                if (!panelResponse.IsSuccessStatusCode)
+                {
+                    response = result;
+                    return false;
+                }
+            
+                Dictionary<string, string> PanelResponse = JsonConvert.DeserializeObject<Dictionary<string, string>>(result);
+                cedModCnf.CedMod.CedModApiKey = key;
+                QuerySystem.QuerySystemKey = PanelResponse["QueryKey"];
+                ConfigManager.Save(pluginConfigs);
 
-            response = $"CedMod has been setup, using the identifier: {PanelResponse["QueryIdentifier"]}\nThe server will now be restarted,";
-            ServerStatic.StopNextRound = ServerStatic.NextRoundAction.Restart;
-            RoundRestart.ChangeLevel(true);
+                response = $"CedMod has been setup, using the identifier: {PanelResponse["QueryIdentifier"]}\nThe server will now be restarted,";
+                ServerStatic.StopNextRound = ServerStatic.NextRoundAction.Restart;
+                RoundRestart.ChangeLevel(true);
+            }
             return true;
         }
     }
