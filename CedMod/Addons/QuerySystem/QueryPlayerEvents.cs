@@ -179,6 +179,7 @@ namespace CedMod.Addons.QuerySystem
                 data.RoomsInvolved.Add(new RoomsInvolved()
                 {
                     Position = ev.Killer.CurrentRoom.Position.ToString(),
+                    Rotation = ev.Killer.CurrentRoom.transform.rotation.ToString(),
                     RoomType = ev.Killer.CurrentRoom.Type
                 });
 
@@ -187,6 +188,7 @@ namespace CedMod.Addons.QuerySystem
                     data.RoomsInvolved.Add(new RoomsInvolved()
                     {
                         Position = ev.Target.CurrentRoom.Position.ToString(),
+                        Rotation = ev.Target.CurrentRoom.transform.rotation.ToString(),
                         RoomType = ev.Target.CurrentRoom.Type
                     });
                 }
@@ -197,7 +199,7 @@ namespace CedMod.Addons.QuerySystem
                     if (player.Role == RoleType.Spectator || player.Role == RoleType.None)
                         continue;
 
-                    if (Vector3.Distance(ev.Killer.Position, player.Position) <= 20 && data.PlayersOnScene.All(plrs => plrs.UserId != player.UserId))
+                    if (Vector3.Distance(ev.Killer.Position, player.Position) <= 60 && data.PlayersOnScene.All(plrs => plrs.UserId != player.UserId))
                     {
                         if (!data.RoomsInvolved.Any(s => s.RoomType == player.CurrentRoom.Type))
                         {
