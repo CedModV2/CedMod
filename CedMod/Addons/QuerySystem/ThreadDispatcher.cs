@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem.WS;
 using CedMod.ApiModals;
@@ -17,6 +19,7 @@ namespace CedMod.Addons.QuerySystem
     public class ThreadDispatcher : MonoBehaviour
     {
         public float timeLeftbeforeHeartBeat = 0;
+        public float timeLeftbeforeWatchdog = 0;
         
         public void Start()
         {
@@ -37,6 +40,71 @@ namespace CedMod.Addons.QuerySystem
                 catch (Exception e)
                 {
                     Log.Error($"Failed to invoke Dispatch\n{e}");
+                }
+            }
+
+            timeLeftbeforeWatchdog -= Time.deltaTime;
+            if (timeLeftbeforeWatchdog <= 0)
+            {
+                timeLeftbeforeWatchdog = 60f;
+                if (!WebSocketSystem.Reconnect && !WebSocketSystem.SendThread.IsAlive)
+                {
+                    lock (WebSocketSystem.reconnectLock)
+                    {
+                        Task.Factory.StartNew(() =>
+                        {
+                            WebSocketSystem.Reconnect = false;
+                            Log.Error($"WS Watchdog: WS Sendthread not alive, restarting WS");
+                            WebSocketSystem.Stop();
+                            Thread.Sleep(1000);
+                            WebSocketSystem.Start();
+                        });
+                    }
+                }
+                
+                if (!WebSocketSystem.Reconnect && !WebSocketSystem.Socket.IsRunning && WebSocketSystem.LastConnection < DateTime.UtcNow.AddMinutes(-1))
+                {
+                    lock (WebSocketSystem.reconnectLock)
+                    {
+                        Task.Factory.StartNew(() =>
+                        { 
+                            WebSocketSystem.Reconnect = false;
+                            Log.Error($"WS Watchdog: WS inactive out of reconnect mode without activity for 1 minutes, restarting WS");
+                            WebSocketSystem.Stop();
+                            Thread.Sleep(1000);
+                            WebSocketSystem.Start();
+                        });
+                    }
+                }
+                
+                if (WebSocketSystem.Reconnect && !WebSocketSystem.Socket.IsRunning && WebSocketSystem.LastConnection < DateTime.UtcNow.AddMinutes(-2))
+                {
+                    lock (WebSocketSystem.reconnectLock)
+                    {
+                        Task.Factory.StartNew(() =>
+                        { 
+                            WebSocketSystem.Reconnect = false;
+                            Log.Error($"WS Watchdog: WS inactive in reconnect mode without activity for 2 minutes, restarting WS");
+                            WebSocketSystem.Stop();
+                            Thread.Sleep(1000);
+                            WebSocketSystem.Start();
+                        });
+                    }
+                }
+                
+                if (WebSocketSystem.LastConnection < DateTime.UtcNow.AddMinutes(-3))
+                {
+                    lock (WebSocketSystem.reconnectLock)
+                    {
+                        Task.Factory.StartNew(() =>
+                        { 
+                            WebSocketSystem.Reconnect = false;
+                            Log.Error($"WS Watchdog: no activity for 3 minutes, restarting WS");
+                            WebSocketSystem.Stop();
+                            Thread.Sleep(1000);
+                            WebSocketSystem.Start();
+                        });
+                    }
                 }
             }
 

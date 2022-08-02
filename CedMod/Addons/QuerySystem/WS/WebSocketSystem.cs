@@ -34,17 +34,18 @@ namespace CedMod.Addons.QuerySystem.WS
     public class WebSocketSystem
     {
         public static WebsocketClient Socket;
-        private static object reconnectLock = new object();
-        private static Thread SendThread;
+        internal static object reconnectLock = new object();
+        internal static Thread SendThread;
         public static ConcurrentQueue<QueryCommand> SendQueue = new ConcurrentQueue<QueryCommand>();
-        private static bool Reconnect = false;
+        internal static bool Reconnect = false;
         public static HelloMessage HelloMessage = null;
+        public static DateTime LastConnection = DateTime.UtcNow;
 
         public static void Stop()
         {
             if (Reconnect)
                 return;
-            Log.Error($"ST3");
+            Log.Debug($"ST3", CedModMain.Singleton.Config.QuerySystem.Debug);
             try
             {
                 Socket.Stop(WebSocketCloseStatus.NormalClosure, "Stopping").Wait();
@@ -61,11 +62,12 @@ namespace CedMod.Addons.QuerySystem.WS
 
         public static void Start()
         {
-            Log.Error($"ST4");
+            Log.Debug($"ST4", CedModMain.Singleton.Config.QuerySystem.Debug);
             if (Reconnect)
                 return;
             Reconnect = true;
-            Log.Error($"ST5 {Socket == null}");
+            LastConnection = DateTime.UtcNow;
+            Log.Debug($"ST5 {Socket == null}", CedModMain.Singleton.Config.QuerySystem.Debug);
             try
             {
                 string data1 = "";
@@ -79,6 +81,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     data1 = resp.Content.ReadAsStringAsync().Result;
                     if (resp.StatusCode != HttpStatusCode.OK)
                     {
+                        Reconnect = false;
                         Log.Error($"Failed to retrieve panel location, API rejected request: {data1}, Retrying");
                         Thread.Sleep(2000);
                         Start(); //retry until we succeed or the thread gets aborted.
@@ -90,12 +93,16 @@ namespace CedMod.Addons.QuerySystem.WS
             }
             catch (Exception e)
             {
+                Reconnect = false;
                 Log.Error($"Failed to retrieve server location\n{e}");
+                Thread.Sleep(2000);
+                Start(); //retry until we succeed or the thread gets aborted.
                 return;
             }
 
             try
             {
+                LastConnection = DateTime.UtcNow;
                 Socket = new WebsocketClient(new Uri($"wss://{QuerySystem.PanelUrl}/QuerySystem?key={QuerySystem.QuerySystemKey}&identity=SCPSL&version=3"));
                 Socket.ReconnectTimeout = TimeSpan.FromSeconds(5);
                 Socket.ErrorReconnectTimeout = TimeSpan.FromSeconds(5);
@@ -116,7 +123,8 @@ namespace CedMod.Addons.QuerySystem.WS
                         {
                             Task.Factory.StartNew(() =>
                             { 
-                                Log.Error($"ST2");
+                                WebSocketSystem.Reconnect = false;
+                                Log.Debug($"ST2", CedModMain.Singleton.Config.QuerySystem.Debug);
                                 Stop();
                                 Thread.Sleep(1000);
                                 Start();
@@ -135,7 +143,8 @@ namespace CedMod.Addons.QuerySystem.WS
                             {
                                 try
                                 {
-                                    Log.Error($"ST1");
+                                    WebSocketSystem.Reconnect = false;
+                                    Log.Debug($"ST1", CedModMain.Singleton.Config.QuerySystem.Debug);
                                     Stop();
                                     Thread.Sleep(1000);
                                     Start();
@@ -152,6 +161,7 @@ namespace CedMod.Addons.QuerySystem.WS
 
                 Socket.ReconnectionHappened.Subscribe(s =>
                 {
+                    LastConnection = DateTime.UtcNow;
                     Log.Info($"Connected successfully: {s.Type}");
                     if (SendThread == null || !SendThread.IsAlive)
                     {
@@ -163,6 +173,7 @@ namespace CedMod.Addons.QuerySystem.WS
 
                 Socket.MessageReceived.Subscribe(s =>
                 {
+                    LastConnection = DateTime.UtcNow;
                     if (s.MessageType == WebSocketMessageType.Text)
                         OnMessage(new object(), s.Text);
                 });
@@ -171,7 +182,10 @@ namespace CedMod.Addons.QuerySystem.WS
             }
             catch (Exception e)
             {
+                WebSocketSystem.Reconnect = false;
                 Log.Error(e);
+                Thread.Sleep(2000);
+                Start(); //retry until we succeed or the thread gets aborted.
             }
 
             Reconnect = false;
@@ -190,6 +204,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         {
                             Log.Debug($"Handling send {Socket.IsRunning} {JsonConvert.SerializeObject(cmd)}", CedModMain.Singleton.Config.QuerySystem.Debug);
                             Socket.Send(JsonConvert.SerializeObject(cmd));
+                            LastConnection = DateTime.UtcNow;
                         }
                         else 
                             SendQueue.Enqueue(cmd);
