@@ -219,6 +219,7 @@ namespace CedMod.Addons.QuerySystem
                                         {"reporter", ev.Issuer.UserId},
                                         {"reported", ev.Target.UserId},
                                         {"reason", ev.Reason},
+                                        {"cheating", "true"}
                                     }), Encoding.Default,
                                     "application/json")).Result;
                         Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.Singleton.Config.QuerySystem.Debug);
