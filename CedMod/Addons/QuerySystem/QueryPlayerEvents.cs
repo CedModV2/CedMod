@@ -144,6 +144,74 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
         }
+        
+        public void OnPlayerHurt(HurtingEventArgs ev)
+        {
+            if (ev.Target == null)
+                return;
+
+            if (ev.Attacker != null)
+            {
+                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                {
+                    Recipient = "ALL",
+                    Data = new Dictionary<string, string>()
+                    {
+                        {"UserId", ev.Target.UserId},
+                        {"UserName", ev.Target.Nickname},
+                        {"Class", ev.Target.Role.ToString()},
+                        {"AttackerClass", ev.Attacker.Role.ToString()},
+                        {"AttackerId", ev.Attacker.UserId},
+                        {"AttackerName", ev.Attacker.Nickname},
+                        {"Weapon", ev.Handler.Type.ToString()},
+                        {"Type", nameof(OnPlayerHurt)},
+                        {
+                            "Message", string.Format(
+                                "{0} - {1} (<color={2}>{3}</color>) hurt {4} - {5} (<color={6}>{7}</color>) with {8}.",
+                                new object[]
+                                {
+                                    ev.Attacker.Nickname,
+                                    ev.Attacker.UserId,
+                                    Misc.ToHex(ev.Attacker.Role.Color),
+                                    ev.Attacker.Role.Type,
+                                    ev.Target.Nickname,
+                                    ev.Target.UserId,
+                                    Misc.ToHex(ev.Target.Role.Color),
+                                    ev.Target.Role.Type,
+                                    ev.Handler.Type.ToString()
+                                })
+                        }
+                    }
+                });
+            }
+            else
+            {
+                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                {
+                    Recipient = "ALL",
+                    Data = new Dictionary<string, string>()
+                    {
+                        {"UserId", ev.Target.UserId},
+                        {"UserName", ev.Target.Nickname},
+                        {"Class", ev.Target.Role.ToString()},
+                        {"Weapon", ev.Handler.Type.ToString()},
+                        {"Type", nameof(OnPlayerHurt)},
+                        {
+                            "Message", string.Format(
+                                "Server - () hurt {0} - {1} (<color={2}>{3}</color>) with {4}.",
+                                new object[]
+                                {
+                                    ev.Target.Nickname,
+                                    ev.Target.UserId,
+                                    Misc.ToHex(ev.Target.Role.Color),
+                                    ev.Target.Role.Type,
+                                    ev.Handler.Type.ToString()
+                                })
+                        }
+                    }
+                });
+            }
+        }
 
         public void OnPlayerDeath(DyingEventArgs ev)
         {

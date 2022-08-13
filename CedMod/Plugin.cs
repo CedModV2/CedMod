@@ -108,6 +108,7 @@ namespace CedMod
             Exiled.Events.Handlers.Player.EnteringPocketDimension += QuerySystem.QueryPlayerEvents.OnPocketEnter;
             Exiled.Events.Handlers.Player.ThrowingItem += QuerySystem.QueryPlayerEvents.OnGrenadeThrown;
             Exiled.Events.Handlers.Player.Dying += QuerySystem.QueryPlayerEvents.OnPlayerDeath;
+            Exiled.Events.Handlers.Player.Hurting += QuerySystem.QueryPlayerEvents.OnPlayerHurt;
             Exiled.Events.Handlers.Player.InteractingElevator += QuerySystem.QueryPlayerEvents.OnElevatorInteraction;
             Exiled.Events.Handlers.Player.Handcuffing += QuerySystem.QueryPlayerEvents.OnPlayerHandcuffed;
             Exiled.Events.Handlers.Player.RemovingHandcuffs += QuerySystem.QueryPlayerEvents.OnPlayerFreed;
@@ -219,6 +220,7 @@ namespace CedMod
             Exiled.Events.Handlers.Player.EnteringPocketDimension -= QuerySystem.QueryPlayerEvents.OnPocketEnter;
             Exiled.Events.Handlers.Player.ThrowingItem -= QuerySystem.QueryPlayerEvents.OnGrenadeThrown;
             Exiled.Events.Handlers.Player.Dying -= QuerySystem.QueryPlayerEvents.OnPlayerDeath;
+            Exiled.Events.Handlers.Player.Hurting -= QuerySystem.QueryPlayerEvents.OnPlayerHurt;
             Exiled.Events.Handlers.Player.InteractingElevator -= QuerySystem.QueryPlayerEvents.OnElevatorInteraction;
             Exiled.Events.Handlers.Player.Handcuffing -= QuerySystem.QueryPlayerEvents.OnPlayerHandcuffed;
             Exiled.Events.Handlers.Player.RemovingHandcuffs -= QuerySystem.QueryPlayerEvents.OnPlayerFreed;
