@@ -565,9 +565,12 @@ namespace CedMod.Addons.QuerySystem.WS
                             QuerySystem.ReservedSlotUserids.Add(member.UserId);
                         handler._members.Add(member.UserId, member.Group);
 
-                        if (Player.Get(member.UserId) != null)
+                        var player = Player.Get(member.UserId);
+                        if (player != null)
                         {
+                            bool hidden = player.BadgeHidden;
                             Player.Get(member.UserId).Group = handler._groups[member.Group];
+                            player.BadgeHidden = hidden;
                             Log.Info($"Refreshed Permissions from {member.UserId} as they were present in the AutoSlPerms response while ingame");
                         }
                     }
