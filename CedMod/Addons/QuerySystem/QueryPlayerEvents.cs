@@ -159,8 +159,8 @@ namespace CedMod.Addons.QuerySystem
                     {
                         {"UserId", ev.Target.UserId},
                         {"UserName", ev.Target.Nickname},
-                        {"Class", ev.Target.Role.ToString()},
-                        {"AttackerClass", ev.Attacker.Role.ToString()},
+                        {"Class", ev.Target.Role.Type.ToString()},
+                        {"AttackerClass", ev.Attacker.Role.Type.ToString()},
                         {"AttackerId", ev.Attacker.UserId},
                         {"AttackerName", ev.Attacker.Nickname},
                         {"Weapon", ev.Handler.Type.ToString()},
@@ -193,7 +193,7 @@ namespace CedMod.Addons.QuerySystem
                     {
                         {"UserId", ev.Target.UserId},
                         {"UserName", ev.Target.Nickname},
-                        {"Class", ev.Target.Role.ToString()},
+                        {"Class", ev.Target.Role.Type.ToString()},
                         {"Weapon", ev.Handler.Type.ToString()},
                         {"Type", nameof(OnPlayerHurt)},
                         {
@@ -325,8 +325,8 @@ namespace CedMod.Addons.QuerySystem
                     {
                         {"UserId", ev.Target.UserId},
                         {"UserName", ev.Target.Nickname},
-                        {"Class", ev.Target.Role.ToString()},
-                        {"AttackerClass", ev.Killer.Role.ToString()},
+                        {"Class", ev.Target.Role.Type.ToString()},
+                        {"AttackerClass", ev.Killer.Role.Type.ToString()},
                         {"AttackerId", ev.Killer.UserId},
                         {"AttackerName", ev.Killer.Nickname},
                         {"Weapon", ev.Handler.Type.ToString()},
@@ -359,8 +359,8 @@ namespace CedMod.Addons.QuerySystem
                     {
                         {"UserId", ev.Target.UserId},
                         {"UserName", ev.Target.Nickname},
-                        {"Class", ev.Target.Role.ToString()},
-                        {"AttackerClass", ev.Killer.Role.ToString()},
+                        {"Class", ev.Target.Role.Type.ToString()},
+                        {"AttackerClass", ev.Killer.Role.Type.ToString()},
                         {"AttackerId", ev.Killer.UserId},
                         {"AttackerName", ev.Killer.Nickname},
                         {"Weapon", ev.Handler.Type.ToString()},
