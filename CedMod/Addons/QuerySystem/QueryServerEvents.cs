@@ -91,17 +91,6 @@ namespace CedMod.Addons.QuerySystem
                                         });
                                 }
                             }
-
-                           Log.Debug("Downloading syncs", CedModMain.Singleton.Config.QuerySystem.Debug);
-                           var response1 =
-                               client.GetAsync(
-                                   $"https://{QuerySystem.PanelUrl}/Api/v3/ReservedSlotUsers/{QuerySystem.QuerySystemKey}");
-                           Log.Debug(
-                               $"Downloaded Reserved slots: {response1.Result.Content.ReadAsStringAsync().Result}",
-                               CedModMain.Singleton.Config.QuerySystem.Debug);
-                           QuerySystem.ReservedSlotUserids =
-                               JsonConvert.DeserializeObject<List<string>>(response1.Result.Content.ReadAsStringAsync()
-                                   .Result);
                         }
                     }
                     catch (Exception e)
