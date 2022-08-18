@@ -577,6 +577,11 @@ namespace CedMod.Addons.QuerySystem.WS
 
                     foreach (var member in oldMembers)
                     {
+                        if (permsSlRequest.MembersList.All(s => s.UserId != member.Key) && QuerySystem.ReservedSlotUserids.Contains(member.Key))
+                        {
+                            QuerySystem.ReservedSlotUserids.Remove(member.Key);
+                        }
+                        
                         if (Player.Get(member.Key) != null)
                         {
                             if (permsSlRequest.MembersList.All(s => s.UserId != member.Key))
