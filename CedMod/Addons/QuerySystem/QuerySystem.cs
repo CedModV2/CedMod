@@ -26,7 +26,7 @@ namespace CedMod.Addons.QuerySystem
             {
                 if (string.IsNullOrEmpty(_querySystemKey))
                 {
-                    if (Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+                    if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
                     {
                         Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
                     }
@@ -37,7 +37,7 @@ namespace CedMod.Addons.QuerySystem
             }
             set
             {
-                if (Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+                if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
                 {
                     Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
                 }
