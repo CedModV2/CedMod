@@ -127,7 +127,12 @@ namespace CedMod
             
             if (!Directory.Exists(Path.Combine(Paths.Plugins, "CedModEvents")))
             {
-                Directory.CreateDirectory(Path.Combine(Paths.Plugins, "CedModEvents"));
+                Directory.CreateDirectory(Path.Combine(Paths.Plugins, "CedMod"));
+            }
+            
+            if (!Directory.Exists(Path.Combine(Paths.Config, "CedMod")))
+            {
+                Directory.CreateDirectory(Path.Combine(Paths.Plugins, "CedMod"));
             }
             
             foreach (var file in Directory.GetFiles(Path.Combine(Paths.Plugins, "CedModEvents"), "*.dll"))
