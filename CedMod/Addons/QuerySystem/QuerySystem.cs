@@ -26,6 +26,10 @@ namespace CedMod.Addons.QuerySystem
             {
                 if (string.IsNullOrEmpty(_querySystemKey))
                 {
+                    if (Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+                    {
+                        Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
+                    }
                     Log.Info("Read QueryKey from persistant storage");
                     _querySystemKey = File.ReadAllText(Path.Combine(Paths.Configs, "CedMod", "QuerySystemSecretKey.txt"));
                 }
@@ -33,6 +37,10 @@ namespace CedMod.Addons.QuerySystem
             }
             set
             {
+                if (Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+                {
+                    Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
+                }
                 Log.Info("Saved QueryKey to persistant storage");
                 _querySystemKey = value;
                 File.WriteAllText(Path.Combine(Paths.Configs, "CedMod", "QuerySystemSecretKey.txt"), _querySystemKey);
