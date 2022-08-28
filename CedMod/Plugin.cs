@@ -61,7 +61,7 @@ namespace CedMod
                 QuerySystem.PanelUrl = QuerySystem.CurrentMaster;
             }
             
-            if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "QuerySystemSecretKey.txt")))
+            if (File.Exists(Path.Combine(Paths.Configs, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt")))
             {
                 // Start the HTTP server.
                 Task.Factory.StartNew(() =>
@@ -127,12 +127,12 @@ namespace CedMod
             
             if (!Directory.Exists(Path.Combine(Paths.Plugins, "CedModEvents")))
             {
-                Directory.CreateDirectory(Path.Combine(Paths.Plugins, "CedMod"));
+                Directory.CreateDirectory(Path.Combine(Paths.Plugins, "CedModEvents"));
             }
             
             if (!Directory.Exists(Path.Combine(Paths.Config, "CedMod")))
             {
-                Directory.CreateDirectory(Path.Combine(Paths.Plugins, "CedMod"));
+                Directory.CreateDirectory(Path.Combine(Paths.Config, "CedMod"));
             }
             
             foreach (var file in Directory.GetFiles(Path.Combine(Paths.Plugins, "CedModEvents"), "*.dll"))
