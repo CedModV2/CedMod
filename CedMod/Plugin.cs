@@ -39,6 +39,7 @@ namespace CedMod
 
         public override void OnEnabled()
         {
+            CosturaUtility.Initialize();
             _harmony = new Harmony("com.cedmod.patch");
             _harmony.PatchAll();
             
@@ -130,9 +131,9 @@ namespace CedMod
                 Directory.CreateDirectory(Path.Combine(Paths.Plugins, "CedModEvents"));
             }
             
-            if (!Directory.Exists(Path.Combine(Paths.Config, "CedMod")))
+            if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
             {
-                Directory.CreateDirectory(Path.Combine(Paths.Config, "CedMod"));
+                Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
             }
             
             foreach (var file in Directory.GetFiles(Path.Combine(Paths.Plugins, "CedModEvents"), "*.dll"))
