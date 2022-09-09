@@ -135,7 +135,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     }
                     else
                     {
-                        Log.Error($"Lost connection to CedMod Panel {i.CloseStatus} {i.CloseStatusDescription} {i.Type}, reconnecting in 5000ms\n{(i.Exception == null ? "" : i.Exception)}");
+                        Log.Error($"Lost connection to CedMod Panel {i.CloseStatus} {i.CloseStatusDescription} {i.Type}, reconnecting in 5000ms\n{(i.Exception == null || !CedModMain.Singleton.Config.QuerySystem.Debug ? "" : i.Exception)}");
                         Thread.Sleep(5000);
                         lock (reconnectLock)
                         {
