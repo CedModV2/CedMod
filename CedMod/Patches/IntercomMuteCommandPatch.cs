@@ -14,6 +14,9 @@ using Utils;
 
 namespace CedMod.Patches
 {
+	/// <summary>
+	/// Patches <see cref="IntercomMuteCommand"/>.
+	/// </summary>
 	[HarmonyPatch(typeof(IntercomMuteCommand), nameof(IntercomMuteCommand.Execute))]
     public static class IntercomMuteCommandPatch
     {

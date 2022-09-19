@@ -10,6 +10,9 @@ using UnityEngine;
 
 namespace CedMod.Commands
 {
+    /// <summary>
+    /// <see cref="Description"/>.
+    /// </summary>
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class LightsoutCommand : ICommand
     {
@@ -20,7 +23,7 @@ namespace CedMod.Commands
             "lamps"
         };
 
-        public string Description { get; } = "Turns off the lämps";
+        public string Description { get; } = "Turns off the lamps";
         internal static bool isEnabled;
         internal static CoroutineHandle CoroutineHandle;
 

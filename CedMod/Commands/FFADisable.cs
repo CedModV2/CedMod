@@ -4,6 +4,9 @@ using Exiled.Permissions.Extensions;
 
 namespace CedMod.Commands
 {
+    /// <summary>
+    /// <see cref="Description"/>.
+    /// </summary>
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class FfaDisableCommand : ICommand
     {

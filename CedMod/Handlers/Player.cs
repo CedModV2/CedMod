@@ -5,15 +5,22 @@ using MEC;
 
 namespace CedMod.Handlers
 {
+    /// <summary>
+    /// Used to handle player events.
+    /// </summary>
     public class Player
     {
+        /// <summary>
+        /// Called when a player joins.
+        /// </summary>
+        /// <param name="ev">The <see cref="VerifiedEventArgs"/>.</param>
         public void OnJoin(VerifiedEventArgs ev)
         {
             Task.Factory.StartNew(() => { BanSystem.HandleJoin(ev); });
             Timing.RunCoroutine(Name(ev));
         }
         
-        public IEnumerator<float> Name(VerifiedEventArgs ev)
+        private IEnumerator<float> Name(VerifiedEventArgs ev)
         {
             foreach (var pp in Exiled.API.Features.Player.List)
             {
@@ -37,6 +44,10 @@ namespace CedMod.Handlers
             }
         }
         
+        /// <summary>
+        /// Called when a player dies.
+        /// </summary>
+        /// <param name="ev">The <see cref="DyingEventArgs"/>.</param>
         public void OnDying(DyingEventArgs ev)
         {
             if (ev.Target == null || ev.Killer == null)

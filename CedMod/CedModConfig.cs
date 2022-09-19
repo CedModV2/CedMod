@@ -3,6 +3,9 @@ using System.ComponentModel;
 
 namespace CedMod
 {
+    /// <summary>
+    /// Another plugin config.
+    /// </summary>
     public class CedModConfig
     {
         [Description("kick a player if they have a name someone else already has")]

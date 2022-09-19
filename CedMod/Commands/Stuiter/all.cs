@@ -6,6 +6,9 @@ using Exiled.Permissions.Extensions;
 
 namespace CedMod.Commands.Stuiter
 {
+    /// <summary>
+    /// <see cref="Description"/>.
+    /// </summary>
     public class StuiterAllCommand : ICommand
     {
         public string Command { get; } = "all";

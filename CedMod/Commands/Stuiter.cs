@@ -4,6 +4,9 @@ using CommandSystem;
 
 namespace CedMod.Commands
 {
+    /// <summary>
+    /// <see cref="Description"/>.
+    /// </summary>
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class StuiterParentCommand : ParentCommand
     {

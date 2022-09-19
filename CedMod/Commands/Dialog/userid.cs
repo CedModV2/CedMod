@@ -6,6 +6,9 @@ using Exiled.Permissions.Extensions;
 
 namespace CedMod.Commands.Dialog
 {
+    /// <summary>
+    /// <see cref="Description"/>.
+    /// </summary>
     public class DialogUseridCommand : ICommand
     {
         public string Command { get; } = "userid";

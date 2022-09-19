@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace CedMod.Patches
 {
+    /// <summary>
+    /// Patches <see cref="BanPlayer"/>.
+    /// </summary>
     [HarmonyPatch(typeof(BanPlayer), nameof(BanPlayer.BanUser), new Type[] {typeof(GameObject), typeof(long), typeof(string), typeof(string),  typeof(bool)})]
     public static class BanPatch
     {

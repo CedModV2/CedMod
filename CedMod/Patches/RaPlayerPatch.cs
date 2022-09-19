@@ -18,6 +18,9 @@ using UnityEngine.Networking;
 
 namespace CedMod.Patches
 {
+	/// <summary>
+	/// Patches <see cref="RaPlayer"/>.
+	/// </summary>
     [HarmonyPatch(typeof(RaPlayer), nameof(RaPlayer.ReceiveData), new Type[] {typeof(CommandSender), typeof(string)})]
     public static class RaPlayerPatch
     {

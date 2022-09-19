@@ -13,7 +13,9 @@ using UnityEngine;
 using Utils;
 
 namespace CedMod.Patches
-{
+{	/// <summary>
+	/// Patches <see cref="IntercomUnmuteCommand"/>.
+	/// </summary>
 	[HarmonyPatch(typeof(IntercomUnmuteCommand), nameof(IntercomUnmuteCommand.Execute))]
     public static class IntercomUnMuteCommandPatch
     {
