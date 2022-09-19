@@ -7,6 +7,8 @@
             System.Threading.Channels
             Newtonsoft.Json
             System.ValueTuple
+            System.Data
+            System.Threading.Tasks.Extensions
         </IncludeAssemblies>
     </Costura>
 </Weavers>

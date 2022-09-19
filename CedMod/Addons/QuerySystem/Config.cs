@@ -9,12 +9,6 @@ namespace CedMod.Addons.QuerySystem
         [Description("Commands in this list will not be allowed to run via the web API (must be uppercase)")]
         public List<string> DisallowedWebCommands { get; set; } = new List<string> { "REQUEST_DATA AUTH", "GBAN_KICK" };
 
-        [Description("Secret passphrase used to authenticate request KEEP THIS SECRET")]
-        public string SecurityKey { get; set; } = "None";
-
-        [Description("The name that this server will show up as on the panel")]
-        public string Identifier { get; set; } = "Server 1";
-        
         [Description("If true, the plugin will sync predefined reasons with the panel")]
         public bool EnableBanreasonSync { get; set; } = true;
         
@@ -41,5 +35,8 @@ namespace CedMod.Addons.QuerySystem
         
         [Description("If debug messages are shown")]
         public bool Debug { get; set; } = false;
+        
+        [Description("Experimental RemoteCommands Feature, if the executing player is not present, the server will spawn a dummy player, run the command, and despawn the dummy")]
+        public bool DummyExperimental { get; set; } = false;
     }
 }

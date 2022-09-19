@@ -88,7 +88,7 @@ namespace CedMod.Addons.QuerySystem
                             "{0} - {1} (<color={2}>{3}</color>) has entered the pocket dimension.", new object[]
                             {
                                 ev.Player.Nickname,
-                                ev.Player.Role,
+                                ev.Player.Role.Type,
                                 Misc.ToHex(ev.Player.Role.Color),
                                 ev.Player.Role
                             })
@@ -112,7 +112,7 @@ namespace CedMod.Addons.QuerySystem
                             "{0} - {1} (<color={2}>{3}</color>) has escaped the pocket dimension.", new object[]
                             {
                                 ev.Player.Nickname,
-                                ev.Player.Role,
+                                ev.Player.Role.Type,
                                 Misc.ToHex(ev.Player.Role.Color),
                                 ev.Player.Role
                             })
@@ -143,6 +143,74 @@ namespace CedMod.Addons.QuerySystem
                     }
                 }
             });
+        }
+        
+        public void OnPlayerHurt(HurtingEventArgs ev)
+        {
+            if (ev.Target == null)
+                return;
+
+            if (ev.Attacker != null)
+            {
+                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                {
+                    Recipient = "ALL",
+                    Data = new Dictionary<string, string>()
+                    {
+                        {"UserId", ev.Target.UserId},
+                        {"UserName", ev.Target.Nickname},
+                        {"Class", ev.Target.Role.ToString()},
+                        {"AttackerClass", ev.Attacker.Role.ToString()},
+                        {"AttackerId", ev.Attacker.UserId},
+                        {"AttackerName", ev.Attacker.Nickname},
+                        {"Weapon", ev.Handler.Type.ToString()},
+                        {"Type", nameof(OnPlayerHurt)},
+                        {
+                            "Message", string.Format(
+                                "{0} - {1} (<color={2}>{3}</color>) hurt {4} - {5} (<color={6}>{7}</color>) with {8}.",
+                                new object[]
+                                {
+                                    ev.Attacker.Nickname,
+                                    ev.Attacker.UserId,
+                                    Misc.ToHex(ev.Attacker.Role.Color),
+                                    ev.Attacker.Role.Type,
+                                    ev.Target.Nickname,
+                                    ev.Target.UserId,
+                                    Misc.ToHex(ev.Target.Role.Color),
+                                    ev.Target.Role.Type,
+                                    ev.Handler.Type.ToString()
+                                })
+                        }
+                    }
+                });
+            }
+            else
+            {
+                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                {
+                    Recipient = "ALL",
+                    Data = new Dictionary<string, string>()
+                    {
+                        {"UserId", ev.Target.UserId},
+                        {"UserName", ev.Target.Nickname},
+                        {"Class", ev.Target.Role.ToString()},
+                        {"Weapon", ev.Handler.Type.ToString()},
+                        {"Type", nameof(OnPlayerHurt)},
+                        {
+                            "Message", string.Format(
+                                "Server - () hurt {0} - {1} (<color={2}>{3}</color>) with {4}.",
+                                new object[]
+                                {
+                                    ev.Target.Nickname,
+                                    ev.Target.UserId,
+                                    Misc.ToHex(ev.Target.Role.Color),
+                                    ev.Target.Role.Type,
+                                    ev.Handler.Type.ToString()
+                                })
+                        }
+                    }
+                });
+            }
         }
 
         public void OnPlayerDeath(DyingEventArgs ev)
@@ -179,6 +247,7 @@ namespace CedMod.Addons.QuerySystem
                 data.RoomsInvolved.Add(new RoomsInvolved()
                 {
                     Position = ev.Killer.CurrentRoom.Position.ToString(),
+                    Rotation = ev.Killer.CurrentRoom.transform.rotation.ToString(),
                     RoomType = ev.Killer.CurrentRoom.Type
                 });
 
@@ -187,6 +256,7 @@ namespace CedMod.Addons.QuerySystem
                     data.RoomsInvolved.Add(new RoomsInvolved()
                     {
                         Position = ev.Target.CurrentRoom.Position.ToString(),
+                        Rotation = ev.Target.CurrentRoom.transform.rotation.ToString(),
                         RoomType = ev.Target.CurrentRoom.Type
                     });
                 }
@@ -197,7 +267,7 @@ namespace CedMod.Addons.QuerySystem
                     if (player.Role == RoleType.Spectator || player.Role == RoleType.None)
                         continue;
 
-                    if (Vector3.Distance(ev.Killer.Position, player.Position) <= 20 && data.PlayersOnScene.All(plrs => plrs.UserId != player.UserId))
+                    if (Vector3.Distance(ev.Killer.Position, player.Position) <= 60 && data.PlayersOnScene.All(plrs => plrs.UserId != player.UserId))
                     {
                         if (!data.RoomsInvolved.Any(s => s.RoomType == player.CurrentRoom.Type))
                         {
@@ -227,22 +297,24 @@ namespace CedMod.Addons.QuerySystem
                 Task.Factory.StartNew(() =>
                 {
                     Log.Debug("Thread send", CedModMain.Singleton.Config.QuerySystem.Debug);
-                    if (CedModMain.Singleton.Config.QuerySystem.SecurityKey == "None")
+                    if (QuerySystem.QuerySystemKey == "None")
                         return;
                     Log.Debug("sending WR", CedModMain.Singleton.Config.QuerySystem.Debug);
-                    HttpClient client = new HttpClient();
-                    try
+                    using (HttpClient client = new HttpClient())
                     {
-                        var response = client
-                            .PostAsync(
-                                $"https://{QuerySystem.PanelUrl}/Api/Teamkill/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}?v=2",
-                                new StringContent(JsonConvert.SerializeObject(data), Encoding.Default,
-                                    "application/json")).Result;
-                        Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.Singleton.Config.QuerySystem.Debug);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error(ex);
+                        try
+                        {
+                            var response = client
+                                .PostAsync(
+                                    $"https://{QuerySystem.PanelUrl}/Api/v3/Teamkill/{QuerySystem.QuerySystemKey}?v=2",
+                                    new StringContent(JsonConvert.SerializeObject(data), Encoding.Default,
+                                        "application/json")).Result;
+                            Log.Debug(response.Content.ReadAsStringAsync().Result, CedModMain.Singleton.Config.QuerySystem.Debug);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error(ex);
+                        }
                     }
                 });
 
@@ -267,11 +339,11 @@ namespace CedMod.Addons.QuerySystem
                                     ev.Killer.Nickname,
                                     ev.Killer.UserId,
                                     Misc.ToHex(ev.Killer.Role.Color),
-                                    ev.Killer.Role,
+                                    ev.Killer.Role.Type,
                                     ev.Target.Nickname,
                                     ev.Target.UserId,
                                     Misc.ToHex(ev.Target.Role.Color),
-                                    ev.Target.Role,
+                                    ev.Target.Role.Type,
                                     ev.Handler.Type.ToString()
                                 })
                         }
@@ -301,11 +373,11 @@ namespace CedMod.Addons.QuerySystem
                                     ev.Killer.Nickname,
                                     ev.Killer.UserId,
                                     Misc.ToHex(ev.Killer.Role.Color),
-                                    ev.Killer.Role,
+                                    ev.Killer.Role.Type,
                                     ev.Target.Nickname,
                                     ev.Target.UserId,
                                     Misc.ToHex(ev.Target.Role.Color),
-                                    ev.Target.Role,
+                                    ev.Target.Role.Type,
                                     ev.Handler.Type.ToString()
                                 })
                         }
@@ -356,7 +428,7 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.Nickname,
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.Role.Color),
-                                ev.Player.Role,
+                                ev.Player.Role.Type,
                                 ev.Item
                             })
                     }
@@ -443,7 +515,7 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Target.Nickname,
                                 ev.Target.UserId,
                                 Misc.ToHex(ev.Target.Role.Color),
-                                ev.Target.Role,
+                                ev.Target.Role.Type,
                                 ev.Cuffer.Nickname,
                                 ev.Cuffer.UserId,
                                 Misc.ToHex(ev.Cuffer.Role.Color),
@@ -472,7 +544,7 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Target.Nickname,
                                 ev.Target.UserId,
                                 Misc.ToHex(ev.Target.Role.Color),
-                                ev.Target.Role,
+                                ev.Target.Role.Type,
                                 ev.Cuffer.Nickname,
                                 ev.Cuffer.UserId,
                                 Misc.ToHex(ev.Cuffer.Role.Color),
@@ -493,7 +565,7 @@ namespace CedMod.Addons.QuerySystem
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
                     {"Time", Round.ElapsedTime.ToString()},
-                    {"Type", nameof(OnPlayerHandcuffed)},
+                    {"Type", nameof(OnEscape)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has escaped, Cuffed: {4}",
@@ -502,7 +574,7 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.Nickname,
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.Role.Color),
-                                ev.Player.Role,
+                                ev.Player.Role.Type,
                                 ev.Player.IsCuffed
                             })
                     }

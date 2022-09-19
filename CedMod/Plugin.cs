@@ -51,7 +51,8 @@ namespace CedMod
         /// <summary>
         /// Gets the version of the plugin.
         /// </summary>
-        public override Version Version { get; } = new Version(3, 1, 4);
+        public override Version Version { get; } = new Version(3, 2, 0);
+        
         public static string GitCommitHash = String.Empty;
 
         /// <summary>
@@ -59,6 +60,7 @@ namespace CedMod
         /// </summary>
         public override void OnEnabled()
         {
+            CosturaUtility.Initialize();
             _harmony = new Harmony("com.cedmod.patch");
             _harmony.PatchAll();
             
@@ -74,7 +76,14 @@ namespace CedMod
             if (dispatcher == null)
                 CustomNetworkManager.singleton.gameObject.AddComponent<ThreadDispatcher>();
 
-            if (Config.QuerySystem.SecurityKey != "None")
+            if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "dev.txt")))
+            {
+                Log.Info("Plugin running as Dev");
+                QuerySystem.CurrentMaster = QuerySystem.DevPanelUrl;
+                QuerySystem.PanelUrl = QuerySystem.CurrentMaster;
+            }
+            
+            if (File.Exists(Path.Combine(Paths.Configs, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt")))
             {
                 // Start the HTTP server.
                 Task.Factory.StartNew(() =>
@@ -90,7 +99,7 @@ namespace CedMod
                 });
             }
             else
-                Log.Warn("security_key is set to none plugin will not load due to security risks");
+                Log.Warn("Plugin is not setup properly, please use refer to the cedmod setup guide"); //todo link guide
             
             _server = new Handlers.Server();
             _player = new Handlers.Player();
@@ -121,6 +130,7 @@ namespace CedMod
             Exiled.Events.Handlers.Player.EnteringPocketDimension += QuerySystem.QueryPlayerEvents.OnPocketEnter;
             Exiled.Events.Handlers.Player.ThrowingItem += QuerySystem.QueryPlayerEvents.OnGrenadeThrown;
             Exiled.Events.Handlers.Player.Dying += QuerySystem.QueryPlayerEvents.OnPlayerDeath;
+            Exiled.Events.Handlers.Player.Hurting += QuerySystem.QueryPlayerEvents.OnPlayerHurt;
             Exiled.Events.Handlers.Player.InteractingElevator += QuerySystem.QueryPlayerEvents.OnElevatorInteraction;
             Exiled.Events.Handlers.Player.Handcuffing += QuerySystem.QueryPlayerEvents.OnPlayerHandcuffed;
             Exiled.Events.Handlers.Player.RemovingHandcuffs += QuerySystem.QueryPlayerEvents.OnPlayerFreed;
@@ -140,6 +150,11 @@ namespace CedMod
             if (!Directory.Exists(Path.Combine(Paths.Plugins, "CedModEvents")))
             {
                 Directory.CreateDirectory(Path.Combine(Paths.Plugins, "CedModEvents"));
+            }
+            
+            if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+            {
+                Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
             }
             
             foreach (var file in Directory.GetFiles(Path.Combine(Paths.Plugins, "CedModEvents"), "*.dll"))
@@ -238,6 +253,7 @@ namespace CedMod
             Exiled.Events.Handlers.Player.EnteringPocketDimension -= QuerySystem.QueryPlayerEvents.OnPocketEnter;
             Exiled.Events.Handlers.Player.ThrowingItem -= QuerySystem.QueryPlayerEvents.OnGrenadeThrown;
             Exiled.Events.Handlers.Player.Dying -= QuerySystem.QueryPlayerEvents.OnPlayerDeath;
+            Exiled.Events.Handlers.Player.Hurting -= QuerySystem.QueryPlayerEvents.OnPlayerHurt;
             Exiled.Events.Handlers.Player.InteractingElevator -= QuerySystem.QueryPlayerEvents.OnElevatorInteraction;
             Exiled.Events.Handlers.Player.Handcuffing -= QuerySystem.QueryPlayerEvents.OnPlayerHandcuffed;
             Exiled.Events.Handlers.Player.RemovingHandcuffs -= QuerySystem.QueryPlayerEvents.OnPlayerFreed;

@@ -5,13 +5,16 @@ using System.Text;
 using Cryptography;
 using Exiled.Events.EventArgs;
 using Exiled.Events.Handlers;
+using Exiled.API.Features;
 using GameCore;
 using HarmonyLib;
 using LiteNetLib;
 using LiteNetLib.Utils;
+using Mirror;
 using Mirror.LiteNetLib4Mirror;
 using SlProxy;
 using Log = Exiled.API.Features.Log;
+using Player = Exiled.Events.Handlers.Player;
 
 namespace CedMod.Addons.QuerySystem.Patches
 {
@@ -419,10 +422,10 @@ namespace CedMod.Addons.QuerySystem.Patches
                                             {
                                                 num4 += QuerySystem.ReservedSlotUserids.Count;
                                             }
-                                            Log.Info("Preauth ev");
+                                            Log.Debug("Preauth ev", CedModMain.Singleton.Config.QuerySystem.Debug);
                                             PreAuthenticatingEventArgs ev = new PreAuthenticatingEventArgs(text, request, request.Data.Position, b3, text2, num4);
                                             Player.OnPreAuthenticating(ev);
-                                            Log.Info("Preauth ev exec");
+                                            Log.Debug("Preauth ev exec", CedModMain.Singleton.Config.QuerySystem.Debug);
                                             if (LiteNetLib4MirrorCore.Host.ConnectedPeersCount < num4)
                                             {
                                                 if (CustomLiteNetLib4MirrorTransport.UserIds.ContainsKey(request.RemoteEndPoint))
@@ -455,10 +458,21 @@ namespace CedMod.Addons.QuerySystem.Patches
                                                 */
 
                                                 //>Exiled
-                                                Log.Info("Preauth allow check");
+                                                Log.Debug("Preauth allow check", CedModMain.Singleton.Config.QuerySystem.Debug);
                                                 if (ev.IsAllowed)
                                                 {
-                                                    Log.Info("Preauth allowed");
+                                                    string s = Encoding.Default.GetString(array);
+                                                    var reader = new NetDataReader(request.Data.RawData);
+                                                    reader._position = 30;
+                                                    var preauthdata = PreAuthModel.ReadPreAuth(reader);
+                                                    if (HandleQueryplayer.PlayerDummies.Any(s => s.UserId == preauthdata.UserID))
+                                                    {
+                                                        Log.Debug("Real user joining... removing leftover dummy", CedModMain.Singleton.Config.QuerySystem.Debug);
+                                                        var dum = HandleQueryplayer.PlayerDummies.FirstOrDefault(s => s.UserId == preauthdata.UserID);
+                                                        Exiled.API.Features.Player.Dictionary.Remove(dum.GameObject);
+                                                        NetworkServer.Destroy(dum.GameObject);
+                                                    }
+                                                    Log.Debug("Preauth allowed", CedModMain.Singleton.Config.QuerySystem.Debug);
                                                     request.Accept();
                                                     CustomLiteNetLib4MirrorTransport.PreauthDisableIdleMode();
                                                     ServerConsole.AddLog($"Player {text} preauthenticated from endpoint {request.RemoteEndPoint}.");
@@ -466,7 +480,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                                                 }
                                                 else
                                                 {
-                                                    Log.Info("Preauth not allowed");
+                                                    Log.Debug("Preauth not allowed", CedModMain.Singleton.Config.QuerySystem.Debug);
                                                     ServerConsole.AddLog($"Player {text} tried to preauthenticated from endpoint {request.RemoteEndPoint}, but the request has been rejected by a plugin.");
                                                     ServerLogs.AddLog(ServerLogs.Modules.Networking, $"{text} tried to preauthenticated from endpoint {request.RemoteEndPoint}, but the request has been rejected by a plugin.", ServerLogs.ServerLogType.ConnectionUpdate);
                                                 }
@@ -492,7 +506,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                                                 else
                                                 {
                                                     request.Accept();
-                                                    Log.Info("Preauth Full");
+                                                    Log.Debug("Preauth Full", CedModMain.Singleton.Config.QuerySystem.Debug);
                                                     CustomLiteNetLib4MirrorTransport.PreauthDisableIdleMode();
                                                     ServerConsole.AddLog($"Player {text} preauthenticated from endpoint {request.RemoteEndPoint}.");
                                                     ServerLogs.AddLog(ServerLogs.Modules.Networking, $"{text} preauthenticated from endpoint {request.RemoteEndPoint}.", ServerLogs.ServerLogType.ConnectionUpdate);

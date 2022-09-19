@@ -16,9 +16,11 @@ using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
 using Exiled.Permissions.Features;
 using MEC;
+using Mirror;
 using Newtonsoft.Json;
 using RemoteAdmin;
 using Websocket.Client;
+using UnityEngine.Networking;
 
 namespace CedMod.Addons.QuerySystem.WS
 {
@@ -32,17 +34,18 @@ namespace CedMod.Addons.QuerySystem.WS
     public class WebSocketSystem
     {
         public static WebsocketClient Socket;
-        private static object reconnectLock = new object();
-        private static Thread SendThread;
+        internal static object reconnectLock = new object();
+        internal static Thread SendThread;
         public static ConcurrentQueue<QueryCommand> SendQueue = new ConcurrentQueue<QueryCommand>();
-        private static bool Reconnect = false;
+        internal static bool Reconnect = false;
         public static HelloMessage HelloMessage = null;
+        public static DateTime LastConnection = DateTime.UtcNow;
 
         public static void Stop()
         {
             if (Reconnect)
                 return;
-            Log.Error($"ST3");
+            Log.Debug($"ST3", CedModMain.Singleton.Config.QuerySystem.Debug);
             try
             {
                 Socket.Stop(WebSocketCloseStatus.NormalClosure, "Stopping").Wait();
@@ -59,39 +62,48 @@ namespace CedMod.Addons.QuerySystem.WS
 
         public static void Start()
         {
-            Log.Error($"ST4");
+            Log.Debug($"ST4", CedModMain.Singleton.Config.QuerySystem.Debug);
             if (Reconnect)
                 return;
             Reconnect = true;
-            Log.Error($"ST5 {Socket == null}");
+            LastConnection = DateTime.UtcNow;
+            Log.Debug($"ST5 {Socket == null}", CedModMain.Singleton.Config.QuerySystem.Debug);
             try
             {
-                HttpClient client = new HttpClient();
-                var resp = client.SendAsync(new HttpRequestMessage()
+                string data1 = "";
+                using (HttpClient client = new HttpClient())
                 {
-                    Method = HttpMethod.Options,
-                    RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/QuerySystem/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}"),
-                }).Result;
-                string data1 = resp.Content.ReadAsStringAsync().Result;
-                if (resp.StatusCode != HttpStatusCode.OK)
-                {
-                    Log.Error($"Failed to retrieve panel location, API rejected request: {data1}, Retrying");
-                    Thread.Sleep(2000);
-                    Start(); //retry until we succeed or the thread gets aborted.
-                    return;
+                    var resp = client.SendAsync(new HttpRequestMessage()
+                    {
+                        Method = HttpMethod.Options,
+                        RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/v3/QuerySystem/{QuerySystem.QuerySystemKey}"),
+                    }).Result;
+                    data1 = resp.Content.ReadAsStringAsync().Result;
+                    if (resp.StatusCode != HttpStatusCode.OK)
+                    {
+                        Reconnect = false;
+                        Log.Error($"Failed to retrieve panel location, API rejected request: {data1}, Retrying");
+                        Thread.Sleep(2000);
+                        Start(); //retry until we succeed or the thread gets aborted.
+                        return;
+                    }
+                    Log.Info($"Retrieved panel location from API, Connecting to {data1}");
                 }
-                Log.Info($"Retrieved panel location from API, Connecting to {data1} as {CedModMain.Singleton.Config.QuerySystem.Identifier}");
                 QuerySystem.PanelUrl = data1;
             }
             catch (Exception e)
             {
+                Reconnect = false;
                 Log.Error($"Failed to retrieve server location\n{e}");
+                Thread.Sleep(2000);
+                Start(); //retry until we succeed or the thread gets aborted.
                 return;
             }
 
             try
             {
-                Socket = new WebsocketClient(new Uri($"wss://{QuerySystem.PanelUrl}/QuerySystem?key={CedModMain.Singleton.Config.QuerySystem.SecurityKey}&identity={CedModMain.Singleton.Config.QuerySystem.Identifier}&version=2"));
+                LastConnection = DateTime.UtcNow;
+                Socket = new WebsocketClient(new Uri($"wss://{QuerySystem.PanelUrl}/QuerySystem?key={QuerySystem.QuerySystemKey}&identity=SCPSL&version=3"));
                 Socket.ReconnectTimeout = TimeSpan.FromSeconds(5);
                 Socket.ErrorReconnectTimeout = TimeSpan.FromSeconds(5);
                 Socket.IsReconnectionEnabled = false;
@@ -111,7 +123,8 @@ namespace CedMod.Addons.QuerySystem.WS
                         {
                             Task.Factory.StartNew(() =>
                             { 
-                                Log.Error($"ST2");
+                                WebSocketSystem.Reconnect = false;
+                                Log.Debug($"ST2", CedModMain.Singleton.Config.QuerySystem.Debug);
                                 Stop();
                                 Thread.Sleep(1000);
                                 Start();
@@ -122,7 +135,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     }
                     else
                     {
-                        Log.Error($"Lost connection to CedMod Panel {i.CloseStatus} {i.CloseStatusDescription} {i.Type}, reconnecting in 5000ms\n{(i.Exception == null ? "" : i.Exception)}");
+                        Log.Error($"Lost connection to CedMod Panel {i.CloseStatus} {i.CloseStatusDescription} {i.Type}, reconnecting in 5000ms\n{(i.Exception == null || !CedModMain.Singleton.Config.QuerySystem.Debug ? "" : i.Exception)}");
                         Thread.Sleep(5000);
                         lock (reconnectLock)
                         {
@@ -130,7 +143,8 @@ namespace CedMod.Addons.QuerySystem.WS
                             {
                                 try
                                 {
-                                    Log.Error($"ST1");
+                                    WebSocketSystem.Reconnect = false;
+                                    Log.Debug($"ST1", CedModMain.Singleton.Config.QuerySystem.Debug);
                                     Stop();
                                     Thread.Sleep(1000);
                                     Start();
@@ -147,6 +161,7 @@ namespace CedMod.Addons.QuerySystem.WS
 
                 Socket.ReconnectionHappened.Subscribe(s =>
                 {
+                    LastConnection = DateTime.UtcNow;
                     Log.Info($"Connected successfully: {s.Type}");
                     if (SendThread == null || !SendThread.IsAlive)
                     {
@@ -158,6 +173,7 @@ namespace CedMod.Addons.QuerySystem.WS
 
                 Socket.MessageReceived.Subscribe(s =>
                 {
+                    LastConnection = DateTime.UtcNow;
                     if (s.MessageType == WebSocketMessageType.Text)
                         OnMessage(new object(), s.Text);
                 });
@@ -166,7 +182,10 @@ namespace CedMod.Addons.QuerySystem.WS
             }
             catch (Exception e)
             {
+                WebSocketSystem.Reconnect = false;
                 Log.Error(e);
+                Thread.Sleep(2000);
+                Start(); //retry until we succeed or the thread gets aborted.
             }
 
             Reconnect = false;
@@ -185,6 +204,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         {
                             Log.Debug($"Handling send {Socket.IsRunning} {JsonConvert.SerializeObject(cmd)}", CedModMain.Singleton.Config.QuerySystem.Debug);
                             Socket.Send(JsonConvert.SerializeObject(cmd));
+                            LastConnection = DateTime.UtcNow;
                         }
                         else 
                             SendQueue.Enqueue(cmd);
@@ -291,9 +311,21 @@ namespace CedMod.Addons.QuerySystem.WS
                                         default:
                                             ThreadDispatcher.ThreadDispatchQueue.Enqueue(delegate
                                             {
-                                                CommandProcessor.ProcessQuery(jsonData["command"],
-                                                    new CmSender(cmd.Recipient, jsonData["user"], jsonData["user"],
-                                                        ugroup));
+                                                var sender = new CmSender(cmd.Recipient, jsonData["user"], jsonData["user"], ugroup);
+                                                bool removeDummy = false;
+                                                if (Player.Get(jsonData["user"]) == null && CedModMain.Singleton.Config.QuerySystem.DummyExperimental)
+                                                {
+                                                    HandleQueryplayer.CreateDummy(sender);
+                                                    removeDummy = true;
+                                                    Log.Info($"Created Dummy player for {jsonData["user"]} Remote Commands Functionality");
+                                                }
+                                                CommandProcessor.ProcessQuery(jsonData["command"], sender);
+                                                if (removeDummy)
+                                                {
+                                                    var dum = HandleQueryplayer.PlayerDummies.FirstOrDefault(s => s.UserId == jsonData["user"]);
+                                                    Player.Dictionary.Remove(dum.GameObject);
+                                                    NetworkServer.Destroy(dum.GameObject);
+                                                }
                                             });
                                             break;
                                     }
@@ -426,116 +458,153 @@ namespace CedMod.Addons.QuerySystem.WS
             }
         }
 
+        public static bool UseRa = true;
+        public static object LockObj = new object();
+
         public static void ApplyRa()
         {
-            AutoSlPermsSlRequest permsSlRequest = null;
-            try
+            lock (LockObj)
             {
-                HttpClient client = new HttpClient();
-                var responsePerms = client.SendAsync(new HttpRequestMessage()
+                AutoSlPermsSlRequest permsSlRequest = null;
+                try
                 {
-                    Method = HttpMethod.Options,
-                    RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/GetPermissions/{CedModMain.Singleton.Config.QuerySystem.SecurityKey}"),
-                }).Result;
-                if (!responsePerms.IsSuccessStatusCode)
-                {
-                    Log.Error($"Failed to request RA: {responsePerms.Content.ReadAsStringAsync().Result}");
-                    responsePerms.EnsureSuccessStatusCode();
-                }
-                permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(responsePerms.Content.ReadAsStringAsync().Result);
-                if (permsSlRequest.PermissionEntries.Count == 0)
-                    return;
-                if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
-                    Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
-                File.WriteAllText(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json"), JsonConvert.SerializeObject(permsSlRequest));
-            }
-            catch (Exception e)
-            {
-                if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
-                    Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
-                if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")))
-                {
-                    Log.Error($"Failed to fetch RA from panel, using cache...\n{e}");
-                    permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(File.ReadAllText(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")));
-                }
-                else
-                {
-                    Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
-                    return;
-                }
-            }
-
-            try
-            {
-                var handler = ServerStatic.GetPermissionsHandler();
-                var oldMembers = new Dictionary<string, string>(handler._members);
-                Log.Debug($"Wiping Ra data, {handler._groups.Count} {handler._members.Count} {Exiled.Permissions.Extensions.Permissions.Groups.Count}", CedModMain.Singleton.Config.QuerySystem.Debug);
-                handler._groups.Clear();
-                handler._members.Clear();
-                Permissions.Groups.Clear();
-                Log.Debug($"Wiped Ra data, {handler._groups.Count} {handler._members.Count} {Exiled.Permissions.Extensions.Permissions.Groups.Count}", CedModMain.Singleton.Config.QuerySystem.Debug);
-
-                foreach (var perm in permsSlRequest.PermissionEntries)
-                {
-                    Log.Debug($"Constructing group {perm.Name} {perm.BadgeText} {perm.BadgeColor}", CedModMain.Singleton.Config.QuerySystem.Debug);
-                    handler._groups.Add(perm.Name, new UserGroup()
+                    using (HttpClient client = new HttpClient())
                     {
-                        BadgeColor = perm.BadgeColor,
-                        BadgeText = perm.BadgeText,
-                        Cover = perm.Cover,
-                        HiddenByDefault = perm.Hidden,
-                        KickPower = (byte)perm.KickPower,
-                        Permissions = (ulong)perm.Permissions,
-                        RequiredKickPower = (byte)perm.RequiredKickPower,
-                        Shared = false
-                    });
-
-                    var epGroup = new Group();
-                    epGroup.Permissions.AddRange(perm.ExiledPermissions);
-                    epGroup.CombinedPermissions.AddRange(perm.ExiledPermissions);
-                    epGroup.Inheritance.Clear();
-                    epGroup.IsDefault = false;
-                    Permissions.Groups.Add(perm.Name, epGroup);
-                    Log.Debug($"Constructed group {perm.Name} {perm.BadgeText} {perm.BadgeColor}", CedModMain.Singleton.Config.QuerySystem.Debug);
-                }
-
-                foreach (var member in permsSlRequest.MembersList)
-                {
-                    if (member.ReservedSlot && !QuerySystem.ReservedSlotUserids.Contains(member.UserId))
-                        QuerySystem.ReservedSlotUserids.Add(member.UserId);
-                    handler._members.Add(member.UserId, member.Group);
-                    Log.Debug($"Applied {member.Group} to {member.UserId}", CedModMain.Singleton.Config.QuerySystem.Debug);
-
-                    if (Player.Get(member.UserId) != null)
+                        var responsePerms = client.SendAsync(new HttpRequestMessage()
+                        {
+                            Method = HttpMethod.Options,
+                            RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/v3/GetPermissions/{QuerySystem.QuerySystemKey}"),
+                        }).Result;
+                        if (!responsePerms.IsSuccessStatusCode)
+                        {
+                            if (responsePerms.Content.ReadAsStringAsync().Result == "No entries defined.")
+                            {
+                                if (!UseRa)
+                                    ServerStatic.PermissionsHandler = ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
+                                UseRa = true;
+                                if (Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+                                {
+                                    if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")))
+                                        File.Delete(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json"));
+                                }
+                                return;
+                            }
+                            Log.Error($"Failed to request RA: {responsePerms.Content.ReadAsStringAsync().Result}");
+                            responsePerms.EnsureSuccessStatusCode();
+                        }
+                        permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(responsePerms.Content.ReadAsStringAsync().Result);
+                    }
+                    if (permsSlRequest.PermissionEntries.Count == 0)
                     {
-                        Player.Get(member.UserId).Group = handler._groups[member.Group];
-                        Log.Info($"Refreshed Permissions from {member.UserId} as they were present in the AutoSlPerms response while ingame");
+                        if (!UseRa)
+                            ServerStatic.PermissionsHandler = ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
+                        UseRa = true;
+                        if (Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+                        {
+                            if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")))
+                                File.Delete(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json"));
+                        }
+                        return;
+                    }
+                    if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+                        Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
+                    File.WriteAllText(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json"), JsonConvert.SerializeObject(permsSlRequest));
+                    UseRa = false;
+                }
+                catch (Exception e)
+                {
+                    if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+                        Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
+                    if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")))
+                    {
+                        UseRa = false;
+                        Log.Error($"Failed to fetch RA from panel, using cache...\n{e}");
+                        permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(File.ReadAllText(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")));
+                    }
+                    else
+                    {
+                        UseRa = true;
+                        Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
+                        return;
                     }
                 }
 
-                foreach (var member in oldMembers)
+                try
                 {
-                    if (Player.Get(member.Key) != null)
+                    var handler = ServerStatic.GetPermissionsHandler();
+                    var oldMembers = new Dictionary<string, string>(handler._members);
+                    handler._groups.Clear();
+                    handler._members.Clear();
+                    Permissions.Groups.Clear();
+
+                    foreach (var perm in permsSlRequest.PermissionEntries)
                     {
-                        if (permsSlRequest.MembersList.All(s => s.UserId != member.Key))
+                        handler._groups.Add(perm.Name, new UserGroup()
                         {
-                            Log.Info(member.Key + " 3");
-                            Player.Get(member.Key).Group = null;
-                            Log.Info($"Removed Permissions from {member.Key} as they were no longer present in the AutoSlPerms response while ingame");
+                            BadgeColor = perm.BadgeColor,
+                            BadgeText = perm.BadgeText,
+                            Cover = perm.Cover,
+                            HiddenByDefault = perm.Hidden,
+                            KickPower = (byte)perm.KickPower,
+                            Permissions = (ulong)perm.Permissions,
+                            RequiredKickPower = (byte)perm.RequiredKickPower,
+                            Shared = false
+                        });
+
+                        var epGroup = new Group();
+                        epGroup.Permissions.AddRange(perm.ExiledPermissions);
+                        epGroup.CombinedPermissions.AddRange(perm.ExiledPermissions);
+                        epGroup.Inheritance.Clear();
+                        epGroup.IsDefault = false;
+                        Permissions.Groups.Add(perm.Name, epGroup);
+                    }
+
+                    foreach (var member in permsSlRequest.MembersList)
+                    {
+                        if (member.ReservedSlot && !QuerySystem.ReservedSlotUserids.Contains(member.UserId))
+                            QuerySystem.ReservedSlotUserids.Add(member.UserId);
+                        handler._members.Add(member.UserId, member.Group);
+
+                        var player = Player.Get(member.UserId);
+                        if (player != null)
+                        {
+                            bool hidden = player.BadgeHidden;
+                            Player.Get(member.UserId).Group = handler._groups[member.Group];
+                            player.BadgeHidden = hidden;
+                            Log.Info($"Refreshed Permissions from {member.UserId} as they were present in the AutoSlPerms response while ingame");
                         }
                     }
+
+                    foreach (var member in oldMembers)
+                    {
+                        if (permsSlRequest.MembersList.All(s => s.UserId != member.Key) && QuerySystem.ReservedSlotUserids.Contains(member.Key))
+                        {
+                            QuerySystem.ReservedSlotUserids.Remove(member.Key);
+                        }
+                        
+                        if (Player.Get(member.Key) != null)
+                        {
+                            if (permsSlRequest.MembersList.All(s => s.UserId != member.Key))
+                            {
+                                Log.Info(member.Key + " 3");
+                                Player.Get(member.Key).Group = null;
+                                Log.Info($"Removed Permissions from {member.Key} as they were no longer present in the AutoSlPerms response while ingame");
+                            }
+                        }
+                    }
+                    Log.Info($"Successfully applied {permsSlRequest.PermissionEntries.Count} Groups and {permsSlRequest.MembersList.Count} members for AutoSlPerms");
                 }
-                Log.Info($"Successfully applied {permsSlRequest.PermissionEntries.Count} Groups and {permsSlRequest.MembersList.Count} members for AutoSlPerms");
-            }
-            catch (Exception e)
-            {
-                Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
-                ServerStatic.PermissionsHandler = ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
+                catch (Exception e)
+                {
+                    UseRa = true;
+                    Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
+                    ServerStatic.PermissionsHandler = ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
+                }
             }
         }
     }
 
-    internal class CmSender : CommandSender
+    public class CmSender : CommandSender
     {
         public const int chunksize = 1000;
         public override void RaReply(string text, bool success, bool logToConsole, string overrideDisplay)
