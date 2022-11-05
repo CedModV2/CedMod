@@ -36,6 +36,7 @@ namespace CedMod
         public override Version RequiredExiledVersion { get; } = new Version(5, 0, 0);
         public override Version Version { get; } = new Version(3, 2, 0);
         public static string GitCommitHash = String.Empty;
+        public static string VersionIdentifier = String.Empty;
 
         public override void OnEnabled()
         {
@@ -47,6 +48,12 @@ namespace CedMod
             using (StreamReader reader = new StreamReader(stream))
             {
                 GitCommitHash = reader.ReadToEnd();
+            }
+            
+            using (Stream stream = Assembly.GetManifestResourceStream("CedMod.VersionIdentifier.txt"))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                VersionIdentifier = reader.ReadToEnd();
             }
 
             Singleton = this;
