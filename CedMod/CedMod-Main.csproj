@@ -83,10 +83,14 @@
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
     <Compile Include="API.cs" />
     <Compile Include="ApiModals\AutoSlPermsSlRequest.cs" />
+    <Compile Include="ApiModals\CedModVersion.cs" />
     <Compile Include="ApiModals\EventModal.cs" />
+    <Compile Include="ApiModals\ExiledVersion.cs" />
     <Compile Include="ApiModals\HeartbeatRequest.cs" />
     <Compile Include="ApiModals\HelloMessage.cs" />
     <Compile Include="ApiModals\PlayerObject.cs" />
+    <Compile Include="ApiModals\SCPSLVersion.cs" />
+    <Compile Include="AutoUpdater.cs" />
     <Compile Include="BanSystem.cs" />
     <Compile Include="CedModConfig.cs" />
     <Compile Include="Commands\AirstrikeCommand.cs" />

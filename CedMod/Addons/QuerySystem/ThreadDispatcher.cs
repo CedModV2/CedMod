@@ -13,6 +13,7 @@ using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
 using Newtonsoft.Json;
 using UnityEngine;
+using Version = GameCore.Version;
 
 namespace CedMod.Addons.QuerySystem
 {
@@ -176,7 +177,11 @@ namespace CedMod.Addons.QuerySystem
                             PluginCommitHash = CedModMain.GitCommitHash,
                             PluginVersion = CedModMain.Singleton.Version.ToString(),
                             UpdateStats = updateStats,
-                            TrackingEnabled = LevelerStore.TrackingEnabled && EventManager.currentEvent == null
+                            TrackingEnabled = LevelerStore.TrackingEnabled && EventManager.currentEvent == null,
+                            CedModVersionIdentifier = CedModMain.VersionIdentifier,
+                            ExiledVersion = Exiled.Loader.Loader.Version.ToString(),
+                            ScpSlVersion = $"{Version.Major}.{Version.Minor}.{Version.Revision}",
+                            FileHash = CedModMain.FileHash
                         })
                     }
                 }
