@@ -79,7 +79,7 @@ namespace CedMod
             
             AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
             if (updater == null)
-                CustomNetworkManager.singleton.gameObject.AddComponent<AutoUpdater>();
+                updater = CustomNetworkManager.singleton.gameObject.AddComponent<AutoUpdater>();
 
             if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "dev.txt")))
             {
