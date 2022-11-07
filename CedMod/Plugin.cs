@@ -65,7 +65,7 @@ namespace CedMod
                 GitCommitHash = reader.ReadToEnd();
             }
             
-            using (Stream stream = Assembly.GetManifestResourceStream("CedMod.VersionIdentifier.txt"))
+            using (Stream stream = Assembly.GetManifestResourceStream("CedMod.versionIdentifier.txt"))
             using (StreamReader reader = new StreamReader(stream))
             {
                 VersionIdentifier = reader.ReadToEnd();
