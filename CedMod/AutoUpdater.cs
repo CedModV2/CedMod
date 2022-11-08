@@ -75,7 +75,7 @@ namespace CedMod
                 Log.Info($"CedMod AutoUpdater initialized, checking for updates.");
                 Task.Factory.StartNew(() =>
                 {
-                    var data = CheckForUpdates();
+                    var data = CheckForUpdates(true);
                     Pending = data;
                 });
             }
