@@ -1,0 +1,57 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using CedMod.Addons.QuerySystem;
+using CommandSystem;
+using Exiled.API.Enums;
+using Exiled.API.Features;
+using Exiled.Loader;
+using Exiled.Permissions.Extensions;
+using MEC;
+using Newtonsoft.Json;
+using RoundRestarting;
+using UnityEngine;
+using Object = UnityEngine.Object;
+
+namespace CedMod.Commands
+{
+    [CommandHandler(typeof(GameConsoleCommandHandler))]
+    public class InstallUpdateCommand : ICommand
+    {
+        public string Command { get; } = "installcedmodupdate";
+
+        public string[] Aliases { get; } = new string[]
+        {
+        };
+
+        public string Description { get; } = "Installs the pending CedMod update (if any) (If an update is pending, the server will be restarted immediately to install the update)";
+
+        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
+        {
+            AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
+            if (!CedModMain.Singleton.Config.CedMod.AutobanEnabled)
+            {
+                Task.Factory.StartNew(() =>
+                {
+                    var data = updater.CheckForUpdates(true);
+                    if (data == null)
+                        Log.Error($"There are no updates pending for this version.");
+                });
+                response = "";
+                return true;
+            }
+            if (AutoUpdater.Pending == null)
+            {
+                response = "There are no updates pending for this server, please run the checkforcedmodupdates command to check for updates. (Updates are also checked every 5 minutes)";
+                return false;
+            }
+            
+            updater.TimePassed = 300;
+            response = "Update Install requested to the UpdateService";
+            return true;
+        }
+    }
+}

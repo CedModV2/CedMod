@@ -81,7 +81,7 @@ namespace CedMod
             }
         }
 
-        public CedModVersion CheckForUpdates()
+        public CedModVersion CheckForUpdates(bool b = false)
         {
             try
             {
@@ -92,7 +92,8 @@ namespace CedMod
                     {
                         if (response.StatusCode == HttpStatusCode.NotFound)
                         {
-                            Log.Info($"No new updates found for your CedMod Version.");
+                            if (b)
+                                Log.Info($"No new updates found for your CedMod Version.");
                         }
                         else
                         {
