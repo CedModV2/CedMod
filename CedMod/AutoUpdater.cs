@@ -38,7 +38,7 @@ namespace CedMod
                     
                     if (TimePassed >= CedModMain.Singleton.Config.CedMod.AutoUpdateWait * 60 && !Installing)
                     { 
-                        Log.Debug($"Prepping install", CedModMain.Singleton.Config.CedMod.ShowDebug);
+                        Log.Debug($"Prepping install 1", CedModMain.Singleton.Config.CedMod.ShowDebug);
                         TimePassed = 0;
                         Task.Factory.StartNew(() =>
                         {
