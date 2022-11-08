@@ -164,10 +164,9 @@ namespace CedMod
                         }
                         else
                         {
-                            var mem = new MemoryStream();
-                            data.CopyTo(mem);
+                            var data1 = response.Content.ReadAsByteArrayAsync().Result;
                             Log.Info($"Saving to: {CedModMain.Singleton.GetPath()}");
-                            File.WriteAllBytes(CedModMain.Singleton.GetPath(), mem.GetBuffer());
+                            File.WriteAllBytes(CedModMain.Singleton.GetPath(), data1);
                         
                             ServerStatic.StopNextRound = ServerStatic.NextRoundAction.Restart;
                             RoundRestarting.RoundRestart.ChangeLevel(true);
