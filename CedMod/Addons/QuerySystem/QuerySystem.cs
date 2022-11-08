@@ -59,6 +59,6 @@ namespace CedMod.Addons.QuerySystem
         
         public static string CurrentMaster = MainPanelUrl;
         public const string MainPanelUrl = "cedmodcommunitymanagementpanelv2.cedmod.nl";
-        public const string DevPanelUrl = "frikanweb.cedmod.nl";
+        public const string DevPanelUrl = "communitymanagementpanel.dev.cedmod.nl";
     }
 }
