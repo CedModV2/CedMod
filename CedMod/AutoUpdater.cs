@@ -29,7 +29,7 @@ namespace CedMod
             {
                 if (CedModMain.Singleton.Config.CedMod.AutoUpdateWait != 0 && Pending != null)
                 {
-                    if (Player.Dictionary.Count != 0)
+                    if (Player.Dictionary.Count == 0)
                         TimePassed += Time.deltaTime;
                     else
                         TimePassed = 0;
@@ -83,27 +83,34 @@ namespace CedMod
 
         public CedModVersion CheckForUpdates()
         {
-            using (HttpClient client = new HttpClient())
+            try
             {
-                var response = client.GetAsync(QuerySystem.CurrentMaster + $"/Version/UpdateAvailable?VersionId={CedModMain.VersionIdentifier}&ExiledVersion={Exiled.Loader.Loader.Version.ToString()}&ScpSlVersions={GameCore.Version.Major}.{GameCore.Version.Minor}.{GameCore.Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
-                if (response.StatusCode != HttpStatusCode.OK)
+                using (HttpClient client = new HttpClient())
                 {
-                    if (response.StatusCode == HttpStatusCode.NotFound)
+                    var response = client.GetAsync(QuerySystem.CurrentMaster + $"/Version/UpdateAvailable?VersionId={CedModMain.VersionIdentifier}&ExiledVersion={Loader.Version.ToString()}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+                    if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        Log.Info($"No new updates found for your CedMod Version.");
+                        if (response.StatusCode == HttpStatusCode.NotFound)
+                        {
+                            Log.Info($"No new updates found for your CedMod Version.");
+                        }
+                        else
+                        {
+                            Log.Error($"Failed to check for updates: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
+                        }
+                        return null;
                     }
                     else
                     {
-                        Log.Error($"Failed to check for updates: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
+                        var dat = JsonConvert.DeserializeObject<CedModVersion>(response.Content.ReadAsStringAsync().Result);
+                        Log.Info($"Update available: {dat.VersionString} - {dat.VersionCommit}\nCurrent: {CedModMain.Singleton.Version} - {dat.VersionCommit}");
+                        return dat;
                     }
-                    return null;
                 }
-                else
-                {
-                    var dat = JsonConvert.DeserializeObject<CedModVersion>(response.Content.ReadAsStringAsync().Result);
-                    Log.Info($"Update available: {dat.VersionString} - {dat.VersionCommit}\nCurrent: {CedModMain.Singleton.Version} - {dat.VersionCommit}");
-                    return dat;
-                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Failed to check for updates: {e}");
             }
         }
 
