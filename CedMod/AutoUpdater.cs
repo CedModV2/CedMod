@@ -112,6 +112,8 @@ namespace CedMod
             {
                 Log.Error($"Failed to check for updates: {e}");
             }
+
+            return null;
         }
 
         public void RoundRestart()
