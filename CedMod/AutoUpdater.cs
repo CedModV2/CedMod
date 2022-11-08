@@ -88,7 +88,14 @@ namespace CedMod
                 var response = client.GetAsync(QuerySystem.CurrentMaster + $"/Version/UpdateAvailable?VersionId={CedModMain.VersionIdentifier}&ExiledVersion={Exiled.Loader.Loader.Version.ToString()}&ScpSlVersions={GameCore.Version.Major}.{GameCore.Version.Minor}.{GameCore.Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    Log.Error($"Failed to check for updates: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
+                    if (response.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        Log.Info($"No new updates found for your CedMod Version.");
+                    }
+                    else
+                    {
+                        Log.Error($"Failed to check for updates: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
+                    }
                     return null;
                 }
                 else
