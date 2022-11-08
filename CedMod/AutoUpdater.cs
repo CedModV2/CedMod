@@ -104,7 +104,7 @@ namespace CedMod
                     else
                     {
                         var dat = JsonConvert.DeserializeObject<CedModVersion>(response.Content.ReadAsStringAsync().Result);
-                        Log.Info($"Update available: {dat.VersionString} - {dat.VersionCommit}\nCurrent: {CedModMain.Singleton.Version} - {dat.VersionCommit}");
+                        Log.Info($"Update available: {dat.VersionString} - {dat.VersionCommit}\nCurrent: {CedModMain.Singleton.Version} - {CedModMain.GitCommitHash}");
                         return dat;
                     }
                 }
