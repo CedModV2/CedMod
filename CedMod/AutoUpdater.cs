@@ -149,7 +149,7 @@ namespace CedMod
                 using (HttpClient client = new HttpClient())
                 {
                     var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Version/TargetDownload?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ExiledVersion={Loader.Version.ToString()}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
-                    if (response.StatusCode != HttpStatusCode.Found)
+                    if (response.StatusCode != HttpStatusCode.OK)
                     {
                         Log.Error($"Failed to download update: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
                     }
