@@ -32,7 +32,7 @@ namespace CedMod.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
-            if (!CedModMain.Singleton.Config.CedMod.AutobanEnabled)
+            if (!CedModMain.Singleton.Config.CedMod.AutoUpdate)
             {
                 Task.Factory.StartNew(() =>
                 {
