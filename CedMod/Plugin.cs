@@ -70,6 +70,13 @@ namespace CedMod
             {
                 VersionIdentifier = reader.ReadToEnd();
             }
+            
+            if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "dev.txt")))
+            {
+                Log.Info("Plugin running as Dev");
+                QuerySystem.CurrentMaster = QuerySystem.DevPanelUrl;
+                QuerySystem.PanelUrl = QuerySystem.CurrentMaster;
+            }
 
             Singleton = this;
             
@@ -81,13 +88,6 @@ namespace CedMod
             if (updater == null)
                 updater = CustomNetworkManager.singleton.gameObject.AddComponent<AutoUpdater>();
 
-            if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "dev.txt")))
-            {
-                Log.Info("Plugin running as Dev");
-                QuerySystem.CurrentMaster = QuerySystem.DevPanelUrl;
-                QuerySystem.PanelUrl = QuerySystem.CurrentMaster;
-            }
-            
             if (File.Exists(Path.Combine(Paths.Configs, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt")))
             {
                 // Start the HTTP server.
