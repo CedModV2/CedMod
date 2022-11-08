@@ -155,7 +155,7 @@ namespace CedMod
                     }
                     else
                     {
-                        Log.Info($"Downloading CedMod Version");
+                        Log.Info($"Downloading CedMod Version {Pending.VersionString} - {Pending.VersionCommit}");
                         var data = response.Content.ReadAsStreamAsync().Result;
                         var hash = CedModMain.GetHashCode(data, new MD5CryptoServiceProvider());
                         if (Pending.FileHash != hash)
