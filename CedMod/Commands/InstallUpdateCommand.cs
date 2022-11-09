@@ -32,13 +32,18 @@ namespace CedMod.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
-            if (!CedModMain.Singleton.Config.CedMod.AutobanEnabled)
+            if (!CedModMain.Singleton.Config.CedMod.AutoUpdate)
             {
                 Task.Factory.StartNew(() =>
                 {
                     var data = updater.CheckForUpdates(true);
                     if (data == null)
                         Log.Error($"There are no updates pending for this version.");
+                    else
+                    {
+                        AutoUpdater.Pending = data;
+                        updater.InstallUpdate();
+                    }
                 });
                 response = "";
                 return true;

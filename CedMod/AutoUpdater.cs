@@ -138,7 +138,7 @@ namespace CedMod
             }
         }
 
-        private void InstallUpdate()
+        public void InstallUpdate()
         {
             if (Installing)
                 return;
