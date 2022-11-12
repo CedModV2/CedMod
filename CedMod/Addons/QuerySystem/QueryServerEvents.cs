@@ -28,7 +28,7 @@ namespace CedMod.Addons.QuerySystem
                     Log.Debug("Setting lookup mode", CedModMain.Singleton.Config.QuerySystem.Debug);
                     ServerConfigSynchronizer.Singleton.NetworkRemoteAdminExternalPlayerLookupMode = "fullauth";
                     ServerConfigSynchronizer.Singleton.NetworkRemoteAdminExternalPlayerLookupURL =
-                        $"https://{QuerySystem.PanelUrl}/Api/v3/Lookup/";
+                        $"https://{QuerySystem.CurrentMaster}/Api/v3/Lookup/";
                     ServerConfigSynchronizer.Singleton.RemoteAdminExternalPlayerLookupToken =
                         QuerySystem.QuerySystemKey;
                 }
@@ -50,7 +50,7 @@ namespace CedMod.Addons.QuerySystem
                                 Log.Debug("Downloading ban reasons", CedModMain.Singleton.Config.QuerySystem.Debug);
                                 var response =
                                     client.GetAsync(
-                                        $"https://{QuerySystem.PanelUrl}/Api/v3/BanReasons/{QuerySystem.QuerySystemKey}");
+                                        $"https://{QuerySystem.CurrentMaster}/Api/v3/BanReasons/{QuerySystem.QuerySystemKey}");
                                 Log.Debug("Addding ban reasons", CedModMain.Singleton.Config.QuerySystem.Debug);
                                 foreach (var dict in JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(
                                              response.Result.Content.ReadAsStringAsync().Result))
@@ -202,7 +202,7 @@ namespace CedMod.Addons.QuerySystem
                     {
                         var response = client
                             .PostAsync(
-                                $"https://{QuerySystem.PanelUrl}/Api/v3/Reports/{QuerySystem.QuerySystemKey}",
+                                $"https://{QuerySystem.CurrentMaster}/Api/v3/Reports/{QuerySystem.QuerySystemKey}",
                                 new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
                                     {
                                         {"reporter", ev.Issuer.UserId},
@@ -310,7 +310,7 @@ namespace CedMod.Addons.QuerySystem
                         });
                         var response = client
                             .PostAsync(
-                                $"https://{QuerySystem.PanelUrl}/Api/v3/Reports/{QuerySystem.QuerySystemKey}",
+                                $"https://{QuerySystem.CurrentMaster}/Api/v3/Reports/{QuerySystem.QuerySystemKey}",
                                 new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
                                     {
                                         { "reporter", ev.Issuer.UserId },

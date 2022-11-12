@@ -75,7 +75,6 @@ namespace CedMod
             {
                 Log.Info("Plugin running as Dev");
                 QuerySystem.CurrentMaster = QuerySystem.DevPanelUrl;
-                QuerySystem.PanelUrl = QuerySystem.CurrentMaster;
             }
 
             Singleton = this;

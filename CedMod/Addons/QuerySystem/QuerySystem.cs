@@ -17,7 +17,6 @@ namespace CedMod.Addons.QuerySystem
         public static QueryServerEvents QueryServerEvents;
         public static QueryPlayerEvents QueryPlayerEvents;
         public static List<string> ReservedSlotUserids = new List<string>();
-        public static string PanelUrl = MainPanelUrl;
         private static string _querySystemKey;
 
         public static string QuerySystemKey
@@ -58,7 +57,8 @@ namespace CedMod.Addons.QuerySystem
         }
         
         public static string CurrentMaster = MainPanelUrl;
-        public const string MainPanelUrl = "cedmodcommunitymanagementpanelv2.cedmod.nl";
-        public const string DevPanelUrl = "communitymanagementpanel.dev.cedmod.nl";
+        public static string CurrentMasterQuery = "";
+        public const string MainPanelUrl = "panelapi.cedmod.nl";
+        public const string DevPanelUrl = "gameapi.dev.cedmod.nl";
     }
 }

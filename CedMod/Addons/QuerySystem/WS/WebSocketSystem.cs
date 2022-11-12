@@ -71,6 +71,7 @@ namespace CedMod.Addons.QuerySystem.WS
             try
             {
                 string data1 = "";
+                Dictionary<string, string> data2 = new Dictionary<string, string>();
                 using (HttpClient client = new HttpClient())
                 {
                     var resp = client.SendAsync(new HttpRequestMessage()
@@ -79,6 +80,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/v3/QuerySystem/{QuerySystem.QuerySystemKey}"),
                     }).Result;
                     data1 = resp.Content.ReadAsStringAsync().Result;
+                    data2 = JsonConvert.DeserializeObject<Dictionary<string, string>>(data1);
                     if (resp.StatusCode != HttpStatusCode.OK)
                     {
                         Reconnect = false;
@@ -89,7 +91,9 @@ namespace CedMod.Addons.QuerySystem.WS
                     }
                     Log.Info($"Retrieved panel location from API, Connecting to {data1}");
                 }
-                QuerySystem.PanelUrl = data1;
+
+                QuerySystem.CurrentMaster = data2["Api"];
+                QuerySystem.CurrentMasterQuery = data2["Query"];
             }
             catch (Exception e)
             {
@@ -103,7 +107,7 @@ namespace CedMod.Addons.QuerySystem.WS
             try
             {
                 LastConnection = DateTime.UtcNow;
-                Socket = new WebsocketClient(new Uri($"wss://{QuerySystem.PanelUrl}/QuerySystem?key={QuerySystem.QuerySystemKey}&identity=SCPSL&version=3"));
+                Socket = new WebsocketClient(new Uri($"wss://{QuerySystem.CurrentMasterQuery}/QuerySystem?key={QuerySystem.QuerySystemKey}&identity=SCPSL&version=3"));
                 Socket.ReconnectTimeout = TimeSpan.FromSeconds(5);
                 Socket.ErrorReconnectTimeout = TimeSpan.FromSeconds(5);
                 Socket.IsReconnectionEnabled = false;
