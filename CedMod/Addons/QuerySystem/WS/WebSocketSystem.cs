@@ -80,7 +80,6 @@ namespace CedMod.Addons.QuerySystem.WS
                         RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/v3/QuerySystem/{QuerySystem.QuerySystemKey}"),
                     }).Result;
                     data1 = resp.Content.ReadAsStringAsync().Result;
-                    data2 = JsonConvert.DeserializeObject<Dictionary<string, string>>(data1);
                     if (resp.StatusCode != HttpStatusCode.OK)
                     {
                         Reconnect = false;
@@ -89,6 +88,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         Start(); //retry until we succeed or the thread gets aborted.
                         return;
                     }
+                    data2 = JsonConvert.DeserializeObject<Dictionary<string, string>>(data1);
                     Log.Info($"Retrieved panel location from API, Connecting to {data1}");
                 }
 

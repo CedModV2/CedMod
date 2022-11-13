@@ -28,7 +28,7 @@ namespace CedMod.Addons.Events.Commands
             response += $"Current event: [0] {(EventManager.currentEvent == null ? "None" : $"{EventManager.currentEvent.EventName} - ({EventManager.currentEvent.EventPrefix})")}\n\n\nQueue:\n";
             foreach (var evnt in EventManager.nextEvent)
             {
-                response += $"[{EventManager.nextEvent.IndexOf(evnt)}] {evnt.EventName} - ({evnt.EventPrefix})\n";
+                response += $"[{EventManager.nextEvent.IndexOf(evnt) + 1}] {evnt.EventName} - ({evnt.EventPrefix})\n";
             }
             ThreadDispatcher.SendHeartbeatMessage(true);
             return true;
