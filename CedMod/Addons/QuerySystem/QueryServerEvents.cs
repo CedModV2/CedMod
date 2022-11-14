@@ -107,6 +107,7 @@ namespace CedMod.Addons.QuerySystem
             }
         }
 
+        [PluginEvent(ServerEventType.WaitingForPlayers)]
         public void OnWaitingForPlayers()
         {
             Timing.RunCoroutine(SyncStart());
@@ -131,6 +132,7 @@ namespace CedMod.Addons.QuerySystem
             });
         }
 
+        [PluginEvent(ServerEventType.RoundStart)]
         public void OnRoundStart()
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()

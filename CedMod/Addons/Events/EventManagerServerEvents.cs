@@ -19,6 +19,7 @@ namespace CedMod.Addons.Events
             }
         }
 
+        [PluginEvent(ServerEventType.WaitingForPlayers)]
         public void WaitingForPlayers()
         {
             if (EventManager.nextEvent.Count >= 1)
@@ -35,6 +36,7 @@ namespace CedMod.Addons.Events
             ThreadDispatcher.SendHeartbeatMessage(true);
         }
 
+        [PluginEvent(ServerEventType.RoundRestart)]
         public void RestartingRound()
         {
             if (EventManager.currentEvent != null)
