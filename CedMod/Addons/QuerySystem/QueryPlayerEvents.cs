@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem.WS;
 using InventorySystem.Disarming;
 using InventorySystem.Items;
+using InventorySystem.Items.Usables;
 using MapGeneration;
 using Newtonsoft.Json;
 using PlayerRoles;
@@ -432,7 +433,7 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.PlayerUseItem)]
-        public void OnUsedItem(CedModPlayer player, ItemBase item)
+        public void OnUsedItem(CedModPlayer player, UsableItem item)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {

@@ -8,7 +8,7 @@
     <ProjectGuid>{B404BA59-5C33-41DC-8FEE-0F10F087089D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AssemblyName>CedModV3</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <ApplicationVersion>1.2.3.4</ApplicationVersion>
     <FileAlignment>512</FileAlignment>
@@ -56,7 +56,6 @@
     <Compile Include="Addons\Events\EventManagerPlayerEvents.cs" />
     <Compile Include="Addons\Events\EventManagerServerEvents.cs" />
     <Compile Include="Addons\QuerySystem\Commands\CmSyncCommand.cs" />
-    <Compile Include="Addons\QuerySystem\Commands\NearbyBulletHoles.cs" />
     <Compile Include="Addons\QuerySystem\Commands\RestartQuery.cs" />
     <Compile Include="Addons\QuerySystem\Commands\ToggleExpTracking.cs" />
     <Compile Include="Addons\QuerySystem\Config.cs" />
@@ -64,14 +63,11 @@
     <Compile Include="Addons\QuerySystem\LevelerStore.cs" />
     <Compile Include="Addons\QuerySystem\Patches\CommandProcessorPatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\ExiledPermissionsPatchPlayer.cs" />
-    <Compile Include="Addons\QuerySystem\Patches\DummySpecific\StatsBaseUpdatePatch.cs" />
-    <Compile Include="Addons\QuerySystem\Patches\DummySpecific\TransmitPositionDataPatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\ExiledPermissionsPatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\PreAuthModel.cs" />
     <Compile Include="Addons\QuerySystem\Patches\RefreshExiledPermissions.cs" />
     <Compile Include="Addons\QuerySystem\Patches\RefreshPermissionsHandlerPatch.cs" />
     <Compile Include="Addons\QuerySystem\QueryMapEvents.cs" />
-    <Compile Include="Addons\QuerySystem\Patches\BulletHolePatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\ReservedSlotsPatch.cs" />
     <Compile Include="Addons\QuerySystem\QueryPlayerEvents.cs" />
     <Compile Include="Addons\QuerySystem\PlayerList.cs" />
@@ -230,7 +226,7 @@
       <HintPath>..\References\0OpusWrapper.dll</HintPath>
     </Reference>
     <Reference Include="PluginAPI, Version=12.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\References\PluginAPI.dll</HintPath>
+      <HintPath>..\References\PluginAPI_publicized.dll</HintPath>
     </Reference>
     <Reference Include="Sentry, Version=2.1.5.0, Culture=neutral, PublicKeyToken=fba2ec45388e2af0">
       <HintPath>..\packages\Sentry.2.1.5\lib\net461\Sentry.dll</HintPath>
@@ -666,7 +662,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="WindowsBase" />
-    <Reference Include="YamlDotNet, Version=8.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e">
+    <Reference Include="YamlDotNet, Version=11.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e">
       <HintPath>..\References\YamlDotNet.dll</HintPath>
     </Reference>
     <Reference Include="zxing.unity, Version=0.16.4.0, Culture=neutral, PublicKeyToken=null">

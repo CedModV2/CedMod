@@ -22,10 +22,22 @@ namespace CedMod
         public static CedModVersion Pending = new CedModVersion();
         public float TimePassed;
         public float TimePassedCheck;
+        
+        public float TimePassedWarning;
         public bool Installing = false;
 
         public void Update()
         {
+            if (QuerySystem.QuerySystemKey == "")
+            {
+                TimePassedWarning += Time.deltaTime;
+                if (TimePassedWarning >= 2)
+                {
+                    TimePassedWarning = 0;
+                    Log.Error($"CedMod requires additional Setup, the plugin will not function and some features will not work if the plugin is not setup.\nPlease follow the setup guide on https://cedmod.nl/Servers/Setup");
+                }
+                return;
+            }
             if (CedModMain.Singleton.Config.CedMod.AutoUpdate)
             {
                 if (CedModMain.Singleton.Config.CedMod.AutoUpdateWait != 0 && Pending != null)
@@ -171,8 +183,8 @@ namespace CedMod
                         else
                         {
                             var data1 = response.Content.ReadAsByteArrayAsync().Result;
-                            Log.Info($"Saving to: {CedModMain.Assembly.Location}");
-                            File.WriteAllBytes(CedModMain.Assembly.Location, data1);
+                            Log.Info($"Saving to: {CedModMain.PluginLocation}");
+                            File.WriteAllBytes(CedModMain.PluginLocation, data1);
                         
                             ServerStatic.StopNextRound = ServerStatic.NextRoundAction.Restart;
                             RoundRestarting.RoundRestart.ChangeLevel(true);

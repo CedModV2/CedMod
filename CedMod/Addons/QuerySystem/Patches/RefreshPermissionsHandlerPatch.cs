@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem.WS;
-using Exiled.API.Features;
 using HarmonyLib;
 using InventorySystem.Items.Firearms.Modules;
 using UnityEngine;

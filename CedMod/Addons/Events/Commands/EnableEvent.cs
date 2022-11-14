@@ -2,9 +2,8 @@
 using System.Linq;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
 using MEC;
+using PluginAPI.Core;
 
 namespace CedMod.Addons.Events.Commands
 {
@@ -40,17 +39,17 @@ namespace CedMod.Addons.Events.Commands
                 return false;
             }
             
-            if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.CheckPermission("cedmod.events.enable"))
-            {
-                response = "No permission";
-                return false;
-            }
+            // if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.CheckPermission("cedmod.events.enable"))
+            // {
+            //     response = "No permission";
+            //     return false;
+            // }
 
             if (force)
             {
                 EventManager.nextEvent.RemoveAll(ev => ev.EventName == @event.EventName);
                 EventManager.nextEvent.Insert(0, @event);
-                Map.Broadcast(5, $"EventManager: {@event.EventName} is being enabled.\nRound will restart in 3 seconds");
+                Server.SendBroadcast($"EventManager: {@event.EventName} is being enabled.\nRound will restart in 3 seconds", 5);
                 Timing.CallDelayed(3, () =>
                 {
                     Round.Restart(false, false);
@@ -64,7 +63,7 @@ namespace CedMod.Addons.Events.Commands
                     return false;
                 }
                 EventManager.nextEvent.Add(@event);
-                Map.Broadcast(10, $"EventManager: {@event.EventName} has been added to the event queue: position {EventManager.nextEvent.IndexOf(@event)}");
+                Server.SendBroadcast($"EventManager: {@event.EventName} has been added to the event queue: position {EventManager.nextEvent.IndexOf(@event)}", 10);
             }
             ThreadDispatcher.SendHeartbeatMessage(true);
             response = "Success";

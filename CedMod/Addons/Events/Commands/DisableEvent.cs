@@ -1,9 +1,8 @@
 ﻿using System;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
 using MEC;
+using PluginAPI.Core;
 
 namespace CedMod.Addons.Events.Commands
 {
@@ -48,21 +47,21 @@ namespace CedMod.Addons.Events.Commands
                 }
             }
 
-            if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.CheckPermission("cedmod.events.disable"))
-            {
-                response = "No permission";
-                return false;
-            }
+            // if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.CheckPermission("cedmod.events.disable"))
+            // {
+            //     response = "No permission";
+            //     return false;
+            // }
             
             if (queuepos >= 1)
             {
                 var toRemove = EventManager.nextEvent[queuepos - 1];
                 EventManager.nextEvent.Remove(toRemove);
-                Map.Broadcast(5, $"EventManager: {toRemove.EventName} has been removed from the queue");
+                Server.SendBroadcast($"EventManager: {toRemove.EventName} has been removed from the queue", 5);
             }
             else
             {
-                Map.Broadcast(10, $"EventManager: {EventManager.currentEvent.EventName} is being now disabled, round will restart in 3 seconds");
+                Server.SendBroadcast($"EventManager: {EventManager.currentEvent.EventName} is being now disabled, round will restart in 3 seconds", 10);
                 Timing.CallDelayed(3, () =>
                 {
                     Round.Restart(false, false);

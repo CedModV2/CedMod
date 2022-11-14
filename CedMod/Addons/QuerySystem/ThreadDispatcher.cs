@@ -153,6 +153,8 @@ namespace CedMod.Addons.QuerySystem
             {
                 foreach (var player in Player.GetPlayers<CedModPlayer>())
                 {
+                    if (player.ReferenceHub.isLocalPlayer)
+                        continue;
                     players.Add(new PlayerObject()
                     {
                         DoNotTrack = player.DoNotTrack,

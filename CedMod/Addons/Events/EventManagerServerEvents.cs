@@ -1,24 +1,15 @@
 ﻿using System.Linq;
 using CedMod.Addons.QuerySystem;
-using Exiled.API.Features;
-using Exiled.Events.EventArgs;
 using PluginAPI.Core;
+using PluginAPI.Core.Attributes;
+using PluginAPI.Enums;
 
 namespace CedMod.Addons.Events
 {
     public class EventManagerServerEvents
     {
-        public void EndingRound(EndingRoundEventArgs ev)
-        {
-            if (EventManager.currentEvent != null && EventManager.currentEvent.OverrideWinConditions)
-            {
-                bool canEnd = EventManager.currentEvent.CanRoundEnd();
-                ev.IsAllowed = canEnd;
-                ev.IsRoundEnded = canEnd;
-            }
-        }
-
-        public void EndRound(RoundEndedEventArgs ev)
+        [PluginEvent(ServerEventType.RoundEnd)]
+        public void EndRound()
         {
             if (EventManager.currentEvent != null)
             {

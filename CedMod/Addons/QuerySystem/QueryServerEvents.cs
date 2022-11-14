@@ -160,7 +160,6 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.RoundEnd)]
         public void OnRoundEnd()
         {
-            BulletHolePatch.HoleCreators.Clear();
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",

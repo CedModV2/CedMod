@@ -22,7 +22,7 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.LczDecontaminationAnnouncement)]
-        public void OnDecon()
+        public void OnDecon(int i)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -36,7 +36,7 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.WarheadStart)]
-        public void OnWarheadStart()
+        public void OnWarheadStart(bool b, CedModPlayer player)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {

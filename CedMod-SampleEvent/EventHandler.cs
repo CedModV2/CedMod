@@ -1,6 +1,6 @@
-﻿using Exiled.API.Enums;
-using Exiled.API.Features.Items;
-using Exiled.Events.EventArgs;
+﻿using PlayerStatsSystem;
+using PluginAPI.Core.Attributes;
+using PluginAPI.Enums;
 
 namespace CedMod.SampleEvent
 {
@@ -12,9 +12,10 @@ namespace CedMod.SampleEvent
             Plugin = plugin;
         }
 
-        public void OnPlayerDeath(DiedEventArgs ev)
+        [PluginEvent(ServerEventType.PlayerDeath)]
+        public void OnPlayerDeath(CedModPlayer player, CedModPlayer target, DamageHandlerBase damageHandler)
         {
-            ev.Target.Broadcast(1, "You died!", Broadcast.BroadcastFlags.Normal);
+            target.SendBroadcast("You died!", 1, Broadcast.BroadcastFlags.Normal);
         }
     }
 }

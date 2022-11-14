@@ -33,6 +33,7 @@ namespace CedMod
         public static string VersionIdentifier = String.Empty;
 
         public static string PluginConfigFolder = "";
+        public static string PluginLocation = "";
         public static PluginDirectory GameModeDirectory;
         public static Assembly Assembly;
 
@@ -44,6 +45,20 @@ namespace CedMod
         [PluginEntryPoint("CedMod", Version, "SCP:SL Moderation system https://cedmod.nl/About", "ced777ric#0001")]
         void LoadPlugin()
         {
+            if (File.Exists(Path.Combine(Paths.GlobalPlugins.Plugins, "CedModV3.dll")))
+            {
+                PluginConfigFolder = Path.Combine(Paths.GlobalPlugins.Plugins, "CedMod");
+                PluginLocation = Path.Combine(Paths.GlobalPlugins.Plugins, "CedModV3.dll");
+            }
+            else if (File.Exists(Path.Combine(Paths.LocalPlugins.Plugins, "CedModV3.dll")))
+            {
+                PluginConfigFolder = Path.Combine(Paths.LocalPlugins.Plugins, "CedMod");
+                PluginLocation = Path.Combine(Paths.LocalPlugins.Plugins, "CedModV3.dll");
+            }
+            else
+                throw new Exception("Failed to determine file path");
+
+            Assembly = Assembly.GetExecutingAssembly();
             CosturaUtility.Initialize();
             
             PluginAPI.Events.EventManager.RegisterEvents<Handlers.Player>(this);
@@ -62,10 +77,8 @@ namespace CedMod
 
             try
             {
-                PluginConfigFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                 GameModeDirectory = new PluginDirectory(Path.Combine(PluginConfigFolder, "CedModEvents"));
-                Assembly = Assembly.GetExecutingAssembly();
-                var file = File.Open(Assembly.Location, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+                var file = File.Open(PluginLocation, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
                 FileHash = GetHashCode(file, new MD5CryptoServiceProvider());
                 file.Dispose();
             }
@@ -89,10 +102,11 @@ namespace CedMod
                 VersionIdentifier = reader.ReadToEnd();
             }
             
-            if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "dev.txt")))
+            if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", "dev.txt")))
             {
                 Log.Info("Plugin running as Dev");
                 QuerySystem.CurrentMaster = QuerySystem.DevPanelUrl;
+                QuerySystem.IsDev = true;
             }
 
             Singleton = this;
@@ -134,7 +148,7 @@ namespace CedMod
             
             if (!Directory.Exists(Path.Combine(PluginConfigFolder, "CedMod")))
             {
-                Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
+                Directory.CreateDirectory(Path.Combine(PluginConfigFolder, "CedMod"));
             }
             
             int successes = 0;

@@ -53,7 +53,6 @@ namespace CedMod.Commands
                 CedModMain.Singleton.Config.CedMod.CedModApiKey = key;
                 QuerySystem.QuerySystemKey = PanelResponse["QueryKey"];
                 File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "config.yml"), YamlParser.Serializer.Serialize(CedModMain.Singleton.Config));
-
                 response = $"CedMod has been setup, using the identifier: {PanelResponse["QueryIdentifier"]}\nThe server will now be restarted,";
                 ServerStatic.StopNextRound = ServerStatic.NextRoundAction.Restart;
                 RoundRestart.ChangeLevel(true);

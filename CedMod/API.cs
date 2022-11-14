@@ -20,8 +20,14 @@ namespace CedMod
 {
     public static class API
     {
-        public static readonly Uri APIUrl = new Uri("https://api.cedmod.nl/");
-        
+        public static Uri APIUrl
+        {
+            get
+            {
+                return QuerySystem.IsDev ? new Uri("https://api.dev.cedmod.nl/") : new Uri("https://api.cedmod.nl/");
+            }
+        }
+
         public static object APIRequest(string endpoint, string arguments, bool returnstring = false, string type = "GET")
         {
             string response = "";  

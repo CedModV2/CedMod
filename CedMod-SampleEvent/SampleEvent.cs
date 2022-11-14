@@ -1,35 +1,27 @@
 ﻿using System;
 using CedMod.Addons.Events;
-using Exiled.API.Features;
 using HarmonyLib;
+using PluginAPI.Core;
+using PluginAPI.Core.Attributes;
 
 namespace CedMod.SampleEvent
 {
-    public class SampleEvent : Plugin<Config>, IEvent
+    public class SampleEvent : IEvent
     {
         public static Harmony Harmony;
-        /// <inheritdoc/>
-        public override string Author { get; } = "ced777ric#8321";
 
-        public override string Name { get; } = "CedMod-SampleEvent";
+        public static bool IsRunning = false;
 
-        public override string Prefix { get; } = "cm_sampleevent";
-
-        public override Version RequiredExiledVersion { get; } = new Version(3, 0, 0);
-        public override Version Version { get; } = new Version(0, 0, 1);
-        private EventHandler _handler;
-
-        public override void OnDisabled()
+        [PluginUnload]
+        public void OnDisabled()
         {
             StopEvent();
-            base.OnDisabled();
         }
-
-        public static string SecurityKey;
-
-        public override void OnEnabled()
+        
+        [PluginEntryPoint("CedMod-ExampleGameMode", "0.0.1", "Example gamemode for the cedmod gamemode manager", "ced777ric#0001")]
+        public void OnEnabled()
         {
-            base.OnEnabled();
+            
         }
 
         public string EventName { get; } = "Example Event";
@@ -45,18 +37,14 @@ namespace CedMod.SampleEvent
 
         public void PrepareEvent()
         {
-            _handler = new EventHandler(this);
             Log.Info("SampleEvent is preparing");
-            Exiled.Events.Handlers.Player.Died += _handler.OnPlayerDeath;
+            IsRunning = true;
             Log.Info("SampleEvent is prepared");
         }
 
         public void StopEvent()
         {
-            if (_handler == null)
-                return;
-            Exiled.Events.Handlers.Player.Died -= _handler.OnPlayerDeath;
-            _handler = null;
+            IsRunning = false;
         }
     }
 }

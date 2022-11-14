@@ -33,8 +33,19 @@ namespace CedMod.Addons.QuerySystem
                         File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt"), File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "QuerySystemSecretKey.txt")));
                         File.Delete(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "QuerySystemSecretKey.txt"));
                     }
-                    Log.Info("Read QueryKey from persistant storage");
+
+                    if (!File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt")))
+                    {
+                        return "";
+                    }
                     _querySystemKey = File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt"));
+                    
+                    if (_querySystemKey == "")
+                    {
+                        return "";
+                    }
+                    
+                    Log.Info("Read QueryKey from persistant storage");
                 }
                 return _querySystemKey;
             }
@@ -59,5 +70,6 @@ namespace CedMod.Addons.QuerySystem
         public static string CurrentMasterQuery = "";
         public const string MainPanelUrl = "panelapi.cedmod.nl";
         public const string DevPanelUrl = "gameapi.dev.cedmod.nl";
+        public static bool IsDev { get; set; }
     }
 }
