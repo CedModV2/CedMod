@@ -1,6 +1,5 @@
 ﻿using System;
 using CommandSystem;
-using Exiled.Permissions.Extensions;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -19,11 +18,11 @@ namespace CedMod.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            if (!sender.CheckPermission("cedmod.colors"))
-            {
-                response = "no permission";
-                return false;
-            }
+            // if (!sender.CheckPermission("cedmod.colors"))
+            // {
+            //     response = "no permission";
+            //     return false;
+            // }
             if (arguments.IsEmpty())
             {
                 response = "You must specify colors (255, 255, 255).";

@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
-using Exiled.API.Enums;
-using Exiled.API.Features;
-using Exiled.Loader;
-using Exiled.Permissions.Extensions;
 using MEC;
 using Newtonsoft.Json;
 using RoundRestarting;
+using Serialization;
 using UnityEngine;
 
 namespace CedMod.Commands
@@ -31,11 +29,8 @@ namespace CedMod.Commands
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            var pluginConfigs = ConfigManager.LoadSorted(ConfigManager.Read());
-            bool queryInstalled = pluginConfigs.ContainsKey("cm_WAPI");
             string key = arguments.At(0);
-            Config cedModCnf = pluginConfigs[CedModMain.Singleton.Prefix] as Config;
-            
+
             using (HttpClient client = new HttpClient())
             {
                 HttpResponseMessage panelResponse = null;
@@ -55,9 +50,9 @@ namespace CedMod.Commands
                 }
             
                 Dictionary<string, string> PanelResponse = JsonConvert.DeserializeObject<Dictionary<string, string>>(result);
-                cedModCnf.CedMod.CedModApiKey = key;
+                CedModMain.Singleton.Config.CedMod.CedModApiKey = key;
                 QuerySystem.QuerySystemKey = PanelResponse["QueryKey"];
-                ConfigManager.Save(pluginConfigs);
+                File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "config.yml"), YamlParser.Serializer.Serialize(CedModMain.Singleton.Config));
 
                 response = $"CedMod has been setup, using the identifier: {PanelResponse["QueryIdentifier"]}\nThe server will now be restarted,";
                 ServerStatic.StopNextRound = ServerStatic.NextRoundAction.Restart;

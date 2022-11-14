@@ -1,6 +1,7 @@
 ﻿using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using MEC;
+using PluginAPI.Core;
 
 namespace CedMod.Addons.Events
 {

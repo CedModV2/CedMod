@@ -13,7 +13,7 @@ using InventorySystem.Items.Firearms.Modules;
 using NorthwoodLib.Pools;
 using RemoteAdmin;
 using UnityEngine;
-using Log = Exiled.API.Features.Log;
+using Log = PluginAPI.Core.Log;
 
 namespace CedMod.Addons.QuerySystem.Patches
 {

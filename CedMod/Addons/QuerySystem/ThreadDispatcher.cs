@@ -9,9 +9,8 @@ using System.Threading.Tasks;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem.WS;
 using CedMod.ApiModals;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
 using Newtonsoft.Json;
+using PluginAPI.Core;
 using UnityEngine;
 using Version = GameCore.Version;
 
@@ -24,7 +23,8 @@ namespace CedMod.Addons.QuerySystem
         
         public void Start()
         {
-            Log.Debug("ThreadDispatcher started", CedModMain.Singleton.Config.QuerySystem.Debug);
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Log.Debug("ThreadDispatcher started");
         }
 
         public static ConcurrentQueue<Action> ThreadDispatchQueue = new ConcurrentQueue<Action>();
@@ -34,9 +34,11 @@ namespace CedMod.Addons.QuerySystem
             {
                 try
                 {
-                    Log.Debug($"Invoking action", CedModMain.Singleton.Config.QuerySystem.Debug);
+                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                        Log.Debug($"Invoking action");
                     action.Invoke();
-                    Log.Debug($"Action Invoked", CedModMain.Singleton.Config.QuerySystem.Debug);
+                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                        Log.Debug($"Action Invoked");
                 }
                 catch (Exception e)
                 {
@@ -111,11 +113,11 @@ namespace CedMod.Addons.QuerySystem
 
             if (WebSocketSystem.HelloMessage != null)
             {
-                HandleQueryplayer.PlayerDummies.RemoveAll(s => s.GameObject == null);
                 timeLeftbeforeHeartBeat -= Time.deltaTime;
                 if (timeLeftbeforeHeartBeat <= 0)
                 {
-                    Log.Debug("Invoking heartbeat", CedModMain.Singleton.Config.QuerySystem.Debug);
+                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                        Log.Debug("Invoking heartbeat");
                     timeLeftbeforeHeartBeat = 20;
                     SendHeartbeatMessage(true);
                 }
@@ -149,7 +151,7 @@ namespace CedMod.Addons.QuerySystem
 
             if (WebSocketSystem.HelloMessage.SendStats)
             {
-                foreach (var player in Player.List)
+                foreach (var player in Player.GetPlayers<CedModPlayer>())
                 {
                     players.Add(new PlayerObject()
                     {
@@ -157,8 +159,8 @@ namespace CedMod.Addons.QuerySystem
                         Name = player.Nickname,
                         Staff = PermissionsHandler.IsPermitted(player.ReferenceHub.serverRoles.Permissions, new PlayerPermissions[3] { PlayerPermissions.KickingAndShortTermBanning, PlayerPermissions.BanningUpToDay, PlayerPermissions.LongTermBanning}),
                         UserId = player.UserId,
-                        PlayerId = player.Id,
-                        RoleType = player.Role.Type
+                        PlayerId = player.PlayerId,
+                        RoleType = player.Role
                     });
                 }
             }
@@ -175,11 +177,11 @@ namespace CedMod.Addons.QuerySystem
                             Events = events,
                             Players = players,
                             PluginCommitHash = CedModMain.GitCommitHash,
-                            PluginVersion = CedModMain.Singleton.Version.ToString(),
+                            PluginVersion = CedModMain.Version,
                             UpdateStats = updateStats,
                             TrackingEnabled = LevelerStore.TrackingEnabled && EventManager.currentEvent == null,
                             CedModVersionIdentifier = CedModMain.VersionIdentifier,
-                            ExiledVersion = Exiled.Loader.Loader.Version.ToString(),
+                            ExiledVersion = "NWAPI",
                             ScpSlVersion = $"{Version.Major}.{Version.Minor}.{Version.Revision}",
                             FileHash = CedModMain.FileHash
                         })

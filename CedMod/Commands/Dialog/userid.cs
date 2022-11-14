@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
 using CommandSystem;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
+using PluginAPI.Core;
 
 namespace CedMod.Commands.Dialog
 {
@@ -19,17 +18,17 @@ namespace CedMod.Commands.Dialog
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            if (!sender.CheckPermission("cedmod.dialog"))
-            {
-                response = "no permission";
-                return false;
-            }
+            // if (!sender.CheckPermission("cedmod.dialog"))
+            // {
+            //     response = "no permission";
+            //     return false;
+            // }
             if (arguments.Count >= 2)
             {
                 Player player;
                 string msg = arguments.Skip(1).Aggregate((current, n) => current + " " + n);
 
-                player = Player.Get(arguments.At(0));
+                player = Player.Get<CedModPlayer>(arguments.At(0));
                 if (player == null)
                 {
                     response = "Could not find player with the specified userid";

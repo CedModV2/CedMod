@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
 using CommandSystem;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
+using PluginAPI.Core;
 
 namespace CedMod.Commands.Dialog
 {
@@ -20,11 +19,11 @@ namespace CedMod.Commands.Dialog
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            if (!sender.CheckPermission("cedmod.dialog"))
-            {
-                response = "no permission";
-                return false;
-            }
+            // if (!sender.CheckPermission("cedmod.dialog"))
+            // {
+            //     response = "no permission";
+            //     return false;
+            // }
             if (arguments.IsEmpty())
             {
                 response = "Missing argument <message>";
@@ -32,7 +31,7 @@ namespace CedMod.Commands.Dialog
             }
 
             string msg = arguments.Skip(0).Aggregate((current, n) => current + " " + n);
-            foreach (Player ply in Player.List) 
+            foreach (CedModPlayer ply in Player.GetPlayers<CedModPlayer>()) 
             {
                 ply.SendConsoleMessage("[REPORTING] " + msg + " Press ESC to close", "green");
             }

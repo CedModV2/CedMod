@@ -13,7 +13,7 @@ using LiteNetLib.Utils;
 using Mirror;
 using Mirror.LiteNetLib4Mirror;
 using SlProxy;
-using Log = Exiled.API.Features.Log;
+using Log = PluginAPI.Core.Log;
 using Player = Exiled.Events.Handlers.Player;
 
 namespace CedMod.Addons.QuerySystem.Patches

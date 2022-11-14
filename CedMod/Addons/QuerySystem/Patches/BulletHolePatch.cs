@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Exiled.API.Features;
 using HarmonyLib;
 using InventorySystem.Items.Firearms.Modules;
+using PluginAPI.Core;
 using UnityEngine;
 
 namespace CedMod.Addons.QuerySystem.Patches

@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using CommandSystem;
 using CommandSystem.Commands.RemoteAdmin;
 using CommandSystem.Commands.RemoteAdmin.MutingAndIntercom;
-using Exiled.API.Features;
 using GameCore;
 using HarmonyLib;
+using PluginAPI.Core;
 using RemoteAdmin;
 using UnityEngine;
 using Utils;
@@ -116,10 +116,10 @@ namespace CedMod.Patches
 					}
 					else
 					{
-						var plr = Player.Get(referenceHub);
+						var plr = Player.Get<CedModPlayer>(referenceHub);
 						plr.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", MuteType.Global.ToString()).Replace("{duration}", num.ToString()).Replace("{reason}", text), "red");
-						plr.Broadcast(5, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", MuteType.Global.ToString()).Replace("{duration}", num.ToString()).Replace("{reason}", text), Broadcast.BroadcastFlags.Normal);
-						plr.IsMuted = true;
+						plr.SendBroadcast(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", MuteType.Global.ToString()).Replace("{duration}", num.ToString()).Replace("{reason}", text), 5, Broadcast.BroadcastFlags.Normal);
+						plr.Mute(true);
 						plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", MuteType.Global.ToString());
 						Task.Factory.StartNew(() =>
 						{

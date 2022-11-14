@@ -12,12 +12,10 @@ using System.Threading.Tasks;
 using CedMod.Addons.Events.Commands;
 using CedMod.Addons.QuerySystem.Commands;
 using CedMod.ApiModals;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
-using Exiled.Permissions.Features;
 using MEC;
 using Mirror;
 using Newtonsoft.Json;
+using PluginAPI.Core;
 using RemoteAdmin;
 using Websocket.Client;
 using UnityEngine.Networking;
@@ -45,7 +43,8 @@ namespace CedMod.Addons.QuerySystem.WS
         {
             if (Reconnect)
                 return;
-            Log.Debug($"ST3", CedModMain.Singleton.Config.QuerySystem.Debug);
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Log.Debug($"ST3");
             try
             {
                 Socket.Stop(WebSocketCloseStatus.NormalClosure, "Stopping").Wait();
@@ -62,12 +61,14 @@ namespace CedMod.Addons.QuerySystem.WS
 
         public static void Start()
         {
-            Log.Debug($"ST4", CedModMain.Singleton.Config.QuerySystem.Debug);
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Log.Debug($"ST4");
             if (Reconnect)
                 return;
             Reconnect = true;
             LastConnection = DateTime.UtcNow;
-            Log.Debug($"ST5 {Socket == null}", CedModMain.Singleton.Config.QuerySystem.Debug);
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Log.Debug($"ST5 {Socket == null}");
             try
             {
                 string data1 = "";
@@ -128,7 +129,8 @@ namespace CedMod.Addons.QuerySystem.WS
                             Task.Factory.StartNew(() =>
                             { 
                                 WebSocketSystem.Reconnect = false;
-                                Log.Debug($"ST2", CedModMain.Singleton.Config.QuerySystem.Debug);
+                                if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                    Log.Debug($"ST2");
                                 Stop();
                                 Thread.Sleep(1000);
                                 Start();
@@ -148,14 +150,15 @@ namespace CedMod.Addons.QuerySystem.WS
                                 try
                                 {
                                     WebSocketSystem.Reconnect = false;
-                                    Log.Debug($"ST1", CedModMain.Singleton.Config.QuerySystem.Debug);
+                                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                        Log.Debug($"ST1");
                                     Stop();
                                     Thread.Sleep(1000);
                                     Start();
                                 }
                                 catch (Exception e)
                                 {
-                                    Log.Error(e);
+                                    Log.Error(e.ToString());
                                 }
                             });
                         }
@@ -187,7 +190,7 @@ namespace CedMod.Addons.QuerySystem.WS
             catch (Exception e)
             {
                 WebSocketSystem.Reconnect = false;
-                Log.Error(e);
+                Log.Error(e.ToString());
                 Thread.Sleep(2000);
                 Start(); //retry until we succeed or the thread gets aborted.
             }
@@ -197,7 +200,8 @@ namespace CedMod.Addons.QuerySystem.WS
 
         public static void HandleSendQueue()
         {
-            Log.Debug("Started SendQueueHandler", CedModMain.Singleton.Config.QuerySystem.Debug);
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Log.Debug("Started SendQueueHandler");
             while (SendThread != null && Socket != null && SendThread.IsAlive && Socket.IsRunning)
             {
                 while (SendQueue.TryDequeue(out QueryCommand cmd))
@@ -206,7 +210,8 @@ namespace CedMod.Addons.QuerySystem.WS
                     {
                         if (Socket.IsRunning && Socket.IsStarted)
                         {
-                            Log.Debug($"Handling send {Socket.IsRunning} {JsonConvert.SerializeObject(cmd)}", CedModMain.Singleton.Config.QuerySystem.Debug);
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Log.Debug($"Handling send {Socket.IsRunning} {JsonConvert.SerializeObject(cmd)}");
                             Socket.Send(JsonConvert.SerializeObject(cmd));
                             LastConnection = DateTime.UtcNow;
                         }
@@ -228,7 +233,8 @@ namespace CedMod.Addons.QuerySystem.WS
         {
             try
             {
-                Log.Debug($"Current queue length: {SendQueue.Count}", CedModMain.Singleton.Config.QuerySystem.Debug);
+                if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                    Log.Debug($"Current queue length: {SendQueue.Count}");
                 if (SendThread == null || !SendThread.IsAlive)
                 {
                     SendThread?.Abort();
@@ -236,18 +242,21 @@ namespace CedMod.Addons.QuerySystem.WS
                     SendThread.Start();
                 }
 
-                Log.Debug(ev, CedModMain.Singleton.Config.QuerySystem.Debug);
+                if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                    Log.Debug(ev);
                 QueryCommand cmd = JsonConvert.DeserializeObject<QueryCommand>(ev);
 
                 var jsonData = cmd.Data;
                 string text2 = jsonData["action"];
-                Log.Debug(text2, CedModMain.Singleton.Config.QuerySystem.Debug);
+                if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                    Log.Debug(text2);
                 if (text2 != null)
                 {
                     switch (text2)
                     {
                         case "ping":
-                            Log.Debug("IsPing", CedModMain.Singleton.Config.QuerySystem.Debug);
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Log.Debug("IsPing");
                             
                             Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                             {
@@ -259,7 +268,8 @@ namespace CedMod.Addons.QuerySystem.WS
                             }));
                             return;
                         case "custom":
-                            Log.Debug("CustomCommand", CedModMain.Singleton.Config.QuerySystem.Debug);
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Log.Debug("CustomCommand");
                             if (!jsonData.ContainsKey("command"))
                             {
                                 Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
@@ -273,7 +283,8 @@ namespace CedMod.Addons.QuerySystem.WS
                             }
                             else
                             {
-                                Log.Debug("CustomCommand", CedModMain.Singleton.Config.QuerySystem.Debug);
+                                if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                    Log.Debug("CustomCommand"); 
                                 string[] array = jsonData["command"].Split(new char[]
                                 {
                                     ' '
@@ -302,41 +313,31 @@ namespace CedMod.Addons.QuerySystem.WS
                                     }));
                                 }
 
-                                Log.Debug("CustomCommandCheckPerm", CedModMain.Singleton.Config.QuerySystem.Debug);
+                                if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                    Log.Debug("CustomCommandCheckPerm");
                                 if (ServerStatic.PermissionsHandler._members.ContainsKey(jsonData["user"]))
                                 {
-                                    Log.Debug("CustomCommandPermGood", CedModMain.Singleton.Config.QuerySystem.Debug);
+                                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                        Log.Debug("CustomCommandPermGood"); 
                                     string name = ServerStatic.PermissionsHandler._members[jsonData["user"]];
                                     UserGroup ugroup = ServerStatic.PermissionsHandler.GetGroup(name);
-                                    Log.Debug("CustomCommandPermGood, dispatching",
-                                        CedModMain.Singleton.Config.QuerySystem.Debug);
+                                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                        Log.Debug("CustomCommandPermGood, dispatching");
                                     switch (jsonData["command"].Split(' ')[0].ToUpper())
                                     {
                                         default:
                                             ThreadDispatcher.ThreadDispatchQueue.Enqueue(delegate
                                             {
                                                 var sender = new CmSender(cmd.Recipient, jsonData["user"], jsonData["user"], ugroup);
-                                                bool removeDummy = false;
-                                                if (Player.Get(jsonData["user"]) == null && CedModMain.Singleton.Config.QuerySystem.DummyExperimental)
-                                                {
-                                                    HandleQueryplayer.CreateDummy(sender);
-                                                    removeDummy = true;
-                                                    Log.Info($"Created Dummy player for {jsonData["user"]} Remote Commands Functionality");
-                                                }
                                                 CommandProcessor.ProcessQuery(jsonData["command"], sender);
-                                                if (removeDummy)
-                                                {
-                                                    var dum = HandleQueryplayer.PlayerDummies.FirstOrDefault(s => s.UserId == jsonData["user"]);
-                                                    Player.Dictionary.Remove(dum.GameObject);
-                                                    NetworkServer.Destroy(dum.GameObject);
-                                                }
                                             });
                                             break;
                                     }
                                 }
                                 else
                                 {
-                                    Log.Debug("CustomCommandPermBad, returning", CedModMain.Singleton.Config.QuerySystem.Debug);
+                                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                        Log.Debug("CustomCommandPermBad, returning");
                                     
                                     Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                                     {
@@ -351,8 +352,9 @@ namespace CedMod.Addons.QuerySystem.WS
 
                             break;
                         case "kicksteamid":
-                            Log.Debug("KickCmd", CedModMain.Singleton.Config.QuerySystem.Debug);
-                            foreach (Player player in Player.List)
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Log.Debug("KickCmd");
+                            foreach (CedModPlayer player in Player.GetPlayers<CedModPlayer>())
                             {
                                 CharacterClassManager component = player.ReferenceHub.characterClassManager;
                                 if (component.UserId == jsonData["steamid"])
@@ -380,16 +382,20 @@ namespace CedMod.Addons.QuerySystem.WS
                             }));
                             break;
                         case "mutesteamid":
-                            Log.Debug("MuteCmd", CedModMain.Singleton.Config.QuerySystem.Debug);
-                            var plr = Player.Get(jsonData["steamid"]);
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Log.Debug("MuteCmd");
+                            var plr = Player.Get<CedModPlayer>(jsonData["steamid"]);
                             if (plr != null)
                             {
                                 Log.Info($"user: {plr.UserId} muted trough panel, issuing mute...");
                                 Enum.TryParse(jsonData["type"], out MuteType muteType);
                                 plr.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), "red");
-                                plr.Broadcast(5, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), Broadcast.BroadcastFlags.Normal);
-                                plr.IsMuted = muteType == MuteType.Global;
-                                plr.IsIntercomMuted = muteType == MuteType.Intercom;
+                                plr.SendBroadcast(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), 5, Broadcast.BroadcastFlags.Normal);
+                                if (muteType == MuteType.Global)
+                                    plr.Mute(true);
+                    
+                                if (muteType == MuteType.Intercom)
+                                    plr.IntercomMute(true);
                                 plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
                                 Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                                 {
@@ -412,7 +418,8 @@ namespace CedMod.Addons.QuerySystem.WS
                             }));
                             break;
                         case "hello":
-                            Log.Debug($"Received hello: {ev}", CedModMain.Singleton.Config.QuerySystem.Debug);
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Log.Debug($"Received hello: {ev}");
                             HelloMessage = JsonConvert.DeserializeObject<HelloMessage>(jsonData["data"]);
                             break;
                         case "ImportRA":
@@ -421,7 +428,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 List<SLPermissionEntry> Groups = new List<SLPermissionEntry>();
                                 foreach (var group in ServerStatic.GetPermissionsHandler()._groups)
                                 {
-                                    var perms = Permissions.Groups.FirstOrDefault(s => s.Key == group.Key);
+                                    //var perms = Permissions.Groups.FirstOrDefault(s => s.Key == group.Key);
                                     Groups.Add(new SLPermissionEntry()
                                     {
                                         Name = group.Key,
@@ -434,7 +441,8 @@ namespace CedMod.Addons.QuerySystem.WS
                                         BadgeColor = group.Value.BadgeColor,
                                         RoleId = 0,
                                         Permissions = (PlayerPermissions) group.Value.Permissions,
-                                        ExiledPermissions = perms.Value == null ? new List<string>() : perms.Value.CombinedPermissions,
+                                        ExiledPermissions = new List<string>(),
+                                        //perms.Value == null ? new List<string>() : perms.Value.CombinedPermissions
                                     });
                                 }
 
@@ -486,10 +494,10 @@ namespace CedMod.Addons.QuerySystem.WS
                                 if (!UseRa)
                                     ServerStatic.PermissionsHandler = ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
                                 UseRa = true;
-                                if (Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+                                if (Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
                                 {
-                                    if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")))
-                                        File.Delete(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json"));
+                                    if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "autoSlPermCache.json")))
+                                        File.Delete(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "autoSlPermCache.json"));
                                 }
                                 return;
                             }
@@ -503,27 +511,27 @@ namespace CedMod.Addons.QuerySystem.WS
                         if (!UseRa)
                             ServerStatic.PermissionsHandler = ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
                         UseRa = true;
-                        if (Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+                        if (Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
                         {
-                            if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")))
-                                File.Delete(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json"));
+                            if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "autoSlPermCache.json")))
+                                File.Delete(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "autoSlPermCache.json"));
                         }
                         return;
                     }
-                    if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
-                        Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
-                    File.WriteAllText(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json"), JsonConvert.SerializeObject(permsSlRequest));
+                    if (!Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
+                        Directory.CreateDirectory(Path.Combine(CedModMain.PluginConfigFolder, "CedMod"));
+                    File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "autoSlPermCache.json"), JsonConvert.SerializeObject(permsSlRequest));
                     UseRa = false;
                 }
                 catch (Exception e)
                 {
-                    if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
-                        Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
-                    if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")))
+                    if (!Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
+                        Directory.CreateDirectory(Path.Combine(CedModMain.PluginConfigFolder, "CedMod"));
+                    if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "autoSlPermCache.json")))
                     {
                         UseRa = false;
                         Log.Error($"Failed to fetch RA from panel, using cache...\n{e}");
-                        permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(File.ReadAllText(Path.Combine(Paths.Configs, "CedMod", "autoSlPermCache.json")));
+                        permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "autoSlPermCache.json")));
                     }
                     else
                     {
@@ -539,7 +547,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     var oldMembers = new Dictionary<string, string>(handler._members);
                     handler._groups.Clear();
                     handler._members.Clear();
-                    Permissions.Groups.Clear();
+                    //Permissions.Groups.Clear();
 
                     foreach (var perm in permsSlRequest.PermissionEntries)
                     {
@@ -555,12 +563,12 @@ namespace CedMod.Addons.QuerySystem.WS
                             Shared = false
                         });
 
-                        var epGroup = new Group();
-                        epGroup.Permissions.AddRange(perm.ExiledPermissions);
-                        epGroup.CombinedPermissions.AddRange(perm.ExiledPermissions);
-                        epGroup.Inheritance.Clear();
-                        epGroup.IsDefault = false;
-                        Permissions.Groups.Add(perm.Name, epGroup);
+                        // var epGroup = new Group();
+                        // epGroup.Permissions.AddRange(perm.ExiledPermissions);
+                        // epGroup.CombinedPermissions.AddRange(perm.ExiledPermissions);
+                        // epGroup.Inheritance.Clear();
+                        // epGroup.IsDefault = false;
+                        // Permissions.Groups.Add(perm.Name, epGroup);
                     }
 
                     foreach (var member in permsSlRequest.MembersList)
@@ -569,12 +577,12 @@ namespace CedMod.Addons.QuerySystem.WS
                             QuerySystem.ReservedSlotUserids.Add(member.UserId);
                         handler._members.Add(member.UserId, member.Group);
 
-                        var player = Player.Get(member.UserId);
+                        var player = Player.Get<CedModPlayer>(member.UserId);
                         if (player != null)
                         {
-                            bool hidden = player.BadgeHidden;
-                            Player.Get(member.UserId).Group = handler._groups[member.Group];
-                            player.BadgeHidden = hidden;
+                            bool hidden = player.PlayerInfo.IsBadgeHidden;
+                            Player.Get<CedModPlayer>(member.UserId).ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false);
+                            player.PlayerInfo.IsBadgeHidden = hidden;
                             Log.Info($"Refreshed Permissions from {member.UserId} as they were present in the AutoSlPerms response while ingame");
                         }
                     }
@@ -586,12 +594,12 @@ namespace CedMod.Addons.QuerySystem.WS
                             QuerySystem.ReservedSlotUserids.Remove(member.Key);
                         }
                         
-                        if (Player.Get(member.Key) != null)
+                        if (Player.Get<CedModPlayer>(member.Key) != null)
                         {
                             if (permsSlRequest.MembersList.All(s => s.UserId != member.Key))
                             {
                                 Log.Info(member.Key + " 3");
-                                Player.Get(member.Key).Group = null;
+                                Player.Get<CedModPlayer>(member.Key).ReferenceHub.serverRoles.SetGroup(null, false);
                                 Log.Info($"Removed Permissions from {member.Key} as they were no longer present in the AutoSlPerms response while ingame");
                             }
                         }
@@ -613,16 +621,20 @@ namespace CedMod.Addons.QuerySystem.WS
         public const int chunksize = 1000;
         public override void RaReply(string text, bool success, bool logToConsole, string overrideDisplay)
         {
-            Log.Debug($"RA Reply: {text} Suc: {success}", CedModMain.Singleton.Config.QuerySystem.Debug);
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Log.Debug($"RA Reply: {text} Suc: {success}");
             SendText(text);
-            Log.Debug("Added RA message to queue", CedModMain.Singleton.Config.QuerySystem.Debug);
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Log.Debug("Added RA message to queue");
         }
 
         public override void Print(string text)
         {
-            Log.Debug($"RA Print: {text}", CedModMain.Singleton.Config.QuerySystem.Debug);
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Log.Debug($"RA Print: {text}"); 
             SendText(text);
-            Log.Debug("Added RA message to queue", CedModMain.Singleton.Config.QuerySystem.Debug);
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Log.Debug("Added RA message to queue");
         }
 
         public void SendText(string text)
@@ -666,9 +678,11 @@ namespace CedMod.Addons.QuerySystem.WS
 
         public override void Respond(string text, bool success = true)
         {
-            Log.Debug($"RA Response: {text} Suc: {success}", CedModMain.Singleton.Config.QuerySystem.Debug);
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Log.Debug($"RA Response: {text} Suc: {success}");
             SendText(text);
-            Log.Debug("Added RA message to queue", CedModMain.Singleton.Config.QuerySystem.Debug);
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Log.Debug("Added RA message to queue");
         }
 
         public override string SenderId

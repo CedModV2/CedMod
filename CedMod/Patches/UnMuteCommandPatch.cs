@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using CommandSystem;
 using CommandSystem.Commands.RemoteAdmin;
 using CommandSystem.Commands.RemoteAdmin.MutingAndIntercom;
-using Exiled.API.Features;
 using GameCore;
 using HarmonyLib;
+using PluginAPI.Core;
 using RemoteAdmin;
 using UnityEngine;
 using Utils;
@@ -76,10 +76,10 @@ namespace CedMod.Patches
 					}
 					else
 					{
-						var plr = Player.Get(referenceHub);
+						var plr = Player.Get<CedModPlayer>(referenceHub);
 						plr.SendConsoleMessage("You have been unmuted", "green");
-						plr.Broadcast(5, "You have been unmuted", Broadcast.BroadcastFlags.Normal);
-						plr.IsMuted = false;
+						plr.SendBroadcast("You have been unmuted", 5, Broadcast.BroadcastFlags.Normal);
+						plr.Mute(true);
 						plr.CustomInfo = "";
 						Task.Factory.StartNew(() =>
 						{

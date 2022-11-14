@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Exiled.API.Features;
 using HarmonyLib;
+using PluginAPI.Core;
 using UnityEngine;
 
 namespace CedMod.Patches
@@ -20,7 +20,7 @@ namespace CedMod.Patches
                     {
                         lock (BanSystem.Banlock)
                         {
-                            API.Ban(Player.Get(user), duration, issuer, reason);
+                            API.Ban(Player.Get<CedModPlayer>(user), duration, issuer, reason);
                         }
                     }
                     catch (Exception ex)

@@ -1,47 +1,51 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Exiled.Events.EventArgs;
 using MEC;
+using PlayerStatsSystem;
+using PluginAPI.Core.Attributes;
+using PluginAPI.Enums;
 
 namespace CedMod.Handlers
 {
     public class Player
     {
-        public void OnJoin(VerifiedEventArgs ev)
+        [PluginEvent(ServerEventType.PlayerJoined)]
+        public void OnJoin(CedModPlayer player)
         {
-            Task.Factory.StartNew(() => { BanSystem.HandleJoin(ev); });
-            Timing.RunCoroutine(Name(ev));
+            Task.Factory.StartNew(() => { BanSystem.HandleJoin(player); });
+            Timing.RunCoroutine(Name(player));
         }
         
-        public IEnumerator<float> Name(VerifiedEventArgs ev)
+        public IEnumerator<float> Name(CedModPlayer player)
         {
-            foreach (var pp in Exiled.API.Features.Player.List)
+            foreach (var pp in PluginAPI.Core.Player.GetPlayers<CedModPlayer>())
             {
-                if (pp.UserId == ev.Player.UserId) 
+                if (pp.UserId == player.UserId) 
                     yield break;
                 if (CedModMain.Singleton.Config.CedMod.KickSameName)
                 {
-                    if (pp.Nickname == ev.Player.Nickname)
+                    if (pp.Nickname == player.Nickname)
                     {
-                        if (ev.Player.ReferenceHub.serverRoles.RemoteAdmin && !pp.ReferenceHub.serverRoles.RemoteAdmin)
+                        if (player.ReferenceHub.serverRoles.RemoteAdmin && !pp.ReferenceHub.serverRoles.RemoteAdmin)
                         {
                             pp.Kick("You have been kicked by a plugin: \n Please change your name to something unique (A staff member joined with your name)");
                             yield break;
                         }
-                        else if (pp.UserId != ev.Player.UserId)
+                        else if (pp.UserId != player.UserId)
                         {
-                            ev.Player.Kick("You have been kicked by a plugin: \n Please change your name to something unique (there is already someone with your name)");
+                            player.Kick("You have been kicked by a plugin: \n Please change your name to something unique (there is already someone with your name)");
                         }
                     }
                 }
             }
         }
         
-        public void OnDying(DyingEventArgs ev)
+        [PluginEvent(ServerEventType.PlayerDeath)]
+        public void OnDying(CedModPlayer player, CedModPlayer attacker, DamageHandlerBase damageHandler)
         {
-            if (ev.Target == null || ev.Killer == null)
+            if (player == null || attacker == null)
                 return;
-            FriendlyFireAutoban.HandleKill(ev);
+            FriendlyFireAutoban.HandleKill(player, attacker, damageHandler);
         }
     }
 }

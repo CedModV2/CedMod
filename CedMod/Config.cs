@@ -2,12 +2,11 @@
 using System.ComponentModel;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem;
-using Exiled.API.Interfaces;
 
 namespace CedMod
 {
 
-    public sealed class Config : IConfig
+    public sealed class Config
     {
         [Description("Indicates whether the plugin is enabled or not")]
         public bool IsEnabled { get; set; } = true;

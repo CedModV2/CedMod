@@ -8,9 +8,10 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
 using CedMod.ApiModals;
-using Exiled.API.Features;
-using Exiled.Loader;
 using Newtonsoft.Json;
+using PluginAPI.Core;
+using PluginAPI.Core.Attributes;
+using PluginAPI.Enums;
 using UnityEngine;
 using Version = GameCore.Version;
 
@@ -29,16 +30,18 @@ namespace CedMod
             {
                 if (CedModMain.Singleton.Config.CedMod.AutoUpdateWait != 0 && Pending != null)
                 {
-                    if (Player.Dictionary.Count == 0)
+                    if (Player.Count == 0)
                         TimePassed += Time.deltaTime;
                     else
                         TimePassed = 0;
                     
-                    Log.Debug($"Checking players {Player.Dictionary.Count} {TimePassed}", CedModMain.Singleton.Config.CedMod.ShowDebug);
+                    if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                        Log.Debug($"Checking players {Player.Count} {TimePassed}");
                     
                     if (TimePassed >= CedModMain.Singleton.Config.CedMod.AutoUpdateWait * 60 && !Installing)
                     { 
-                        Log.Debug($"Prepping install 1", CedModMain.Singleton.Config.CedMod.ShowDebug);
+                        if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                            Log.Debug($"Prepping install 1");
                         TimePassed = 0;
                         Task.Factory.StartNew(() =>
                         {
@@ -53,11 +56,13 @@ namespace CedMod
                 if (Pending == null)
                 {
                     TimePassedCheck += Time.deltaTime;
-                    Log.Debug($"Checking players {TimePassedCheck}", CedModMain.Singleton.Config.CedMod.ShowDebug);
+                    if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                        Log.Debug($"Checking players {TimePassedCheck}");
                     if (TimePassedCheck >= 300)
                     { 
                         TimePassedCheck = 0;
-                        Log.Debug($"Prepping Check", CedModMain.Singleton.Config.CedMod.ShowDebug);
+                        if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                            Log.Debug($"Prepping Check");
                         Task.Factory.StartNew(() =>
                         {
                             var data = CheckForUpdates();
@@ -87,7 +92,7 @@ namespace CedMod
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Version/UpdateAvailable?VersionId={CedModMain.VersionIdentifier}&ExiledVersion={Loader.Version.ToString()}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+                    var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Version/UpdateAvailableNW?VersionId={CedModMain.VersionIdentifier}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
                         if (response.StatusCode == HttpStatusCode.NotFound)
@@ -104,7 +109,7 @@ namespace CedMod
                     else
                     {
                         var dat = JsonConvert.DeserializeObject<CedModVersion>(response.Content.ReadAsStringAsync().Result);
-                        Log.Info($"Update available: {dat.VersionString} - {dat.VersionCommit}\nCurrent: {CedModMain.Singleton.Version} - {CedModMain.GitCommitHash}");
+                        Log.Info($"Update available: {dat.VersionString} - {dat.VersionCommit}\nCurrent: {CedModMain.Version} - {CedModMain.GitCommitHash}");
                         return dat;
                     }
                 }
@@ -117,6 +122,7 @@ namespace CedMod
             return null;
         }
 
+        [PluginEvent(ServerEventType.RoundRestart)]
         public void RoundRestart()
         {
             if (CedModMain.Singleton.Config.CedMod.AutoUpdate && Pending == null)
@@ -148,7 +154,7 @@ namespace CedMod
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Version/TargetDownload?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ExiledVersion={Loader.Version.ToString()}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+                    var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Version/TargetDownloadNW?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
                         Log.Error($"Failed to download update: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
@@ -165,8 +171,8 @@ namespace CedMod
                         else
                         {
                             var data1 = response.Content.ReadAsByteArrayAsync().Result;
-                            Log.Info($"Saving to: {CedModMain.Singleton.GetPath()}");
-                            File.WriteAllBytes(CedModMain.Singleton.GetPath(), data1);
+                            Log.Info($"Saving to: {CedModMain.Assembly.Location}");
+                            File.WriteAllBytes(CedModMain.Assembly.Location, data1);
                         
                             ServerStatic.StopNextRound = ServerStatic.NextRoundAction.Restart;
                             RoundRestarting.RoundRestart.ChangeLevel(true);
@@ -176,7 +182,7 @@ namespace CedMod
             }
             catch (Exception e)
             {
-                Log.Error(e);
+                Log.Error(e.ToString());
             }
 
             Installing = false;

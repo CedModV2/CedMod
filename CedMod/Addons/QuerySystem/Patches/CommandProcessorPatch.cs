@@ -6,6 +6,7 @@ using CommandSystem;
 using CommandSystem.Commands.RemoteAdmin;
 using Exiled.API.Features;
 using HarmonyLib;
+using PluginAPI.Core;
 using RemoteAdmin;
 using RemoteAdmin.Communication;
 using RemoteAdmin.Interfaces;

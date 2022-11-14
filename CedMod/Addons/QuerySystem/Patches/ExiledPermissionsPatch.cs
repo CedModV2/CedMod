@@ -49,12 +49,12 @@ namespace CedMod.Addons.QuerySystem.Patches
 
         public static bool CheckPermission(string userId, string permission)
         {
-            Exiled.API.Features.Log.Info(userId);
+            PluginAPI.Core.Log.Info(userId);
             if (string.IsNullOrEmpty(permission))
                 return false;
             
             string plyGroupKey = Player.Get(userId) != null ? Player.Get(userId).GroupName : ServerStatic.GetPermissionsHandler()._members.FirstOrDefault(g => g.Value == userId).Value;
-            Exiled.API.Features.Log.Info(plyGroupKey);
+            PluginAPI.Core.Log.Info(plyGroupKey);
             
             if (plyGroupKey is null || !Permissions.Groups.TryGetValue(plyGroupKey, out Group group))
             {
@@ -63,7 +63,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 
             foreach (var grp in Exiled.Permissions.Extensions.Permissions.Groups)
             {
-                Exiled.API.Features.Log.Info(grp.Key);
+                PluginAPI.Core.Log.Info(grp.Key);
             }
 
             if (group is null)
