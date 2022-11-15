@@ -32,7 +32,7 @@ namespace CedMod.Addons.QuerySystem
                         Log.Debug("Setting lookup mode");
                     ServerConfigSynchronizer.Singleton.NetworkRemoteAdminExternalPlayerLookupMode = "fullauth";
                     ServerConfigSynchronizer.Singleton.NetworkRemoteAdminExternalPlayerLookupURL =
-                        $"https://{QuerySystem.CurrentMaster}/Api/v3/Lookup/";
+                        $"https://{QuerySystem.CurrentPanel}/Api/v3/Lookup/";
                     ServerConfigSynchronizer.Singleton.RemoteAdminExternalPlayerLookupToken =
                         QuerySystem.QuerySystemKey;
                 }
