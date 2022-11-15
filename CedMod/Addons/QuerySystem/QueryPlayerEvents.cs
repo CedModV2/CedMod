@@ -158,7 +158,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerDamage)]
         public void OnPlayerHurt(CedModPlayer player, CedModPlayer target, DamageHandlerBase damageHandler)
         {
-port            if (target == null)
+            if (target == null)
                 return;
 
             if (player != null)
