@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
+using CedMod.Components;
 using HarmonyLib;
 using UnityEngine;
 using MEC;
@@ -37,7 +38,7 @@ namespace CedMod
         public static PluginDirectory GameModeDirectory;
         public static Assembly Assembly;
 
-        public const string Version = "3.2.0";
+        public const string Version = "3.3.0";
 
         [PluginConfig]
         public Config Config;
@@ -118,6 +119,10 @@ namespace CedMod
             AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
             if (updater == null)
                 updater = CustomNetworkManager.singleton.gameObject.AddComponent<AutoUpdater>();
+            
+            RemoteAdminModificationHandler remoteAdminModificationHandler = Object.FindObjectOfType<RemoteAdminModificationHandler>();
+            if (remoteAdminModificationHandler == null)
+                remoteAdminModificationHandler = CustomNetworkManager.singleton.gameObject.AddComponent<RemoteAdminModificationHandler>();
 
             if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt")))
             {
@@ -231,8 +236,13 @@ namespace CedMod
                 Object.Destroy(dispatcher);
             
             AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
-            if (updater == null)
+            if (updater != null)
                 Object.Destroy(updater);
+            
+            RemoteAdminModificationHandler remoteAdminModificationHandler = Object.FindObjectOfType<RemoteAdminModificationHandler>();
+            if (remoteAdminModificationHandler != null)
+                Object.Destroy(remoteAdminModificationHandler);
+            
             WebSocketSystem.Stop();
             
             QuerySystem.QueryMapEvents = null;

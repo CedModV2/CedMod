@@ -84,7 +84,6 @@
     <Compile Include="ApiModals\HelloMessage.cs" />
     <Compile Include="ApiModals\PlayerObject.cs" />
     <Compile Include="ApiModals\SCPSLVersion.cs" />
-    <Compile Include="AutoUpdater.cs" />
     <Compile Include="BanSystem.cs" />
     <Compile Include="CedModConfig.cs" />
     <Compile Include="CedModPlayer.cs" />
@@ -99,6 +98,8 @@
     <Compile Include="Commands\LightColor.cs" />
     <Compile Include="Commands\RainbowLights.cs" />
     <Compile Include="Commands\Redirect.cs" />
+    <Compile Include="Components\AutoUpdater.cs" />
+    <Compile Include="Components\RemoteAdminModificationHandler.cs" />
     <Compile Include="FriendlyFireAutoban.cs" />
     <Compile Include="Handlers\Player.cs" />
     <Compile Include="Config.cs" />

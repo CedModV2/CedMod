@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
@@ -15,7 +13,7 @@ using PluginAPI.Enums;
 using UnityEngine;
 using Version = GameCore.Version;
 
-namespace CedMod
+namespace CedMod.Components
 {
     public class AutoUpdater: MonoBehaviour
     {
