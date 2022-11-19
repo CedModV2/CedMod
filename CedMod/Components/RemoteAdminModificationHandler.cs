@@ -57,6 +57,7 @@ namespace CedMod.Components
 
             if (ReportGetTimer >= 30)
             {
+                ReportGetTimer = 0;
                 Task.Factory.StartNew(() => GetReports());
             }
         }
