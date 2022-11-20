@@ -13,7 +13,7 @@ namespace CedMod.SampleEvent
         }
 
         [PluginEvent(ServerEventType.PlayerDeath)]
-        public void OnPlayerDeath(CedModPlayer player, CedModPlayer target, DamageHandlerBase damageHandler)
+        public void OnPlayerDeath(CedModPlayer target, CedModPlayer player, DamageHandlerBase damageHandler)
         {
             target.SendBroadcast("You died!", 1, Broadcast.BroadcastFlags.Normal);
         }

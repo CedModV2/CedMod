@@ -156,7 +156,7 @@ namespace CedMod.Addons.QuerySystem
         }
         
         [PluginEvent(ServerEventType.PlayerDamage)]
-        public void OnPlayerHurt(CedModPlayer player, CedModPlayer target, DamageHandlerBase damageHandler)
+        public void OnPlayerHurt(CedModPlayer target, CedModPlayer player, DamageHandlerBase damageHandler)
         {
             if (target == null)
                 return;
@@ -225,7 +225,7 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.PlayerDeath)]
-        public void OnPlayerDeath(CedModPlayer player, CedModPlayer target, DamageHandlerBase damageHandler)
+        public void OnPlayerDeath(CedModPlayer target, CedModPlayer player, DamageHandlerBase damageHandler)
         {
             if (player == null || target == null)
                 return;
@@ -356,14 +356,14 @@ namespace CedMod.Addons.QuerySystem
                                 "Teamkill ⚠: {0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8}.",
                                 new object[]
                                 {
-                                    player.Nickname,
-                                    player.UserId,
-                                    Misc.ToHex(player.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                    player.Role,
                                     target.Nickname,
                                     target.UserId,
                                     Misc.ToHex(target.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                     target.Role,
+                                    player.Nickname,
+                                    player.UserId,
+                                    Misc.ToHex(target.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                    player.Role,
                                     damageHandler.ToString()
                                 })
                         }
