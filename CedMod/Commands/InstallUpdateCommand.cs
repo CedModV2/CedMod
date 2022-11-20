@@ -52,7 +52,7 @@ namespace CedMod.Commands
                 return false;
             }
             
-            updater.TimePassed = CedModMain.Singleton.Config.CedMod.AutoUpdateWait;
+            updater.TimePassed = CedModMain.Singleton.Config.CedMod.AutoUpdateWait * 60;
             response = "Update Install requested to the UpdateService";
             return true;
         }
