@@ -40,7 +40,7 @@ namespace CedMod.Components
             {
                 if (CedModMain.Singleton.Config.CedMod.AutoUpdateWait != 0 && Pending != null)
                 {
-                    if (Player.Count >= 2)
+                    if (Player.Count <= 1)
                         TimePassed += Time.deltaTime;
                     else
                         TimePassed = 0;
