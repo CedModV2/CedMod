@@ -15,7 +15,7 @@ namespace CedMod.ApiModals
         public List<CedModExiledVersionAssociation> SupportedExiledVersions { get; set; }
         public DateTime Released { get; set; }
         public VersionType VersionType { get; set; }
-        public List<CedModVersion> CanUpgrade { get; set; }
+        public List<int> CanUpgrade { get; set; }
     }
 
     public class CedModExiledVersionAssociation
