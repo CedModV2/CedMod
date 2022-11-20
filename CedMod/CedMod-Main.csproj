@@ -111,6 +111,7 @@
     <Compile Include="Patches\IntercomUnMuteCommandPatch.cs" />
     <Compile Include="Patches\MuteCommandPatch.cs" />
     <Compile Include="Patches\OBanCommandPatch.cs" />
+    <Compile Include="Patches\RaPlayerListPatch.cs" />
     <Compile Include="Patches\RaPlayerPatch.cs" />
     <Compile Include="Patches\UnMuteCommandPatch.cs" />
     <Compile Include="Plugin.cs" />

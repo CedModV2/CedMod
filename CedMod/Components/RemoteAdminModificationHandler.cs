@@ -16,8 +16,10 @@ namespace CedMod.Components
     public class RemoteAdminModificationHandler: MonoBehaviour
     {
         public float ReportGetTimer { get; set; }
+        public float UiBlinkTimer { get; set; }
         public static List<Reports> ReportsList { get; set; }
         public static RemoteAdminModificationHandler Singleton;
+        public static bool UiBlink { get; set; }
 
         public void Start()
         {
@@ -59,6 +61,13 @@ namespace CedMod.Components
             {
                 ReportGetTimer = 0;
                 Task.Factory.StartNew(() => GetReports());
+            }
+
+            UiBlinkTimer += Time.deltaTime;
+            if (UiBlinkTimer >= 1)
+            {
+                UiBlinkTimer = 0;
+                UiBlink = !UiBlink;
             }
         }
 
