@@ -41,7 +41,7 @@ namespace CedMod.Patches
             bool flag1 = result == 1;
             PlayerCommandSender playerCommandSender1 = sender as PlayerCommandSender;
             
-            if (source[0] == "-1" && CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
+            if (source[0] == "900001" && CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
             {
                 //report handling
                 if (RemoteAdminModificationHandler.ReportsList.Count == 0)

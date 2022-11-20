@@ -55,12 +55,12 @@ namespace CedMod.Patches
             {
                 if (RemoteAdminModificationHandler.ReportsList.Count == 0)
                 {
-                    stringBuilder.Append("<size=0>(").Append(-1).Append(")</size>");
+                    stringBuilder.Append("<size=0>(").Append(900001).Append(")</size>");
                     stringBuilder.Append("<color=green>[No Reports]</color>");
                 }
                 else
                 {
-                    stringBuilder.Append("<size=0>(").Append(-1).Append(")</size>");
+                    stringBuilder.Append("<size=0>(").Append(900001).Append(")</size>");
                     stringBuilder.Append($"{(RemoteAdminModificationHandler.UiBlink ? "[<color=yellow>⚠</color>] " : " ")}<color=red>[{RemoteAdminModificationHandler.ReportsList.Count} Reports]</color>");
                 }
                 stringBuilder.AppendLine();
