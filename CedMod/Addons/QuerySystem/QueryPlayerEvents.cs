@@ -231,7 +231,7 @@ namespace CedMod.Addons.QuerySystem
                 return;
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug("plrdeath");
-            if (FriendlyFireAutoban.IsTeamKill(player, target, damageHandler))
+            if (FriendlyFireAutoban.IsTeamKill(target, player, damageHandler))
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug("istk");

@@ -25,20 +25,20 @@ namespace CedMod.Addons.QuerySystem.Commands
                     response = "No permission";
                     return false;
                 }
-                if (ServerStatic.PermissionsHandler._members.ContainsKey(Player.Get<CedModPlayer>(int.Parse(arguments.At(0))).UserId))
+                if (ServerStatic.PermissionsHandler._members.ContainsKey(CedModPlayer.Get(int.Parse(arguments.At(0))).UserId))
                 {
                     response = "User already has a role";
                     return false;
                 }
 
-                if (Player.Get<CedModPlayer>(int.Parse(arguments.At(0))).UserId != arguments.At(2))
+                if (CedModPlayer.Get(int.Parse(arguments.At(0))).UserId != arguments.At(2))
                 {
                     response = "UserId mismatch";
                     return false;
                 }
-                ServerStatic.GetPermissionsHandler()._members[Player.Get<CedModPlayer>(int.Parse(arguments.At(0))).UserId] = arguments.At(1);
-                Player.Get<CedModPlayer>(int.Parse(arguments.At(0))).ReferenceHub.serverRoles.SetGroup(ServerStatic.GetPermissionsHandler()._groups[arguments.At(1)], false);
-                CommandHandler.Synced.Add(Player.Get<CedModPlayer>(int.Parse(arguments.At(0))).UserId);
+                ServerStatic.GetPermissionsHandler()._members[CedModPlayer.Get(int.Parse(arguments.At(0))).UserId] = arguments.At(1);
+                CedModPlayer.Get(int.Parse(arguments.At(0))).ReferenceHub.serverRoles.SetGroup(ServerStatic.GetPermissionsHandler()._groups[arguments.At(1)], false);
+                CommandHandler.Synced.Add(CedModPlayer.Get(int.Parse(arguments.At(0))).UserId);
                 response = "Done.";
                 return true;
             }

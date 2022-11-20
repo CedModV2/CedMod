@@ -285,7 +285,7 @@ namespace CedMod.Addons.QuerySystem
             }
             if (Server.reported.ContainsKey(target.ReferenceHub))
             {
-                plr.SendConsoleMessage($"[REPORTING] {target.Nickname} ({target.UserId}) has already been reported by {Player.Get<CedModPlayer>(Server.reported[target.ReferenceHub]).Nickname}", "green");
+                plr.SendConsoleMessage($"[REPORTING] {target.Nickname} ({target.UserId}) has already been reported by {CedModPlayer.Get(Server.reported[target.ReferenceHub]).Nickname}", "green");
                 return false;
             }
             if (target.RemoteAdminAccess && !CedModMain.Singleton.Config.QuerySystem.StaffReportAllowed)

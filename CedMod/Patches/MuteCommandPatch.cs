@@ -116,7 +116,7 @@ namespace CedMod.Patches
 					}
 					else
 					{
-						var plr = Player.Get<CedModPlayer>(referenceHub);
+						var plr = CedModPlayer.Get(referenceHub);
 						plr.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", MuteType.Global.ToString()).Replace("{duration}", num.ToString()).Replace("{reason}", text), "red");
 						plr.SendBroadcast(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", MuteType.Global.ToString()).Replace("{duration}", num.ToString()).Replace("{reason}", text), 5, Broadcast.BroadcastFlags.Normal);
 						plr.Mute(true);

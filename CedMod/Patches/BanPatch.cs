@@ -20,7 +20,7 @@ namespace CedMod.Patches
                     {
                         lock (BanSystem.Banlock)
                         {
-                            API.Ban(Player.Get<CedModPlayer>(target), duration, issuer.LoggedNameFromRefHub(), reason);
+                            API.Ban(CedModPlayer.Get(target), duration, issuer.LoggedNameFromRefHub(), reason);
                         }
                     }
                     catch (Exception ex)

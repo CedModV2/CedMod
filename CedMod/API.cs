@@ -137,7 +137,7 @@ namespace CedMod
                               "\"BanDuration\": "+realduration+"," +
                               "\"BanReason\": \""+reason.Replace("\"", "'")+"\"}";
                 Dictionary<string, string> result = (Dictionary<string, string>) APIRequest("Auth/Ban", json, false, "POST");
-                CedModPlayer player = Player.Get<CedModPlayer>(UserId);
+                CedModPlayer player = CedModPlayer.Get(UserId);
                 if (player != null)
                 {
                     if (player != null)
@@ -153,7 +153,7 @@ namespace CedMod
             {
                 if (duration <= 0)
                 {
-                    CedModPlayer player = Player.Get<CedModPlayer>(UserId);
+                    CedModPlayer player = CedModPlayer.Get(UserId);
                     if (player != null)
                     {
                         ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>  Timing.RunCoroutine(StrikeBad(player, reason + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage)));

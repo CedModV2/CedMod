@@ -53,15 +53,30 @@ namespace CedMod.Patches
 
             if (CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
             {
-                if (RemoteAdminModificationHandler.ReportsList.Count == 0)
+                var openCount = RemoteAdminModificationHandler.ReportsList.Count(s => s.Status == HandleStatus.NoResponse);
+                var inProgressCount = RemoteAdminModificationHandler.ReportsList.Count(s => s.Status == HandleStatus.InProgress);
+                
+                if (openCount == 0)
                 {
-                    stringBuilder.Append("<size=0>(").Append(900001).Append(")</size>");
-                    stringBuilder.Append("<color=green>[No Reports]</color>");
+                    stringBuilder.Append("<size=0>(").Append(-1).Append(")</size>");
+                    stringBuilder.Append("<color=green>[No Open Reports]</color>");
                 }
                 else
                 {
-                    stringBuilder.Append("<size=0>(").Append(900001).Append(")</size>");
-                    stringBuilder.Append($"{(RemoteAdminModificationHandler.UiBlink ? "[<color=yellow>⚠</color>] " : " ")}<color=red>[{RemoteAdminModificationHandler.ReportsList.Count} Reports]</color>");
+                    stringBuilder.Append("<size=0>(").Append(-1).Append(")</size>");
+                    stringBuilder.Append($"{(RemoteAdminModificationHandler.UiBlink ? "[<color=yellow>⚠</color>] " : " ")}<color=red>[{openCount} Open Report{(openCount == 1 ? "" : "s")}]</color>");
+                }
+                stringBuilder.AppendLine();
+                
+                if (inProgressCount == 0)
+                {
+                    stringBuilder.Append("<size=0>(").Append(-2).Append(")</size>");
+                    stringBuilder.Append("<color=green>[No InProgress Reports]</color>");
+                }
+                else
+                {
+                    stringBuilder.Append("<size=0>(").Append(-2).Append(")</size>");
+                    stringBuilder.Append($"{(RemoteAdminModificationHandler.UiBlink ? "[<color=yellow>⚠</color>] " : " ")}<color=orange>[{openCount} Report{(openCount == 1 ? "" : "s")}] Inprogress</color>");
                 }
                 stringBuilder.AppendLine();
             }

@@ -145,7 +145,7 @@ namespace CedMod.Patches
 							{
 								lock (BanSystem.Banlock)
 								{
-									API.Ban(Player.Get<CedModPlayer>(referenceHub), num, sender.LogName, text, false);
+									API.Ban(CedModPlayer.Get(referenceHub), num, sender.LogName, text, false);
 								}
 							});
 						}

@@ -17,8 +17,11 @@ namespace CedMod.Components
     {
         public float ReportGetTimer { get; set; }
         public float UiBlinkTimer { get; set; }
-        public static List<Reports> ReportsList { get; set; }
+        public static List<Reports> ReportsList { get; set; } = new List<Reports>();
         public static RemoteAdminModificationHandler Singleton;
+        public static Dictionary<CedModPlayer, Tuple<int, DateTime>> ReportUnHandledState { get; set; } = new Dictionary<CedModPlayer, Tuple<int, DateTime>>();
+        public static Dictionary<CedModPlayer, Tuple<int, DateTime>> ReportInProgressState { get; set; } = new Dictionary<CedModPlayer, Tuple<int, DateTime>>();
+
         public static bool UiBlink { get; set; }
 
         public void Start()

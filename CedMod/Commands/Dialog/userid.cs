@@ -28,7 +28,7 @@ namespace CedMod.Commands.Dialog
                 Player player;
                 string msg = arguments.Skip(1).Aggregate((current, n) => current + " " + n);
 
-                player = Player.Get<CedModPlayer>(arguments.At(0));
+                player = CedModPlayer.Get(arguments.At(0));
                 if (player == null)
                 {
                     response = "Could not find player with the specified userid";

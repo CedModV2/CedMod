@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
 using CedMod.Components;
+using CommandSystem.Commands.RemoteAdmin;
 using HarmonyLib;
 using MEC;
 using Mirror;
@@ -41,49 +42,143 @@ namespace CedMod.Patches
             bool flag1 = result == 1;
             PlayerCommandSender playerCommandSender1 = sender as PlayerCommandSender;
             
-            if (source[0] == "900001" && CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Log.Debug($"Received: {data} : {source[1]}");
+            if (source[1].StartsWith("-1") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
             {
-                //report handling
-                if (RemoteAdminModificationHandler.ReportsList.Count == 0)
+                try
                 {
-                    sender.RaReply(string.Format("${0} {1}", (object)__instance.DataId, (object)"<color=green>There are currently no UnHandled Reports</color>"), true, true, string.Empty);
+                    var open = RemoteAdminModificationHandler.ReportsList.Where(s => s.Status == HandleStatus.NoResponse).ToList();
+                    //report handling
+                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                        Log.Debug($"Report handle");
+                    if (open.Count == 0)
+                    {
+                        sender.RaReply(string.Format("${0} {1}", (object)__instance.DataId, (object)"<color=green>There are currently no Unhandled Reports</color>"), true, true, string.Empty);
+                    }
+                    else
+                    {
+                        var report = open.FirstOrDefault();
+                        if (!RemoteAdminModificationHandler.ReportUnHandledState.ContainsKey(CedModPlayer.Get(sender.SenderId))) 
+                            RemoteAdminModificationHandler.ReportUnHandledState.Add(CedModPlayer.Get(sender.SenderId), new Tuple<int, DateTime>(report.Id, DateTime.UtcNow));
+                        else 
+                            RemoteAdminModificationHandler.ReportUnHandledState[CedModPlayer.Get(sender.SenderId)] = new Tuple<int, DateTime>(report.Id, DateTime.UtcNow);
+                        StringBuilder stringBuilder = StringBuilderPool.Shared.Rent($"<color=white>Report: {report.Id}");
+                        stringBuilder.AppendLine();
+
+                        if (report.IsCheatReport)
+                        {
+                            stringBuilder.AppendLine($"<color=yellow>Warning: This report is marked as Cheater report, this means that NorthWood was notified of this report.\nIf this report is an actual cheating report please do not interfere with NorthWood global moderators so they can effectively ban cheaters.</color>");
+                        }
+                    
+                        var reporter = CedModPlayer.Get(report.ReporterId);
+                        if (reporter != null)
+                        {
+                            stringBuilder.AppendLine($"Reporter: (<color=#43C6DB>{reporter.PlayerId}</color>) {reporter.Nickname} - {reporter.UserId} <color=green><link=CP_IP>\uF0C5</link></color>");
+                            RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, reporter.UserId);
+                        }
+                        else
+                        {
+                            stringBuilder.AppendLine($"Reporter: <color=red>(Not Ingame)</color> - {report.ReporterId} <color=green><link=CP_IP>\uF0C5</link></color>");
+                            RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, report.ReporterId);
+                        }
+                    
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug($"Checking list {string.Join(", ", Player.PlayersUserIds.Select(s => s.Key))}");
+                        
+                        var reported = CedModPlayer.Get(report.ReportedId);
+                        if (reported != null)
+                        {
+                            stringBuilder.AppendLine($"Reported: (<color=#43C6DB>{reported.PlayerId} <color=green><link=CP_ID>\uF0C5</link></color></color>) {reported.Nickname} - {reported.UserId} <color=green><link=CP_USERID>\uF0C5</link></color>");
+                            RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, reported.UserId);
+                            RaClipboard.Send(sender, RaClipboard.RaClipBoardType.PlayerId, reported.PlayerId.ToString());
+                        }
+                        else
+                        {
+                            stringBuilder.AppendLine($"Reported: <color=red>(Not Ingame)</color> - {report.ReportedId} <color=green><link=CP_USERID>\uF0C5</link></color>");
+                            RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, report.ReportedId);
+                        }
+
+                        stringBuilder.AppendLine($"Reason: {report.Reason}");
+                        
+                        stringBuilder.Append("</color>");
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug($"Report handle complete send");
+                        sender.RaReply(string.Format("${0} {1}", (object)__instance.DataId, (object)StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, true, string.Empty);
+                        yield break;
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    var report = RemoteAdminModificationHandler.ReportsList.FirstOrDefault();
-                    StringBuilder stringBuilder = StringBuilderPool.Shared.Rent($"<color=white>Report: {report.Id}");
-
-                    if (report.IsCheatReport)
+                    Log.Error(e.ToString());
+                    sender.RaReply(string.Format("${0} {1}", (object)__instance.DataId, (object)"An Exception occured while trying to display reports"), true, true, string.Empty);
+                }
+            }
+            
+            if (source[1].StartsWith("-2") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
+            {
+                try
+                {
+                    //report handling
+                    var inProgress = RemoteAdminModificationHandler.ReportsList.Where(s => s.Status == HandleStatus.InProgress).ToList();
+                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                        Log.Debug($"Report handle");
+                    if (inProgress.Count == 0)
                     {
-                        stringBuilder.AppendLine($"<color=yellow>Warning: This report is marked as Cheater report, this means that NorthWood was notified of this report.\nIf this report is an actual cheating report please do not interfere with NorthWood global moderators so they can effectively ban cheaters.</color>");
-                    }
-                    
-                    var reporter = Player.Get<CedModPlayer>(report.ReporterId);
-                    if (reporter != null)
-                    {
-                        stringBuilder.AppendLine($"Reporter: (<color=#43C6DB>{reporter.PlayerId}</color>) {reporter.Nickname} - {reporter.UserId} <color=green><link=CP_IP>\uF0C5</link></color>");
-                        RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, reporter.UserId);
-                    }
-                    else
-                    {
-                        stringBuilder.AppendLine($"Reporter: <color=red>(DISCONNECTED, Not ingame)</color> - {reporter.UserId} <color=green><link=CP_IP>\uF0C5</link></color>");
-                        RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, reporter.UserId);
-                    }
-                    
-                    var reported = Player.Get<CedModPlayer>(report.ReportedId);
-                    if (reported != null)
-                    {
-                        stringBuilder.AppendLine($"Reported: (<color=#43C6DB>{reported.PlayerId} <color=green><link=CP_ID>\uF0C5</link></color></color>) {reported.Nickname} - {reported.UserId} <color=green><link=CP_USERID></link>");
-                        RaClipboard.Send(sender, RaClipboard.RaClipBoardType.PlayerId, reported.PlayerId.ToString());
-                        RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, reported.UserId);
+                        sender.RaReply(string.Format("${0} {1}", (object)__instance.DataId, (object)"<color=green>There are currently no InProgress Reports</color>"), true, true, string.Empty);
                     }
                     else
                     {
-                        stringBuilder.AppendLine($"Reported: <color=red>(DISCONNECTED, Not ingame)</color> - {reported.UserId} <color=green><link=CP_USERID></link></color>");
-                        RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, reported.UserId);
-                    }
+                        var report = inProgress.FirstOrDefault();
+                        StringBuilder stringBuilder = StringBuilderPool.Shared.Rent($"<color=white>Report: {report.Id}");
+                        stringBuilder.AppendLine();
 
-                    sender.RaReply(string.Format("${0} {1}", (object)__instance.DataId, (object)StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, true, string.Empty);
+                        if (report.IsCheatReport)
+                        {
+                            stringBuilder.AppendLine($"<color=yellow>Warning: This report is marked as Cheater report, this means that NorthWood was notified of this report.\nIf this report is an actual cheating report please do not interfere with NorthWood global moderators so they can effectively ban cheaters.</color>");
+                        }
+                    
+                        var reporter = CedModPlayer.Get(report.ReporterId);
+                        if (reporter != null)
+                        {
+                            stringBuilder.AppendLine($"Reporter: (<color=#43C6DB>{reporter.PlayerId}</color>) {reporter.Nickname} - {reporter.UserId} <color=green><link=CP_IP>\uF0C5</link></color>");
+                            RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, reporter.UserId);
+                        }
+                        else
+                        {
+                            stringBuilder.AppendLine($"Reporter: <color=red>(Not Ingame)</color> - {report.ReporterId} <color=green><link=CP_IP>\uF0C5</link></color>");
+                            RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, report.ReporterId);
+                        }
+                    
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug($"Checking list {string.Join(", ", Player.PlayersUserIds.Select(s => s.Key))}");
+                        
+                        var reported = CedModPlayer.Get(report.ReportedId);
+                        if (reported != null)
+                        {
+                            stringBuilder.AppendLine($"Reported: (<color=#43C6DB>{reported.PlayerId} <color=green><link=CP_ID>\uF0C5</link></color></color>) {reported.Nickname} - {reported.UserId} <color=green><link=CP_USERID>\uF0C5</link></color>");
+                            RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, reported.UserId);
+                            RaClipboard.Send(sender, RaClipboard.RaClipBoardType.PlayerId, reported.PlayerId.ToString());
+                        }
+                        else
+                        {
+                            stringBuilder.AppendLine($"Reported: <color=red>(Not Ingame)</color> - {report.ReportedId} <color=green><link=CP_USERID>\uF0C5</link></color>");
+                            RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, report.ReportedId);
+                        }
+
+                        stringBuilder.AppendLine($"Reason: {report.Reason}");
+                        
+                        stringBuilder.Append("</color>");
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug($"Report handle complete send");
+                        sender.RaReply(string.Format("${0} {1}", (object)__instance.DataId, (object)StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, true, string.Empty);
+                        yield break;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e.ToString());
+                    sender.RaReply(string.Format("${0} {1}", (object)__instance.DataId, (object)"An Exception occured while trying to display reports"), true, true, string.Empty);
                 }
             }
             
@@ -265,9 +360,7 @@ namespace CedMod.Patches
                 //Log.Debug($"Has permissions: {sender.CheckPermission("cedmod.requestdata")}", CedModMain.Singleton.Config.QuerySystem.Debug);
                 //if (sender.CheckPermission("cedmod.requestdata"))
                 {
-                    sender.RaReply(
-                        string.Format("${0} {1}", __instance.DataId, "Loading from CedMod API, please wait..."), true,
-                        true, string.Empty);
+                    sender.RaReply(string.Format("${0} {1}", __instance.DataId, "Loading from CedMod API, please wait..."), true, true, string.Empty);
                     UnityWebRequest www = new UnityWebRequest(
                         API.APIUrl + $"/Auth/{characterClassManager.UserId}&{connectionToClient.address}", "OPTIONS");
                     DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
@@ -341,9 +434,7 @@ namespace CedMod.Patches
                 }
 
                 stringBuilder.Append("</color>");
-                sender.RaReply(
-                    string.Format("${0} {1}", (object)__instance.DataId,
-                        (object)StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, true, string.Empty);
+                sender.RaReply(string.Format("${0} {1}", (object)__instance.DataId, (object)StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, true, string.Empty);
                 RaPlayerQR.Send(sender, false,
                     string.IsNullOrEmpty(characterClassManager.UserId) ? "(no User ID)" : characterClassManager.UserId);
             }

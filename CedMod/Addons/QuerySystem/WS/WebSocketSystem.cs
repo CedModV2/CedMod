@@ -385,7 +385,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         case "mutesteamid":
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                 Log.Debug("MuteCmd");
-                            var plr = Player.Get<CedModPlayer>(jsonData["steamid"]);
+                            var plr = CedModPlayer.Get(jsonData["steamid"]);
                             if (plr != null)
                             {
                                 Log.Info($"user: {plr.UserId} muted trough panel, issuing mute...");
@@ -578,11 +578,11 @@ namespace CedMod.Addons.QuerySystem.WS
                             QuerySystem.ReservedSlotUserids.Add(member.UserId);
                         handler._members.Add(member.UserId, member.Group);
 
-                        var player = Player.Get<CedModPlayer>(member.UserId);
+                        var player = CedModPlayer.Get(member.UserId);
                         if (player != null)
                         {
                             bool hidden = player.PlayerInfo.IsBadgeHidden;
-                            Player.Get<CedModPlayer>(member.UserId).ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false);
+                            CedModPlayer.Get(member.UserId).ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false);
                             player.PlayerInfo.IsBadgeHidden = hidden;
                             Log.Info($"Refreshed Permissions from {member.UserId} as they were present in the AutoSlPerms response while ingame");
                         }
@@ -595,12 +595,12 @@ namespace CedMod.Addons.QuerySystem.WS
                             QuerySystem.ReservedSlotUserids.Remove(member.Key);
                         }
                         
-                        if (Player.Get<CedModPlayer>(member.Key) != null)
+                        if (CedModPlayer.Get(member.Key) != null)
                         {
                             if (permsSlRequest.MembersList.All(s => s.UserId != member.Key))
                             {
                                 Log.Info(member.Key + " 3");
-                                Player.Get<CedModPlayer>(member.Key).ReferenceHub.serverRoles.SetGroup(null, false);
+                                CedModPlayer.Get(member.Key).ReferenceHub.serverRoles.SetGroup(null, false);
                                 Log.Info($"Removed Permissions from {member.Key} as they were no longer present in the AutoSlPerms response while ingame");
                             }
                         }
