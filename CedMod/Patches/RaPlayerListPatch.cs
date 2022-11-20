@@ -23,7 +23,7 @@ using VoiceChat;
 
 namespace CedMod.Patches
 {
-    [HarmonyPatch(typeof(RaPlayer), nameof(RaPlayerList.ReceiveData), new Type[] { typeof(CommandSender), typeof(string) })]
+    [HarmonyPatch(typeof(RaPlayerList), nameof(RaPlayerList.ReceiveData), new Type[] { typeof(CommandSender), typeof(string) })]
     public static class RaPlayerListPatch
     {
         public static bool Prefix(RaPlayerList __instance, CommandSender sender, string data)
