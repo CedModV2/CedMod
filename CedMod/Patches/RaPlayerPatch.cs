@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
+using CedMod.Components;
 using HarmonyLib;
 using MEC;
 using Mirror;
@@ -39,12 +40,56 @@ namespace CedMod.Patches
                 yield break;
             bool flag1 = result == 1;
             PlayerCommandSender playerCommandSender1 = sender as PlayerCommandSender;
-            if (!flag1 && playerCommandSender1 != null && !playerCommandSender1.ServerRoles.Staff &&
-                !CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayerSensitiveDataAccess))
+            
+            if (source[0] == "-1" && CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
+            {
+                //report handling
+                if (RemoteAdminModificationHandler.ReportsList.Count == 0)
+                {
+                    sender.RaReply(string.Format("${0} {1}", (object)__instance.DataId, (object)"<color=green>There are currently no UnHandled Reports</color>"), true, true, string.Empty);
+                }
+                else
+                {
+                    var report = RemoteAdminModificationHandler.ReportsList.FirstOrDefault();
+                    StringBuilder stringBuilder = StringBuilderPool.Shared.Rent($"<color=white>Report: {report.Id}");
+
+                    if (report.IsCheatReport)
+                    {
+                        stringBuilder.AppendLine($"<color=yellow>Warning: This report is marked as Cheater report, this means that NorthWood was notified of this report.\nIf this report is an actual cheating report please do not interfere with NorthWood global moderators so they can effectively ban cheaters.</color>");
+                    }
+                    
+                    var reporter = Player.Get<CedModPlayer>(report.ReporterId);
+                    if (reporter != null)
+                    {
+                        stringBuilder.AppendLine($"Reporter: (<color=#43C6DB>{reporter.PlayerId}</color>) {reporter.Nickname} - {reporter.UserId} <color=green><link=CP_IP>\uF0C5</link></color>");
+                        RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, reporter.UserId);
+                    }
+                    else
+                    {
+                        stringBuilder.AppendLine($"Reporter: <color=red>(DISCONNECTED, Not ingame)</color> - {reporter.UserId} <color=green><link=CP_IP>\uF0C5</link></color>");
+                        RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, reporter.UserId);
+                    }
+                    
+                    var reported = Player.Get<CedModPlayer>(report.ReportedId);
+                    if (reported != null)
+                    {
+                        stringBuilder.AppendLine($"Reported: (<color=#43C6DB>{reported.PlayerId} <color=green><link=CP_ID>\uF0C5</link></color></color>) {reported.Nickname} - {reported.UserId} <color=green><link=CP_USERID></link>");
+                        RaClipboard.Send(sender, RaClipboard.RaClipBoardType.PlayerId, reported.PlayerId.ToString());
+                        RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, reported.UserId);
+                    }
+                    else
+                    {
+                        stringBuilder.AppendLine($"Reported: <color=red>(DISCONNECTED, Not ingame)</color> - {reported.UserId} <color=green><link=CP_USERID></link></color>");
+                        RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, reported.UserId);
+                    }
+
+                    sender.RaReply(string.Format("${0} {1}", (object)__instance.DataId, (object)StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, true, string.Empty);
+                }
+            }
+            
+            if (!flag1 && playerCommandSender1 != null && !playerCommandSender1.ServerRoles.Staff && !CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayerSensitiveDataAccess))
                 yield break;
-            List<ReferenceHub> referenceHubList = RAUtils.ProcessPlayerIdOrNamesList(
-                new ArraySegment<string>(((IEnumerable<string>)source).Skip<string>(1).ToArray<string>()), 0,
-                out string[] _);
+            List<ReferenceHub> referenceHubList = RAUtils.ProcessPlayerIdOrNamesList(new ArraySegment<string>(((IEnumerable<string>)source).Skip<string>(1).ToArray<string>()), 0, out string[] _);
             if (referenceHubList.Count == 0)
                 yield break;
             bool flag2 = PermissionsHandler.IsPermitted(sender.Permissions, 18007046UL);
