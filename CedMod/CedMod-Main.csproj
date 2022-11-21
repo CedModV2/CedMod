@@ -44,7 +44,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Addons\Audio\AudioPlayer.cs" />
-    <Compile Include="Addons\Audio\AudioTransmitter.cs" />
     <Compile Include="Addons\Audio\FakeConnection.cs" />
     <Compile Include="Addons\Audio\TestingCommand.cs" />
     <Compile Include="Addons\Events\Commands\BumpEvent.cs" />
