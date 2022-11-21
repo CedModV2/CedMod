@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using MEC;
 using NVorbis;
 using PlayerRoles.PlayableScps.Scp939;
@@ -55,25 +59,47 @@ namespace CedMod.Addons.Audio
             if (PlaybackCoroutine.IsValid)
                 Timing.KillCoroutines(PlaybackCoroutine);
 
-            PlaybackCoroutine = Timing.RunCoroutine(Playback());
+            PlaybackCoroutine = Timing.RunCoroutine(Playback(), Segment.FixedUpdate);
         }
 
         public IEnumerator<float> Playback()
         {
             int cnt;
+            Stopwatch stopwatch = new Stopwatch();
+            float waitingTolerance = 0;
+            float time = PlaybackSpeed * 1000;
+
             while ((cnt = VorbisReader.ReadSamples(ReadBuffer, 0, ReadBuffer.Length)) > 0)
             {
-                yield return Timing.WaitForSeconds(PlaybackSpeed);
+                stopwatch.Restart();
+                Log.Info($"Waiting time is {(time + waitingTolerance)} = {time} + m {waitingTolerance}  calc: {(time + waitingTolerance) / 1000}");
+                //yield return Timing.WaitForSeconds((time + waitingTolerance) / 1000);
+
+                while (stopwatch.ElapsedMilliseconds <= (time + waitingTolerance))
+                {
+                    yield return Timing.WaitForOneFrame;
+                }
+                        
                 PlaybackBuffer.Write(ReadBuffer, ReadBuffer.Length);
+                waitingTolerance = time - stopwatch.ElapsedMilliseconds;
+                Log.Info($"Waited time was {stopwatch.ElapsedMilliseconds}");
+                Log.Info($"Waiting tolerance is: {waitingTolerance}   =   {time}  -  {stopwatch.ElapsedMilliseconds}");
             }
+            
             yield break;
+        }
+
+        public void OnDestroy()
+        {
+            if (PlaybackCoroutine.IsValid)
+                Timing.KillCoroutines(PlaybackCoroutine);
         }
 
         public void Update()
         {
             if (Owner == null) return;
 
-            while (PlaybackBuffer.Length >= 2000)
+            while (PlaybackBuffer.Length >= 480)
             {
                 PlaybackBuffer.ReadTo(SendBuffer, (long)480, 0L);
                 int dataLen = Encoder.Encode(SendBuffer, EncodedBuffer, 480);

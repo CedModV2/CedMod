@@ -67,25 +67,16 @@ namespace CedMod.Addons.Audio
                         }
                     }
                     break;
-                case "samplerate":
+                case "destroy":
+                {
+                    int id = int.Parse(arguments.At(1));
+                    if (FakeConnectionsIds.TryGetValue(id, out ReferenceHub hub))
                     {
-                        int id = int.Parse(arguments.At(1));
-                        if (FakeConnectionsIds.TryGetValue(id, out ReferenceHub hub))
-                        {
-                            var audioPlayer = AudioPlayer.Get(hub);
-                            audioPlayer.SampleRate = int.Parse(arguments.At(2));
-                        }
+                        FakeConnections.Remove(FakeConnections.FirstOrDefault(s => s.Value == hub).Key);
+                        FakeConnectionsIds.Remove(id);
+                        NetworkServer.Destroy(hub.gameObject);
                     }
-                    break;
-                case "readsamplerate":
-                    {
-                        int id = int.Parse(arguments.At(1));
-                        if (FakeConnectionsIds.TryGetValue(id, out ReferenceHub hub))
-                        {
-                            var audioPlayer = AudioPlayer.Get(hub);
-                            audioPlayer.ReadSampleRate = int.Parse(arguments.At(2));
-                        }
-                    }
+                } 
                     break;
                 case "speed":
                     {

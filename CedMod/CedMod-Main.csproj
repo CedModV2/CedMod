@@ -118,6 +118,7 @@
     <Compile Include="Patches\RaPlayerAuthPatch.cs" />
     <Compile Include="Patches\RaPlayerListPatch.cs" />
     <Compile Include="Patches\RaPlayerPatch.cs" />
+    <Compile Include="Patches\RAProcessPlayerPatch.cs" />
     <Compile Include="Patches\UnMuteCommandPatch.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
