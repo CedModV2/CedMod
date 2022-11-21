@@ -69,22 +69,26 @@ namespace CedMod.Addons.Audio
             float waitingTolerance = 0;
             float time = PlaybackSpeed * 1000;
 
-            while ((cnt = VorbisReader.ReadSamples(ReadBuffer, 0, ReadBuffer.Length)) > 0)
+            Task.Factory.StartNew(() =>
             {
-                stopwatch.Restart();
-                Log.Info($"Waiting time is {(time + waitingTolerance)} = {time} + m {waitingTolerance}  calc: {(time + waitingTolerance) / 1000}");
-                //yield return Timing.WaitForSeconds((time + waitingTolerance) / 1000);
-
-                while (stopwatch.ElapsedMilliseconds <= (time + waitingTolerance))
+                while (VorbisReader.SamplePosition < VorbisReader.TotalSamples)
                 {
-                    yield return Timing.WaitForOneFrame;
+                    stopwatch.Restart();
+                    Log.Info($"Waiting time is {(time + waitingTolerance)} = {time} + m {waitingTolerance}  calc: {(time + waitingTolerance) / 1000}");
+                    Thread.Sleep((int)(time + waitingTolerance));
+                    //yield return Timing.WaitForSeconds((time + waitingTolerance) / 1000);
+
+                    // while (stopwatch.ElapsedMilliseconds < (time + waitingTolerance))
+                    // {
+                    //     Thread.Sleep(1);
+                    // }
+                    cnt = VorbisReader.ReadSamples(ReadBuffer, 0, ReadBuffer.Length);
+                    PlaybackBuffer.Write(ReadBuffer, ReadBuffer.Length);
+                    waitingTolerance = time - stopwatch.ElapsedMilliseconds;
+                    Log.Info($"Waited time was {stopwatch.ElapsedMilliseconds}");
+                    Log.Info($"Waiting tolerance is: {waitingTolerance}   =   {time}  -  {stopwatch.ElapsedMilliseconds}");
                 }
-                        
-                PlaybackBuffer.Write(ReadBuffer, ReadBuffer.Length);
-                waitingTolerance = time - stopwatch.ElapsedMilliseconds;
-                Log.Info($"Waited time was {stopwatch.ElapsedMilliseconds}");
-                Log.Info($"Waiting tolerance is: {waitingTolerance}   =   {time}  -  {stopwatch.ElapsedMilliseconds}");
-            }
+            });
             
             yield break;
         }
