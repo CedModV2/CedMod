@@ -36,9 +36,9 @@ namespace CedMod.Components
                 using (HttpClient client = new HttpClient())
                 {
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                        Log.Debug($"Getting Reports.");
+                        Log.Debug($"Updating Report.");
                     var response = client.PutAsync("https://" + QuerySystem.CurrentMaster + $"/Api/v3/Reports/{QuerySystem.QuerySystemKey}?reportId={reportId}&status={status}&userid={user}",
-                            new StringContent(reason, Encoding.Default, "plain/text")).Result;
+                            new StringContent(reason, Encoding.Default, "text/plain")).Result;
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
                         Log.Error($"Failed to update report {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");

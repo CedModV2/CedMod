@@ -76,7 +76,7 @@ namespace CedMod.Patches
                 else
                 {
                     stringBuilder.Append("<size=0>(").Append(-2).Append(")</size>");
-                    stringBuilder.Append($"{(RemoteAdminModificationHandler.UiBlink ? "[<color=yellow>⚠</color>] " : " ")}<color=orange>[{openCount} Report{(openCount == 1 ? "" : "s")}] Inprogress</color>");
+                    stringBuilder.Append($"{(RemoteAdminModificationHandler.UiBlink ? "[<color=yellow>⚠</color>] " : " ")}<color=orange>[{inProgressCount} Report{(inProgressCount == 1 ? "" : "s")} Inprogress]</color>");
                 }
                 stringBuilder.AppendLine();
             }
