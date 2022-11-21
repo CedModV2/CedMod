@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using CedMod.Addons.Events.Commands;
 using CedMod.Addons.QuerySystem.Commands;
 using CedMod.ApiModals;
+using CedMod.Components;
 using MEC;
 using Mirror;
 using Newtonsoft.Json;
@@ -255,6 +256,14 @@ namespace CedMod.Addons.QuerySystem.WS
                 {
                     switch (text2)
                     {
+                        case "reportstateack":
+                        case "reportack":
+                            Log.Info("Updating Reports list from panel ack.");
+                            Task.Factory.StartNew(() =>
+                            {
+                                RemoteAdminModificationHandler.UpdateReportList();
+                            });
+                            break;
                         case "ping":
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                 Log.Debug("IsPing");
