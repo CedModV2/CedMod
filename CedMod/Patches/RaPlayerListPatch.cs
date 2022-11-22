@@ -53,32 +53,43 @@ namespace CedMod.Patches
 
             if (CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
             {
-                var openCount = RemoteAdminModificationHandler.ReportsList.Count(s => s.Status == HandleStatus.NoResponse);
-                var inProgressCount = RemoteAdminModificationHandler.ReportsList.Count(s => s.Status == HandleStatus.InProgress);
-                
-                if (openCount == 0)
+                var plr = CedModPlayer.Get(sender.SenderId);
+                if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
                 {
-                    stringBuilder.Append("<size=0>(").Append(-1).Append(")</size>");
-                    stringBuilder.Append("<color=green>[No Open Reports]</color>");
+                    Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, null));
                 }
-                else
+
+                if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin)
                 {
-                    stringBuilder.Append("<size=0>(").Append(-1).Append(")</size>");
-                    stringBuilder.Append($"{(RemoteAdminModificationHandler.UiBlink ? "[<color=yellow>⚠</color>] " : " ")}<color=red>[{openCount} Open Report{(openCount == 1 ? "" : "s")}]</color>");
+                    var openCount = RemoteAdminModificationHandler.ReportsList.Count(s => s.Status == HandleStatus.NoResponse);
+                    var inProgressCount = RemoteAdminModificationHandler.ReportsList.Count(s => s.Status == HandleStatus.InProgress);
+
+                    if (openCount == 0)
+                    {
+                        stringBuilder.Append("<size=0>(").Append(-1).Append(")</size>");
+                        stringBuilder.Append("<color=green>[No Open Reports]</color>");
+                    }
+                    else
+                    {
+                        stringBuilder.Append("<size=0>(").Append(-1).Append(")</size>");
+                        stringBuilder.Append($"{(RemoteAdminModificationHandler.UiBlink ? "[<color=yellow>⚠</color>] " : " ")}<color=red>[{openCount} Open Report{(openCount == 1 ? "" : "s")}]</color>");
+                    }
+
+                    stringBuilder.AppendLine();
+
+                    if (inProgressCount == 0)
+                    {
+                        stringBuilder.Append("<size=0>(").Append(-2).Append(")</size>");
+                        stringBuilder.Append("<color=green>[No InProgress Reports]</color>");
+                    }
+                    else
+                    {
+                        stringBuilder.Append("<size=0>(").Append(-2).Append(")</size>");
+                        stringBuilder.Append($"{(RemoteAdminModificationHandler.UiBlink ? "[<color=yellow>⚠</color>] " : " ")}<color=orange>[{inProgressCount} Report{(inProgressCount == 1 ? "" : "s")} Inprogress]</color>");
+                    }
+
+                    stringBuilder.AppendLine();
                 }
-                stringBuilder.AppendLine();
-                
-                if (inProgressCount == 0)
-                {
-                    stringBuilder.Append("<size=0>(").Append(-2).Append(")</size>");
-                    stringBuilder.Append("<color=green>[No InProgress Reports]</color>");
-                }
-                else
-                {
-                    stringBuilder.Append("<size=0>(").Append(-2).Append(")</size>");
-                    stringBuilder.Append($"{(RemoteAdminModificationHandler.UiBlink ? "[<color=yellow>⚠</color>] " : " ")}<color=orange>[{inProgressCount} Report{(inProgressCount == 1 ? "" : "s")} Inprogress]</color>");
-                }
-                stringBuilder.AppendLine();
             }
 
             foreach (ReferenceHub hub in num != 0 ? __instance.SortPlayersDescending(sortingType) : __instance.SortPlayers(sortingType))

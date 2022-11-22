@@ -52,7 +52,15 @@ namespace CedMod.Patches
                 }
                 else
                 {
-                    if (args.At(startindex).Length > 0 && char.IsDigit(args.At(startindex)[0]))
+                    var tmpargs = new List<string>(args);
+                    foreach (var tmp in args)
+                    {
+                        if (!tmp.Contains("-"))
+                            continue;
+                        var index = tmpargs.IndexOf(tmp);
+                        tmpargs[index] = tmp.Replace("-", "");
+                    }
+                    if (tmpargs[startindex].Length > 0 && char.IsDigit(tmpargs[startindex][0]))
                     {
                         string[] array = args.At(startindex).Split(new char[]
                         {

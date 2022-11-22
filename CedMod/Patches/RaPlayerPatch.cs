@@ -238,8 +238,7 @@ namespace CedMod.Patches
                 //if (sender.CheckPermission("cedmod.requestdata"))
                 {
                     sender.RaReply(string.Format("${0} {1}", __instance.DataId, "Loading from CedMod API, please wait..."), true, true, string.Empty);
-                    UnityWebRequest www = new UnityWebRequest(
-                        API.APIUrl + $"/Auth/{characterClassManager.UserId}&{connectionToClient.address}", "OPTIONS");
+                    UnityWebRequest www = new UnityWebRequest(API.APIUrl + $"/Auth/{characterClassManager.UserId}&{connectionToClient.address}", "OPTIONS");
                     DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
                     www.downloadHandler = dH;
 
@@ -342,6 +341,7 @@ namespace CedMod.Patches
                     $"<color=red>Next Report</color>            <color=red>Previous Report</color>            <color=red>Claim Report</color>              <color=red>Ignore Report</color>");
 
                 stringBuilder.Append("</color>");
+                sender.RaReply(string.Format("${0} {1}", (object)1, (object)StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, true, string.Empty);
             }
             else
             {
@@ -407,20 +407,6 @@ namespace CedMod.Patches
                     }
 
                     index = open.IndexOf(report);
-                    if (index == 0)
-                    {
-                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Log.Debug($"Rept 6");
-                        canBackward = false;
-                    }
-
-                    if (index + 1 == open.Count)
-                    {
-                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Log.Debug($"Rept 7");
-                        canForward = false;
-                    }
-
                     Log.Debug($"Rept 8 {index} {targetIndex}");
 
                     if (index == 0)

@@ -85,6 +85,7 @@
     <Compile Include="ApiModals\ExiledVersion.cs" />
     <Compile Include="ApiModals\HeartbeatRequest.cs" />
     <Compile Include="ApiModals\HelloMessage.cs" />
+    <Compile Include="ApiModals\IngameUserPreferences.cs" />
     <Compile Include="ApiModals\PlayerObject.cs" />
     <Compile Include="ApiModals\SCPSLVersion.cs" />
     <Compile Include="BanSystem.cs" />

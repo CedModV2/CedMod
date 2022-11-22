@@ -7,9 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
 using CedMod.ApiModals;
+using MEC;
 using Newtonsoft.Json;
 using PluginAPI.Core;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace CedMod.Components
 {
@@ -21,6 +23,8 @@ namespace CedMod.Components
         public static RemoteAdminModificationHandler Singleton;
         public static Dictionary<CedModPlayer, Tuple<int, DateTime>> ReportUnHandledState { get; set; } = new Dictionary<CedModPlayer, Tuple<int, DateTime>>();
         public static Dictionary<CedModPlayer, Tuple<int, DateTime>> ReportInProgressState { get; set; } = new Dictionary<CedModPlayer, Tuple<int, DateTime>>();
+
+        public static Dictionary<CedModPlayer, IngameUserPreferences> IngameUserPreferencesMap = new Dictionary<CedModPlayer, IngameUserPreferences>();
 
         public static bool UiBlink { get; set; }
 
@@ -100,6 +104,37 @@ namespace CedMod.Components
 
                     ReportsList = reportsList;
                 }
+            }
+        }
+
+        public IEnumerator<float> ResolvePreferences(CedModPlayer player, Action callback)
+        {
+            UnityWebRequest www = new UnityWebRequest(API.APIUrl + $"https://" + QuerySystem.CurrentMaster + $"/Api/v3/GetUserPreferences/{QuerySystem.QuerySystemKey}?id={player.UserId}", "OPTIONS");
+            DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
+            www.downloadHandler = dH;
+            
+            yield return Timing.WaitUntilDone(www.SendWebRequest());
+            try
+            {
+                if (www.responseCode != 200)
+                {
+                    Log.Error($"Failed to Request UserPreferences: {www.responseCode} | {www.downloadHandler.text}");
+                }
+                else
+                {
+                    IngameUserPreferences cmData = JsonConvert.DeserializeObject<IngameUserPreferences>(www.downloadHandler.text);
+                    if (IngameUserPreferencesMap.ContainsKey(player))
+                        IngameUserPreferencesMap[player] = cmData;
+                    else 
+                        IngameUserPreferencesMap.Add(player, cmData);
+                    
+                    if (callback != null)
+                        callback.Invoke();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
     }

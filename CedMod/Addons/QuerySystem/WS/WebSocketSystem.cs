@@ -13,6 +13,7 @@ using CedMod.Addons.Events.Commands;
 using CedMod.Addons.QuerySystem.Commands;
 using CedMod.ApiModals;
 using CedMod.Components;
+using CommandSystem;
 using MEC;
 using Mirror;
 using Newtonsoft.Json;
@@ -20,6 +21,7 @@ using PluginAPI.Core;
 using RemoteAdmin;
 using Websocket.Client;
 using UnityEngine.Networking;
+using Utils;
 
 namespace CedMod.Addons.QuerySystem.WS
 {
@@ -256,12 +258,48 @@ namespace CedMod.Addons.QuerySystem.WS
                 {
                     switch (text2)
                     {
+                        case "updateuserpref":
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                            {
+                                var toRefresh = CedModPlayer.Get(jsonData["UserId"]);
+                                Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(toRefresh, null));
+                            });
+                            break;
                         case "reportstateack":
                         case "reportack":
                             Log.Info("Updating Reports list from panel ack.");
                             Task.Factory.StartNew(() =>
                             {
                                 RemoteAdminModificationHandler.UpdateReportList();
+                                if (text2 == "reportack")
+                                {
+                                    ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                                    {
+                                        foreach (var staff in ReferenceHub.AllHubs)
+                                        {
+                                            if (staff.isLocalPlayer || !PermissionsHandler.IsPermitted(staff.serverRoles.Permissions, PlayerPermissions.PlayersManagement))
+                                                continue;
+
+                                            var plr = CedModPlayer.Get(staff);
+                                            string msg = CedModMain.Singleton.Config.QuerySystem.StaffReportNotification;
+                                            if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
+                                            {
+                                                Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, () =>
+                                                {
+                                                    if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin) 
+                                                        msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportNotificationIngameDisabled;
+                                                    plr.SendBroadcast(msg, RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat); 
+                                                }));
+                                            }
+                                            else
+                                            {
+                                                if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin) 
+                                                    msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportNotificationIngameDisabled;
+                                                plr.SendBroadcast(msg, RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
+                                            }
+                                        }
+                                    });
+                                }
                             });
                             break;
                         case "ping":
