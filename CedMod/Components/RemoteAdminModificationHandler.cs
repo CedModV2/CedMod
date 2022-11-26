@@ -10,6 +10,7 @@ using CedMod.ApiModals;
 using MEC;
 using Newtonsoft.Json;
 using PluginAPI.Core;
+using PluginAPI.Core.Attributes;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -77,7 +78,7 @@ namespace CedMod.Components
                 UiBlink = !UiBlink;
             }
         }
-
+        
         public void GetReports()
         {
             using (HttpClient client = new HttpClient())
@@ -109,7 +110,7 @@ namespace CedMod.Components
 
         public IEnumerator<float> ResolvePreferences(CedModPlayer player, Action callback)
         {
-            UnityWebRequest www = new UnityWebRequest(API.APIUrl + $"https://" + QuerySystem.CurrentMaster + $"/Api/v3/GetUserPreferences/{QuerySystem.QuerySystemKey}?id={player.UserId}", "OPTIONS");
+            UnityWebRequest www = new UnityWebRequest($"https://" + QuerySystem.CurrentMaster + $"/Api/v3/GetUserPreferences/{QuerySystem.QuerySystemKey}?id={player.UserId}", "OPTIONS");
             DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
             www.downloadHandler = dH;
             
@@ -122,6 +123,8 @@ namespace CedMod.Components
                 }
                 else
                 {
+                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                        Log.Debug($"Got preferences: {www.downloadHandler.text}");
                     IngameUserPreferences cmData = JsonConvert.DeserializeObject<IngameUserPreferences>(www.downloadHandler.text);
                     if (IngameUserPreferencesMap.ContainsKey(player))
                         IngameUserPreferencesMap[player] = cmData;
