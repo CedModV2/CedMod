@@ -26,7 +26,7 @@ namespace CedMod.Addons.Audio
         public static OpusEncoder Encoder { get; } = new OpusEncoder(VoiceChat.Codec.Enums.OpusApplicationType.Voip);
 
         public PlaybackBuffer PlaybackBuffer { get; } = new PlaybackBuffer();
-        public PlaybackBuffer StreamBuffer { get; } = new PlaybackBuffer();
+        public Queue<float> StreamBuffer { get; } = new Queue<float>();
 
         public VorbisReader VorbisReader { get; private set; }
 
@@ -38,7 +38,6 @@ namespace CedMod.Addons.Audio
 
         public float[] SendBuffer { get; set; }
         public float[] ReadBuffer { get; set; }
-        public List<float> Buffer { get; set; }
         public byte[] EncodedBuffer { get; } = new byte[512];
 
 
@@ -67,11 +66,10 @@ namespace CedMod.Addons.Audio
         {
             VorbisReader = new NVorbis.VorbisReader(path);
             Log.Info($"Playing with samplerate of {VorbisReader.SampleRate}");
-            Buffer = new List<float>();
             _samplesPerSecond = VoiceChatSettings.SampleRate * VoiceChatSettings.Channels;
             //_samplesPerSecond = VorbisReader.Channels * VorbisReader.SampleRate / 5;
-            SendBuffer = new float[VorbisReader.Channels * VorbisReader.SampleRate / 5];
-            ReadBuffer = new float[VorbisReader.Channels * VorbisReader.SampleRate / 5];
+            SendBuffer = new float[_samplesPerSecond / 5 + HeadSamples];
+            ReadBuffer = new float[_samplesPerSecond / 5 + HeadSamples];
             if (PlaybackCoroutine.IsValid)
                 Timing.KillCoroutines(PlaybackCoroutine);
             
@@ -82,18 +80,21 @@ namespace CedMod.Addons.Audio
         {
             int cnt;
             
-            Task.Factory.StartNew(() =>
+            while (VorbisReader.SamplePosition < VorbisReader.TotalSamples)
             {
-                while (VorbisReader.SamplePosition < VorbisReader.TotalSamples)
+                cnt = VorbisReader.ReadSamples(ReadBuffer, 0, ReadBuffer.Length);
+                while (StreamBuffer.Count >= ReadBuffer.Length)
                 {
-                    cnt = VorbisReader.ReadSamples(ReadBuffer, 0, ReadBuffer.Length);
-                    Buffer.AddRange(ReadBuffer);
+                    ready = true;
+                    yield return Timing.WaitForOneFrame;
                 }
-                Log.Info($"Is ready {Buffer.Count}");
-                tmpBuffer = Buffer.ToArray();
-                ready = true;
-            });
-            
+                for (int i = 0; i < ReadBuffer.Length; i++)
+                {
+                    StreamBuffer.Enqueue(ReadBuffer[i]);
+                }
+            }
+            Log.Info($"Is done");
+
             yield break;
         }
 
@@ -104,20 +105,23 @@ namespace CedMod.Addons.Audio
         }
 
         private bool ready = false;
-        private float[] tmpBuffer;
-        
+
         public void Update()
         {
-            if (Owner == null || !ready) return;
+            if (Owner == null || !ready || StreamBuffer.Count == 0) return;
 
             _allowedSamples += Time.deltaTime * _samplesPerSecond;
-            int toCopy = Mathf.Min(Mathf.FloorToInt(_allowedSamples), tmpBuffer.Length);
+            int toCopy = Mathf.Min(Mathf.FloorToInt(_allowedSamples), StreamBuffer.Count);
+            Log.Info($"1 {toCopy} {_allowedSamples} {_samplesPerSecond} {StreamBuffer.Count} {PlaybackBuffer.Length} {PlaybackBuffer.WriteHead}");
             if (toCopy > 0)
             {
-                PlaybackBuffer.Write(tmpBuffer, toCopy, (int)PlaybackBuffer.WriteHead);
+                for (int i = 0; i < toCopy; i++)
+                {
+                    PlaybackBuffer.Write(StreamBuffer.Dequeue());
+                }
             }
-
-            Log.Info($"{toCopy} {_allowedSamples} {_samplesPerSecond} {tmpBuffer.Length} {PlaybackBuffer.Length} {PlaybackBuffer.WriteHead}");
+            Log.Info($"2 {toCopy} {_allowedSamples} {_samplesPerSecond} {StreamBuffer.Count} {PlaybackBuffer.Length} {PlaybackBuffer.WriteHead}");
+            
             _allowedSamples -= toCopy;
 
             while (PlaybackBuffer.Length >= 480)
