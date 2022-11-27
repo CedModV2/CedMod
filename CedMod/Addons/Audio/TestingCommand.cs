@@ -53,7 +53,7 @@ namespace CedMod.Addons.Audio
 
                         NetworkServer.AddPlayerForConnection(fakeConnection, newPlayer);
 
-                        hubPlayer.roleManager.ServerSetRole(RoleTypeId.ClassD, RoleChangeReason.RemoteAdmin);
+                        hubPlayer.roleManager.ServerSetRole(RoleTypeId.Scp049, RoleChangeReason.RemoteAdmin);
                         hubPlayer.nicknameSync.SetNick($"Dummy player {id}");
                     }
                     break;
