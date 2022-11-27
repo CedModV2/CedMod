@@ -3,6 +3,7 @@ using System.Linq;
 using CedMod.Addons.QuerySystem.Patches;
 using CedMod.Addons.QuerySystem.WS;
 using CommandSystem;
+using NWAPIPermissionSystem;
 using RemoteAdmin;
 
 namespace CedMod.Addons.QuerySystem.Commands
@@ -21,11 +22,11 @@ namespace CedMod.Addons.QuerySystem.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            // if (!sender.CheckPermission("cedmod.exptoggle"))
-            // {
-            //     response = "No permission";
-            //     return false;
-            // }
+            if (!sender.CheckPermission("cedmod.exptoggle"))
+            {
+                response = "No permission";
+                return false;
+            }
 
             if (!WebSocketSystem.HelloMessage.ExpEnabled)
             {

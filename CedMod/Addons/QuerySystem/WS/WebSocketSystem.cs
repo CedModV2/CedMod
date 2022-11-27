@@ -17,6 +17,8 @@ using CommandSystem;
 using MEC;
 using Mirror;
 using Newtonsoft.Json;
+using NWAPIPermissionSystem;
+using NWAPIPermissionSystem.Models;
 using PluginAPI.Core;
 using RemoteAdmin;
 using Websocket.Client;
@@ -597,7 +599,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     var oldMembers = new Dictionary<string, string>(handler._members);
                     handler._groups.Clear();
                     handler._members.Clear();
-                    //Permissions.Groups.Clear();
+                    PermissionHandler.PermissionGroups.Clear();
 
                     foreach (var perm in permsSlRequest.PermissionEntries)
                     {
@@ -613,12 +615,12 @@ namespace CedMod.Addons.QuerySystem.WS
                             Shared = false
                         });
 
-                        // var epGroup = new Group();
-                        // epGroup.Permissions.AddRange(perm.ExiledPermissions);
-                        // epGroup.CombinedPermissions.AddRange(perm.ExiledPermissions);
-                        // epGroup.Inheritance.Clear();
-                        // epGroup.IsDefault = false;
-                        // Permissions.Groups.Add(perm.Name, epGroup);
+                        var epGroup = new Group();
+                        epGroup.Permissions.AddRange(perm.ExiledPermissions);
+                        epGroup.CombinedPermissions.AddRange(perm.ExiledPermissions);
+                        epGroup.InheritedGroups.Clear();
+                        epGroup.IsDefault = false;
+                        PermissionHandler.PermissionGroups.Add(perm.Name, epGroup);
                     }
 
                     foreach (var member in permsSlRequest.MembersList)

@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace CedMod.Addons.QuerySystem.Patches
 {
-    /*[HarmonyPatch(typeof(Permissions), nameof(Permissions.Reload))]
+    [HarmonyPatch(typeof(PermissionsHandler), nameof(PermissionsHandler.RefreshPermissions))]
     public static class RefreshExiledPermissions
     {
         public static bool Prefix()
@@ -21,5 +21,5 @@ namespace CedMod.Addons.QuerySystem.Patches
 
             return true;
         }
-    }*/
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using CommandSystem;
+using NWAPIPermissionSystem;
 using Object = UnityEngine.Object;
 
 namespace CedMod.Commands
@@ -16,11 +17,11 @@ namespace CedMod.Commands
         public string Description { get; } = "yes";
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            // if (!sender.CheckPermission("cedmod.rainbowlights"))
-            // {
-            //     response = "no permission";
-            //     return false;
-            // }
+            if (!sender.CheckPermission("cedmod.rainbowlights"))
+            {
+                response = "no permission";
+                return false;
+            }
             
             if (arguments.Count < 1)
             {

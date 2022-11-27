@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem.WS;
 using CommandSystem;
+using NWAPIPermissionSystem;
 
 namespace CedMod.Addons.QuerySystem.Commands
 {
@@ -19,11 +20,11 @@ namespace CedMod.Addons.QuerySystem.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            // if (!sender.CheckPermission("cedmod.restartquery"))
-            // {
-            //     response = "No permission";
-            //     return false;
-            // }
+            if (!sender.CheckPermission("cedmod.restartquery"))
+            {
+                response = "No permission";
+                return false;
+            }
 
             Task.Factory.StartNew(() =>
             { 

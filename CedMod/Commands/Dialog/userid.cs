@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using CommandSystem;
+using NWAPIPermissionSystem;
 using PluginAPI.Core;
 
 namespace CedMod.Commands.Dialog
@@ -18,11 +19,11 @@ namespace CedMod.Commands.Dialog
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            // if (!sender.CheckPermission("cedmod.dialog"))
-            // {
-            //     response = "no permission";
-            //     return false;
-            // }
+            if (!sender.CheckPermission("cedmod.dialog"))
+            {
+                response = "no permission";
+                return false;
+            }
             if (arguments.Count >= 2)
             {
                 Player player;

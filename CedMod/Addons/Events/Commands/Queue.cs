@@ -1,6 +1,7 @@
 ﻿using System;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
+using NWAPIPermissionSystem;
 
 namespace CedMod.Addons.Events.Commands
 {
@@ -17,11 +18,11 @@ namespace CedMod.Addons.Events.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            // if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.CheckPermission("cedmod.events.queue"))
-            // {
-            //     response = "No permission";
-            //     return false;
-            // }
+            if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.CheckPermission("cedmod.events.queue"))
+            {
+                response = "No permission";
+                return false;
+            }
 
             response = "";
             response += $"Current event: [0] {(EventManager.currentEvent == null ? "None" : $"{EventManager.currentEvent.EventName} - ({EventManager.currentEvent.EventPrefix})")}\n\n\nQueue:\n";

@@ -3,6 +3,7 @@ using System.Linq;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
 using MEC;
+using NWAPIPermissionSystem;
 using PluginAPI.Core;
 
 namespace CedMod.Addons.Events.Commands
@@ -39,11 +40,11 @@ namespace CedMod.Addons.Events.Commands
                 return false;
             }
 
-            // if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.CheckPermission("cedmod.events.bump"))
-            // {
-            //     response = "No permission";
-            //     return false;
-            // }
+            if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.CheckPermission("cedmod.events.bump"))
+            {
+                response = "No permission";
+                return false;
+            }
             
             EventManager.nextEvent.RemoveAll(ev => ev.EventName == @event.EventName);
             EventManager.nextEvent.Insert(0, @event);

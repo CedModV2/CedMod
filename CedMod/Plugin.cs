@@ -175,7 +175,7 @@ namespace CedMod
 
                     if (!AssemblyLoader.Plugins[assembly].ContainsKey(entryType))
                     {
-                        var pluginType = new PluginHandler(GameModeDirectory, entryType, types);
+                        var pluginType = new PluginHandler(GameModeDirectory, entryType, entryType, types);
                         pluginLocations.Add(pluginType, file);
                         handlers.Add(entryType, pluginType);
                         AssemblyLoader.Plugins[assembly].Add(entryType, pluginType);

@@ -11,6 +11,7 @@ using MEC;
 using Mirror;
 using Newtonsoft.Json;
 using NorthwoodLib.Pools;
+using NWAPIPermissionSystem;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PlayerStatsSystem;
@@ -234,8 +235,8 @@ namespace CedMod.Patches
                     stringBuilder.Append(
                         "\n<color=#D4AF37>Some fields were hidden. GameplayData permission required.</color>");
 
-                //Log.Debug($"Has permissions: {sender.CheckPermission("cedmod.requestdata")}", CedModMain.Singleton.Config.QuerySystem.Debug);
-                //if (sender.CheckPermission("cedmod.requestdata"))
+                Log.Debug($"Has permissions: {sender.CheckPermission("cedmod.requestdata")}", CedModMain.Singleton.Config.QuerySystem.Debug);
+                if (sender.CheckPermission("cedmod.requestdata"))
                 {
                     sender.RaReply(string.Format("${0} {1}", __instance.DataId, "Loading from CedMod API, please wait..."), true, true, string.Empty);
                     UnityWebRequest www = new UnityWebRequest(API.APIUrl + $"/Auth/{characterClassManager.UserId}&{connectionToClient.address}", "OPTIONS");

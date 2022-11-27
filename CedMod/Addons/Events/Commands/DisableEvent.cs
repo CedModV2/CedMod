@@ -2,6 +2,7 @@
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
 using MEC;
+using NWAPIPermissionSystem;
 using PluginAPI.Core;
 
 namespace CedMod.Addons.Events.Commands
@@ -47,11 +48,11 @@ namespace CedMod.Addons.Events.Commands
                 }
             }
 
-            // if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.CheckPermission("cedmod.events.disable"))
-            // {
-            //     response = "No permission";
-            //     return false;
-            // }
+            if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.CheckPermission("cedmod.events.disable"))
+            {
+                response = "No permission";
+                return false;
+            }
             
             if (queuepos >= 1)
             {

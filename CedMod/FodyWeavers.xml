@@ -10,6 +10,7 @@
             System.Data
             System.Threading.Tasks.Extensions
             NVorbis
+            System.Net.Http
         </IncludeAssemblies>
     </Costura>
 </Weavers>
