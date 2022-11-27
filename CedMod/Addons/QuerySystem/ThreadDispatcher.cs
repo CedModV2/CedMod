@@ -66,9 +66,24 @@ namespace CedMod.Addons.QuerySystem
                         Queue = player.Value.AudioToPlay,
                         Shuffle = player.Value.Shuffle,
                         TotalTime = player.Value.VorbisReader.TotalTime,
-                        Volume = player.Value.Volume
+                        Volume = player.Value.Volume,
                     });
                 }
+                
+                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                {
+                    Recipient = "PANEL",
+                    Data = new Dictionary<string, string>()
+                    {
+                        { "Message", "AUDIOHEARTBEAT" },
+                        {
+                            "HeartbeatInfo", JsonConvert.SerializeObject(new AudioHeartbeatRequest()
+                            {
+                                Players = audioPlayers
+                            })
+                        }
+                    }
+                });
             }
 
             timeLeftbeforeWatchdog -= Time.deltaTime;

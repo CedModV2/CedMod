@@ -99,6 +99,7 @@ namespace CedMod.Addons.Audio
                 AudioToPlay = AudioToPlay.OrderBy(i => Random.value).ToList();
             CurrentPlay = AudioToPlay[index];
             AudioToPlay.RemoveAt(index);
+            if (Loop)
             {
                 AudioToPlay.Add(CurrentPlay);
             }
