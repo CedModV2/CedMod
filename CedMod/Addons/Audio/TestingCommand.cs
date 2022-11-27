@@ -88,6 +88,16 @@ namespace CedMod.Addons.Audio
                     }
                 } 
                     break;
+                case "volume":
+                {
+                    int id = int.Parse(arguments.At(1));
+                    if (FakeConnectionsIds.TryGetValue(id, out ReferenceHub hub))
+                    {
+                        var audioPlayer = AudioPlayer.Get(hub);
+                        audioPlayer.Volume = Convert.ToInt32(arguments.At(2));
+                    }
+                } 
+                    break;
             }
 
             response = "Fat";

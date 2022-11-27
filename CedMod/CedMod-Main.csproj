@@ -80,6 +80,7 @@
     <Compile Include="Addons\QuerySystem\ThreadDispatcher.cs" />
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
     <Compile Include="API.cs" />
+    <Compile Include="ApiModals\AudioHeartBeat.cs" />
     <Compile Include="ApiModals\AutoSlPermsSlRequest.cs" />
     <Compile Include="ApiModals\CedModVersion.cs" />
     <Compile Include="ApiModals\EventModal.cs" />

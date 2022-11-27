@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MEC;
@@ -17,6 +18,7 @@ using UnityEngine.Networking;
 using VoiceChat;
 using VoiceChat.Codec;
 using VoiceChat.Networking;
+using Random = UnityEngine.Random;
 
 namespace CedMod.Addons.Audio
 {
@@ -40,12 +42,14 @@ namespace CedMod.Addons.Audio
         public float[] SendBuffer { get; set; }
         public float[] ReadBuffer { get; set; }
         public byte[] EncodedBuffer { get; } = new byte[512];
-        
-        
+        public float Volume { get; set; } = 100f;
+
+
         public List<string> AudioToPlay = new List<string>();
         public string CurrentPlay;
         public MemoryStream CurrentPlayStream;
         public bool Loop = false;
+        public bool Shuffle = false;
         public bool Continue = true;
         private bool _stopTrack = false;
         public bool ShouldPlay = true;
@@ -83,12 +87,16 @@ namespace CedMod.Addons.Audio
             if (PlaybackCoroutine.IsRunning)
                 Timing.KillCoroutines(PlaybackCoroutine);
             PlaybackCoroutine = Timing.RunCoroutine(Playback(queuePos), Segment.FixedUpdate);
+
+            if (Shuffle)
+                AudioToPlay = AudioToPlay.OrderBy(i => Random.value).ToList();
         }
 
         public IEnumerator<float> Playback(int index)
         {
             int cnt;
-
+            if (Shuffle)
+                AudioToPlay = AudioToPlay.OrderBy(i => Random.value).ToList();
             CurrentPlay = AudioToPlay[index];
             AudioToPlay.RemoveAt(index);
             {
@@ -123,7 +131,6 @@ namespace CedMod.Addons.Audio
             SendBuffer = new float[_samplesPerSecond / 5 + HeadSamples];
             ReadBuffer = new float[_samplesPerSecond / 5 + HeadSamples];
 
-            
             while ((cnt = VorbisReader.ReadSamples(ReadBuffer, 0, ReadBuffer.Length)) > 0)
             {
                 if (_stopTrack)
@@ -173,7 +180,7 @@ namespace CedMod.Addons.Audio
             {
                 for (int i = 0; i < toCopy; i++)
                 {
-                    PlaybackBuffer.Write(StreamBuffer.Dequeue());
+                    PlaybackBuffer.Write(StreamBuffer.Dequeue() * (Volume / 100f));
                 }
             }
             Log.Info($"2 {toCopy} {_allowedSamples} {_samplesPerSecond} {StreamBuffer.Count} {PlaybackBuffer.Length} {PlaybackBuffer.WriteHead}");

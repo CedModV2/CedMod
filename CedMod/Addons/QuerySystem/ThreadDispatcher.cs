@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using CedMod.Addons.Audio;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem.WS;
 using CedMod.ApiModals;
@@ -18,6 +19,7 @@ namespace CedMod.Addons.QuerySystem
 {
     public class ThreadDispatcher : MonoBehaviour
     {
+        public float timeLeftbeforeAudioHeartBeat = 0;
         public float timeLeftbeforeHeartBeat = 0;
         public float timeLeftbeforeWatchdog = 0;
         
@@ -43,6 +45,29 @@ namespace CedMod.Addons.QuerySystem
                 catch (Exception e)
                 {
                     Log.Error($"Failed to invoke Dispatch\n{e}");
+                }
+            }
+
+            timeLeftbeforeAudioHeartBeat -= Time.deltaTime;
+            if (timeLeftbeforeAudioHeartBeat <= 0)
+            {
+                timeLeftbeforeHeartBeat = AudioPlayer.AudioPlayers.Count >= 1 ? 100 : 1000;
+
+                List<CedModAudioPlayer> audioPlayers = new List<CedModAudioPlayer>();
+
+                foreach (var player in AudioPlayer.AudioPlayers)
+                {
+                    audioPlayers.Add(new CedModAudioPlayer()
+                    {
+                        Continue = player.Value.Continue,
+                        CurrentSpan = player.Value.VorbisReader.TimePosition,
+                        LoopList = player.Value.Loop,
+                        PlayerId = player.Key.PlayerId,
+                        Queue = player.Value.AudioToPlay,
+                        Shuffle = player.Value.Shuffle,
+                        TotalTime = player.Value.VorbisReader.TotalTime,
+                        Volume = player.Value.Volume
+                    });
                 }
             }
 
