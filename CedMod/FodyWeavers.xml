@@ -9,6 +9,7 @@
             System.ValueTuple
             System.Data
             System.Threading.Tasks.Extensions
+            NVorbis
         </IncludeAssemblies>
     </Costura>
 </Weavers>

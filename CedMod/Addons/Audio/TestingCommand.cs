@@ -57,13 +57,23 @@ namespace CedMod.Addons.Audio
                         hubPlayer.nicknameSync.SetNick($"Dummy player {id}");
                     }
                     break;
+                case "enqueue":
+                {
+                    int id = int.Parse(arguments.At(1));
+                    if (FakeConnectionsIds.TryGetValue(id, out ReferenceHub hub))
+                    {
+                        var audioPlayer = AudioPlayer.Get(hub);
+                        audioPlayer.Enqueue(arguments.At(2), arguments.Count >= 4 ? Convert.ToInt32(arguments.At(3)) : -1);
+                    }
+                }
+                    break;
                 case "play":
                     {
                         int id = int.Parse(arguments.At(1));
                         if (FakeConnectionsIds.TryGetValue(id, out ReferenceHub hub))
                         {
                             var audioPlayer = AudioPlayer.Get(hub);
-                            audioPlayer.Play(string.Join(" ", arguments.Skip(2)));
+                            audioPlayer.Play(Convert.ToInt32(arguments.At(2)));
                         }
                     }
                     break;
@@ -77,16 +87,6 @@ namespace CedMod.Addons.Audio
                         NetworkServer.Destroy(hub.gameObject);
                     }
                 } 
-                    break;
-                case "speed":
-                    {
-                        int id = int.Parse(arguments.At(1));
-                        if (FakeConnectionsIds.TryGetValue(id, out ReferenceHub hub))
-                        {
-                            var audioPlayer = AudioPlayer.Get(hub);
-                            audioPlayer.PlaybackSpeed = float.Parse(arguments.At(2));
-                        }
-                    }
                     break;
             }
 

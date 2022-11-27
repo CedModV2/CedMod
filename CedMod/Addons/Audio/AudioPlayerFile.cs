@@ -13,16 +13,15 @@ using PlayerRoles.PlayableScps.Scp939;
 using PlayerRoles.Voice;
 using PluginAPI.Core;
 using UnityEngine;
-using UnityEngine.Networking;
 using VoiceChat;
 using VoiceChat.Codec;
 using VoiceChat.Networking;
 
 namespace CedMod.Addons.Audio
 {
-    public class AudioPlayer : MonoBehaviour
+    public class AudioPlayerFile : MonoBehaviour
     {
-        public static Dictionary<ReferenceHub, AudioPlayer> AudioPlayers = new Dictionary<ReferenceHub, AudioPlayer>();
+        public static Dictionary<ReferenceHub, AudioPlayerFile> AudioPlayers = new Dictionary<ReferenceHub, AudioPlayerFile>();
 
         public static OpusEncoder Encoder { get; } = new OpusEncoder(VoiceChat.Codec.Enums.OpusApplicationType.Voip);
 
@@ -40,36 +39,21 @@ namespace CedMod.Addons.Audio
         public float[] SendBuffer { get; set; }
         public float[] ReadBuffer { get; set; }
         public byte[] EncodedBuffer { get; } = new byte[512];
-        
-        
-        public List<string> AudioToPlay = new List<string>();
-        public string CurrentPlay;
-        public MemoryStream CurrentPlayStream;
-        public bool Loop = false;
-        public bool Continue = true;
-        private bool _stopTrack = false;
-        public bool ShouldPlay = true;
 
 
         private float _allowedSamples;
         private int _samplesPerSecond;
         private const int HeadSamples = 1920;
+        
 
-        public void Stoptrack(bool Clear)
+        public static AudioPlayerFile Get(ReferenceHub hub)
         {
-            if (Clear)
-                AudioToPlay.Clear();
-            _stopTrack = true;
-        }
-
-        public static AudioPlayer Get(ReferenceHub hub)
-        {
-            if (AudioPlayers.TryGetValue(hub, out AudioPlayer player))
+            if (AudioPlayers.TryGetValue(hub, out AudioPlayerFile player))
             {
                 return player;
             }
 
-            player = hub.gameObject.AddComponent<AudioPlayer>();
+            player = hub.gameObject.AddComponent<AudioPlayerFile>();
             player.Owner = hub;
 
             AudioPlayers.Add(hub, player);
@@ -78,63 +62,27 @@ namespace CedMod.Addons.Audio
 
         public CoroutineHandle PlaybackCoroutine;
 
-        public void Play(int queuePos)
+        public void Play(string path)
         {
-            if (PlaybackCoroutine.IsRunning)
-                Timing.KillCoroutines(PlaybackCoroutine);
-            PlaybackCoroutine = Timing.RunCoroutine(Playback(queuePos), Segment.FixedUpdate);
-        }
-
-        public IEnumerator<float> Playback(int index)
-        {
-            int cnt;
-
-            CurrentPlay = AudioToPlay[index];
-            AudioToPlay.RemoveAt(index);
-            {
-                AudioToPlay.Add(CurrentPlay);
-            }
-            
-            Log.Info($"Loading Audio");
-            UnityWebRequest www = new UnityWebRequest("https://" + QuerySystem.QuerySystem.CurrentMaster + $"/Api/v3/RetrieveAudio/{QuerySystem.QuerySystem.QuerySystemKey}?track={CurrentPlay}", "GET");
-            DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
-            www.downloadHandler = dH;
-            
-            yield return Timing.WaitUntilDone(www.SendWebRequest());
-
-            if (www.responseCode != 200)
-            {
-                Log.Error($"Failed to retrieve audio {www.responseCode} {www.downloadHandler.text}");
-                if (Continue && AudioToPlay.Count >= 1)
-                {
-                    yield return Timing.WaitForSeconds(1);
-                    Timing.RunCoroutine(Playback(0));
-                }
-                yield break;
-            }
-
-            CurrentPlayStream = new MemoryStream(www.downloadHandler.data);
-            CurrentPlayStream.Seek(0, SeekOrigin.Begin);
-            
-            VorbisReader = new NVorbis.VorbisReader(CurrentPlayStream);
+            VorbisReader = new NVorbis.VorbisReader(path);
             Log.Info($"Playing with samplerate of {VorbisReader.SampleRate}");
             _samplesPerSecond = VoiceChatSettings.SampleRate * VoiceChatSettings.Channels;
             //_samplesPerSecond = VorbisReader.Channels * VorbisReader.SampleRate / 5;
             SendBuffer = new float[_samplesPerSecond / 5 + HeadSamples];
             ReadBuffer = new float[_samplesPerSecond / 5 + HeadSamples];
-
+            if (PlaybackCoroutine.IsValid)
+                Timing.KillCoroutines(PlaybackCoroutine);
             
-            while ((cnt = VorbisReader.ReadSamples(ReadBuffer, 0, ReadBuffer.Length)) > 0)
+            PlaybackCoroutine = Timing.RunCoroutine(Playback(), Segment.FixedUpdate);
+        }
+
+        public IEnumerator<float> Playback()
+        {
+            int cnt;
+            
+            while (VorbisReader.SamplePosition < VorbisReader.TotalSamples)
             {
-                if (_stopTrack)
-                {
-                    VorbisReader.SeekTo(VorbisReader.TotalSamples - 1);
-                    _stopTrack = false;
-                }
-                while (!ShouldPlay)
-                {
-                    yield return Timing.WaitForOneFrame;
-                }
+                cnt = VorbisReader.ReadSamples(ReadBuffer, 0, ReadBuffer.Length);
                 while (StreamBuffer.Count >= ReadBuffer.Length)
                 {
                     ready = true;
@@ -145,12 +93,8 @@ namespace CedMod.Addons.Audio
                     StreamBuffer.Enqueue(ReadBuffer[i]);
                 }
             }
-            Log.Info($"Track Complete.");
+            Log.Info($"Is done");
 
-            if (Continue && AudioToPlay.Count >= 1)
-            {
-                Timing.RunCoroutine(Playback(0));
-            }
             yield break;
         }
 
@@ -193,14 +137,6 @@ namespace CedMod.Addons.Audio
                     plr.connectionToClient.Send(new VoiceMessage(Owner, VoiceChat.VoiceChatChannel.Intercom, EncodedBuffer, dataLen, false));
                 }
             }
-        }
-
-        public void Enqueue(string audio, int pos)
-        {
-            if (pos == -1)
-                AudioToPlay.Add(audio);
-            else
-                AudioToPlay.Insert(pos, audio);
         }
     }
 }
