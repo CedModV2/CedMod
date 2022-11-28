@@ -12,6 +12,7 @@ using CedMod.Addons.QuerySystem.WS;
 using CedMod.ApiModals;
 using Newtonsoft.Json;
 using PluginAPI.Core;
+using SCPSLAudioApi.AudioCore;
 using UnityEngine;
 using Version = GameCore.Version;
 
@@ -51,11 +52,11 @@ namespace CedMod.Addons.QuerySystem
             timeLeftbeforeAudioHeartBeat -= Time.deltaTime;
             if (timeLeftbeforeAudioHeartBeat <= 0)
             {
-                timeLeftbeforeAudioHeartBeat = AudioPlayer.AudioPlayers.Count >= 1 ? 100 : 1000;
+                timeLeftbeforeAudioHeartBeat = AudioPlayerBase.AudioPlayers.Count >= 1 ? 100 : 1000;
 
                 List<CedModAudioPlayer> audioPlayers = new List<CedModAudioPlayer>();
 
-                foreach (var player in AudioPlayer.AudioPlayers)
+                foreach (var player in AudioPlayerBase.AudioPlayers)
                 {
                     audioPlayers.Add(new CedModAudioPlayer()
                     {
@@ -67,6 +68,7 @@ namespace CedMod.Addons.QuerySystem
                         Shuffle = player.Value.Shuffle,
                         TotalTime = player.Value.VorbisReader.TotalTime,
                         Volume = player.Value.Volume,
+                        IsCedModPlayer = player.Value is CustomAudioPlayer
                     });
                 }
                 

@@ -9,22 +9,22 @@ using RemoteAdmin;
 namespace CedMod.Addons.Audio
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
-    public class TestingCommand : ICommand
+    public class AudioCommand : ICommand
     {
         public static Dictionary<FakeConnection, ReferenceHub> FakeConnections = new Dictionary<FakeConnection, ReferenceHub>();
         public static Dictionary<int, ReferenceHub> FakeConnectionsIds = new Dictionary<int, ReferenceHub>();
 
-        public string Command { get; } = "testing";
+        public string Command { get; } = "audio";
 
         public string[] Aliases { get; } = new string[0];
 
-        public string Description { get; } = "Testing command";
+        public string Description { get; } = "Audio Command";
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             if (!(sender is PlayerCommandSender raSender))
             {
-                response = "Console cant execute that command!";
+                response = "Console cant execute this command!";
                 return false;
             }
 
@@ -32,7 +32,7 @@ namespace CedMod.Addons.Audio
 
             if (arguments.Count == 0)
             {
-                response = "Args: testing fake";
+                response = "Args: audio fake {playerid} - spawns a dummyplayer\naudio enqueue {playerid} {cedmodfilename} [index] - enqueues a file on from the CedMod panel in the queue at the given index (index is optional)\naudio play {playerid} {index} - starts playing at the given index\naudio destroy {playerid} - destroys the player\ntesting volume {playerid} {volume} - sets the volume";
                 return false;
             }
 
@@ -62,7 +62,7 @@ namespace CedMod.Addons.Audio
                     int id = int.Parse(arguments.At(1));
                     if (FakeConnectionsIds.TryGetValue(id, out ReferenceHub hub))
                     {
-                        var audioPlayer = AudioPlayer.Get(hub);
+                        var audioPlayer = CustomAudioPlayer.Get(hub);
                         audioPlayer.Enqueue(arguments.At(2), arguments.Count >= 4 ? Convert.ToInt32(arguments.At(3)) : -1);
                     }
                 }
@@ -72,7 +72,7 @@ namespace CedMod.Addons.Audio
                         int id = int.Parse(arguments.At(1));
                         if (FakeConnectionsIds.TryGetValue(id, out ReferenceHub hub))
                         {
-                            var audioPlayer = AudioPlayer.Get(hub);
+                            var audioPlayer = CustomAudioPlayer.Get(hub);
                             audioPlayer.Play(Convert.ToInt32(arguments.At(2)));
                         }
                     }
@@ -93,14 +93,14 @@ namespace CedMod.Addons.Audio
                     int id = int.Parse(arguments.At(1));
                     if (FakeConnectionsIds.TryGetValue(id, out ReferenceHub hub))
                     {
-                        var audioPlayer = AudioPlayer.Get(hub);
+                        var audioPlayer = CustomAudioPlayer.Get(hub);
                         audioPlayer.Volume = Convert.ToInt32(arguments.At(2));
                     }
                 } 
                     break;
             }
 
-            response = "Fat";
+            response = "Done";
             return true;
         }
     }

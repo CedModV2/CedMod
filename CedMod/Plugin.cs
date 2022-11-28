@@ -56,7 +56,6 @@ namespace CedMod
             
             PluginLocation = Handler.PluginFilePath;
             PluginConfigFolder = Handler.PluginDirectoryPath;
-            
 
             Assembly = Assembly.GetExecutingAssembly();
             CosturaUtility.Initialize();

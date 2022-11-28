@@ -19,5 +19,6 @@ namespace CedMod.ApiModals
         public bool Shuffle { get; set; }
         public TimeSpan CurrentSpan { get; set; }
         public TimeSpan TotalTime { get; set; }
+        public bool IsCedModPlayer { get; set; }
     }
 }

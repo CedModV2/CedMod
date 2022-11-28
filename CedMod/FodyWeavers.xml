@@ -10,7 +10,7 @@
             System.Data
             System.Threading.Tasks.Extensions
             NVorbis
-            System.Net.Http
+            SCPSLAudioApi
         </IncludeAssemblies>
     </Costura>
 </Weavers>
