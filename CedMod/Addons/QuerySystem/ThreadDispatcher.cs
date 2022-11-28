@@ -52,7 +52,7 @@ namespace CedMod.Addons.QuerySystem
             timeLeftbeforeAudioHeartBeat -= Time.deltaTime;
             if (timeLeftbeforeAudioHeartBeat <= 0)
             {
-                timeLeftbeforeAudioHeartBeat = AudioPlayerBase.AudioPlayers.Count >= 1 ? 100 : 1000;
+                timeLeftbeforeAudioHeartBeat = AudioPlayerBase.AudioPlayers.Count >= 1 ? 1 : 20;
 
                 List<CedModAudioPlayer> audioPlayers = new List<CedModAudioPlayer>();
 
