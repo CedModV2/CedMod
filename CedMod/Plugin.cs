@@ -37,6 +37,7 @@ namespace CedMod
         public static string PluginLocation = "";
         public static PluginDirectory GameModeDirectory;
         public static Assembly Assembly;
+        public static PluginHandler Handler;
 
         public const string Version = "3.3.0";
 
@@ -46,18 +47,16 @@ namespace CedMod
         [PluginEntryPoint("CedMod", Version, "SCP:SL Moderation system https://cedmod.nl/About", "ced777ric#0001")]
         void LoadPlugin()
         {
-            if (File.Exists(Path.Combine(Paths.GlobalPlugins.Plugins, "CedModV3.dll")))
+            Handler = PluginHandler.Get(this);
+            Timing.CallDelayed(5, () =>
             {
-                PluginConfigFolder = Path.Combine(Paths.GlobalPlugins.Plugins, "CedMod");
-                PluginLocation = Path.Combine(Paths.GlobalPlugins.Plugins, "CedModV3.dll");
-            }
-            else if (File.Exists(Path.Combine(Paths.LocalPlugins.Plugins, "CedModV3.dll")))
-            {
-                PluginConfigFolder = Path.Combine(Paths.LocalPlugins.Plugins, "CedMod");
-                PluginLocation = Path.Combine(Paths.LocalPlugins.Plugins, "CedModV3.dll");
-            }
-            else
-                throw new Exception("Failed to determine file path");
+                if (!AppDomain.CurrentDomain.GetAssemblies().Any(s => s.GetName().Name == "NWAPIPermissionSystem"))
+                    Timing.CallContinuously(1, () => Log.Error("You do not have the NWAPIPermissionSystem Installed, CedMod Requires the NWAPIPermission system ih order to operate properly, please download it here: https://github.com/CedModV2/NWAPIPermissionSystem"));
+            });
+            
+            PluginLocation = Handler.PluginFilePath;
+            PluginConfigFolder = Handler.PluginDirectoryPath;
+            
 
             Assembly = Assembly.GetExecutingAssembly();
             CosturaUtility.Initialize();
