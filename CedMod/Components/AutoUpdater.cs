@@ -22,6 +22,7 @@ namespace CedMod.Components
         public float TimePassedCheck;
         
         public float TimePassedWarning;
+        public float TimePassedUpdateNotify;
         public bool Installing = false;
 
         public void Update()
@@ -41,59 +42,72 @@ namespace CedMod.Components
                 if (CedModMain.Singleton.Config.CedMod.AutoUpdateWait != 0 && Pending != null)
                 {
                     if (Player.Count <= 1)
+                    {
                         TimePassed += Time.deltaTime;
+                        
+                        if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                            Log.Debug($"Checking players {Player.Count} {TimePassed}");
+                    
+                        if (TimePassed >= CedModMain.Singleton.Config.CedMod.AutoUpdateWait * 60 && !Installing)
+                        { 
+                            if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                                Log.Debug($"Prepping install 1");
+                            TimePassed = 0;
+                            Task.Factory.StartNew(() =>
+                            {
+                                Log.Info($"Installing update {Pending.VersionString} - {Pending.VersionCommit}");
+                                InstallUpdate();
+                            });
+                        }
+                        else if (Installing)
+                            TimePassed = 0;
+                    }
                     else
                         TimePassed = 0;
                     
-                    if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                        Log.Debug($"Checking players {Player.Count} {TimePassed}");
-                    
-                    if (TimePassed >= CedModMain.Singleton.Config.CedMod.AutoUpdateWait * 60 && !Installing)
-                    { 
-                        if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                            Log.Debug($"Prepping install 1");
-                        TimePassed = 0;
-                        Task.Factory.StartNew(() =>
-                        {
-                            Log.Info($"Installing update {Pending.VersionString} - {Pending.VersionCommit}");
-                            InstallUpdate();
-                        });
-                    }
-                    else if (Installing)
-                        TimePassed = 0;
                 }
-
-                if (Pending == null)
-                {
-                    TimePassedCheck += Time.deltaTime;
+            }
+            
+            if (Pending == null)
+            {
+                TimePassedCheck += Time.deltaTime;
+                if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                    Log.Debug($"Checking players {TimePassedCheck}");
+                if (TimePassedCheck >= 300)
+                { 
+                    TimePassedCheck = 0;
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                        Log.Debug($"Checking players {TimePassedCheck}");
-                    if (TimePassedCheck >= 300)
-                    { 
-                        TimePassedCheck = 0;
-                        if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                            Log.Debug($"Prepping Check");
-                        Task.Factory.StartNew(() =>
-                        {
-                            var data = CheckForUpdates();
-                            Pending = data;
-                        });
-                    }
+                        Log.Debug($"Prepping Check");
+                    Task.Factory.StartNew(() =>
+                    {
+                        var data = CheckForUpdates();
+                        Pending = data;
+                    });
+                }
+            }
+            else if (Pending != null && !CedModMain.Singleton.Config.CedMod.AutoUpdate)
+            {
+                TimePassedUpdateNotify += Time.deltaTime;
+                if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                    Log.Debug($"Checking 3 {TimePassedUpdateNotify}");
+                if (TimePassedUpdateNotify >= 300)
+                { 
+                    TimePassedUpdateNotify = 0;
+                    if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                        Log.Debug($"Prepping Check");
+                    Log.Warning($"New CedMod Update available: {Pending.VersionString} - {Pending.VersionCommit}\nCurrent: {CedModMain.Version} - {CedModMain.GitCommitHash}\nPlease update your CedMod version by enabling AutoUpdate in your config or run installcedmodupdate if you dont want automatic updates");
                 }
             }
         }
 
         public void Start()
         {
-            if (CedModMain.Singleton.Config.CedMod.AutoUpdate)
+            Log.Info($"CedMod AutoUpdater initialized, checking for updates.");
+            Task.Factory.StartNew(() =>
             {
-                Log.Info($"CedMod AutoUpdater initialized, checking for updates.");
-                Task.Factory.StartNew(() =>
-                {
-                    var data = CheckForUpdates(true);
-                    Pending = data;
-                });
-            }
+                var data = CheckForUpdates(true);
+                Pending = data;
+            });
         }
 
         public CedModVersion CheckForUpdates(bool b = false)
@@ -135,7 +149,7 @@ namespace CedMod.Components
         [PluginEvent(ServerEventType.RoundRestart)]
         public void RoundRestart()
         {
-            if (CedModMain.Singleton.Config.CedMod.AutoUpdate && Pending == null)
+            if (Pending == null)
             {
                 Task.Factory.StartNew(() =>
                 {
