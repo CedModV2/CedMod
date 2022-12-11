@@ -54,7 +54,17 @@ namespace CedMod.Commands
                 return false;
             }
             
-            updater.TimePassed = 300;
+            Task.Factory.StartNew(() =>
+            {
+                var data = updater.CheckForUpdates(true);
+                if (data == null)
+                    Log.Error($"There are no updates pending for this version.");
+                else
+                {
+                    AutoUpdater.Pending = data;
+                    updater.InstallUpdate();
+                }
+            });
             response = "Update Install requested to the UpdateService";
             return true;
         }

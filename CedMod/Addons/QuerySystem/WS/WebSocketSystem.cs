@@ -93,6 +93,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 }
 
                 QuerySystem.CurrentMaster = data2["Api"];
+                QuerySystem.CurrentPanel = data2["Panel"];
                 QuerySystem.CurrentMasterQuery = data2["Query"];
             }
             catch (Exception e)

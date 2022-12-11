@@ -56,6 +56,7 @@ namespace CedMod.Addons.QuerySystem
             }
         }
         
+        public static string CurrentPanel = "";
         public static string CurrentMaster = MainPanelUrl;
         public static string CurrentMasterQuery = "";
         public const string MainPanelUrl = "panelapi.cedmod.nl";
