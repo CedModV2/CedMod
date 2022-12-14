@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using CedMod.Addons.Events.Commands;
 
 namespace CedMod.ApiModals
 {
@@ -11,5 +10,9 @@ namespace CedMod.ApiModals
         public string PluginCommitHash { get; set; }
         public bool UpdateStats { get; set; }
         public bool TrackingEnabled { get; set; }
+        public string ExiledVersion { get; set; }
+        public string ScpSlVersion { get; set; }
+        public string FileHash { get; set; }
+        public string CedModVersionIdentifier { get; set; }
     }
 }

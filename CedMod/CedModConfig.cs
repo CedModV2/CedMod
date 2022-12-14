@@ -51,5 +51,14 @@ namespace CedMod
         
         [Description("If debug logs are shown")]
         public bool ShowDebug { get; set; } = false;
+        
+        [Description("If set to false, the plugin will not automatically check for updates (All updates are tested before pushed live)")]
+        public bool AutoUpdate { get; set; } = true;
+        
+        [Description("If set to true, the plugin will softrestart the server at the end of the round if an update is pending (All updates are tested before pushed live)")]
+        public bool AutoUpdateRoundEnd { get; set; } = true;
+        
+        [Description("If an update is pending and the server has been empty for the past X time, the plugin will start the autoupdate process (All updates are tested before pushed live)")]
+        public int AutoUpdateWait { get; set; } = 5;
     }
 }

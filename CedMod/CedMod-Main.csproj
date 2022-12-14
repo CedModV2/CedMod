@@ -12,6 +12,7 @@
     <TargetFrameworkProfile />
     <ApplicationVersion>1.2.3.4</ApplicationVersion>
     <FileAlignment>512</FileAlignment>
+    <LangVersion>9</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -58,7 +59,6 @@
     <Compile Include="Addons\QuerySystem\Commands\CmSyncCommand.cs" />
     <Compile Include="Addons\QuerySystem\Commands\NearbyBulletHoles.cs" />
     <Compile Include="Addons\QuerySystem\Commands\RestartQuery.cs" />
-    <Compile Include="Addons\QuerySystem\Commands\SwitchDevCommand.cs" />
     <Compile Include="Addons\QuerySystem\Commands\ToggleExpTracking.cs" />
     <Compile Include="Addons\QuerySystem\Config.cs" />
     <Compile Include="Addons\QuerySystem\Extensions.cs" />
@@ -83,18 +83,24 @@
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
     <Compile Include="API.cs" />
     <Compile Include="ApiModals\AutoSlPermsSlRequest.cs" />
+    <Compile Include="ApiModals\CedModVersion.cs" />
     <Compile Include="ApiModals\EventModal.cs" />
+    <Compile Include="ApiModals\ExiledVersion.cs" />
     <Compile Include="ApiModals\HeartbeatRequest.cs" />
     <Compile Include="ApiModals\HelloMessage.cs" />
     <Compile Include="ApiModals\PlayerObject.cs" />
+    <Compile Include="ApiModals\SCPSLVersion.cs" />
+    <Compile Include="AutoUpdater.cs" />
     <Compile Include="BanSystem.cs" />
     <Compile Include="CedModConfig.cs" />
     <Compile Include="Commands\AirstrikeCommand.cs" />
     <Compile Include="Commands\CedModSetupCommand.cs" />
+    <Compile Include="Commands\CheckForUpdatesCommand.cs" />
     <Compile Include="Commands\DialogBox.cs" />
     <Compile Include="Commands\Dialog\all.cs" />
     <Compile Include="Commands\Dialog\userid.cs" />
     <Compile Include="Commands\FFADisable.cs" />
+    <Compile Include="Commands\InstallUpdateCommand.cs" />
     <Compile Include="Commands\LightColor.cs" />
     <Compile Include="Commands\Lightsout.cs" />
     <Compile Include="Commands\RainbowLights.cs" />
@@ -713,6 +719,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="version.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="versionIdentifier.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>

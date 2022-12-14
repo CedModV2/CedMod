@@ -261,7 +261,7 @@ namespace CedMod.Patches
 				}
 				
 				sender.RaReply(string.Format("${0} {1}", __instance.DataId, "Loading from Panel API, please wait..."), true, true, string.Empty);
-				www = new UnityWebRequest(QuerySystem.PanelUrl + $"/Api/v3/RequestData/{QuerySystem.QuerySystemKey}/{characterClassManager.UserId}", "OPTIONS");
+				www = new UnityWebRequest("https://" + QuerySystem.CurrentMaster + $"/Api/v3/RequestData/{QuerySystem.QuerySystemKey}/{characterClassManager.UserId}", "OPTIONS");
 				DownloadHandlerBuffer dH1 = new DownloadHandlerBuffer();
 				www.downloadHandler = dH1;
 				yield return Timing.WaitUntilDone(www.SendWebRequest());

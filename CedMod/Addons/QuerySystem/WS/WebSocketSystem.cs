@@ -71,6 +71,7 @@ namespace CedMod.Addons.QuerySystem.WS
             try
             {
                 string data1 = "";
+                Dictionary<string, string> data2 = new Dictionary<string, string>();
                 using (HttpClient client = new HttpClient())
                 {
                     var resp = client.SendAsync(new HttpRequestMessage()
@@ -87,9 +88,13 @@ namespace CedMod.Addons.QuerySystem.WS
                         Start(); //retry until we succeed or the thread gets aborted.
                         return;
                     }
+                    data2 = JsonConvert.DeserializeObject<Dictionary<string, string>>(data1);
                     Log.Info($"Retrieved panel location from API, Connecting to {data1}");
                 }
-                QuerySystem.PanelUrl = data1;
+
+                QuerySystem.CurrentMaster = data2["Api"];
+                QuerySystem.CurrentPanel = data2["Panel"];
+                QuerySystem.CurrentMasterQuery = data2["Query"];
             }
             catch (Exception e)
             {
@@ -103,7 +108,7 @@ namespace CedMod.Addons.QuerySystem.WS
             try
             {
                 LastConnection = DateTime.UtcNow;
-                Socket = new WebsocketClient(new Uri($"wss://{QuerySystem.PanelUrl}/QuerySystem?key={QuerySystem.QuerySystemKey}&identity=SCPSL&version=3"));
+                Socket = new WebsocketClient(new Uri($"wss://{QuerySystem.CurrentMasterQuery}/QuerySystem?key={QuerySystem.QuerySystemKey}&identity=SCPSL&version=3"));
                 Socket.ReconnectTimeout = TimeSpan.FromSeconds(5);
                 Socket.ErrorReconnectTimeout = TimeSpan.FromSeconds(5);
                 Socket.IsReconnectionEnabled = false;
@@ -135,7 +140,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     }
                     else
                     {
-                        Log.Error($"Lost connection to CedMod Panel {i.CloseStatus} {i.CloseStatusDescription} {i.Type}, reconnecting in 5000ms\n{(i.Exception == null ? "" : i.Exception)}");
+                        Log.Error($"Lost connection to CedMod Panel {i.CloseStatus} {i.CloseStatusDescription} {i.Type}, reconnecting in 5000ms\n{(i.Exception == null || !CedModMain.Singleton.Config.QuerySystem.Debug ? "" : i.Exception)}");
                         Thread.Sleep(5000);
                         lock (reconnectLock)
                         {
@@ -577,6 +582,11 @@ namespace CedMod.Addons.QuerySystem.WS
 
                     foreach (var member in oldMembers)
                     {
+                        if (permsSlRequest.MembersList.All(s => s.UserId != member.Key) && QuerySystem.ReservedSlotUserids.Contains(member.Key))
+                        {
+                            QuerySystem.ReservedSlotUserids.Remove(member.Key);
+                        }
+                        
                         if (Player.Get(member.Key) != null)
                         {
                             if (permsSlRequest.MembersList.All(s => s.UserId != member.Key))

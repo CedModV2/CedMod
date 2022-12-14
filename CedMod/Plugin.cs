@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem;
@@ -35,10 +36,26 @@ namespace CedMod
 
         public override Version RequiredExiledVersion { get; } = new Version(5, 0, 0);
         public override Version Version { get; } = new Version(3, 2, 0);
+        public static string FileHash { get; set; } = "";
+
         public static string GitCommitHash = String.Empty;
+        public static string VersionIdentifier = String.Empty;
 
         public override void OnEnabled()
         {
+            CosturaUtility.Initialize();
+
+            try
+            {
+                var file = File.Open(this.GetPath(), FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+                FileHash = GetHashCode(file, new MD5CryptoServiceProvider());
+                file.Dispose();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
+            }
+            
             _harmony = new Harmony("com.cedmod.patch");
             _harmony.PatchAll();
             
@@ -47,21 +64,30 @@ namespace CedMod
             {
                 GitCommitHash = reader.ReadToEnd();
             }
+            
+            using (Stream stream = Assembly.GetManifestResourceStream("CedMod.versionIdentifier.txt"))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                VersionIdentifier = reader.ReadToEnd();
+            }
+            
+            if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "dev.txt")))
+            {
+                Log.Info("Plugin running as Dev");
+                QuerySystem.CurrentMaster = QuerySystem.DevPanelUrl;
+            }
 
             Singleton = this;
             
             ThreadDispatcher dispatcher = Object.FindObjectOfType<ThreadDispatcher>();
             if (dispatcher == null)
                 CustomNetworkManager.singleton.gameObject.AddComponent<ThreadDispatcher>();
-
-            if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "dev.txt")))
-            {
-                Log.Info("Plugin running as Dev");
-                QuerySystem.CurrentMaster = QuerySystem.DevPanelUrl;
-                QuerySystem.PanelUrl = QuerySystem.CurrentMaster;
-            }
             
-            if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "QuerySystemSecretKey.txt")))
+            AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
+            if (updater == null)
+                updater = CustomNetworkManager.singleton.gameObject.AddComponent<AutoUpdater>();
+
+            if (File.Exists(Path.Combine(Paths.Configs, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt")))
             {
                 // Start the HTTP server.
                 Task.Factory.StartNew(() =>
@@ -82,6 +108,7 @@ namespace CedMod
             _server = new Handlers.Server();
             _player = new Handlers.Player();
             Exiled.Events.Handlers.Server.RestartingRound += _server.OnRoundRestart;
+            Exiled.Events.Handlers.Server.RestartingRound += updater.RoundRestart;
             //Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += server.OnSendingRemoteAdmin;
             
             Exiled.Events.Handlers.Player.Verified += _player.OnJoin;
@@ -128,6 +155,11 @@ namespace CedMod
             if (!Directory.Exists(Path.Combine(Paths.Plugins, "CedModEvents")))
             {
                 Directory.CreateDirectory(Path.Combine(Paths.Plugins, "CedModEvents"));
+            }
+            
+            if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+            {
+                Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
             }
             
             foreach (var file in Directory.GetFiles(Path.Combine(Paths.Plugins, "CedModEvents"), "*.dll"))
@@ -181,6 +213,10 @@ namespace CedMod
                 ThreadDispatcher dispatcher = Object.FindObjectOfType<ThreadDispatcher>();
                 if (dispatcher == null)
                     CustomNetworkManager.singleton.gameObject.AddComponent<ThreadDispatcher>();
+                
+                AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
+                if (updater == null)
+                    CustomNetworkManager.singleton.gameObject.AddComponent<AutoUpdater>();
             });
         }
         
@@ -201,6 +237,11 @@ namespace CedMod
             ThreadDispatcher dispatcher = Object.FindObjectOfType<ThreadDispatcher>();
             if (dispatcher != null)
                 Object.Destroy(dispatcher);
+            
+            AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
+            Exiled.Events.Handlers.Server.RestartingRound -= updater.RoundRestart;
+            if (updater == null)
+                Object.Destroy(updater);
             WebSocketSystem.Stop();
 
             //Exiled.Events.Handlers.Map.Decontaminating -= MapEvents.OnDecon;
@@ -255,6 +296,16 @@ namespace CedMod
             }
             
             base.OnDisabled();
+        }
+        
+        internal static string GetHashCode(Stream stream, HashAlgorithm cryptoService)
+        {
+            using (cryptoService)
+            {
+                var hash = cryptoService.ComputeHash(stream);
+                var hashString = Convert.ToBase64String(hash);
+                return hashString.TrimEnd('=');
+            }
         }
     }
 }

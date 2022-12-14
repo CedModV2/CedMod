@@ -33,13 +33,13 @@ namespace CedMod.Addons.Events.Commands
             int queuepos = Convert.ToInt16(arguments.At(0));
             if (queuepos >= 1 && EventManager.nextEvent.Count <= 0)
             {
-                if (EventManager.nextEvent == null)
+                if (EventManager.nextEvent.Count == 0)
                 {
                     response = "There is no event pending for the next round";
                     return false;
                 }
             }
-            else
+            else if (queuepos <= 0)
             {
                 if (EventManager.currentEvent == null)
                 {
