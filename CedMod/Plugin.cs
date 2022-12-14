@@ -51,7 +51,7 @@ namespace CedMod
             Timing.CallDelayed(5, () =>
             {
                 if (!AppDomain.CurrentDomain.GetAssemblies().Any(s => s.GetName().Name == "NWAPIPermissionSystem"))
-                    Timing.CallContinuously(1, () => Log.Error("You do not have the NWAPIPermissionSystem Installed, CedMod Requires the NWAPIPermission system ih order to operate properly, please download it here: https://github.com/CedModV2/NWAPIPermissionSystem"));
+                    Timing.CallContinuously(1, () => Log.Error("You do not have the NWAPIPermissionSystem Installed, CedMod Requires the NWAPIPermission system in order to operate properly, please download it here: https://github.com/CedModV2/NWAPIPermissionSystem"));
             });
             
             PluginLocation = Handler.PluginFilePath;
