@@ -53,7 +53,7 @@ namespace CedMod
                     Log.Info($"user: {player.UserId} joined while muted, issuing mute...");
                     Enum.TryParse(info["mute"], out MuteType muteType);
                     player.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", info["muteduration"]).Replace("{reason}", info["mutereason"]), "red");
-                    Server.SendBroadcast(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", info["muteduration"]).Replace("{reason}", info["mutereason"]), 5);
+                    player.SendBroadcast(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", info["muteduration"]).Replace("{reason}", info["mutereason"]), 5);
                     if (muteType == MuteType.Global)
                         player.Mute(true);
                     

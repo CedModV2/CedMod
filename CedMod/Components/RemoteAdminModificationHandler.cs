@@ -119,7 +119,14 @@ namespace CedMod.Components
             {
                 if (www.responseCode != 200)
                 {
-                    Log.Error($"Failed to Request UserPreferences: {www.responseCode} | {www.downloadHandler.text}");
+                    if (www.responseCode == 400 && www.downloadHandler.text == "user does not have prefs setup")
+                    {
+                        
+                    }
+                    else
+                    {
+                        Log.Error($"Failed to Request UserPreferences: {www.responseCode} | {www.downloadHandler.text}");
+                    }
                 }
                 else
                 {
