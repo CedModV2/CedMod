@@ -24,6 +24,7 @@ using RemoteAdmin;
 using Websocket.Client;
 using UnityEngine.Networking;
 using Utils;
+using VoiceChat;
 
 namespace CedMod.Addons.QuerySystem.WS
 {
@@ -443,11 +444,22 @@ namespace CedMod.Addons.QuerySystem.WS
                                 Enum.TryParse(jsonData["type"], out MuteType muteType);
                                 plr.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), "red");
                                 plr.SendBroadcast(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), 5, Broadcast.BroadcastFlags.Normal);
+                                // if (muteType == MuteType.Global)
+                                //     plr.Mute(true);
+                                //
+                                // if (muteType == MuteType.Intercom)
+                                //     plr.IntercomMute(true);
+
                                 if (muteType == MuteType.Global)
-                                    plr.Mute(true);
+                                {
+                                    VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.GlobalRegular | VcMuteFlags.LocalRegular);
+                                }
                     
                                 if (muteType == MuteType.Intercom)
-                                    plr.IntercomMute(true);
+                                {
+                                    VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.GlobalIntercom | VcMuteFlags.LocalIntercom);
+                                }
+
                                 plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
                                 Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                                 {

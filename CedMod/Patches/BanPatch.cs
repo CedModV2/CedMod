@@ -6,32 +6,32 @@ using UnityEngine;
 
 namespace CedMod.Patches
 {
-    [HarmonyPatch(typeof(BanPlayer), nameof(BanPlayer.BanUser), new Type[] {typeof(ReferenceHub), typeof(ReferenceHub), typeof(string), typeof(long)})]
-    public static class BanPatch
+    [HarmonyPatch(typeof(BanHandler), nameof(BanHandler.IssueBan), new Type[] {typeof(BanDetails), typeof(BanHandler.BanType)})]
+    public static class IssueBanPatch
     {
-        public static bool Prefix(ReferenceHub target, ReferenceHub issuer, string reason, long duration)
+        public static bool Prefix(BanDetails details, BanHandler.BanType type)
         {
             try
             {
-                Log.Info($"MainGame ban patch: banning user. {duration} {reason} {issuer}");
+                Log.Info($"MainGame ban IssueBanpatch: banning user. {details.Id} {type} {details.OriginalName}");
                 Task.Factory.StartNew(() =>
                 {
                     try
                     {
                         lock (BanSystem.Banlock)
                         {
-                            API.Ban(CedModPlayer.Get(target), duration, issuer.LoggedNameFromRefHub(), reason);
+                            API.BanId(details.Id,  (long)(new DateTime(details.Expires) - new DateTime(details.IssuanceTime)).TotalSeconds, details.Issuer, details.Reason, false);
                         }
                     }
                     catch (Exception ex)
                     {
-                       Log.Error($"MainGame ban patch failed {ex}");
+                       Log.Error($"MainGame IssueBan patch failed {ex}");
                     }
                 });
             }
             catch (Exception ex)
             {
-                Log.Error($"MainGame ban patch failed {ex}");
+                Log.Error($"MainGame IssueBan patch failed {ex}");
             }
 
             return false;

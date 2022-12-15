@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using PluginAPI.Core;
+using VoiceChat;
 
 namespace CedMod
 {
@@ -54,11 +55,21 @@ namespace CedMod
                     Enum.TryParse(info["mute"], out MuteType muteType);
                     player.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", info["muteduration"]).Replace("{reason}", info["mutereason"]), "red");
                     player.SendBroadcast(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", info["muteduration"]).Replace("{reason}", info["mutereason"]), 5);
+                    // if (muteType == MuteType.Global)
+                    //     player.Mute(true);
+                    //
+                    // if (muteType == MuteType.Intercom)
+                    //     player.IntercomMute(true);
+
                     if (muteType == MuteType.Global)
-                        player.Mute(true);
+                    {
+                        VoiceChatMutes.SetFlags(player.ReferenceHub, VcMuteFlags.GlobalRegular | VcMuteFlags.LocalRegular);
+                    }
                     
                     if (muteType == MuteType.Intercom)
-                        player.IntercomMute(true);
+                    {
+                        VoiceChatMutes.SetFlags(player.ReferenceHub, VcMuteFlags.GlobalIntercom | VcMuteFlags.LocalIntercom);
+                    }
 
                     player.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
                 }

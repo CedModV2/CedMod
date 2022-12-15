@@ -11,6 +11,7 @@ using PluginAPI.Core;
 using RemoteAdmin;
 using UnityEngine;
 using Utils;
+using VoiceChat;
 
 namespace CedMod.Patches
 {
@@ -79,7 +80,8 @@ namespace CedMod.Patches
 						var plr = CedModPlayer.Get(referenceHub);
 						plr.SendConsoleMessage("You have been unmuted", "green");
 						plr.SendBroadcast("You have been unmuted", 5, Broadcast.BroadcastFlags.Normal);
-						plr.Mute(true);
+						//plr.Mute(true);
+						VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.None);
 						plr.CustomInfo = "";
 						Task.Factory.StartNew(() =>
 						{

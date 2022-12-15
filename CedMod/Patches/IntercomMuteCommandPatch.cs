@@ -11,6 +11,7 @@ using PluginAPI.Core;
 using RemoteAdmin;
 using UnityEngine;
 using Utils;
+using VoiceChat;
 
 namespace CedMod.Patches
 {
@@ -119,7 +120,8 @@ namespace CedMod.Patches
 						var plr = CedModPlayer.Get(referenceHub);
 						plr.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", MuteType.Intercom.ToString()).Replace("{duration}", num.ToString()).Replace("{reason}", text), "red");
 						plr.SendBroadcast(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", MuteType.Intercom.ToString()).Replace("{duration}", num.ToString()).Replace("{reason}", text), 5, Broadcast.BroadcastFlags.Normal);
-						plr.IntercomMute(true);
+						//plr.IntercomMute(true);
+						VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.GlobalIntercom | VcMuteFlags.LocalIntercom);
 						plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", MuteType.Intercom.ToString());
 						Task.Factory.StartNew(() =>
 						{

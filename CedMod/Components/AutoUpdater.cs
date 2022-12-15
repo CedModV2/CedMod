@@ -24,6 +24,7 @@ namespace CedMod.Components
         public float TimePassedWarning;
         public float TimePassedUpdateNotify;
         public bool Installing = false;
+        public Byte[] FileToWriteDelayed;
 
         public void Update()
         {
@@ -145,9 +146,9 @@ namespace CedMod.Components
 
             return null;
         }
-
-        [PluginEvent(ServerEventType.RoundRestart)]
-        public void RoundRestart()
+        
+        [PluginEvent(ServerEventType.RoundEnd)]
+        public void RoundEnd()
         {
             if (Pending == null)
             {
@@ -163,7 +164,33 @@ namespace CedMod.Components
                 Task.Factory.StartNew(() =>
                 {
                     Log.Info($"Installing update {Pending.VersionString} - {Pending.VersionCommit}");
-                    InstallUpdate();
+                    InstallUpdateDelayed();
+                });
+            }
+        }
+
+        [PluginEvent(ServerEventType.RoundRestart)]
+        public void RoundRestart()
+        {
+            if (Pending == null)
+            {
+                Task.Factory.StartNew(() =>
+                {
+                    var data = CheckForUpdates();
+                    Pending = data;
+                });
+            }
+            
+            if (CedModMain.Singleton.Config.CedMod.AutoUpdate && CedModMain.Singleton.Config.CedMod.AutoUpdateRoundEnd && Pending != null && Installing && FileToWriteDelayed.Length >= 1)
+            {
+                Task.Factory.StartNew(() =>
+                {
+                    Log.Info($"Saving update {Pending.VersionString} - {Pending.VersionCommit}");
+                    Log.Info($"Saving to: {CedModMain.PluginLocation}");
+                    File.WriteAllBytes(CedModMain.PluginLocation, FileToWriteDelayed);
+                        
+                    ServerStatic.StopNextRound = ServerStatic.NextRoundAction.Restart;
+                    RoundRestarting.RoundRestart.ChangeLevel(true);
                 });
             }
         }
@@ -200,6 +227,45 @@ namespace CedMod.Components
                         
                             ServerStatic.StopNextRound = ServerStatic.NextRoundAction.Restart;
                             RoundRestarting.RoundRestart.ChangeLevel(true);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.ToString());
+            }
+
+            Installing = false;
+        }
+        
+        public void InstallUpdateDelayed()
+        {
+            if (Installing)
+                return;
+            Installing = true;
+            
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Version/TargetDownloadNW?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+                    if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        Log.Error($"Failed to download update: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
+                    }
+                    else
+                    {
+                        Log.Info($"Downloading CedMod Version {Pending.VersionString} - {Pending.VersionCommit}");
+                        var data = response.Content.ReadAsStreamAsync().Result;
+                        var hash = CedModMain.GetHashCode(data, new MD5CryptoServiceProvider());
+                        if (Pending.FileHash != hash)
+                        {
+                            Log.Error($"CedMod plugin dll does not match pending filehash {Pending.FileHash} | {hash} Please contact CedMod Staff with this versionId {Pending.CedModVersionIdentifier}");
+                        }
+                        else
+                        {
+                            FileToWriteDelayed = response.Content.ReadAsByteArrayAsync().Result;
                         }
                     }
                 }
