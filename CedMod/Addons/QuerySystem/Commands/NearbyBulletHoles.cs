@@ -56,7 +56,7 @@ namespace CedMod.Addons.QuerySystem.Commands
                     if (creat.Value.Rooms.ContainsKey(room))
                     {
                         response +=
-                            $"\n{creat.Key.Nickname} ({creat.Key.UserId}) - {creat.Value.Rooms[room].Holes.Count} CON: {creat.Key.GameObject != null}";
+                            $"\n{creat.Key.Nickname} ({creat.Key.PlayerId}) - {creat.Value.Rooms[room].Holes.Count} CON: {creat.Key.GameObject != null}";
                     }
                 }
 
