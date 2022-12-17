@@ -30,7 +30,8 @@ namespace CedMod.Addons.QuerySystem.Patches
             }
             catch (Exception e)
             {
-                Log.Error(e.Message);
+                if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                    Log.Error(e.Message);
             }
         }
     }
