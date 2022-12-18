@@ -115,6 +115,7 @@
     <Compile Include="Patches\ExternalLookupPatch.cs" />
     <Compile Include="Patches\IntercomMuteCommandPatch.cs" />
     <Compile Include="Patches\IntercomUnMuteCommandPatch.cs" />
+    <Compile Include="Patches\BanPatch.cs" />
     <Compile Include="Patches\MuteCommandPatch.cs" />
     <Compile Include="Patches\OBanCommandPatch.cs" />
     <Compile Include="Patches\RaPlayerAuthPatch.cs" />
