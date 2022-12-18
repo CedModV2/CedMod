@@ -592,10 +592,6 @@ namespace CedMod.Addons.QuerySystem.Patches
 				CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
 				CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Error);
 				request.RejectForce(CustomLiteNetLib4MirrorTransport.RequestWriter);
-
-#if UNITY_EDITOR
-			Debug.LogException(e);
-#endif
 			}
 		}
 	}
