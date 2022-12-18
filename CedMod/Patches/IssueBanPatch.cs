@@ -6,10 +6,10 @@ using UnityEngine;
 
 namespace CedMod.Patches
 {
-    [HarmonyPatch(typeof(BanHandler), nameof(BanHandler.IssueBan), new Type[] {typeof(BanDetails), typeof(BanHandler.BanType)})]
+    [HarmonyPatch(typeof(BanHandler), nameof(BanHandler.IssueBan), new Type[] {typeof(BanDetails), typeof(BanHandler.BanType), typeof(bool)})]
     public static class IssueBanPatch
     {
-        public static bool Prefix(BanDetails ban, BanHandler.BanType banType)
+        public static bool Prefix(BanDetails ban, BanHandler.BanType banType, bool forced)
         {
             try
             {
