@@ -22,6 +22,7 @@ namespace CedMod.Addons.Audio
 
             var cplayer = hub.gameObject.AddComponent<CustomAudioPlayer>();
             cplayer.Owner = hub;
+            cplayer.BroadcastChannel = VoiceChatChannel.Proximity;
 
             AudioPlayers.Add(hub, cplayer);
             return cplayer;

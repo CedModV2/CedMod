@@ -2,10 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using CommandSystem;
+using CommandSystem.Commands.RemoteAdmin;
+using GameCore;
+using MEC;
 using Mirror;
 using NWAPIPermissionSystem;
 using PlayerRoles;
 using RemoteAdmin;
+using VoiceChat;
+using Console = System.Console;
+using Log = PluginAPI.Core.Log;
 
 namespace CedMod.Addons.Audio
 {
@@ -59,9 +65,25 @@ namespace CedMod.Addons.Audio
                         FakeConnectionsIds.Add(id, hubPlayer);
 
                         NetworkServer.AddPlayerForConnection(fakeConnection, newPlayer);
-
-                        hubPlayer.roleManager.ServerSetRole(RoleTypeId.Scp049, RoleChangeReason.RemoteAdmin);
-                        hubPlayer.nicknameSync.SetNick($"Dummy player {id}");
+                        try
+                        {
+                            hubPlayer.characterClassManager.UserId = $"player{id}@server";
+                        }
+                        catch (Exception e)
+                        {
+                        }
+                        hubPlayer.characterClassManager.InstanceMode = ClientInstanceMode.Host;
+                        try
+                        {
+                            hubPlayer.nicknameSync.SetNick($"Dummy player {id}");
+                        }
+                        catch (Exception e)
+                        {
+                        }
+                        Timing.CallDelayed(0.1f, () =>
+                        {
+                            hubPlayer.roleManager.ServerSetRole(RoleTypeId.CustomRole, RoleChangeReason.RemoteAdmin);
+                        });
                     }
                     break;
                 case "enqueue":
@@ -102,6 +124,16 @@ namespace CedMod.Addons.Audio
                     {
                         var audioPlayer = CustomAudioPlayer.Get(hub);
                         audioPlayer.Volume = Convert.ToInt32(arguments.At(2));
+                    }
+                } 
+                    break;
+                case "audiochannel":
+                {
+                    int id = int.Parse(arguments.At(1));
+                    if (FakeConnectionsIds.TryGetValue(id, out ReferenceHub hub))
+                    {
+                        var audioPlayer = CustomAudioPlayer.Get(hub);
+                        audioPlayer.BroadcastChannel = (VoiceChatChannel)Enum.Parse(typeof(VoiceChatChannel), arguments.At(2));
                     }
                 } 
                     break;
