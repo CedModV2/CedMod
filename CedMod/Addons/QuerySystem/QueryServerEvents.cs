@@ -160,7 +160,7 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.RoundEnd)]
-        public void OnRoundEnd()
+        public void OnRoundEnd(RoundSummary.LeadingTeam team)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {

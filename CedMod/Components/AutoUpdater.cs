@@ -148,7 +148,7 @@ namespace CedMod.Components
         }
         
         [PluginEvent(ServerEventType.RoundEnd)]
-        public void RoundEnd()
+        public void RoundEnd(RoundSummary.LeadingTeam team)
         {
             if (Pending == null)
             {

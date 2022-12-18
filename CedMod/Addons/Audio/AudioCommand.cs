@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CommandSystem;
 using Mirror;
+using NWAPIPermissionSystem;
 using PlayerRoles;
 using RemoteAdmin;
 
@@ -25,6 +26,12 @@ namespace CedMod.Addons.Audio
             if (!(sender is PlayerCommandSender raSender))
             {
                 response = "Console cant execute this command!";
+                return false;
+            }
+
+            if (!sender.CheckPermission("cedmod.audio"))
+            {
+                response = "You dont have permission to run this command.";
                 return false;
             }
 

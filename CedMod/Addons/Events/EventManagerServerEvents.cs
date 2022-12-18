@@ -9,7 +9,7 @@ namespace CedMod.Addons.Events
     public class EventManagerServerEvents
     {
         [PluginEvent(ServerEventType.RoundEnd)]
-        public void EndRound()
+        public void EndRound(RoundSummary.LeadingTeam team)
         {
             if (EventManager.currentEvent != null)
             {

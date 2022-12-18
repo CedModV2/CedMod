@@ -16,6 +16,7 @@ using MEC;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Core.Extensions;
+using PluginAPI.Enums;
 using PluginAPI.Helpers;
 using PluginAPI.Loader;
 using PluginAPI.Loader.Features;
@@ -39,11 +40,12 @@ namespace CedMod
         public static Assembly Assembly;
         public static PluginHandler Handler;
 
-        public const string Version = "3.3.0";
+        public const string Version = "3.3.1";
 
         [PluginConfig]
         public Config Config;
-
+        
+        [PluginPriority(LoadPriority.Lowest)]
         [PluginEntryPoint("CedMod", Version, "SCP:SL Moderation system https://cedmod.nl/About", "ced777ric#0001")]
         void LoadPlugin()
         {

@@ -119,7 +119,7 @@ namespace CedMod.Components
             {
                 if (www.responseCode != 200)
                 {
-                    if (www.responseCode == 400 && www.downloadHandler.text == "user does not have prefs setup")
+                    if (www.responseCode == 400 && (www.downloadHandler.text == "user does not have prefs setup" || www.downloadHandler.text == "User could not be found, please ensure you have a CedMod account linked to the correct SteamId and DiscordId"))
                     {
                         
                     }

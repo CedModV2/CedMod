@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -236,6 +237,8 @@ namespace CedMod.Addons.QuerySystem
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug("istk");
                 TeamkillData data = new TeamkillData();
+                RoomIdentifier killerRoom = RoomIdUtils.RoomAtPosition(player.Position);
+                RoomIdentifier targetRoom = RoomIdUtils.RoomAtPosition(target.Position);
                 data.PlayersOnScene.Add(new UsersOnScene()
                 {
                     CurrentHealth = player.Health,
@@ -244,7 +247,7 @@ namespace CedMod.Addons.QuerySystem
                     RoleType = player.Role,
                     UserId = player.UserId,
                     Killer = true,
-                    Room = "" //todo
+                    Room = killerRoom.Name.ToString()
                 });
 
                 data.PlayersOnScene.Add(new UsersOnScene()
@@ -255,26 +258,25 @@ namespace CedMod.Addons.QuerySystem
                     RoleType = target.Role,
                     UserId = target.UserId,
                     Victim = true,
-                    Room = "" //todo
+                    Room = targetRoom.Name.ToString()
                 });
                 
-                //todo yes
-                // data.RoomsInvolved.Add(new RoomsInvolved()
-                // {
-                //     Position = ev.Killer.CurrentRoom.Position.ToString(),
-                //     Rotation = ev.Killer.CurrentRoom.transform.rotation.ToString(),
-                //     RoomType = ev.Killer.CurrentRoom.Type
-                // });
+                 data.RoomsInvolved.Add(new RoomsInvolved()
+                 {
+                     Position = killerRoom.transform.position.ToString(),
+                     Rotation = killerRoom.transform.rotation.ToString(),
+                     RoomType = killerRoom.Name.ToString()
+                 });
 
-                // if (!data.RoomsInvolved.Any(s => s.RoomType == ev.Target.CurrentRoom.Type))
-                // {
-                //     data.RoomsInvolved.Add(new RoomsInvolved()
-                //     {
-                //         Position = ev.Target.CurrentRoom.Position.ToString(),
-                //         Rotation = ev.Target.CurrentRoom.transform.rotation.ToString(),
-                //         RoomType = ev.Target.CurrentRoom.Type
-                //     });
-                // }
+                 if (!data.RoomsInvolved.Any(s => s.RoomType == targetRoom.Name.ToString() && s.Position == targetRoom.transform.position.ToString()))
+                 {
+                     data.RoomsInvolved.Add(new RoomsInvolved()
+                     {
+                         Position = targetRoom.transform.position.ToString(),
+                         Rotation = targetRoom.transform.rotation.ToString(),
+                         RoomType = targetRoom.Name.ToString()
+                     });
+                 }
                 
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug("resolving on scene players");
@@ -285,15 +287,16 @@ namespace CedMod.Addons.QuerySystem
 
                     if (Vector3.Distance(player.Position, player.Position) <= 60 && data.PlayersOnScene.All(plrs => plrs.UserId != player.UserId))
                     {
-                        // if (!data.RoomsInvolved.Any(s => s.RoomType == player.CurrentRoom.Type))
-                        // {
-                        //     data.RoomsInvolved.Add(new RoomsInvolved()
-                        //     {
-                        //         Position = player.CurrentRoom.Position.ToString(),
-                        //         Rotation = player.CurrentRoom.transform.rotation.ToString(),
-                        //         RoomType = player.CurrentRoom.Type
-                        //     });
-                        // }
+                        RoomIdentifier bystanderRoom = RoomIdUtils.RoomAtPosition(bystanders.Position);
+                        if (!data.RoomsInvolved.Any(s => s.RoomType == targetRoom.Name.ToString() && s.Position == targetRoom.transform.position.ToString()))
+                        {
+                            data.RoomsInvolved.Add(new RoomsInvolved()
+                            {
+                                Position = bystanderRoom.transform.position.ToString(),
+                                Rotation = bystanderRoom.transform.rotation.ToString(),
+                                RoomType = bystanderRoom.Name.ToString()
+                            });
+                        }
                         
                         data.PlayersOnScene.Add(new UsersOnScene()
                         {
@@ -303,7 +306,7 @@ namespace CedMod.Addons.QuerySystem
                             RoleType = player.Role,
                             UserId = player.UserId,
                             Bystander = true,
-                            Room = "" //todo
+                            Room = bystanderRoom.Name.ToString()
                         });
                     }
                 }
