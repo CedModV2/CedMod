@@ -45,7 +45,7 @@ namespace CedMod
         [PluginConfig]
         public Config Config;
         
-        [PluginPriority(LoadPriority.Lowest)]
+        [PluginPriority(LoadPriority.Highest)]
         [PluginEntryPoint("CedMod", Version, "SCP:SL Moderation system https://cedmod.nl/About", "ced777ric#0001")]
         void LoadPlugin()
         {
