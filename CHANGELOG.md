@@ -3,4 +3,3 @@ Note: This version **ONLY** Supports the pluginapi-beta branch of the SCP:SL Ded
 V: 3.3.2
  - Fixed externallookup breaking if you dont select any players
  - Fixed report notification broadcasts.
- - Cancel events properly
