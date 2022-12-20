@@ -31,6 +31,11 @@ namespace CedMod.Patches
     {
         public static bool Prefix(ExternalLookupCommand __instance, bool __result, ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
+            if (arguments.Count == 0)
+            {
+                response = "";
+                return true;
+            }
             if (arguments.At(0) == "-1")
             {
                 response = "";

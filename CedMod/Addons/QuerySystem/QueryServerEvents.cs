@@ -276,27 +276,27 @@ namespace CedMod.Addons.QuerySystem
             if (CedModMain.Singleton.Config.QuerySystem.ReportBlacklist.Contains(plr.UserId))
             {
                 plr.SendConsoleMessage($"[REPORTING] You are blacklisted from ingame reporting", "green");
-                return false;
+                return true;
             }
             if (plr.UserId == target.UserId)
             {
                 plr.SendConsoleMessage($"[REPORTING] You can't report yourself", "green");
-                return false;
+                return true;
             }
             if (Server.reported.ContainsKey(target.ReferenceHub))
             {
                 plr.SendConsoleMessage($"[REPORTING] {target.Nickname} ({target.UserId}) has already been reported by {CedModPlayer.Get(Server.reported[target.ReferenceHub]).Nickname}", "green");
-                return false;
+                return true;
             }
             if (target.RemoteAdminAccess && !CedModMain.Singleton.Config.QuerySystem.StaffReportAllowed)
             {
                 plr.SendConsoleMessage($"[REPORTING] " + CedModMain.Singleton.Config.QuerySystem.StaffReportMessage, "green");
-                return false;
+                return true;
             }
             if (reason.IsEmpty())
             {
                 plr.SendConsoleMessage($"[REPORTING] You have to enter a reason", "green");
-                return false;
+                return true;
             }
             
             Server.reported.Add(target.ReferenceHub, plr.ReferenceHub);
@@ -383,7 +383,7 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
             
-            return false;
+            return true;
         }
         
         public IEnumerator<float> RemoveFromReportList(ReferenceHub target)
