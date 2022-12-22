@@ -116,7 +116,7 @@ namespace CedMod.Patches
                 NetworkConnectionToClient connectionToClient = referenceHub.networkIdentity.connectionToClient;
                 ServerRoles serverRoles = referenceHub.serverRoles;
                 if (sender is PlayerCommandSender playerCommandSender2)
-                    playerCommandSender2.Processor.GameplayData = flag3;
+                    playerCommandSender2.ReferenceHub.queryProcessor.GameplayData = flag3;
                 StringBuilder stringBuilder = StringBuilderPool.Shared.Rent("<color=white>");
                 stringBuilder.Append("Nickname: " + nicknameSync.CombinedName);
                 stringBuilder.Append(string.Format("\nPlayer ID: {0} <color=green><link=CP_ID>\uF0C5</link></color>",
