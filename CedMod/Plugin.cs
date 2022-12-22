@@ -6,6 +6,7 @@ using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using CedMod.Addons.AdminSitSystem;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
@@ -73,6 +74,7 @@ namespace CedMod
             PluginAPI.Events.EventManager.RegisterEvents<EventManagerPlayerEvents>(this);
             
             PluginAPI.Events.EventManager.RegisterEvents<AutoUpdater>(this);
+            PluginAPI.Events.EventManager.RegisterEvents<AdminSitHandler>(this);
             FactoryManager.RegisterPlayerFactory(this, new CedModPlayerFactory());
             
 
@@ -119,6 +121,10 @@ namespace CedMod
             AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
             if (updater == null)
                 updater = CustomNetworkManager.singleton.gameObject.AddComponent<AutoUpdater>();
+            
+            AdminSitHandler adminSitHandler = Object.FindObjectOfType<AdminSitHandler>();
+            if (adminSitHandler == null)
+                adminSitHandler = CustomNetworkManager.singleton.gameObject.AddComponent<AdminSitHandler>();
             
             RemoteAdminModificationHandler remoteAdminModificationHandler = Object.FindObjectOfType<RemoteAdminModificationHandler>();
             if (remoteAdminModificationHandler == null)
@@ -238,6 +244,10 @@ namespace CedMod
             AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
             if (updater != null)
                 Object.Destroy(updater);
+            
+            AdminSitHandler adminSitHandler = Object.FindObjectOfType<AdminSitHandler>();
+            if (adminSitHandler != null)
+                Object.Destroy(adminSitHandler);
             
             RemoteAdminModificationHandler remoteAdminModificationHandler = Object.FindObjectOfType<RemoteAdminModificationHandler>();
             if (remoteAdminModificationHandler != null)

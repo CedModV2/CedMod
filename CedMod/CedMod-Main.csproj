@@ -43,6 +43,14 @@
     <RootNamespace>CedMod</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Addons\AdminSitSystem\AdminSit.cs" />
+    <Compile Include="Addons\AdminSitSystem\AdminSitHandler.cs" />
+    <Compile Include="Addons\AdminSitSystem\AdminSitLocation.cs" />
+    <Compile Include="Addons\AdminSitSystem\Commands\JailCommand.cs" />
+    <Compile Include="Addons\AdminSitSystem\Commands\Jail\Add.cs" />
+    <Compile Include="Addons\AdminSitSystem\Commands\Jail\Create.cs" />
+    <Compile Include="Addons\AdminSitSystem\Commands\Jail\Join.cs" />
+    <Compile Include="Addons\AdminSitSystem\Commands\Jail\Remove.cs" />
     <Compile Include="Addons\Audio\CustomAudioPlayer.cs" />
     <Compile Include="Addons\Audio\FakeConnection.cs" />
     <Compile Include="Addons\Audio\AudioCommand.cs" />
@@ -111,7 +119,7 @@
     <Compile Include="Handlers\Server.cs" />
     <Compile Include="OutsideBombPos.cs" />
     <Compile Include="Patches\BanCommandPatch.cs" />
-    <Compile Include="Patches\BanPatch.cs" />
+    <Compile Include="Patches\IssueBanPatch.cs" />
     <Compile Include="Patches\ExternalLookupPatch.cs" />
     <Compile Include="Patches\IntercomMuteCommandPatch.cs" />
     <Compile Include="Patches\IntercomUnMuteCommandPatch.cs" />

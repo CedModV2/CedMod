@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MEC;
 using PluginAPI.Core;
 using SCPSLAudioApi.AudioCore;
-using UnityEngine;
 using UnityEngine.Networking;
 using VoiceChat;
+using Random = UnityEngine.Random;
 
 namespace CedMod.Addons.Audio
 {
@@ -58,8 +59,15 @@ namespace CedMod.Addons.Audio
                 yield break;
             }
 
-            CurrentPlayStream = new MemoryStream(www.downloadHandler.data);
-            CurrentPlayStream.Seek(0, SeekOrigin.Begin);
+            try
+            {
+                CurrentPlayStream = new MemoryStream(www.downloadHandler.data);
+                CurrentPlayStream.Seek(0, SeekOrigin.Begin);
+            }
+            catch (Exception e)
+            {
+                Log.Error($"{e} {www.responseCode} {www.downloadedBytes}");
+            }
             
             VorbisReader = new NVorbis.VorbisReader(CurrentPlayStream);
             Log.Info($"Playing with samplerate of {VorbisReader.SampleRate}");

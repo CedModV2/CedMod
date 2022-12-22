@@ -4,6 +4,7 @@ using System.Linq;
 using CommandSystem;
 using CommandSystem.Commands.RemoteAdmin;
 using GameCore;
+using MapGeneration;
 using MEC;
 using Mirror;
 using NWAPIPermissionSystem;
