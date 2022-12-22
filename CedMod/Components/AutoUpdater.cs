@@ -274,8 +274,6 @@ namespace CedMod.Components
             {
                 Log.Error(e.ToString());
             }
-
-            Installing = false;
         }
     }
 }
