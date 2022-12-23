@@ -14,11 +14,13 @@ using CedMod.Addons.QuerySystem.Commands;
 using CedMod.ApiModals;
 using CedMod.Components;
 using CommandSystem;
+using CommandSystem.Commands.RemoteAdmin;
 using CommandSystem.Commands.RemoteAdmin.Broadcasts;
 using MEC;
 using Mirror;
 using Newtonsoft.Json;
 using NWAPIPermissionSystem;
+using NWAPIPermissionSystem.Commands;
 using NWAPIPermissionSystem.Models;
 using PluginAPI.Core;
 using RemoteAdmin;
@@ -557,7 +559,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             if (responsePerms.Content.ReadAsStringAsync().Result == "No entries defined.")
                             {
                                 if (!UseRa)
-                                    ServerStatic.PermissionsHandler = ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
+                                    ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
                                 UseRa = true;
                                 if (Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
                                 {
@@ -574,7 +576,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     if (permsSlRequest.PermissionEntries.Count == 0)
                     {
                         if (!UseRa)
-                            ServerStatic.PermissionsHandler = ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
+                            ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
                         UseRa = true;
                         if (Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
                         {
@@ -675,7 +677,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 {
                     UseRa = true;
                     Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
-                    ServerStatic.PermissionsHandler = ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
+                    ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
                 }
             }
         }
