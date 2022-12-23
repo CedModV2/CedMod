@@ -521,7 +521,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 					if (CustomLiteNetLib4MirrorTransport.UserIdFastReload.Contains(userId))
 						CustomLiteNetLib4MirrorTransport.UserIdFastReload.Remove(userId);
 
-					if (LiteNetLib4MirrorCore.Host.ConnectedPeersCount < CustomNetworkManager.slots || LiteNetLib4MirrorCore.Host.ConnectedPeersCount != LiteNetLib4MirrorNetworkManager.singleton.maxConnections && (flags.HasFlagFast(CentralAuthPreauthFlags.ReservedSlot) && ServerStatic.PermissionsHandler.BanTeamSlots || ConfigFile.ServerConfig.GetBool("use_reserved_slots", true) && ReservedSlot.HasReservedSlot(userId, out bool bypass) && (bypass || LiteNetLib4MirrorCore.Host.ConnectedPeersCount < CustomNetworkManager.slots + CustomNetworkManager.reservedSlots) && QuerySystem.ReservedSlotUserids.Contains(userId)))
+					if (LiteNetLib4MirrorCore.Host.ConnectedPeersCount < CustomNetworkManager.slots || LiteNetLib4MirrorCore.Host.ConnectedPeersCount != LiteNetLib4MirrorNetworkManager.singleton.maxConnections && (flags.HasFlagFast(CentralAuthPreauthFlags.ReservedSlot) && ServerStatic.PermissionsHandler.BanTeamSlots || ConfigFile.ServerConfig.GetBool("use_reserved_slots", true) && ReservedSlot.HasReservedSlot(userId, out bool bypass) && (bypass || LiteNetLib4MirrorCore.Host.ConnectedPeersCount < CustomNetworkManager.slots + CustomNetworkManager.reservedSlots) || QuerySystem.ReservedSlotUserids.Contains(userId)))
 					{
 						if (CustomLiteNetLib4MirrorTransport.UserIds.ContainsKey(request.RemoteEndPoint))
 							CustomLiteNetLib4MirrorTransport.UserIds[request.RemoteEndPoint].SetUserId(userId);
