@@ -282,10 +282,13 @@ namespace CedMod.Addons.QuerySystem
                     Log.Debug("resolving on scene players");
                 foreach (var bystanders in Player.GetPlayers<CedModPlayer>())
                 {
-                    if (bystanders.Role == RoleTypeId.Spectator || player.Role == RoleTypeId.None)
+                    if (bystanders.Role == RoleTypeId.Spectator || player.Role == RoleTypeId.Overwatch || player.Role == RoleTypeId.None)
                         continue;
 
-                    if (Vector3.Distance(player.Position, player.Position) <= 60 && data.PlayersOnScene.All(plrs => plrs.UserId != player.UserId))
+                    var distance = Vector3.Distance(player.Position, bystanders.Position);
+                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                        Log.Debug($"Checking distance on killer {distance} from {player.Nickname} to {bystanders.Nickname} {data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId)}");
+                    if (distance <= 60 && data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId))
                     {
                         RoomIdentifier bystanderRoom = RoomIdUtils.RoomAtPosition(bystanders.Position);
                         if (!data.RoomsInvolved.Any(s => s.RoomType == targetRoom.Name.ToString() && s.Position == targetRoom.transform.position.ToString()))
