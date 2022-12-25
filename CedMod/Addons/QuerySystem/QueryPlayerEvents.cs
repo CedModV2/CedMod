@@ -5,9 +5,11 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem.WS;
 using InventorySystem.Disarming;
 using InventorySystem.Items;
+using InventorySystem.Items.ThrowableProjectiles;
 using InventorySystem.Items.Usables;
 using MapGeneration;
 using Newtonsoft.Json;
@@ -17,6 +19,7 @@ using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
 using UnityEngine;
+using EventManager = PluginAPI.Events.EventManager;
 
 namespace CedMod.Addons.QuerySystem
 {
@@ -439,7 +442,7 @@ namespace CedMod.Addons.QuerySystem
         }
         
         [PluginEvent(ServerEventType.PlayerThrowProjectile)]
-        public void OnThrowProjectile(CedModPlayer player, ItemBase item)
+        public void OnThrowProjectile(CedModPlayer player, ThrowableItem item, float forceAmount, float upwardsFactor, Vector3 torque, Vector3 velocity)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
