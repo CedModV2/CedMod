@@ -121,7 +121,7 @@ namespace CedMod.Patches
 						plr.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", MuteType.Global.ToString()).Replace("{duration}", num.ToString()).Replace("{reason}", text), "red");
 						plr.SendBroadcast(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", MuteType.Global.ToString()).Replace("{duration}", num.ToString()).Replace("{reason}", text), 5, Broadcast.BroadcastFlags.Normal);
 						//plr.Mute(true);
-						VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.GlobalRegular | VcMuteFlags.LocalRegular);
+						VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.LocalRegular);
 						
 						plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", MuteType.Global.ToString());
 						Task.Factory.StartNew(() =>

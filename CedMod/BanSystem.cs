@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MEC;
 using Newtonsoft.Json;
 using PluginAPI.Core;
 using VoiceChat;
+using VoiceChat.Networking;
 
 namespace CedMod
 {
@@ -61,15 +63,18 @@ namespace CedMod
                     // if (muteType == MuteType.Intercom)
                     //     player.IntercomMute(true);
 
-                    if (muteType == MuteType.Global)
+                    Timing.CallDelayed(0.1f, () =>
                     {
-                        VoiceChatMutes.SetFlags(player.ReferenceHub, VcMuteFlags.GlobalRegular | VcMuteFlags.LocalRegular);
-                    }
-                    
-                    if (muteType == MuteType.Intercom)
-                    {
-                        VoiceChatMutes.SetFlags(player.ReferenceHub, VcMuteFlags.GlobalIntercom | VcMuteFlags.LocalIntercom);
-                    }
+                        if (muteType == MuteType.Global)
+                        {
+                            VoiceChatMutes.SetFlags(player.ReferenceHub, VcMuteFlags.LocalRegular);
+                        }
+
+                        if (muteType == MuteType.Intercom)
+                        {
+                            VoiceChatMutes.SetFlags(player.ReferenceHub, VcMuteFlags.LocalIntercom);
+                        }
+                    });
 
                     player.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
                 }

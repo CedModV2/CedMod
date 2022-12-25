@@ -455,12 +455,12 @@ namespace CedMod.Addons.QuerySystem.WS
 
                                 if (muteType == MuteType.Global)
                                 {
-                                    VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.GlobalRegular | VcMuteFlags.LocalRegular);
+                                    VoiceChatMutes.SetFlags(plr.ReferenceHub,  VcMuteFlags.LocalRegular);
                                 }
                     
                                 if (muteType == MuteType.Intercom)
                                 {
-                                    VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.GlobalIntercom | VcMuteFlags.LocalIntercom);
+                                    VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.LocalIntercom);
                                 }
 
                                 plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
@@ -647,9 +647,12 @@ namespace CedMod.Addons.QuerySystem.WS
                         var player = CedModPlayer.Get(member.UserId);
                         if (player != null)
                         {
-                            bool hidden = player.PlayerInfo.IsBadgeHidden;
-                            CedModPlayer.Get(member.UserId).ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false);
-                            player.PlayerInfo.IsBadgeHidden = hidden;
+                            var hidden = player.PlayerInfo.IsBadgeHidden;
+                            player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false);
+                            Timing.CallDelayed(0.1f, () =>
+                            {
+                                player.PlayerInfo.IsBadgeHidden = hidden;
+                            });
                             Log.Info($"Refreshed Permissions from {member.UserId} as they were present in the AutoSlPerms response while ingame");
                         }
                     }
