@@ -437,6 +437,32 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
         }
+        
+        [PluginEvent(ServerEventType.PlayerThrowProjectile)]
+        public void OnThrowProjectile(CedModPlayer player, ItemBase item)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", player.UserId},
+                    {"UserName", player.Nickname},
+                    {"Type", nameof(OnThrowProjectile)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) threw a projectile {4}.", new object[]
+                            {
+                                player.Nickname,
+                                player.UserId,
+                                Misc.ToHex(player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                player.Role,
+                                item.ItemTypeId
+                            })
+                    }
+                }
+            });
+        }
 
         [PluginEvent(ServerEventType.PlayerUseItem)]
         public void OnUsedItem(CedModPlayer player, UsableItem item)
