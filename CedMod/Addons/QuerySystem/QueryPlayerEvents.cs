@@ -306,11 +306,11 @@ namespace CedMod.Addons.QuerySystem
                         
                         data.PlayersOnScene.Add(new UsersOnScene()
                         {
-                            CurrentHealth = player.Health,
-                            Distance = Vector3.Distance(player.Position, player.Position),
-                            Position = player.Position.ToString(),
-                            RoleType = player.Role,
-                            UserId = player.UserId,
+                            CurrentHealth = bystanders.Health,
+                            Distance = Vector3.Distance(player.Position, bystanders.Position),
+                            Position = bystanders.Position.ToString(),
+                            RoleType = bystanders.Role,
+                            UserId = bystanders.UserId,
                             Bystander = true,
                             Room = bystanderRoom.Name.ToString()
                         });
