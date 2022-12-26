@@ -3,13 +3,13 @@ using CedMod.Addons.Events;
 using HarmonyLib;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
+using UnityEngine.XR;
+using EventManager = PluginAPI.Events.EventManager;
 
 namespace CedMod.SampleEvent
 {
     public class SampleEvent : IEvent
     {
-        public static Harmony Harmony;
-
         public static bool IsRunning = false;
 
         [PluginUnload]
@@ -17,12 +17,17 @@ namespace CedMod.SampleEvent
         {
             StopEvent();
         }
+
+        [PluginConfig] 
+        public Config EventConfig;
         
         [PluginEntryPoint("CedMod-ExampleGameMode", "0.0.1", "Example gamemode for the cedmod gamemode manager", "ced777ric#0001")]
         public void OnEnabled()
         {
-            
+            Handler = PluginHandler.Get(this);
         }
+
+        public PluginHandler Handler;
 
         public string EventName { get; } = "Example Event";
         public string EvenAuthor { get; } = "ced777ric";
@@ -30,21 +35,22 @@ namespace CedMod.SampleEvent
         public string EventPrefix { get; } = "Sample";
         public bool OverrideWinConditions { get; }
         public bool BulletHolesAllowed { get; set; } = false;
-        public bool CanRoundEnd()
-        {
-            return true;
-        }
+        public PluginHandler PluginHandler { get; }
+
+        public IEventConfig Config => EventConfig;
 
         public void PrepareEvent()
         {
             Log.Info("SampleEvent is preparing");
             IsRunning = true;
             Log.Info("SampleEvent is prepared");
+            EventManager.RegisterEvents<EventHandler>(this);
         }
 
         public void StopEvent()
         {
             IsRunning = false;
+            EventManager.UnregisterEvents<EventHandler>(this);
         }
     }
 }

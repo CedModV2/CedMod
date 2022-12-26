@@ -17,7 +17,7 @@ namespace CedMod.Addons.Events
             {
                 Timing.CallDelayed(1, () =>
                 {
-                    player.SendBroadcast($"EventManager: This server is currently running an event: {EventManager.currentEvent.EventName}\n{EventManager.currentEvent.EventDescription}", 10);
+                    Broadcast.Singleton.TargetAddElement(player.Connection, $"EventManager: This server is currently running an event: {EventManager.currentEvent.EventName}\n{EventManager.currentEvent.EventDescription}", 10, Broadcast.BroadcastFlags.Normal);
                 });
             }
         }

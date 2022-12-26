@@ -61,12 +61,12 @@ namespace CedMod.Addons.QuerySystem
                     audioPlayers.Add(new CedModAudioPlayer()
                     {
                         Continue = player.Value.Continue,
-                        CurrentSpan = player.Value.VorbisReader.TimePosition,
+                        CurrentSpan = player.Value.VorbisReader == null ? TimeSpan.Zero : player.Value.VorbisReader.TimePosition,
                         LoopList = player.Value.Loop,
                         PlayerId = player.Key.PlayerId,
                         Queue = player.Value.AudioToPlay,
                         Shuffle = player.Value.Shuffle,
-                        TotalTime = player.Value.VorbisReader.TotalTime,
+                        TotalTime = player.Value.VorbisReader == null ? TimeSpan.Zero : player.Value.VorbisReader.TotalTime,
                         Volume = player.Value.Volume,
                         IsCedModPlayer = player.Value is CustomAudioPlayer
                     });

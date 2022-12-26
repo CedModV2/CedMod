@@ -458,7 +458,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 Log.Info($"user: {plr.UserId} muted trough panel, issuing mute...");
                                 Enum.TryParse(jsonData["type"], out MuteType muteType);
                                 plr.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), "red");
-                                plr.SendBroadcast(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), 5, Broadcast.BroadcastFlags.Normal);
+                                Broadcast.Singleton.TargetAddElement(plr.Connection, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), 5, Broadcast.BroadcastFlags.Normal);
                                 // if (muteType == MuteType.Global)
                                 //     plr.Mute(true);
                                 //

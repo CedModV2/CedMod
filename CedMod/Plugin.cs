@@ -50,6 +50,8 @@ namespace CedMod
         [PluginEntryPoint("CedMod", Version, "SCP:SL Moderation system https://cedmod.nl/About", "ced777ric#0001")]
         void LoadPlugin()
         {
+            if (!Config.IsEnabled)
+                return;
             Handler = PluginHandler.Get(this);
             Timing.CallDelayed(5, () =>
             {
@@ -175,17 +177,29 @@ namespace CedMod
 
                 foreach (var entryType in types)
                 {
-                    if (!entryType.IsValidEntrypoint()) continue;
+                    if (!entryType.IsValidEntrypoint()) 
+                        continue;
 
-                    if (!AssemblyLoader.Plugins.ContainsKey(assembly)) AssemblyLoader.Plugins.Add(assembly, new Dictionary<Type, PluginHandler>());
+                    if (!AssemblyLoader.Plugins.ContainsKey(assembly)) 
+                        AssemblyLoader.Plugins.Add(assembly, new Dictionary<Type, PluginHandler>());
 
                     if (!AssemblyLoader.Plugins[assembly].ContainsKey(entryType))
                     {
-                        var pluginType = new PluginHandler(GameModeDirectory, entryType, entryType, types);
-                        pluginLocations.Add(pluginType, file);
-                        handlers.Add(entryType, pluginType);
-                        AssemblyLoader.Plugins[assembly].Add(entryType, pluginType);
-                        successes++;
+                        try
+                        {
+                            var plugin = Activator.CreateInstance(entryType);
+                            var pluginType = new PluginHandler(GameModeDirectory, plugin, entryType, types);
+                            pluginLocations.Add(pluginType, file);
+                            handlers.Add(entryType, pluginType);
+                            AssemblyLoader.Plugins[assembly].Add(entryType, pluginType);
+                            AssemblyLoader.PluginToAssembly.Add(plugin, assembly);
+                            successes++;
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Info($"Failed to load {entryType.FullName}.\n{e}");
+                            continue;
+                        }
                     }
                 }
             }
@@ -221,9 +235,17 @@ namespace CedMod
                     }
                     else
                     {
-                        IEvent @event = constructor.Invoke(null) as IEvent;
+                        IEvent @event = gamemode.Value._plugin as IEvent;
                         if (@event == null) 
                             continue;
+
+                        if (!@event.Config.IsEnabled)
+                        {
+                            if (Config.EventManager.Debug)
+                                Log.Debug($"Checked {gamemode.Value.PluginName} IsEnabled is False, cannot continue");
+                            continue;
+                        }
+                      
                         EventManager.AvailableEvents.Add(@event);
                         Log.Info($"Successfully registered {@event.EventName} By {@event.EvenAuthor} ({@event.EventPrefix})");
                     }

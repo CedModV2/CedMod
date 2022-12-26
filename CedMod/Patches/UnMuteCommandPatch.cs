@@ -79,7 +79,7 @@ namespace CedMod.Patches
 					{
 						var plr = CedModPlayer.Get(referenceHub);
 						plr.SendConsoleMessage("You have been unmuted", "green");
-						plr.SendBroadcast("You have been unmuted", 5, Broadcast.BroadcastFlags.Normal);
+						Broadcast.Singleton.TargetAddElement(plr.Connection, "You have been unmuted", 5, Broadcast.BroadcastFlags.Normal);
 						//plr.Mute(true);
 						VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.None);
 						plr.CustomInfo = "";
