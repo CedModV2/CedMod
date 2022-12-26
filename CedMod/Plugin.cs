@@ -41,7 +41,7 @@ namespace CedMod
         public static Assembly Assembly;
         public static PluginHandler Handler;
 
-        public const string Version = "3.3.2";
+        public const string Version = "3.3.3";
 
         [PluginConfig]
         public Config Config;
