@@ -15,10 +15,7 @@ namespace CedMod.Addons.Events
                 Log.Debug($"Join {EventManager.currentEvent != null}");
             if (EventManager.currentEvent != null)
             {
-                Timing.CallDelayed(1, () =>
-                {
-                    Broadcast.Singleton.TargetAddElement(player.Connection, $"EventManager: This server is currently running an event: {EventManager.currentEvent.EventName}\n{EventManager.currentEvent.EventDescription}", 10, Broadcast.BroadcastFlags.Normal);
-                });
+                player.GameObject.AddComponent<HintManager>();
             }
         }
     }

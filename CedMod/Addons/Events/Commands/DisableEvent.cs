@@ -58,7 +58,7 @@ namespace CedMod.Addons.Events.Commands
             {
                 var toRemove = EventManager.nextEvent[queuepos - 1];
                 EventManager.nextEvent.Remove(toRemove);
-                Server.SendBroadcast($"EventManager: {toRemove.EventName} has been removed from the queue", 5);
+                Broadcast.Singleton.RpcAddElement($"EventManager: {toRemove.EventName} has been removed from the queue", 5, Broadcast.BroadcastFlags.Normal);
             }
             else
             {

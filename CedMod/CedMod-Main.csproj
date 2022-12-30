@@ -63,6 +63,7 @@
     <Compile Include="Addons\Events\Commands\Queue.cs" />
     <Compile Include="Addons\Events\Config.cs" />
     <Compile Include="Addons\Events\EventManager.cs" />
+    <Compile Include="Addons\Events\HintManager.cs" />
     <Compile Include="Addons\Events\IEvent.cs" />
     <Compile Include="Addons\Events\IEventConfig.cs" />
     <Compile Include="Addons\Events\Patches\BulletHolePatch.cs" />

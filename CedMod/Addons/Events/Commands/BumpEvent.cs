@@ -59,7 +59,7 @@ namespace CedMod.Addons.Events.Commands
             }
             else
             {
-                Server.SendBroadcast($"EventManager: {@event.EventName} has been moved to queue position {EventManager.nextEvent.IndexOf(@event)}", 10);
+                Broadcast.Singleton.RpcAddElement($"EventManager: {@event.EventName} has been moved to queue position {EventManager.nextEvent.IndexOf(@event)}", 10, Broadcast.BroadcastFlags.Normal);
             }
             ThreadDispatcher.SendHeartbeatMessage(true);
             response = "Success";

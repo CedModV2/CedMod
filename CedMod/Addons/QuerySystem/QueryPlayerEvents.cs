@@ -250,7 +250,7 @@ namespace CedMod.Addons.QuerySystem
                     RoleType = player.Role,
                     UserId = player.UserId,
                     Killer = true,
-                    Room = killerRoom.Name.ToString()
+                    Room = killerRoom.name
                 });
 
                 data.PlayersOnScene.Add(new UsersOnScene()
@@ -261,7 +261,7 @@ namespace CedMod.Addons.QuerySystem
                     RoleType = target.Role,
                     UserId = target.UserId,
                     Victim = true,
-                    Room = targetRoom.Name.ToString()
+                    Room = targetRoom.name
                 });
                 
                  data.RoomsInvolved.Add(new RoomsInvolved()
@@ -277,7 +277,7 @@ namespace CedMod.Addons.QuerySystem
                      {
                          Position = targetRoom.transform.position.ToString(),
                          Rotation = targetRoom.transform.rotation.ToString(),
-                         RoomType = targetRoom.Name.ToString()
+                         RoomType = targetRoom.name.ToString()
                      });
                  }
                 
@@ -300,7 +300,7 @@ namespace CedMod.Addons.QuerySystem
                             {
                                 Position = bystanderRoom.transform.position.ToString(),
                                 Rotation = bystanderRoom.transform.rotation.ToString(),
-                                RoomType = bystanderRoom.Name.ToString()
+                                RoomType = bystanderRoom.name
                             });
                         }
                         

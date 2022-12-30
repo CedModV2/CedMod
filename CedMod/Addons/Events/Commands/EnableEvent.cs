@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
 using MEC;
@@ -50,7 +51,7 @@ namespace CedMod.Addons.Events.Commands
             {
                 EventManager.nextEvent.RemoveAll(ev => ev.EventName == @event.EventName);
                 EventManager.nextEvent.Insert(0, @event);
-                Server.SendBroadcast($"EventManager: {@event.EventName} is being enabled.\nRound will restart in 3 seconds", 5);
+                Broadcast.Singleton.RpcAddElement($"EventManager: {@event.EventName} is being enabled.\nRound will restart in 3 seconds", 5, Broadcast.BroadcastFlags.Normal);
                 Timing.CallDelayed(3, () =>
                 {
                     Round.Restart(false, false);
@@ -64,7 +65,7 @@ namespace CedMod.Addons.Events.Commands
                     return false;
                 }
                 EventManager.nextEvent.Add(@event);
-                Server.SendBroadcast($"EventManager: {@event.EventName} has been added to the event queue: position {EventManager.nextEvent.IndexOf(@event)}", 10);
+                Broadcast.Singleton.RpcAddElement($"EventManager: {@event.EventName} has been added to the event queue: position {EventManager.nextEvent.IndexOf(@event)}", 10, Broadcast.BroadcastFlags.Normal);
             }
             ThreadDispatcher.SendHeartbeatMessage(true);
             response = "Success";
