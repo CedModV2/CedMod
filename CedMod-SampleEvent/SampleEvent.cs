@@ -1,36 +1,33 @@
 ﻿using System;
 using CedMod.Addons.Events;
-using Exiled.API.Features;
 using HarmonyLib;
+using PluginAPI.Core;
+using PluginAPI.Core.Attributes;
+using UnityEngine.XR;
+using EventManager = PluginAPI.Events.EventManager;
 
 namespace CedMod.SampleEvent
 {
-    public class SampleEvent : Plugin<Config>, IEvent
+    public class SampleEvent : IEvent
     {
-        public static Harmony Harmony;
-        /// <inheritdoc/>
-        public override string Author { get; } = "ced777ric#8321";
+        public static bool IsRunning = false;
 
-        public override string Name { get; } = "CedMod-SampleEvent";
-
-        public override string Prefix { get; } = "cm_sampleevent";
-
-        public override Version RequiredExiledVersion { get; } = new Version(3, 0, 0);
-        public override Version Version { get; } = new Version(0, 0, 1);
-        private EventHandler _handler;
-
-        public override void OnDisabled()
+        [PluginUnload]
+        public void OnDisabled()
         {
             StopEvent();
-            base.OnDisabled();
         }
 
-        public static string SecurityKey;
-
-        public override void OnEnabled()
+        [PluginConfig] 
+        public Config EventConfig;
+        
+        [PluginEntryPoint("CedMod-ExampleGameMode", "0.0.1", "Example gamemode for the cedmod gamemode manager", "ced777ric#0001")]
+        public void OnEnabled()
         {
-            base.OnEnabled();
+            Handler = PluginHandler.Get(this);
         }
+
+        public PluginHandler Handler;
 
         public string EventName { get; } = "Example Event";
         public string EvenAuthor { get; } = "ced777ric";
@@ -38,25 +35,22 @@ namespace CedMod.SampleEvent
         public string EventPrefix { get; } = "Sample";
         public bool OverrideWinConditions { get; }
         public bool BulletHolesAllowed { get; set; } = false;
-        public bool CanRoundEnd()
-        {
-            return true;
-        }
+        public PluginHandler PluginHandler { get; }
+
+        public IEventConfig Config => EventConfig;
 
         public void PrepareEvent()
         {
-            _handler = new EventHandler(this);
             Log.Info("SampleEvent is preparing");
-            Exiled.Events.Handlers.Player.Died += _handler.OnPlayerDeath;
+            IsRunning = true;
             Log.Info("SampleEvent is prepared");
+            EventManager.RegisterEvents<EventHandler>(this);
         }
 
         public void StopEvent()
         {
-            if (_handler == null)
-                return;
-            Exiled.Events.Handlers.Player.Died -= _handler.OnPlayerDeath;
-            _handler = null;
+            IsRunning = false;
+            EventManager.UnregisterEvents<EventHandler>(this);
         }
     }
 }

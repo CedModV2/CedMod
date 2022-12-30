@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Linq;
 using CedMod.Addons.QuerySystem.Patches;
 using CommandSystem;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
+using MapGeneration;
+using PluginAPI.Core;
 using RemoteAdmin;
+using NWAPIPermissionSystem;
 
 namespace CedMod.Addons.QuerySystem.Commands
 {
@@ -19,7 +20,8 @@ namespace CedMod.Addons.QuerySystem.Commands
             "nearbyholes"
         };
 
-        public string Description { get; } = "Shows the creators of the nearby bullet holes and how much the bullet holes were";
+        public string Description { get; } =
+            "Shows the creators of the nearby bullet holes and how much the bullet holes were";
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
@@ -30,15 +32,18 @@ namespace CedMod.Addons.QuerySystem.Commands
                 return false;
             }
 
-            response = "List of nearby bulletholes\nFormat: [Playername] ([PlayerId]) - [BulletHoleCreated] CON: [IsConnected]";
-            var room = Player.Get((sender as PlayerCommandSender).ReferenceHub).CurrentRoom;
+            response =
+                "List of nearby bulletholes\nFormat: [Playername] ([PlayerId]) - [BulletHoleCreated] CON: [IsConnected]";
+            var room = RoomIdUtils.RoomAtPosition(Player.Get((sender as PlayerCommandSender).ReferenceHub).Position);
             if (arguments.Count >= 1)
             {
-                foreach (var creat in BulletHolePatch.HoleCreators.Where(hole => hole.Key.Nickname == arguments.At(0) || hole.Key.Id.ToString() == arguments.At(0)))
+                foreach (var creat in BulletHolePatch.HoleCreators.Where(hole =>
+                             hole.Key.Nickname == arguments.At(0) || hole.Key.PlayerId.ToString() == arguments.At(0)))
                 {
                     if (creat.Value.Rooms.ContainsKey(room))
                     {
-                        response += $"\n{creat.Key.Nickname} ({creat.Key.Id}) - {creat.Value.Rooms[room].Holes.Count} CON: {creat.Key.IsConnected}";
+                        response +=
+                            $"\n{creat.Key.Nickname} ({creat.Key.PlayerId}) - {creat.Value.Rooms[room].Holes.Count} CON: {creat.Key.ReferenceHub != null}";
                     }
                 }
 
@@ -50,7 +55,8 @@ namespace CedMod.Addons.QuerySystem.Commands
                 {
                     if (creat.Value.Rooms.ContainsKey(room))
                     {
-                        response += $"\n{creat.Key.Nickname} ({creat.Key.Id}) - {creat.Value.Rooms[room].Holes.Count} CON: {creat.Key.IsConnected}";
+                        response +=
+                            $"\n{creat.Key.Nickname} ({creat.Key.PlayerId}) - {creat.Value.Rooms[room].Holes.Count} CON: {creat.Key.ReferenceHub != null}";
                     }
                 }
 

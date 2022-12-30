@@ -4,8 +4,8 @@ using System.Linq;
 using CedMod.Addons.QuerySystem;
 using CedMod.ApiModals;
 using CommandSystem;
-using Exiled.Permissions.Extensions;
 using Newtonsoft.Json;
+using NWAPIPermissionSystem;
 
 namespace CedMod.Addons.Events.Commands
 {

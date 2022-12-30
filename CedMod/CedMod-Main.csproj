@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!--Project was exported from assembly: D:\steamgames\steamapps\common\SCP Secret Laboratory Dedicated Server\SCPSL_Data\Managed\Assembly-CSharp.dll-->
-  <Import Project="..\packages\Costura.Fody.5.7.0\build\Costura.Fody.props" Condition="Exists('..\packages\Costura.Fody.5.7.0\build\Costura.Fody.props')" />
+  <Import Project="..\packages\Costura.Fody.5.8.0-alpha0098\build\Costura.Fody.props" Condition="Exists('..\packages\Costura.Fody.5.8.0-alpha0098\build\Costura.Fody.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{B404BA59-5C33-41DC-8FEE-0F10F087089D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AssemblyName>CedModV3</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <ApplicationVersion>1.2.3.4</ApplicationVersion>
     <FileAlignment>512</FileAlignment>
@@ -44,36 +44,45 @@
     <RootNamespace>CedMod</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Addons\AdminSitSystem\AdminSit.cs" />
+    <Compile Include="Addons\AdminSitSystem\AdminSitHandler.cs" />
+    <Compile Include="Addons\AdminSitSystem\AdminSitLocation.cs" />
+    <Compile Include="Addons\AdminSitSystem\Commands\JailCommand.cs" />
+    <Compile Include="Addons\AdminSitSystem\Commands\Jail\Add.cs" />
+    <Compile Include="Addons\AdminSitSystem\Commands\Jail\Create.cs" />
+    <Compile Include="Addons\AdminSitSystem\Commands\Jail\Join.cs" />
+    <Compile Include="Addons\AdminSitSystem\Commands\Jail\Remove.cs" />
+    <Compile Include="Addons\Audio\CustomAudioPlayer.cs" />
+    <Compile Include="Addons\Audio\FakeConnection.cs" />
+    <Compile Include="Addons\Audio\AudioCommand.cs" />
     <Compile Include="Addons\Events\Commands\BumpEvent.cs" />
     <Compile Include="Addons\Events\Commands\DisableEvent.cs" />
     <Compile Include="Addons\Events\Commands\EnableEvent.cs" />
     <Compile Include="Addons\Events\Commands\Events.cs" />
     <Compile Include="Addons\Events\Commands\ListEvents.cs" />
+    <Compile Include="Addons\Events\Commands\PopuplateCommand.cs" />
     <Compile Include="Addons\Events\Commands\Queue.cs" />
     <Compile Include="Addons\Events\Config.cs" />
     <Compile Include="Addons\Events\EventManager.cs" />
+    <Compile Include="Addons\Events\HintManager.cs" />
     <Compile Include="Addons\Events\IEvent.cs" />
+    <Compile Include="Addons\Events\IEventConfig.cs" />
     <Compile Include="Addons\Events\Patches\BulletHolePatch.cs" />
     <Compile Include="Addons\Events\EventManagerPlayerEvents.cs" />
     <Compile Include="Addons\Events\EventManagerServerEvents.cs" />
     <Compile Include="Addons\QuerySystem\Commands\CmSyncCommand.cs" />
-    <Compile Include="Addons\QuerySystem\Commands\NearbyBulletHoles.cs" />
     <Compile Include="Addons\QuerySystem\Commands\RestartQuery.cs" />
     <Compile Include="Addons\QuerySystem\Commands\ToggleExpTracking.cs" />
     <Compile Include="Addons\QuerySystem\Config.cs" />
     <Compile Include="Addons\QuerySystem\Extensions.cs" />
-    <Compile Include="Addons\QuerySystem\HandleQueryplayer.cs" />
     <Compile Include="Addons\QuerySystem\LevelerStore.cs" />
     <Compile Include="Addons\QuerySystem\Patches\CommandProcessorPatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\ExiledPermissionsPatchPlayer.cs" />
-    <Compile Include="Addons\QuerySystem\Patches\DummySpecific\StatsBaseUpdatePatch.cs" />
-    <Compile Include="Addons\QuerySystem\Patches\DummySpecific\TransmitPositionDataPatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\ExiledPermissionsPatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\PreAuthModel.cs" />
     <Compile Include="Addons\QuerySystem\Patches\RefreshExiledPermissions.cs" />
     <Compile Include="Addons\QuerySystem\Patches\RefreshPermissionsHandlerPatch.cs" />
     <Compile Include="Addons\QuerySystem\QueryMapEvents.cs" />
-    <Compile Include="Addons\QuerySystem\Patches\BulletHolePatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\ReservedSlotsPatch.cs" />
     <Compile Include="Addons\QuerySystem\QueryPlayerEvents.cs" />
     <Compile Include="Addons\QuerySystem\PlayerList.cs" />
@@ -82,18 +91,20 @@
     <Compile Include="Addons\QuerySystem\ThreadDispatcher.cs" />
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
     <Compile Include="API.cs" />
+    <Compile Include="ApiModals\AudioHeartBeat.cs" />
     <Compile Include="ApiModals\AutoSlPermsSlRequest.cs" />
     <Compile Include="ApiModals\CedModVersion.cs" />
     <Compile Include="ApiModals\EventModal.cs" />
     <Compile Include="ApiModals\ExiledVersion.cs" />
     <Compile Include="ApiModals\HeartbeatRequest.cs" />
     <Compile Include="ApiModals\HelloMessage.cs" />
+    <Compile Include="ApiModals\IngameUserPreferences.cs" />
     <Compile Include="ApiModals\PlayerObject.cs" />
     <Compile Include="ApiModals\SCPSLVersion.cs" />
-    <Compile Include="AutoUpdater.cs" />
     <Compile Include="BanSystem.cs" />
     <Compile Include="CedModConfig.cs" />
-    <Compile Include="Commands\AirstrikeCommand.cs" />
+    <Compile Include="CedModPlayer.cs" />
+    <Compile Include="CedModPlayerFactory.cs" />
     <Compile Include="Commands\CedModSetupCommand.cs" />
     <Compile Include="Commands\CheckForUpdatesCommand.cs" />
     <Compile Include="Commands\DialogBox.cs" />
@@ -102,24 +113,27 @@
     <Compile Include="Commands\FFADisable.cs" />
     <Compile Include="Commands\InstallUpdateCommand.cs" />
     <Compile Include="Commands\LightColor.cs" />
-    <Compile Include="Commands\Lightsout.cs" />
     <Compile Include="Commands\RainbowLights.cs" />
     <Compile Include="Commands\Redirect.cs" />
-    <Compile Include="Commands\Stuiter.cs" />
-    <Compile Include="Commands\Stuiter\all.cs" />
-    <Compile Include="Commands\Stuiter\spec.cs" />
+    <Compile Include="Components\AutoUpdater.cs" />
+    <Compile Include="Components\RemoteAdminModificationHandler.cs" />
     <Compile Include="FriendlyFireAutoban.cs" />
     <Compile Include="Handlers\Player.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Handlers\Server.cs" />
     <Compile Include="OutsideBombPos.cs" />
     <Compile Include="Patches\BanCommandPatch.cs" />
-    <Compile Include="Patches\BanPatch.cs" />
+    <Compile Include="Patches\IssueBanPatch.cs" />
+    <Compile Include="Patches\ExternalLookupPatch.cs" />
     <Compile Include="Patches\IntercomMuteCommandPatch.cs" />
     <Compile Include="Patches\IntercomUnMuteCommandPatch.cs" />
+    <Compile Include="Patches\BanPatch.cs" />
     <Compile Include="Patches\MuteCommandPatch.cs" />
     <Compile Include="Patches\OBanCommandPatch.cs" />
+    <Compile Include="Patches\RaPlayerAuthPatch.cs" />
+    <Compile Include="Patches\RaPlayerListPatch.cs" />
     <Compile Include="Patches\RaPlayerPatch.cs" />
+    <Compile Include="Patches\RAProcessPlayerPatch.cs" />
     <Compile Include="Patches\UnMuteCommandPatch.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -136,7 +150,7 @@
       <HintPath>..\References\AmplifyBloom.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\References\Assembly-CSharp_publicized.dll</HintPath>
+      <HintPath>..\References\Assembly-CSharp-Publicized.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\Assembly-CSharp-firstpass.dll</HintPath>
@@ -160,11 +174,10 @@
       <HintPath>..\References\CloudflareSolverRe.dll</HintPath>
     </Reference>
     <Reference Include="CommandSystem.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.2.2\lib\net472\CommandSystem.Core.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\References\CommandSystem.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Costura, Version=5.7.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Costura.Fody.5.7.0\lib\netstandard1.0\Costura.dll</HintPath>
+    <Reference Include="Costura, Version=5.8.0.0, Culture=neutral, PublicKeyToken=9919ef960d84173d">
+      <HintPath>..\packages\Costura.Fody.5.8.0-alpha0098\lib\netstandard1.0\Costura.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="DissonanceVoip, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
@@ -172,42 +185,6 @@
     </Reference>
     <Reference Include="dnlib, Version=3.3.2.0, Culture=neutral, PublicKeyToken=50e96378b6e77999">
       <HintPath>..\References\dnlib.dll</HintPath>
-    </Reference>
-    <Reference Include="Exiled.API, Version=5.2.2.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.API.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Exiled.Bootstrap, Version=5.2.2.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.Bootstrap.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Exiled.CreditTags, Version=5.2.2.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.CreditTags.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Exiled.CustomItems, Version=5.2.2.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.CustomItems.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Exiled.CustomRoles, Version=5.2.2.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.CustomRoles.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Exiled.Events, Version=5.2.2.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.Events.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Exiled.Loader, Version=5.2.2.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.Loader.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Exiled.Permissions, Version=5.2.2.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.Permissions.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Exiled.Updater, Version=3.1.1.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.Updater.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Facepunch.Steamworks.Win64, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\Facepunch.Steamworks.Win64.dll</HintPath>
@@ -263,14 +240,26 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="NorthwoodLib, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.5.2.2\lib\net472\NorthwoodLib.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\References\NorthwoodLib.dll</HintPath>
     </Reference>
     <Reference Include="Novell.Directory.Ldap, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
       <HintPath>..\References\Novell.Directory.Ldap.dll</HintPath>
     </Reference>
+    <Reference Include="NVorbis, Version=0.10.5.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\NVorbis.0.10.5\lib\net45\NVorbis.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NWAPIPermissionSystem, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\References\NWAPIPermissionSystem.dll</HintPath>
+    </Reference>
     <Reference Include="OpusWrapper, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\0OpusWrapper.dll</HintPath>
+    </Reference>
+    <Reference Include="PluginAPI, Version=12.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\References\PluginAPI_publicized.dll</HintPath>
+    </Reference>
+    <Reference Include="SCPSLAudioApi, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\References\SCPSLAudioApi.dll</HintPath>
     </Reference>
     <Reference Include="Sentry, Version=2.1.5.0, Culture=neutral, PublicKeyToken=fba2ec45388e2af0">
       <HintPath>..\packages\Sentry.2.1.5\lib\net461\Sentry.dll</HintPath>
@@ -291,8 +280,9 @@
       <HintPath>..\packages\System.AppContext.4.3.0\lib\net463\System.AppContext.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
-      <HintPath>..\References\System.Buffers.dll</HintPath>
+    <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+      <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Collections, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <HintPath>..\..\..\..\EXILED\bin\Release\System.Collections.dll</HintPath>
@@ -383,7 +373,11 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
-      <HintPath>..\References\System.Memory.dll</HintPath>
+      <HintPath>..\packages\System.Memory.4.5.3\lib\netstandard2.0\System.Memory.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\References\System.Net.Http.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http, Version=4.1.1.3, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <HintPath>..\packages\System.Net.Http.4.3.4\lib\net46\System.Net.Http.dll</HintPath>
@@ -400,7 +394,8 @@
       <HintPath>..\References\System.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="System.Numerics.Vectors, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>..\References\System.Numerics.Vectors.dll</HintPath>
+      <HintPath>..\packages\System.Numerics.Vectors.4.4.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Reactive, Version=4.3.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263">
       <HintPath>..\packages\System.Reactive.4.3.2\lib\net46\System.Reactive.dll</HintPath>
@@ -706,7 +701,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="WindowsBase" />
-    <Reference Include="YamlDotNet, Version=8.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e">
+    <Reference Include="YamlDotNet, Version=11.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e">
       <HintPath>..\References\YamlDotNet.dll</HintPath>
     </Reference>
     <Reference Include="zxing.unity, Version=0.16.4.0, Culture=neutral, PublicKeyToken=null">
@@ -731,14 +726,16 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
   </PropertyGroup>
-  <Import Project="..\packages\Fody.6.5.5\build\Fody.targets" Condition="Exists('..\packages\Fody.6.5.5\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Fody.6.5.5\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.6.5.5\build\Fody.targets'))" />
-    <Error Condition="!Exists('..\packages\Costura.Fody.5.7.0\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.5.7.0\build\Costura.Fody.props'))" />
-    <Error Condition="!Exists('..\packages\Costura.Fody.5.7.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.5.7.0\build\Costura.Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets'))" />
+    <Error Condition="!Exists('..\packages\Costura.Fody.5.8.0-alpha0098\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.5.8.0-alpha0098\build\Costura.Fody.props'))" />
+    <Error Condition="!Exists('..\packages\Costura.Fody.5.8.0-alpha0098\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.5.8.0-alpha0098\build\Costura.Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\Fody.6.6.4\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.6.6.4\build\Fody.targets'))" />
   </Target>
-  <Import Project="..\packages\Costura.Fody.5.7.0\build\Costura.Fody.targets" Condition="Exists('..\packages\Costura.Fody.5.7.0\build\Costura.Fody.targets')" />
+  <Import Project="..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />
+  <Import Project="..\packages\Costura.Fody.5.8.0-alpha0098\build\Costura.Fody.targets" Condition="Exists('..\packages\Costura.Fody.5.8.0-alpha0098\build\Costura.Fody.targets')" />
+  <Import Project="..\packages\Fody.6.6.4\build\Fody.targets" Condition="Exists('..\packages\Fody.6.6.4\build\Fody.targets')" />
 </Project>

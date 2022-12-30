@@ -1,23 +1,15 @@
 ﻿using System.Linq;
 using CedMod.Addons.QuerySystem;
-using Exiled.API.Features;
-using Exiled.Events.EventArgs;
+using PluginAPI.Core;
+using PluginAPI.Core.Attributes;
+using PluginAPI.Enums;
 
 namespace CedMod.Addons.Events
 {
     public class EventManagerServerEvents
     {
-        public void EndingRound(EndingRoundEventArgs ev)
-        {
-            if (EventManager.currentEvent != null && EventManager.currentEvent.OverrideWinConditions)
-            {
-                bool canEnd = EventManager.currentEvent.CanRoundEnd();
-                ev.IsAllowed = canEnd;
-                ev.IsRoundEnded = canEnd;
-            }
-        }
-
-        public void EndRound(RoundEndedEventArgs ev)
+        [PluginEvent(ServerEventType.RoundEnd)]
+        public void EndRound(RoundSummary.LeadingTeam team)
         {
             if (EventManager.currentEvent != null)
             {
@@ -27,6 +19,7 @@ namespace CedMod.Addons.Events
             }
         }
 
+        [PluginEvent(ServerEventType.WaitingForPlayers)]
         public void WaitingForPlayers()
         {
             if (EventManager.nextEvent.Count >= 1)
@@ -43,6 +36,7 @@ namespace CedMod.Addons.Events
             ThreadDispatcher.SendHeartbeatMessage(true);
         }
 
+        [PluginEvent(ServerEventType.RoundRestart)]
         public void RestartingRound()
         {
             if (EventManager.currentEvent != null)
@@ -50,6 +44,7 @@ namespace CedMod.Addons.Events
                 Log.Info($"Enabled {EventManager.currentEvent.EventName} has been disabled due to round restart");
                 EventManager.currentEvent.StopEvent();
                 EventManager.currentEvent = null;
+                HintManager.HintProcessed.Clear();
             }
         }
     }

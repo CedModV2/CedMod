@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommandSystem;
 using CommandSystem.Commands.RemoteAdmin;
-using Exiled.API.Features;
 using GameCore;
 using HarmonyLib;
+using PluginAPI.Core;
 using RemoteAdmin;
 using UnityEngine;
 using Utils;
@@ -132,24 +132,20 @@ namespace CedMod.Patches
 						}), ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging);
 						if (ServerStatic.PermissionsHandler.IsVerified && referenceHub.serverRoles.BypassStaff)
 						{
-							QueryProcessor.Localplayer.GetComponent<BanPlayer>().BanUser(referenceHub.gameObject, 0L, text, sender.LogName);
+							BanPlayer.KickUser(referenceHub, text);
 						}
 						else
 						{
 							if (num == 0L && ConfigFile.ServerConfig.GetBool("broadcast_kicks"))
-							{
-								QueryProcessor.Localplayer.GetComponent<Broadcast>().RpcAddElement(ConfigFile.ServerConfig.GetString("broadcast_kick_text", "%nick% has been kicked from this server.").Replace("%nick%", combinedName), ConfigFile.ServerConfig.GetUShort("broadcast_kick_duration", 5), Broadcast.BroadcastFlags.Normal);
-							}
+								Broadcast.Singleton.RpcAddElement(ConfigFile.ServerConfig.GetString("broadcast_kick_text", "%nick% has been kicked from this server.").Replace("%nick%", combinedName), ConfigFile.ServerConfig.GetUShort("broadcast_kick_duration", (ushort) 5), Broadcast.BroadcastFlags.Normal);
 							else if (num != 0L && ConfigFile.ServerConfig.GetBool("broadcast_bans", true))
-							{
-								QueryProcessor.Localplayer.GetComponent<Broadcast>().RpcAddElement(ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", combinedName), ConfigFile.ServerConfig.GetUShort("broadcast_ban_duration", 5), Broadcast.BroadcastFlags.Normal);
-							}
+								Broadcast.Singleton.RpcAddElement(ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", combinedName), ConfigFile.ServerConfig.GetUShort("broadcast_ban_duration", (ushort) 5), Broadcast.BroadcastFlags.Normal);
 
 							Task.Factory.StartNew(() =>
 							{
 								lock (BanSystem.Banlock)
 								{
-									API.Ban(Player.Get(referenceHub), num, sender.LogName, text, false);
+									API.Ban(CedModPlayer.Get(referenceHub), num, sender.LogName, text, false);
 								}
 							});
 						}

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
-using Exiled.API.Interfaces;
 
 namespace CedMod.Addons.QuerySystem
 {
@@ -38,5 +37,14 @@ namespace CedMod.Addons.QuerySystem
         
         [Description("Experimental RemoteCommands Feature, if the executing player is not present, the server will spawn a dummy player, run the command, and despawn the dummy")]
         public bool DummyExperimental { get; set; } = false;
+        
+        [Description("The message show to staff when a new report gets made")]
+        public string StaffReportNotification { get; set; } = "<size=30><color=yellow>{reporterName} has reported {reportedName} check {checkType} for more info.</color></size>";
+        
+        [Description("The message show to staff if they do not have the ingame report in RA enabled")]
+        public string StaffReportNotificationIngameDisabled { get; set; } = "<size=25>To be able to view ingame reports in RemoteAdmin, open the CedMod website (External Lookup or navigating directly)\nClick on your user icon, and click Instance Preferences.\nenable RemoteAdminReports</size>";
+        
+        [Description("The message show to a player when a the state of their report updates")]
+        public string PlayerReportUpdateNotification { get; set; } = "<size=30><color=yellow>Your report regarding {reportedName} is now {reportState} by {handlerName}</size>";
     }
 }

@@ -9,6 +9,9 @@
             System.ValueTuple
             System.Data
             System.Threading.Tasks.Extensions
+            NVorbis
+            SCPSLAudioApi
+            0Harmony
         </IncludeAssemblies>
     </Costura>
 </Weavers>

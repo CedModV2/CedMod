@@ -1,8 +1,8 @@
 ﻿using System;
 using CommandSystem;
-using Exiled.Permissions.Extensions;
 using GameCore;
 using Mirror;
+using NWAPIPermissionSystem;
 using RoundRestarting;
 
 namespace CedMod.Commands
@@ -17,8 +17,7 @@ namespace CedMod.Commands
         };
 
         public string Description { get; } = "redirects ALL players to the specified port";
-        public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
-            out string response)
+        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             if (!sender.CheckPermission("cedmod.redirect"))
             {

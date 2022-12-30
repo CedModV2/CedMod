@@ -1,9 +1,9 @@
 ﻿using System;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
 using MEC;
+using NWAPIPermissionSystem;
+using PluginAPI.Core;
 
 namespace CedMod.Addons.Events.Commands
 {
@@ -58,11 +58,11 @@ namespace CedMod.Addons.Events.Commands
             {
                 var toRemove = EventManager.nextEvent[queuepos - 1];
                 EventManager.nextEvent.Remove(toRemove);
-                Map.Broadcast(5, $"EventManager: {toRemove.EventName} has been removed from the queue");
+                Broadcast.Singleton.RpcAddElement($"EventManager: {toRemove.EventName} has been removed from the queue", 5, Broadcast.BroadcastFlags.Normal);
             }
             else
             {
-                Map.Broadcast(10, $"EventManager: {EventManager.currentEvent.EventName} is being now disabled, round will restart in 3 seconds");
+                Server.SendBroadcast($"EventManager: {EventManager.currentEvent.EventName} is being now disabled, round will restart in 3 seconds", 10);
                 Timing.CallDelayed(3, () =>
                 {
                     Round.Restart(false, false);

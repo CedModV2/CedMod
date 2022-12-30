@@ -4,8 +4,8 @@ using System.Linq;
 using CedMod.Addons.QuerySystem.WS;
 using CommandSystem;
 using CommandSystem.Commands.RemoteAdmin;
-using Exiled.API.Features;
 using HarmonyLib;
+using PluginAPI.Core;
 using RemoteAdmin;
 using RemoteAdmin.Communication;
 using RemoteAdmin.Interfaces;
@@ -46,7 +46,7 @@ namespace CedMod.Addons.QuerySystem.Patches
             }
             catch (Exception e)
             {
-                Log.Error(e);
+                Log.Error(e.ToString());
             }
         }
     }

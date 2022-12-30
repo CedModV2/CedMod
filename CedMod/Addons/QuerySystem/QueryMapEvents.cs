@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using CedMod.Addons.QuerySystem.WS;
-using Exiled.API.Features;
-using Exiled.Events.EventArgs;
+using PluginAPI.Core;
+using PluginAPI.Core.Attributes;
+using PluginAPI.Enums;
 
 namespace CedMod.Addons.QuerySystem
 {
@@ -20,7 +21,8 @@ namespace CedMod.Addons.QuerySystem
             });
         }
 
-        public void OnDecon(DecontaminatingEventArgs ev)
+        [PluginEvent(ServerEventType.LczDecontaminationAnnouncement)]
+        public void OnDecon(int i)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -33,7 +35,8 @@ namespace CedMod.Addons.QuerySystem
             });
         }
 
-        public void OnWarheadStart(StartingEventArgs ev)
+        [PluginEvent(ServerEventType.WarheadStart)]
+        public void OnWarheadStart(bool b, CedModPlayer player)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -44,13 +47,14 @@ namespace CedMod.Addons.QuerySystem
                     {
                         "Message",
                         string.Format("warhead has been started: {0} seconds",
-                            Warhead.Controller.NetworktimeToDetonation)
+                            Warhead.DetonationTime)
                     }
                 }
             });
         }
 
-        public void OnWarheadCancelled(StoppingEventArgs ev)
+        [PluginEvent(ServerEventType.WarheadStop)]
+        public void OnWarheadCancelled(CedModPlayer player)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -58,7 +62,7 @@ namespace CedMod.Addons.QuerySystem
                 Data = new Dictionary<string, string>()
                 {
                     {"Type", nameof(OnWarheadCancelled)},
-                    {"Message", ev.Player.Nickname + " - " + ev.Player.UserId + " has stopped the detonation."}
+                    {"Message", player.Nickname + " - " + player.UserId + " has stopped the detonation."}
                 }
             });
         }

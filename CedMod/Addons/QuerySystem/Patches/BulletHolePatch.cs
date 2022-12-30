@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using Exiled.API.Features;
 using HarmonyLib;
 using InventorySystem.Items.Firearms.Modules;
+using MapGeneration;
+using PluginAPI.Core;
 using UnityEngine;
 
 namespace CedMod.Addons.QuerySystem.Patches
@@ -19,24 +20,25 @@ namespace CedMod.Addons.QuerySystem.Patches
                 Player player = Player.Get(__instance.Hub);
                 if (player == null)
                     return;
+                RoomIdentifier currentRoom = RoomIdUtils.RoomAtPosition(player.Position);
                 if (!HoleCreators.ContainsKey(player))
                     HoleCreators.Add(player, new BulletHoleCreator());
-                if (!HoleCreators[player].Rooms.ContainsKey(player.CurrentRoom))
-                    HoleCreators[player].Rooms.Add(player.CurrentRoom, new RoomHoles());
+                if (!HoleCreators[player].Rooms.ContainsKey(currentRoom))
+                    HoleCreators[player].Rooms.Add(currentRoom, new RoomHoles());
            
-                HoleCreators[player].Rooms[player.CurrentRoom].Holes.Add(hit.point);
+                HoleCreators[player].Rooms[currentRoom].Holes.Add(hit.point);
             }
             catch (Exception e)
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Log.Error(e);
+                    Log.Error(e.Message);
             }
         }
     }
 
     public class BulletHoleCreator
     {
-        public Dictionary<Room, RoomHoles> Rooms = new Dictionary<Room, RoomHoles>();
+        public Dictionary<RoomIdentifier, RoomHoles> Rooms = new Dictionary<RoomIdentifier, RoomHoles>();
     }
 
     public class RoomHoles

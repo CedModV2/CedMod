@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Exiled.API.Features;
 using HarmonyLib;
+using PluginAPI.Core;
 using UnityEngine;
 
 namespace CedMod.Patches
 {
-    [HarmonyPatch(typeof(BanPlayer), nameof(BanPlayer.BanUser), new Type[] {typeof(GameObject), typeof(long), typeof(string), typeof(string),  typeof(bool)})]
+    [HarmonyPatch(typeof(BanPlayer), nameof(BanPlayer.BanUser), new Type[] {typeof(ReferenceHub), typeof(ReferenceHub), typeof(string), typeof(long)})]
     public static class BanPatch
     {
-        public static bool Prefix(GameObject user, long duration, string reason, string issuer, bool isGlobalBan)
+        public static bool Prefix(ReferenceHub target, ReferenceHub issuer, string reason, long duration)
         {
             try
             {
@@ -20,7 +20,7 @@ namespace CedMod.Patches
                     {
                         lock (BanSystem.Banlock)
                         {
-                            API.Ban(Player.Get(user), duration, issuer, reason);
+                            API.Ban(CedModPlayer.Get(target), duration, issuer.LoggedNameFromRefHub(), reason);
                         }
                     }
                     catch (Exception ex)

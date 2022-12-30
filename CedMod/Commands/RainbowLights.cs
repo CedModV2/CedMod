@@ -1,6 +1,6 @@
 ﻿using System;
 using CommandSystem;
-using Exiled.Permissions.Extensions;
+using NWAPIPermissionSystem;
 using Object = UnityEngine.Object;
 
 namespace CedMod.Commands

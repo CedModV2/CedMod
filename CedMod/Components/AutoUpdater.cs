@@ -1,20 +1,19 @@
 ﻿using System;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
 using CedMod.ApiModals;
-using Exiled.API.Features;
-using Exiled.Loader;
 using Newtonsoft.Json;
+using PluginAPI.Core;
+using PluginAPI.Core.Attributes;
+using PluginAPI.Enums;
 using UnityEngine;
 using Version = GameCore.Version;
 
-namespace CedMod
+namespace CedMod.Components
 {
     public class AutoUpdater: MonoBehaviour
     {
@@ -25,6 +24,7 @@ namespace CedMod
         public float TimePassedWarning;
         public float TimePassedUpdateNotify;
         public bool Installing = false;
+        public Byte[] FileToWriteDelayed;
 
         public void Update()
         {
@@ -42,12 +42,12 @@ namespace CedMod
             {
                 if (CedModMain.Singleton.Config.CedMod.AutoUpdateWait != 0 && Pending != null)
                 {
-                    if (Player.Dictionary.Count == 0)
+                    if (Player.Count <= 1)
                     {
                         TimePassed += Time.deltaTime;
                         
                         if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                            Log.Debug($"Checking players {Player.Dictionary.Count} {TimePassed}");
+                            Log.Debug($"Checking players {Player.Count} {TimePassed}");
                     
                         if (TimePassed >= CedModMain.Singleton.Config.CedMod.AutoUpdateWait * 60 && !Installing)
                         { 
@@ -96,7 +96,7 @@ namespace CedMod
                     TimePassedUpdateNotify = 0;
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Prepping Check");
-                    Log.Warn($"New CedMod Update available: {Pending.VersionString} - {Pending.VersionCommit}\nCurrent: {CedModMain.Singleton.Version} - {CedModMain.GitCommitHash}\nPlease update your CedMod version by enabling AutoUpdate in your config or run installcedmodupdate if you dont want automatic updates");
+                    Log.Warning($"New CedMod Update available: {Pending.VersionString} - {Pending.VersionCommit}\nCurrent: {CedModMain.Version} - {CedModMain.GitCommitHash}\nPlease update your CedMod version by enabling AutoUpdate in your config or run installcedmodupdate if you dont want automatic updates");
                 }
             }
         }
@@ -117,7 +117,7 @@ namespace CedMod
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Version/UpdateAvailable?VersionId={CedModMain.VersionIdentifier}&ExiledVersion={Loader.Version.ToString()}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+                    var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Version/UpdateAvailableNW?VersionId={CedModMain.VersionIdentifier}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
                         if (response.StatusCode == HttpStatusCode.NotFound)
@@ -134,7 +134,7 @@ namespace CedMod
                     else
                     {
                         var dat = JsonConvert.DeserializeObject<CedModVersion>(response.Content.ReadAsStringAsync().Result);
-                        Log.Info($"Update available: {dat.VersionString} - {dat.VersionCommit}\nCurrent: {CedModMain.Singleton.Version} - {CedModMain.GitCommitHash}");
+                        Log.Info($"Update available: {dat.VersionString} - {dat.VersionCommit}\nCurrent: {CedModMain.Version} - {CedModMain.GitCommitHash}");
                         return dat;
                     }
                 }
@@ -147,7 +147,8 @@ namespace CedMod
             return null;
         }
         
-        public void RoundRestart()
+        [PluginEvent(ServerEventType.RoundEnd)]
+        public void RoundEnd(RoundSummary.LeadingTeam team)
         {
             if (Pending == null)
             {
@@ -163,7 +164,33 @@ namespace CedMod
                 Task.Factory.StartNew(() =>
                 {
                     Log.Info($"Installing update {Pending.VersionString} - {Pending.VersionCommit}");
-                    InstallUpdate();
+                    InstallUpdateDelayed();
+                });
+            }
+        }
+
+        [PluginEvent(ServerEventType.RoundRestart)]
+        public void RoundRestart()
+        {
+            if (Pending == null)
+            {
+                Task.Factory.StartNew(() =>
+                {
+                    var data = CheckForUpdates();
+                    Pending = data;
+                });
+            }
+            
+            if (CedModMain.Singleton.Config.CedMod.AutoUpdate && CedModMain.Singleton.Config.CedMod.AutoUpdateRoundEnd && Pending != null && Installing && FileToWriteDelayed.Length >= 1)
+            {
+                Task.Factory.StartNew(() =>
+                {
+                    Log.Info($"Saving update {Pending.VersionString} - {Pending.VersionCommit}");
+                    Log.Info($"Saving to: {CedModMain.PluginLocation}");
+                    File.WriteAllBytes(CedModMain.PluginLocation, FileToWriteDelayed);
+                        
+                    ServerStatic.StopNextRound = ServerStatic.NextRoundAction.Restart;
+                    RoundRestarting.RoundRestart.ChangeLevel(true);
                 });
             }
         }
@@ -178,7 +205,7 @@ namespace CedMod
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Version/TargetDownload?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ExiledVersion={Loader.Version.ToString()}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+                    var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Version/TargetDownloadNW?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
                         Log.Error($"Failed to download update: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
@@ -195,8 +222,8 @@ namespace CedMod
                         else
                         {
                             var data1 = response.Content.ReadAsByteArrayAsync().Result;
-                            Log.Info($"Saving to: {CedModMain.Singleton.GetPath()}");
-                            File.WriteAllBytes(CedModMain.Singleton.GetPath(), data1);
+                            Log.Info($"Saving to: {CedModMain.PluginLocation}");
+                            File.WriteAllBytes(CedModMain.PluginLocation, data1);
                         
                             ServerStatic.StopNextRound = ServerStatic.NextRoundAction.Restart;
                             RoundRestarting.RoundRestart.ChangeLevel(true);
@@ -210,6 +237,43 @@ namespace CedMod
             }
 
             Installing = false;
+        }
+        
+        public void InstallUpdateDelayed()
+        {
+            if (Installing)
+                return;
+            Installing = true;
+            
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Version/TargetDownloadNW?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+                    if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        Log.Error($"Failed to download update: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
+                    }
+                    else
+                    {
+                        Log.Info($"Downloading CedMod Version {Pending.VersionString} - {Pending.VersionCommit}");
+                        var data = response.Content.ReadAsStreamAsync().Result;
+                        var hash = CedModMain.GetHashCode(data, new MD5CryptoServiceProvider());
+                        if (Pending.FileHash != hash)
+                        {
+                            Log.Error($"CedMod plugin dll does not match pending filehash {Pending.FileHash} | {hash} Please contact CedMod Staff with this versionId {Pending.CedModVersionIdentifier}");
+                        }
+                        else
+                        {
+                            FileToWriteDelayed = response.Content.ReadAsByteArrayAsync().Result;
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.ToString());
+            }
         }
     }
 }

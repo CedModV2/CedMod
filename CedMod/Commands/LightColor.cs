@@ -1,6 +1,6 @@
 ﻿using System;
 using CommandSystem;
-using Exiled.Permissions.Extensions;
+using NWAPIPermissionSystem;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

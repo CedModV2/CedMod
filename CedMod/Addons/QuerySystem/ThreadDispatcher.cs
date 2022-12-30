@@ -6,12 +6,13 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using CedMod.Addons.Audio;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem.WS;
 using CedMod.ApiModals;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
 using Newtonsoft.Json;
+using PluginAPI.Core;
+using SCPSLAudioApi.AudioCore;
 using UnityEngine;
 using Version = GameCore.Version;
 
@@ -19,12 +20,14 @@ namespace CedMod.Addons.QuerySystem
 {
     public class ThreadDispatcher : MonoBehaviour
     {
+        public float timeLeftbeforeAudioHeartBeat = 0;
         public float timeLeftbeforeHeartBeat = 0;
         public float timeLeftbeforeWatchdog = 0;
         
         public void Start()
         {
-            Log.Debug("ThreadDispatcher started", CedModMain.Singleton.Config.QuerySystem.Debug);
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Log.Debug("ThreadDispatcher started");
         }
 
         public static ConcurrentQueue<Action> ThreadDispatchQueue = new ConcurrentQueue<Action>();
@@ -34,14 +37,55 @@ namespace CedMod.Addons.QuerySystem
             {
                 try
                 {
-                    Log.Debug($"Invoking action", CedModMain.Singleton.Config.QuerySystem.Debug);
+                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                        Log.Debug($"Invoking action");
                     action.Invoke();
-                    Log.Debug($"Action Invoked", CedModMain.Singleton.Config.QuerySystem.Debug);
+                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                        Log.Debug($"Action Invoked");
                 }
                 catch (Exception e)
                 {
                     Log.Error($"Failed to invoke Dispatch\n{e}");
                 }
+            }
+
+            timeLeftbeforeAudioHeartBeat -= Time.deltaTime;
+            if (timeLeftbeforeAudioHeartBeat <= 0)
+            {
+                timeLeftbeforeAudioHeartBeat = AudioPlayerBase.AudioPlayers.Count >= 1 ? 1 : 20;
+
+                List<CedModAudioPlayer> audioPlayers = new List<CedModAudioPlayer>();
+
+                foreach (var player in AudioPlayerBase.AudioPlayers)
+                {
+                    audioPlayers.Add(new CedModAudioPlayer()
+                    {
+                        Continue = player.Value.Continue,
+                        CurrentSpan = player.Value.VorbisReader == null ? TimeSpan.Zero : player.Value.VorbisReader.TimePosition,
+                        LoopList = player.Value.Loop,
+                        PlayerId = player.Key.PlayerId,
+                        Queue = player.Value.AudioToPlay,
+                        Shuffle = player.Value.Shuffle,
+                        TotalTime = player.Value.VorbisReader == null ? TimeSpan.Zero : player.Value.VorbisReader.TotalTime,
+                        Volume = player.Value.Volume,
+                        IsCedModPlayer = player.Value is CustomAudioPlayer
+                    });
+                }
+                
+                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                {
+                    Recipient = "PANEL",
+                    Data = new Dictionary<string, string>()
+                    {
+                        { "Message", "AUDIOHEARTBEAT" },
+                        {
+                            "HeartbeatInfo", JsonConvert.SerializeObject(new AudioHeartbeatRequest()
+                            {
+                                Players = audioPlayers
+                            })
+                        }
+                    }
+                });
             }
 
             timeLeftbeforeWatchdog -= Time.deltaTime;
@@ -111,11 +155,11 @@ namespace CedMod.Addons.QuerySystem
 
             if (WebSocketSystem.HelloMessage != null)
             {
-                HandleQueryplayer.PlayerDummies.RemoveAll(s => s.GameObject == null);
                 timeLeftbeforeHeartBeat -= Time.deltaTime;
                 if (timeLeftbeforeHeartBeat <= 0)
                 {
-                    Log.Debug("Invoking heartbeat", CedModMain.Singleton.Config.QuerySystem.Debug);
+                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                        Log.Debug("Invoking heartbeat");
                     timeLeftbeforeHeartBeat = 20;
                     SendHeartbeatMessage(true);
                 }
@@ -149,16 +193,18 @@ namespace CedMod.Addons.QuerySystem
 
             if (WebSocketSystem.HelloMessage.SendStats)
             {
-                foreach (var player in Player.List)
+                foreach (var player in Player.GetPlayers<CedModPlayer>())
                 {
+                    if (player.ReferenceHub.isLocalPlayer)
+                        continue;
                     players.Add(new PlayerObject()
                     {
                         DoNotTrack = player.DoNotTrack,
                         Name = player.Nickname,
                         Staff = PermissionsHandler.IsPermitted(player.ReferenceHub.serverRoles.Permissions, new PlayerPermissions[3] { PlayerPermissions.KickingAndShortTermBanning, PlayerPermissions.BanningUpToDay, PlayerPermissions.LongTermBanning}),
                         UserId = player.UserId,
-                        PlayerId = player.Id,
-                        RoleType = player.Role.Type
+                        PlayerId = player.PlayerId,
+                        RoleType = player.Role
                     });
                 }
             }
@@ -175,11 +221,11 @@ namespace CedMod.Addons.QuerySystem
                             Events = events,
                             Players = players,
                             PluginCommitHash = CedModMain.GitCommitHash,
-                            PluginVersion = CedModMain.Singleton.Version.ToString(),
+                            PluginVersion = CedModMain.Version,
                             UpdateStats = updateStats,
                             TrackingEnabled = LevelerStore.TrackingEnabled && EventManager.currentEvent == null,
                             CedModVersionIdentifier = CedModMain.VersionIdentifier,
-                            ExiledVersion = Exiled.Loader.Loader.Version.ToString(),
+                            ExiledVersion = "NWAPI",
                             ScpSlVersion = $"{Version.Major}.{Version.Minor}.{Version.Revision}",
                             FileHash = CedModMain.FileHash
                         })

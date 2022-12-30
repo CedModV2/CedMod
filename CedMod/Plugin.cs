@@ -1,59 +1,95 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using CedMod.Addons.AdminSitSystem;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
+using CedMod.Components;
 using HarmonyLib;
 using UnityEngine;
-using Exiled.API.Enums;
-using Exiled.API.Features;
-using Exiled.Loader;
 using MEC;
+using PluginAPI.Core;
+using PluginAPI.Core.Attributes;
+using PluginAPI.Core.Extensions;
+using PluginAPI.Enums;
+using PluginAPI.Helpers;
+using PluginAPI.Loader;
+using PluginAPI.Loader.Features;
 using Object = UnityEngine.Object;
 
 namespace CedMod
 {
-
-    public class CedModMain : Plugin<Config>
+    
+    public class CedModMain
     {
-        private Handlers.Server _server;
-        private Handlers.Player _player;
         private Harmony _harmony;
         public static CedModMain Singleton;
-        
-        public override PluginPriority Priority { get; } = PluginPriority.First;
-
-        public override string Author { get; } = "ced777ric#8321";
-
-        public override string Name { get; } = "CedMod";
-
-        public override string Prefix { get; } = "cm";
-
-        public override Version RequiredExiledVersion { get; } = new Version(5, 0, 0);
-        public override Version Version { get; } = new Version(3, 2, 0);
         public static string FileHash { get; set; } = "";
 
         public static string GitCommitHash = String.Empty;
         public static string VersionIdentifier = String.Empty;
 
-        public override void OnEnabled()
+        public static string PluginConfigFolder = "";
+        public static string PluginLocation = "";
+        public static PluginDirectory GameModeDirectory;
+        public static Assembly Assembly;
+        public static PluginHandler Handler;
+
+        public const string Version = "3.3.3";
+
+        [PluginConfig]
+        public Config Config;
+        
+        [PluginPriority(LoadPriority.Lowest)]
+        [PluginEntryPoint("CedMod", Version, "SCP:SL Moderation system https://cedmod.nl/About", "ced777ric#0001")]
+        void LoadPlugin()
         {
+            if (!Config.IsEnabled)
+                return;
+            Handler = PluginHandler.Get(this);
+            Timing.CallDelayed(5, () =>
+            {
+                if (!AppDomain.CurrentDomain.GetAssemblies().Any(s => s.GetName().Name == "NWAPIPermissionSystem"))
+                    Timing.CallContinuously(1, () => Log.Error("You do not have the NWAPIPermissionSystem Installed, CedMod Requires the NWAPIPermission system in order to operate properly, please download it here: https://github.com/CedModV2/NWAPIPermissionSystem"));
+            });
+            
+            PluginLocation = Handler.PluginFilePath;
+            PluginConfigFolder = Handler.PluginDirectoryPath;
+
+            Assembly = Assembly.GetExecutingAssembly();
             CosturaUtility.Initialize();
+            
+            PluginAPI.Events.EventManager.RegisterEvents<Handlers.Player>(this);
+            PluginAPI.Events.EventManager.RegisterEvents<Handlers.Server>(this);
+            
+            PluginAPI.Events.EventManager.RegisterEvents<QueryMapEvents>(this);
+            PluginAPI.Events.EventManager.RegisterEvents<QueryServerEvents>(this);
+            PluginAPI.Events.EventManager.RegisterEvents<QueryPlayerEvents>(this);
+            
+            PluginAPI.Events.EventManager.RegisterEvents<EventManagerServerEvents>(this);
+            PluginAPI.Events.EventManager.RegisterEvents<EventManagerPlayerEvents>(this);
+            
+            PluginAPI.Events.EventManager.RegisterEvents<AutoUpdater>(this);
+            PluginAPI.Events.EventManager.RegisterEvents<AdminSitHandler>(this);
+            FactoryManager.RegisterPlayerFactory(this, new CedModPlayerFactory());
+            
 
             try
             {
-                var file = File.Open(this.GetPath(), FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+                GameModeDirectory = new PluginDirectory(Path.Combine(PluginConfigFolder, "CedModEvents"));
+                var file = File.Open(PluginLocation, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
                 FileHash = GetHashCode(file, new MD5CryptoServiceProvider());
                 file.Dispose();
             }
             catch (Exception e)
             {
-                Log.Error(e);
+                Log.Error(e.ToString());
             }
             
             _harmony = new Harmony("com.cedmod.patch");
@@ -71,10 +107,11 @@ namespace CedMod
                 VersionIdentifier = reader.ReadToEnd();
             }
             
-            if (File.Exists(Path.Combine(Paths.Configs, "CedMod", "dev.txt")))
+            if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", "dev.txt")))
             {
                 Log.Info("Plugin running as Dev");
                 QuerySystem.CurrentMaster = QuerySystem.DevPanelUrl;
+                QuerySystem.IsDev = true;
             }
 
             Singleton = this;
@@ -86,8 +123,16 @@ namespace CedMod
             AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
             if (updater == null)
                 updater = CustomNetworkManager.singleton.gameObject.AddComponent<AutoUpdater>();
+            
+            AdminSitHandler adminSitHandler = Object.FindObjectOfType<AdminSitHandler>();
+            if (adminSitHandler == null)
+                adminSitHandler = CustomNetworkManager.singleton.gameObject.AddComponent<AdminSitHandler>();
+            
+            RemoteAdminModificationHandler remoteAdminModificationHandler = Object.FindObjectOfType<RemoteAdminModificationHandler>();
+            if (remoteAdminModificationHandler == null)
+                remoteAdminModificationHandler = CustomNetworkManager.singleton.gameObject.AddComponent<RemoteAdminModificationHandler>();
 
-            if (File.Exists(Path.Combine(Paths.Configs, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt")))
+            if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt")))
             {
                 // Start the HTTP server.
                 Task.Factory.StartNew(() =>
@@ -98,187 +143,144 @@ namespace CedMod
                     }
                     catch (Exception e)
                     {
-                        Log.Error(e);
+                        Log.Error(e.ToString());
                     }
                 });
             }
             else
-                Log.Warn("Plugin is not setup properly, please use refer to the cedmod setup guide"); //todo link guide
+                Log.Warning("Plugin is not setup properly, please use refer to the cedmod setup guide"); //todo link guide
             
-            _server = new Handlers.Server();
-            _player = new Handlers.Player();
-            Exiled.Events.Handlers.Server.RestartingRound += _server.OnRoundRestart;
-            Exiled.Events.Handlers.Server.RestartingRound += updater.RoundRestart;
-            //Exiled.Events.Handlers.Server.SendingRemoteAdminCommand += server.OnSendingRemoteAdmin;
-            
-            Exiled.Events.Handlers.Player.Verified += _player.OnJoin;
-            Exiled.Events.Handlers.Player.Dying += _player.OnDying;
-
             QuerySystem.QueryMapEvents = new QueryMapEvents();
             QuerySystem.QueryServerEvents = new QueryServerEvents();
             QuerySystem.QueryPlayerEvents = new QueryPlayerEvents();
 
-            //Exiled.Events.Handlers.Map.Decontaminating += MapEvents.OnDecon;
-            Exiled.Events.Handlers.Warhead.Starting += QuerySystem.QueryMapEvents.OnWarheadStart;
-            Exiled.Events.Handlers.Warhead.Stopping += QuerySystem.QueryMapEvents.OnWarheadCancelled;
-            Exiled.Events.Handlers.Warhead.Detonated += QuerySystem.QueryMapEvents.OnWarheadDetonation;
-            
-            Exiled.Events.Handlers.Server.WaitingForPlayers += QuerySystem.QueryServerEvents.OnWaitingForPlayers;
-            Exiled.Events.Handlers.Server.RoundStarted += QuerySystem.QueryServerEvents.OnRoundStart;
-            Exiled.Events.Handlers.Server.RoundEnded += QuerySystem.QueryServerEvents.OnRoundEnd;
-            Exiled.Events.Handlers.Server.RespawningTeam += QuerySystem.QueryServerEvents.OnRespawn;
-            Exiled.Events.Handlers.Server.ReportingCheater += QuerySystem.QueryServerEvents.OnCheaterReport;
-            Exiled.Events.Handlers.Server.LocalReporting += QuerySystem.QueryServerEvents.OnReport;
-            
-            Exiled.Events.Handlers.Scp079.InteractingTesla += QuerySystem.QueryPlayerEvents.On079Tesla;
-            Exiled.Events.Handlers.Player.EscapingPocketDimension += QuerySystem.QueryPlayerEvents.OnPocketEscape;
-            Exiled.Events.Handlers.Player.EnteringPocketDimension += QuerySystem.QueryPlayerEvents.OnPocketEnter;
-            Exiled.Events.Handlers.Player.ThrowingItem += QuerySystem.QueryPlayerEvents.OnGrenadeThrown;
-            Exiled.Events.Handlers.Player.Dying += QuerySystem.QueryPlayerEvents.OnPlayerDeath;
-            Exiled.Events.Handlers.Player.Hurting += QuerySystem.QueryPlayerEvents.OnPlayerHurt;
-            Exiled.Events.Handlers.Player.InteractingElevator += QuerySystem.QueryPlayerEvents.OnElevatorInteraction;
-            Exiled.Events.Handlers.Player.Handcuffing += QuerySystem.QueryPlayerEvents.OnPlayerHandcuffed;
-            Exiled.Events.Handlers.Player.RemovingHandcuffs += QuerySystem.QueryPlayerEvents.OnPlayerFreed;
-            Exiled.Events.Handlers.Player.Verified += QuerySystem.QueryPlayerEvents.OnPlayerJoin;
-            Exiled.Events.Handlers.Player.Left += QuerySystem.QueryPlayerEvents.OnPlayerLeave;
-            Exiled.Events.Handlers.Player.ChangingRole += QuerySystem.QueryPlayerEvents.OnSetClass;
-            Exiled.Events.Handlers.Player.Escaping += QuerySystem.QueryPlayerEvents.OnEscape;
-            
-            EventManager.EventManagerServerEvents = new EventManagerServerEvents();
-            EventManager.EventManagerPlayerEvents = new EventManagerPlayerEvents();
-            Exiled.Events.Handlers.Server.EndingRound += EventManager.EventManagerServerEvents.EndingRound;
-            Exiled.Events.Handlers.Server.WaitingForPlayers += EventManager.EventManagerServerEvents.WaitingForPlayers;
-            Exiled.Events.Handlers.Server.RoundEnded += EventManager.EventManagerServerEvents.EndRound;
-            Exiled.Events.Handlers.Server.RestartingRound += EventManager.EventManagerServerEvents.RestartingRound;
-            Exiled.Events.Handlers.Player.Joined += EventManager.EventManagerPlayerEvents.OnPlayerJoin;
-            
-            if (!Directory.Exists(Path.Combine(Paths.Plugins, "CedModEvents")))
+            if (!Directory.Exists(Path.Combine(PluginConfigFolder, "CedModEvents")))
             {
-                Directory.CreateDirectory(Path.Combine(Paths.Plugins, "CedModEvents"));
+                Directory.CreateDirectory(Path.Combine(PluginConfigFolder, "CedModEvents"));
             }
             
-            if (!Directory.Exists(Path.Combine(Paths.Configs, "CedMod")))
+            if (!Directory.Exists(Path.Combine(PluginConfigFolder, "CedMod")))
             {
-                Directory.CreateDirectory(Path.Combine(Paths.Configs, "CedMod"));
+                Directory.CreateDirectory(Path.Combine(PluginConfigFolder, "CedMod"));
             }
             
-            foreach (var file in Directory.GetFiles(Path.Combine(Paths.Plugins, "CedModEvents"), "*.dll"))
+            int successes = 0;
+            
+            Dictionary<Type, PluginHandler> handlers = new Dictionary<Type, PluginHandler>();
+            Dictionary<PluginHandler, string> pluginLocations = new Dictionary<PluginHandler, string>();
+
+            foreach (var file in Directory.GetFiles(Path.Combine(PluginConfigFolder, "CedModEvents"), "*.dll"))
             {
-                var assembly = Loader.LoadAssembly(file);
-                var plugin = Loader.CreatePlugin(assembly);
-                if (EventManager.AvailableEventPlugins.Contains(plugin))
+                var assembly = Assembly.Load(File.ReadAllBytes(file));
+                
+                var types = assembly.GetTypes();
+
+                foreach (var entryType in types)
                 {
-                    Log.Error($"Found duplicate Event: {plugin.Name} Located at: {file} Please only have one of each Event installed");
+                    if (!entryType.IsValidEntrypoint()) 
+                        continue;
+
+                    if (!AssemblyLoader.Plugins.ContainsKey(assembly)) 
+                        AssemblyLoader.Plugins.Add(assembly, new Dictionary<Type, PluginHandler>());
+
+                    if (!AssemblyLoader.Plugins[assembly].ContainsKey(entryType))
+                    {
+                        try
+                        {
+                            var plugin = Activator.CreateInstance(entryType);
+                            var pluginType = new PluginHandler(GameModeDirectory, plugin, entryType, types);
+                            pluginLocations.Add(pluginType, file);
+                            handlers.Add(entryType, pluginType);
+                            AssemblyLoader.Plugins[assembly].Add(entryType, pluginType);
+                            AssemblyLoader.PluginToAssembly.Add(plugin, assembly);
+                            successes++;
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Info($"Failed to load {entryType.FullName}.\n{e}");
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            foreach (var gamemode in handlers)
+            {
+                if (EventManager.AvailableEventPlugins.Contains(gamemode.Value))
+                {
+                    Log.Error($"Found duplicate Event: {gamemode.Value.PluginName} Located at: {pluginLocations[gamemode.Value]} Please only have one of each Event installed");
                     continue;
                 }
-                EventManager.AvailableEventPlugins.Add(plugin);
+                EventManager.AvailableEventPlugins.Add(gamemode.Value);
                 try
                 {
-                    plugin.OnEnabled();
-                    plugin.OnRegisteringCommands();
+                    gamemode.Value.Load();
                 }
                 catch (Exception e)
                 {
-                    Log.Info($"Failed to load {plugin.Name}.\n{e}");
+                    Log.Info($"Failed to load {gamemode.Value.PluginName}.\n{e}");
                     continue;
                 }
 
-                foreach (var type in plugin.Assembly.GetTypes().Where(x => typeof(IEvent).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract))
+                foreach (var type in gamemode.Key.Assembly.GetTypes().Where(x => typeof(IEvent).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract))
                 {
-                    Log.Debug($"Checked {plugin.Name} for CedMod-Events functionality, IEvent inherited", Config.EventManager.Debug);
+                    if (Config.EventManager.Debug)
+                        Log.Debug($"Checked {gamemode.Value.PluginName} for CedMod-Events functionality, IEvent inherited");
                     var constructor = type.GetConstructor(Type.EmptyTypes);
                     if (constructor == null)
                     {
-                        Log.Debug($"Checked {plugin.Name} Constructor is null, cannot continue", Config.EventManager.Debug);
+                        if (Config.EventManager.Debug)
+                            Log.Debug($"Checked {gamemode.Value.PluginName} Constructor is null, cannot continue");
                         continue;
                     }
                     else
                     {
-                        IEvent @event = constructor.Invoke(null) as IEvent;
+                        IEvent @event = gamemode.Value._plugin as IEvent;
                         if (@event == null) 
                             continue;
+
+                        if (!@event.Config.IsEnabled)
+                        {
+                            if (Config.EventManager.Debug)
+                                Log.Debug($"Checked {gamemode.Value.PluginName} IsEnabled is False, cannot continue");
+                            continue;
+                        }
+                      
                         EventManager.AvailableEvents.Add(@event);
                         Log.Info($"Successfully registered {@event.EventName} By {@event.EvenAuthor} ({@event.EventPrefix})");
                     }
                 }
             }
+        }
 
-            base.OnEnabled();
-        }
-        
-        public override void OnReloaded()
-        {
-            Timing.CallDelayed(2, () =>
-            {
-                ThreadDispatcher dispatcher = Object.FindObjectOfType<ThreadDispatcher>();
-                if (dispatcher == null)
-                    CustomNetworkManager.singleton.gameObject.AddComponent<ThreadDispatcher>();
-                
-                AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
-                if (updater == null)
-                    CustomNetworkManager.singleton.gameObject.AddComponent<AutoUpdater>();
-            });
-        }
-        
-        public override void OnDisabled()
+        [PluginUnload]
+        public void OnDisabled()
         {
             _harmony.UnpatchAll();
             Singleton = null;
-            
-            Exiled.Events.Handlers.Server.RestartingRound -= _server.OnRoundRestart;
-            //Exiled.Events.Handlers.Server.SendingRemoteAdminCommand -= server.OnSendingRemoteAdmin;
-            
-            Exiled.Events.Handlers.Player.Verified -= _player.OnJoin;
-            Exiled.Events.Handlers.Player.Dying -= _player.OnDying;
-
-            _server = null;
-            _player = null;
             
             ThreadDispatcher dispatcher = Object.FindObjectOfType<ThreadDispatcher>();
             if (dispatcher != null)
                 Object.Destroy(dispatcher);
             
             AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
-            Exiled.Events.Handlers.Server.RestartingRound -= updater.RoundRestart;
-            if (updater == null)
+            if (updater != null)
                 Object.Destroy(updater);
+            
+            AdminSitHandler adminSitHandler = Object.FindObjectOfType<AdminSitHandler>();
+            if (adminSitHandler != null)
+                Object.Destroy(adminSitHandler);
+            
+            RemoteAdminModificationHandler remoteAdminModificationHandler = Object.FindObjectOfType<RemoteAdminModificationHandler>();
+            if (remoteAdminModificationHandler != null)
+                Object.Destroy(remoteAdminModificationHandler);
+            
             WebSocketSystem.Stop();
-
-            //Exiled.Events.Handlers.Map.Decontaminating -= MapEvents.OnDecon;
-            Exiled.Events.Handlers.Warhead.Starting -= QuerySystem.QueryMapEvents.OnWarheadStart;
-            Exiled.Events.Handlers.Warhead.Stopping -= QuerySystem.QueryMapEvents.OnWarheadCancelled;
-            Exiled.Events.Handlers.Warhead.Detonated -= QuerySystem.QueryMapEvents.OnWarheadDetonation;
             
-            Exiled.Events.Handlers.Server.WaitingForPlayers -= QuerySystem.QueryServerEvents.OnWaitingForPlayers;
-            Exiled.Events.Handlers.Server.RoundStarted -= QuerySystem.QueryServerEvents.OnRoundStart;
-            Exiled.Events.Handlers.Server.RoundEnded -= QuerySystem.QueryServerEvents.OnRoundEnd;
-            Exiled.Events.Handlers.Server.RespawningTeam -= QuerySystem.QueryServerEvents.OnRespawn;
-            Exiled.Events.Handlers.Server.ReportingCheater -= QuerySystem.QueryServerEvents.OnCheaterReport;
-            Exiled.Events.Handlers.Server.LocalReporting -= QuerySystem.QueryServerEvents.OnReport;
-            
-            Exiled.Events.Handlers.Scp079.InteractingTesla -= QuerySystem.QueryPlayerEvents.On079Tesla;
-            Exiled.Events.Handlers.Player.EscapingPocketDimension -= QuerySystem.QueryPlayerEvents.OnPocketEscape;
-            Exiled.Events.Handlers.Player.EnteringPocketDimension -= QuerySystem.QueryPlayerEvents.OnPocketEnter;
-            Exiled.Events.Handlers.Player.ThrowingItem -= QuerySystem.QueryPlayerEvents.OnGrenadeThrown;
-            Exiled.Events.Handlers.Player.Dying -= QuerySystem.QueryPlayerEvents.OnPlayerDeath;
-            Exiled.Events.Handlers.Player.Hurting -= QuerySystem.QueryPlayerEvents.OnPlayerHurt;
-            Exiled.Events.Handlers.Player.InteractingElevator -= QuerySystem.QueryPlayerEvents.OnElevatorInteraction;
-            Exiled.Events.Handlers.Player.Handcuffing -= QuerySystem.QueryPlayerEvents.OnPlayerHandcuffed;
-            Exiled.Events.Handlers.Player.RemovingHandcuffs -= QuerySystem.QueryPlayerEvents.OnPlayerFreed;
-            Exiled.Events.Handlers.Player.Verified -= QuerySystem.QueryPlayerEvents.OnPlayerJoin;
-            Exiled.Events.Handlers.Player.Left -= QuerySystem.QueryPlayerEvents.OnPlayerLeave;
-            Exiled.Events.Handlers.Player.ChangingRole -= QuerySystem.QueryPlayerEvents.OnSetClass;
-            Exiled.Events.Handlers.Player.Escaping -= QuerySystem.QueryPlayerEvents.OnEscape;
-
             QuerySystem.QueryMapEvents = null;
             QuerySystem.QueryServerEvents = null;
             QuerySystem.QueryPlayerEvents = null;
             
-            Exiled.Events.Handlers.Server.EndingRound -= EventManager.EventManagerServerEvents.EndingRound;
-            Exiled.Events.Handlers.Server.WaitingForPlayers -= EventManager.EventManagerServerEvents.WaitingForPlayers;
-            Exiled.Events.Handlers.Server.RoundEnded -= EventManager.EventManagerServerEvents.EndRound;
-            Exiled.Events.Handlers.Server.RestartingRound -= EventManager.EventManagerServerEvents.RestartingRound;
-            Exiled.Events.Handlers.Player.Joined -= EventManager.EventManagerPlayerEvents.OnPlayerJoin;
             EventManager.EventManagerServerEvents = null;
             EventManager.EventManagerPlayerEvents = null;
 
@@ -286,16 +288,13 @@ namespace CedMod
             {
                 try
                 {
-                    plugin.OnUnregisteringCommands();
-                    plugin.OnDisabled();
+                    plugin.Unload();
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"Failed to disable GameMode: {plugin}\n{e}");
+                    Log.Error($"Failed to disable GameMode: {plugin.PluginName}\n{e}");
                 }
             }
-            
-            base.OnDisabled();
         }
         
         internal static string GetHashCode(Stream stream, HashAlgorithm cryptoService)

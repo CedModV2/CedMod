@@ -7,20 +7,27 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using CedMod.Addons.QuerySystem;
-using Exiled.API.Features;
+using Footprinting;
 using GameCore;
 using InventorySystem.Items.Firearms;
 using MEC;
 using Newtonsoft.Json;
 using PlayerStatsSystem;
-using Log = Exiled.API.Features.Log;
+using PluginAPI.Core;
+using Log = PluginAPI.Core.Log;
 
 namespace CedMod
 {
     public static class API
     {
-        public static readonly Uri APIUrl = new Uri("https://api.cedmod.nl/");
-        
+        public static Uri APIUrl
+        {
+            get
+            {
+                return QuerySystem.IsDev ? new Uri("https://api.dev.cedmod.nl/") : new Uri("https://api.cedmod.nl/");
+            }
+        }
+
         public static object APIRequest(string endpoint, string arguments, bool returnstring = false, string type = "GET")
         {
             string response = "";  
@@ -95,20 +102,20 @@ namespace CedMod
             Dictionary<string, string> result = (Dictionary<string, string>) APIRequest($"api/Mute/{player.UserId}", "", false, "DELETE");
         }
 
-        public static void Ban(Player player, long duration, string sender, string reason, bool bc = true)
+        public static void Ban(CedModPlayer player, long duration, string sender, string reason, bool bc = true)
         {
             long realduration = (long)TimeSpan.FromSeconds(duration).TotalMinutes;
             if (duration >= 1)
             {
                 string json = "{\"Userid\": \"" + player.UserId + "\"," +
-                              "\"Ip\": \"" + player.IPAddress+"\"," +
+                              "\"Ip\": \"" + player.IpAddress+"\"," +
                               "\"AdminName\": \"" + sender.Replace("\"", "'") + "\"," +
                               "\"BanDuration\": "+realduration+"," +
                               "\"BanReason\": \""+reason.Replace("\"", "'")+"\"}";
                 Dictionary<string, string> result = (Dictionary<string, string>) APIRequest("Auth/Ban", json, false, "POST"); 
                 ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>  Timing.RunCoroutine(StrikeBad(player, result.ContainsKey("preformattedmessage") ? result["preformattedmessage"] : $"Failed to execute api request {JsonConvert.SerializeObject(result)}")));
                 if (bc)
-                    Map.Broadcast((ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", player.Nickname));
+                    Server.SendBroadcast(ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", player.Nickname), (ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), Broadcast.BroadcastFlags.Normal);
             }
             else
             {
@@ -130,23 +137,23 @@ namespace CedMod
                               "\"BanDuration\": "+realduration+"," +
                               "\"BanReason\": \""+reason.Replace("\"", "'")+"\"}";
                 Dictionary<string, string> result = (Dictionary<string, string>) APIRequest("Auth/Ban", json, false, "POST");
-                Player player = Player.Get(UserId);
+                CedModPlayer player = CedModPlayer.Get(UserId);
                 if (player != null)
                 {
                     if (player != null)
                     {
                         ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>  Timing.RunCoroutine(StrikeBad(player, result.ContainsKey("preformattedmessage") ? result["preformattedmessage"] : $"Failed to execute api request {JsonConvert.SerializeObject(result)}")));
                     }
-                    
+
                     if (bc)
-                        Map.Broadcast((ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", player.Nickname));
+                        Server.SendBroadcast(ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", player.Nickname), (ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), Broadcast.BroadcastFlags.Normal);
                 }
             }
             else
             {
                 if (duration <= 0)
                 {
-                    Player player = Player.Get(UserId);
+                    CedModPlayer player = CedModPlayer.Get(UserId);
                     if (player != null)
                     {
                         ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>  Timing.RunCoroutine(StrikeBad(player, reason + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage)));
@@ -155,11 +162,11 @@ namespace CedMod
             }
         }
 
-        public static IEnumerator<float> StrikeBad(Player player, string reason)
+        public static IEnumerator<float> StrikeBad(CedModPlayer player, string reason)
         {
-            player.ReferenceHub.playerStats.KillPlayer(new DisruptorDamageHandler(player.Footprint, -1));
+            player.ReferenceHub.playerStats.KillPlayer(new DisruptorDamageHandler(new Footprint(player.ReferenceHub), -1));
             yield return Timing.WaitForSeconds(0.1f);
-            ServerConsole.Disconnect(player.GameObject, reason);
+            player.Disconnect(reason);
         }
     }
 }

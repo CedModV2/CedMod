@@ -3,8 +3,7 @@ using System.Linq;
 using CedMod.Addons.QuerySystem.Patches;
 using CedMod.Addons.QuerySystem.WS;
 using CommandSystem;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
+using NWAPIPermissionSystem;
 using RemoteAdmin;
 
 namespace CedMod.Addons.QuerySystem.Commands

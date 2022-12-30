@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using CedMod.Addons.Audio;
 using CedMod.Commands;
-using Exiled.API.Features;
 using MEC;
-using Exiled.Events.EventArgs;
+using Mirror;
 using Newtonsoft.Json;
+using PluginAPI.Core.Attributes;
+using PluginAPI.Enums;
 
 namespace CedMod.Handlers
 {
@@ -15,11 +17,16 @@ namespace CedMod.Handlers
     {
         public static Dictionary<ReferenceHub, ReferenceHub> reported = new Dictionary<ReferenceHub, ReferenceHub>();
 
+        [PluginEvent(ServerEventType.RoundRestart)]
         public void OnRoundRestart()
         {
-            LightsoutCommand.isEnabled = false;
             FriendlyFireAutoban.Teamkillers.Clear();
-            Timing.KillCoroutines(LightsoutCommand.CoroutineHandle);
+            foreach (var fake in AudioCommand.FakeConnections)
+            {
+                NetworkServer.Destroy(fake.Value.gameObject);
+            }
+            AudioCommand.FakeConnections.Clear();
+            AudioCommand.FakeConnectionsIds.Clear();
         }
     }
 }

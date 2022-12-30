@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using PlayerRoles;
 
 namespace CedMod.ApiModals
 {
@@ -9,6 +10,6 @@ namespace CedMod.ApiModals
         public bool DoNotTrack { get; set; }
         public string UserId { get; set; }
         public int PlayerId { get; set; }
-        public RoleType RoleType { get; set; }
+        public RoleTypeId RoleType { get; set; }
     }
 }

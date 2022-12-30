@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CedMod.Addons.QuerySystem.WS;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
-using Exiled.Permissions.Features;
 using GameCore;
 using HarmonyLib;
 using InventorySystem.Items.Firearms.Modules;
@@ -16,7 +13,7 @@ using Log = Dissonance.Log;
 
 namespace CedMod.Addons.QuerySystem.Patches
 {
-    [HarmonyPatch(typeof(Permissions), nameof(Permissions.CheckPermission), typeof(CommandSender), typeof(string))]
+    /*[HarmonyPatch(typeof(Permissions), nameof(Permissions.CheckPermission), typeof(CommandSender), typeof(string))]
     public static class ExiledPermissionsPatch
     {
         public static bool Prefix(ref bool __result, CommandSender sender, string permission)
@@ -49,12 +46,12 @@ namespace CedMod.Addons.QuerySystem.Patches
 
         public static bool CheckPermission(string userId, string permission)
         {
-            Exiled.API.Features.Log.Info(userId);
+            PluginAPI.Core.Log.Info(userId);
             if (string.IsNullOrEmpty(permission))
                 return false;
             
             string plyGroupKey = Player.Get(userId) != null ? Player.Get(userId).GroupName : ServerStatic.GetPermissionsHandler()._members.FirstOrDefault(g => g.Value == userId).Value;
-            Exiled.API.Features.Log.Info(plyGroupKey);
+            PluginAPI.Core.Log.Info(plyGroupKey);
             
             if (plyGroupKey is null || !Permissions.Groups.TryGetValue(plyGroupKey, out Group group))
             {
@@ -63,7 +60,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 
             foreach (var grp in Exiled.Permissions.Extensions.Permissions.Groups)
             {
-                Exiled.API.Features.Log.Info(grp.Key);
+                PluginAPI.Core.Log.Info(grp.Key);
             }
 
             if (group is null)
@@ -116,5 +113,5 @@ namespace CedMod.Addons.QuerySystem.Patches
             bool result2 = group.CombinedPermissions.Contains(permission, StringComparison.OrdinalIgnoreCase);
             return result2;
         }
-    }
+    }*/
 }

@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using Exiled.API.Features;
+using PlayerRoles;
 
 namespace CedMod.Addons.QuerySystem
 {
     public class LevelerStore
     {
         public static bool TrackingEnabled;
-        public static Dictionary<Player, RoleType> InitialPlayerRoles = new Dictionary<Player, RoleType>();
+        public static Dictionary<CedModPlayer, RoleTypeId> InitialPlayerRoles = new Dictionary<CedModPlayer, RoleTypeId>();
     }
 }

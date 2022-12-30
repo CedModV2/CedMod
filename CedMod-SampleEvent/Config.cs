@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
-using Exiled.API.Interfaces;
+using CedMod.Addons.Events;
 
 namespace CedMod.SampleEvent
 {
-    public sealed class Config : IConfig
+    public sealed class Config: IEventConfig
     {
         [Description("Indicates whether the event is enabled or not")]
         public bool IsEnabled { get; set; } = true;

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using CommandSystem;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
+using NWAPIPermissionSystem;
+using PluginAPI.Core;
 
 namespace CedMod.Commands.Dialog
 {
@@ -29,7 +29,7 @@ namespace CedMod.Commands.Dialog
                 Player player;
                 string msg = arguments.Skip(1).Aggregate((current, n) => current + " " + n);
 
-                player = Player.Get(arguments.At(0));
+                player = CedModPlayer.Get(arguments.At(0));
                 if (player == null)
                 {
                     response = "Could not find player with the specified userid";

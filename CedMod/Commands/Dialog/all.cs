@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using CommandSystem;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
+using NWAPIPermissionSystem;
+using PluginAPI.Core;
 
 namespace CedMod.Commands.Dialog
 {
@@ -32,7 +32,7 @@ namespace CedMod.Commands.Dialog
             }
 
             string msg = arguments.Skip(0).Aggregate((current, n) => current + " " + n);
-            foreach (Player ply in Player.List) 
+            foreach (CedModPlayer ply in Player.GetPlayers<CedModPlayer>()) 
             {
                 ply.SendConsoleMessage("[REPORTING] " + msg + " Press ESC to close", "green");
             }

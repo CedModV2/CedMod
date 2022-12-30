@@ -9,7 +9,7 @@
         <AppDesignerFolder>Properties</AppDesignerFolder>
         <RootNamespace>CedMod.SampleEvent</RootNamespace>
         <AssemblyName>CedMod-SampleEvent</AssemblyName>
-        <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+        <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
         <LangVersion>9</LangVersion>
     </PropertyGroup>
@@ -63,10 +63,6 @@
         <Reference Include="CloudflareSolverRe, Version=1.0.6.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\CloudflareSolverRe.dll</HintPath>
         </Reference>
-        <Reference Include="CommandSystem.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.2.2\lib\net472\CommandSystem.Core.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
         <Reference Include="DiscordIntegration_Plugin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\DiscordIntegration_Plugin.dll</HintPath>
         </Reference>
@@ -75,42 +71,6 @@
         </Reference>
         <Reference Include="dnlib, Version=3.3.2.0, Culture=neutral, PublicKeyToken=50e96378b6e77999">
           <HintPath>..\References\dnlib.dll</HintPath>
-        </Reference>
-        <Reference Include="Exiled.API, Version=5.2.2.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.API.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="Exiled.Bootstrap, Version=5.2.2.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.Bootstrap.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="Exiled.CreditTags, Version=5.2.2.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.CreditTags.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="Exiled.CustomItems, Version=5.2.2.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.CustomItems.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="Exiled.CustomRoles, Version=5.2.2.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.CustomRoles.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="Exiled.Events, Version=5.2.2.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.Events.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="Exiled.Loader, Version=5.2.2.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.Loader.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="Exiled.Permissions, Version=5.2.2.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.Permissions.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="Exiled.Updater, Version=3.1.1.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.Updater.dll</HintPath>
-          <Private>True</Private>
         </Reference>
         <Reference Include="Facepunch.Steamworks.Win64, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\Facepunch.Steamworks.Win64.dll</HintPath>
@@ -161,15 +121,14 @@
           <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
           <Private>True</Private>
         </Reference>
-        <Reference Include="NorthwoodLib, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.5.2.2\lib\net472\NorthwoodLib.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
         <Reference Include="Novell.Directory.Ldap, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
           <HintPath>..\References\Novell.Directory.Ldap.dll</HintPath>
         </Reference>
         <Reference Include="OpusWrapper, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\0OpusWrapper.dll</HintPath>
+        </Reference>
+        <Reference Include="PluginAPI, Version=12.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\References\PluginAPI.dll</HintPath>
         </Reference>
         <Reference Include="System" />
         <Reference Include="System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">

@@ -2,9 +2,9 @@
 using System.Linq;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
 using MEC;
+using NWAPIPermissionSystem;
+using PluginAPI.Core;
 
 namespace CedMod.Addons.Events.Commands
 {
@@ -51,7 +51,7 @@ namespace CedMod.Addons.Events.Commands
             
             if (force)
             {
-                Map.Broadcast(5, $"EventManager: {@event.EventName} is being enabled.\nRound will restart in 3 seconds");
+                Server.SendBroadcast($"EventManager: {@event.EventName} is being enabled.\nRound will restart in 3 seconds", 5);
                 Timing.CallDelayed(3, () =>
                 {
                     Round.Restart(false, false);
@@ -59,7 +59,7 @@ namespace CedMod.Addons.Events.Commands
             }
             else
             {
-                Map.Broadcast(10, $"EventManager: {@event.EventName} has been moved to queue position {EventManager.nextEvent.IndexOf(@event)}");
+                Broadcast.Singleton.RpcAddElement($"EventManager: {@event.EventName} has been moved to queue position {EventManager.nextEvent.IndexOf(@event)}", 10, Broadcast.BroadcastFlags.Normal);
             }
             ThreadDispatcher.SendHeartbeatMessage(true);
             response = "Success";
