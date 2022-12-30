@@ -17,7 +17,7 @@ namespace CedMod.Addons.Events
         {
             player = Player.Get(this.GetComponent<ReferenceHub>());
             Log.Info($"Initialized HintManager for {player.Nickname}");
-            currentHint = "<size=25><color=yellow>" +
+            currentHint = "\n\n<size=25><color=yellow>" +
                           "This server is currently running an event:" +
                           $"\n{EventManager.currentEvent.EventName} By {EventManager.currentEvent.EvenAuthor}" +
                           $"\n" +
@@ -27,20 +27,21 @@ namespace CedMod.Addons.Events
 
         public void Update()
         {
+            hintTimer -= Time.deltaTime;
             if (hintTimer <= 0)
             {
                 hintTimer = hintRefreshRate - 0.2f;
-                if (HintProcessed != null)
+                string hintAddition = "";
+                foreach (var callback in HintProcessed)
                 {
-                    string hintAddition = "";
-                    foreach (var callback in HintProcessed)
-                    {
-                        hintAddition += callback.Invoke(player);
-                    }
-
-                    if (!string.IsNullOrEmpty(hintAddition))
-                        currentHint = hintAddition;
+                    hintAddition += callback.Invoke(player);
                 }
+
+                if (!string.IsNullOrEmpty(hintAddition))
+                    currentHint = hintAddition;
+                
+                if (CedModMain.Singleton.Config.EventManager.Debug)
+                    Log.Debug($"Hint display: {currentHint}");
                 
                 if (!string.IsNullOrEmpty(currentHint))
                     player.ReceiveHint(currentHint, hintRefreshRate);
