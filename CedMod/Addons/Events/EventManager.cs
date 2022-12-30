@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Exiled.API.Features;
+using Exiled.API.Interfaces;
 using HarmonyLib;
 using PluginAPI.Core;
 
@@ -14,5 +16,8 @@ namespace CedMod.Addons.Events
         public static EventManagerServerEvents EventManagerServerEvents;
         public static EventManagerPlayerEvents EventManagerPlayerEvents;
         public static List<PluginHandler> AvailableEventPlugins = new List<PluginHandler>();
+#if EXILED
+        public static List<IPlugin<IConfig>> AvailableEventPluginsExiled = new List<IPlugin<IConfig>>();
+#endif
     }
 }

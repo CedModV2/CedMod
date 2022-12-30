@@ -10,6 +10,7 @@ using CedMod.Addons.Audio;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem.WS;
 using CedMod.ApiModals;
+using Exiled.Loader;
 using Newtonsoft.Json;
 using PluginAPI.Core;
 using SCPSLAudioApi.AudioCore;
@@ -225,7 +226,11 @@ namespace CedMod.Addons.QuerySystem
                             UpdateStats = updateStats,
                             TrackingEnabled = LevelerStore.TrackingEnabled && EventManager.currentEvent == null,
                             CedModVersionIdentifier = CedModMain.VersionIdentifier,
+#if !EXILED
                             ExiledVersion = "NWAPI",
+#else
+                            ExiledVersion = Loader.Version.ToString(),
+#endif
                             ScpSlVersion = $"{Version.Major}.{Version.Minor}.{Version.Revision}",
                             FileHash = CedModMain.FileHash
                         })

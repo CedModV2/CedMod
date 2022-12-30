@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
 using CedMod.ApiModals;
+using Exiled.Loader;
 using Newtonsoft.Json;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
@@ -117,7 +118,11 @@ namespace CedMod.Components
             {
                 using (HttpClient client = new HttpClient())
                 {
+#if !EXILED
                     var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Version/UpdateAvailableNW?VersionId={CedModMain.VersionIdentifier}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+#else
+                    var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Version/UpdateAvailable?VersionId={CedModMain.VersionIdentifier}&ExiledVersion={Loader.Version.ToString()}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+#endif
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
                         if (response.StatusCode == HttpStatusCode.NotFound)
@@ -205,7 +210,11 @@ namespace CedMod.Components
             {
                 using (HttpClient client = new HttpClient())
                 {
+#if !EXILED
                     var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Version/TargetDownloadNW?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+#else 
+                    var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Version/TargetDownload?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ExiledVersion={Loader.Version.ToString()}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+#endif
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
                         Log.Error($"Failed to download update: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
@@ -249,7 +258,11 @@ namespace CedMod.Components
             {
                 using (HttpClient client = new HttpClient())
                 {
+#if !EXILED
                     var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Version/TargetDownloadNW?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+#else 
+                    var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Version/TargetDownload?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ExiledVersion={Loader.Version.ToString()}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+#endif
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
                         Log.Error($"Failed to download update: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");

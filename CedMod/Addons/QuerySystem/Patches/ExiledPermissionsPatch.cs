@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CedMod.Addons.QuerySystem.WS;
+using Exiled.API.Features;
+using Exiled.Permissions.Extensions;
+using Exiled.Permissions.Features;
 using GameCore;
 using HarmonyLib;
 using InventorySystem.Items.Firearms.Modules;
@@ -13,7 +16,8 @@ using Log = Dissonance.Log;
 
 namespace CedMod.Addons.QuerySystem.Patches
 {
-    /*[HarmonyPatch(typeof(Permissions), nameof(Permissions.CheckPermission), typeof(CommandSender), typeof(string))]
+#if EXILED
+    [HarmonyPatch(typeof(Permissions), nameof(Permissions.CheckPermission), typeof(CommandSender), typeof(string))]
     public static class ExiledPermissionsPatch
     {
         public static bool Prefix(ref bool __result, CommandSender sender, string permission)
@@ -23,7 +27,6 @@ namespace CedMod.Addons.QuerySystem.Patches
                 switch (sender)
                 {
                     case ServerConsoleSender _:
-                    case ConsoleCommandSender _:
                         break;
                     case PlayerCommandSender _:
                         Player player = Player.Get(sender.SenderId);
@@ -113,5 +116,6 @@ namespace CedMod.Addons.QuerySystem.Patches
             bool result2 = group.CombinedPermissions.Contains(permission, StringComparison.OrdinalIgnoreCase);
             return result2;
         }
-    }*/
+    }
+#endif
 }

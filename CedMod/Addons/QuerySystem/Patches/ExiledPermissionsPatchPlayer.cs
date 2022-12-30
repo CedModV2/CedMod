@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CedMod.Addons.QuerySystem.WS;
+using Exiled.API.Extensions;
+using Exiled.API.Features;
+using Exiled.Permissions.Extensions;
+using Exiled.Permissions.Features;
 using GameCore;
 using HarmonyLib;
 using InventorySystem.Items.Firearms.Modules;
@@ -13,7 +17,8 @@ using Log = PluginAPI.Core.Log;
 
 namespace CedMod.Addons.QuerySystem.Patches
 {
-    /*[HarmonyPatch(typeof(Permissions), nameof(Permissions.CheckPermission), typeof(Player), typeof(string))]
+#if EXILED
+    [HarmonyPatch(typeof(Permissions), nameof(Permissions.CheckPermission), typeof(Player), typeof(string))]
     public static class ExiledPermissionsPatchPlayer
     {
         public static bool Prefix(ref bool __result, Player player, string permission)
@@ -116,5 +121,6 @@ namespace CedMod.Addons.QuerySystem.Patches
             __result = result2;
             return false;
         }
-    }*/
+    }
+#endif
 }

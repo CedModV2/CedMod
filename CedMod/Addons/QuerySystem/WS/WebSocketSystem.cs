@@ -16,6 +16,7 @@ using CedMod.Components;
 using CommandSystem;
 using CommandSystem.Commands.RemoteAdmin;
 using CommandSystem.Commands.RemoteAdmin.Broadcasts;
+using Exiled.Permissions.Extensions;
 using MEC;
 using Mirror;
 using Newtonsoft.Json;
@@ -626,8 +627,13 @@ namespace CedMod.Addons.QuerySystem.WS
                     var oldMembers = new Dictionary<string, string>(handler._members);
                     handler._groups.Clear();
                     handler._members.Clear();
-                    PermissionHandler.PermissionGroups.Clear();
-
+                    if (AppDomain.CurrentDomain.GetAssemblies().Any(s => s.GetName().Name == "NWAPIPermissionSystem"))
+                    {
+                        ClearNWApiPermissions();
+                    }
+#if EXILED
+                    Permissions.Groups.Clear();
+#endif
                     foreach (var perm in permsSlRequest.PermissionEntries)
                     {
                         handler._groups.Add(perm.Name, new UserGroup()
@@ -642,12 +648,19 @@ namespace CedMod.Addons.QuerySystem.WS
                             Shared = false
                         });
 
-                        var epGroup = new Group();
-                        epGroup.Permissions.AddRange(perm.ExiledPermissions);
-                        epGroup.CombinedPermissions.AddRange(perm.ExiledPermissions);
-                        epGroup.InheritedGroups.Clear();
-                        epGroup.IsDefault = false;
-                        PermissionHandler.PermissionGroups.Add(perm.Name, epGroup);
+                        if (AppDomain.CurrentDomain.GetAssemblies().Any(s => s.GetName().Name == "NWAPIPermissionSystem"))
+                        {
+                            ProcessNWPermissions(perm);
+                        }
+
+#if EXILED                        
+                        var epGroup1 = new Exiled.Permissions.Features.Group();
+                        epGroup1.Permissions.AddRange(perm.ExiledPermissions);
+                        epGroup1.CombinedPermissions.AddRange(perm.ExiledPermissions);
+                        epGroup1.Inheritance.Clear();
+                        epGroup1.IsDefault = false;
+                        Permissions.Groups.Add(perm.Name, epGroup1);
+#endif
                     }
 
                     foreach (var member in permsSlRequest.MembersList)
@@ -695,6 +708,21 @@ namespace CedMod.Addons.QuerySystem.WS
                     ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
                 }
             }
+        }
+
+        private static void ClearNWApiPermissions()
+        {
+            PermissionHandler.PermissionGroups.Clear();
+        }
+
+        private static void ProcessNWPermissions(SLPermissionEntry perm)
+        {
+            var epGroup = new Group();
+            epGroup.Permissions.AddRange(perm.ExiledPermissions);
+            epGroup.CombinedPermissions.AddRange(perm.ExiledPermissions);
+            epGroup.InheritedGroups.Clear();
+            epGroup.IsDefault = false;
+            PermissionHandler.PermissionGroups.Add(perm.Name, epGroup);
         }
     }
 

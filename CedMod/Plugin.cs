@@ -11,6 +11,8 @@ using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
 using CedMod.Components;
+using Exiled.API.Features;
+using Exiled.Loader;
 using HarmonyLib;
 using UnityEngine;
 using MEC;
@@ -21,12 +23,18 @@ using PluginAPI.Enums;
 using PluginAPI.Helpers;
 using PluginAPI.Loader;
 using PluginAPI.Loader.Features;
+using Log = PluginAPI.Core.Log;
 using Object = UnityEngine.Object;
+using Server = PluginAPI.Core.Server;
 
 namespace CedMod
 {
     
+#if EXILED
+    public class CedModMain: Plugin<Config>
+#else
     public class CedModMain
+#endif
     {
         private Harmony _harmony;
         public static CedModMain Singleton;
@@ -39,17 +47,29 @@ namespace CedMod
         public static string PluginLocation = "";
         public static PluginDirectory GameModeDirectory;
         public static Assembly Assembly;
+#if !EXILED
         public static PluginHandler Handler;
+#endif
 
         public const string Version = "3.3.3";
 
         [PluginConfig]
         public Config Config;
-        
+
+#if EXILED
+        public override void OnEnabled()
+        {
+            LoadPlugin();
+        }
+#endif
+
+        #if !EXILED
         [PluginPriority(LoadPriority.Lowest)]
         [PluginEntryPoint("CedMod", Version, "SCP:SL Moderation system https://cedmod.nl/About", "ced777ric#0001")]
+        #endif
         void LoadPlugin()
         {
+#if !EXILED
             if (!Config.IsEnabled)
                 return;
             Handler = PluginHandler.Get(this);
@@ -61,7 +81,15 @@ namespace CedMod
             
             PluginLocation = Handler.PluginFilePath;
             PluginConfigFolder = Handler.PluginDirectoryPath;
-
+#else
+            PluginLocation = this.GetPath();
+            PluginConfigFolder = Path.Combine(Path.GetDirectoryName(ConfigPath));
+            
+            if (!Directory.Exists(PluginConfigFolder))
+            {
+                Directory.CreateDirectory(PluginConfigFolder);
+            }
+#endif
             Assembly = Assembly.GetExecutingAssembly();
             CosturaUtility.Initialize();
             
@@ -169,6 +197,8 @@ namespace CedMod
             Dictionary<Type, PluginHandler> handlers = new Dictionary<Type, PluginHandler>();
             Dictionary<PluginHandler, string> pluginLocations = new Dictionary<PluginHandler, string>();
 
+            List<Assembly> ExiledPlugin = new List<Assembly>();
+
             foreach (var file in Directory.GetFiles(Path.Combine(PluginConfigFolder, "CedModEvents"), "*.dll"))
             {
                 var assembly = Assembly.Load(File.ReadAllBytes(file));
@@ -177,6 +207,17 @@ namespace CedMod
 
                 foreach (var entryType in types)
                 {
+#if EXILED
+                    if ((object) entryType != null && entryType.IsGenericType)
+                    {
+                        Type genericTypeDefinition = entryType.GetGenericTypeDefinition();
+                        if (genericTypeDefinition == typeof (Plugin<>) || genericTypeDefinition == typeof (Plugin<,>))
+                        {
+                            ExiledPlugin.Add(entryType.Assembly);
+                            continue;
+                        }
+                    }
+#endif
                     if (!entryType.IsValidEntrypoint()) 
                         continue;
 
@@ -204,11 +245,59 @@ namespace CedMod
                 }
             }
 
+#if EXILED
+            foreach (var exiled in ExiledPlugin)
+            {
+                var plugin = Loader.CreatePlugin(exiled);
+                try
+                {
+                    plugin.OnEnabled();
+                    plugin.OnRegisteringCommands();
+                }
+                catch (Exception e)
+                {
+                    Log.Info($"[ExiledGameMode] Failed to load {plugin.Name}.\n{e}");
+                    continue;
+                }
+
+                EventManager.AvailableEventPluginsExiled.Add(plugin);
+
+                foreach (var type in exiled.GetTypes().Where(x => typeof(IEvent).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract))
+                {
+                    if (Config.EventManager.Debug)
+                        Log.Debug($"[ExiledGameMode] Checked {plugin.Name} for CedMod-Events functionality, IEvent inherited");
+                    var constructor = type.GetConstructor(Type.EmptyTypes);
+                    if (constructor == null)
+                    {
+                        if (Config.EventManager.Debug) 
+                            Log.Debug($"[ExiledGameMode] Checked {plugin.Name} Constructor is null, cannot continue");
+                        continue;
+                    }
+                    else
+                    {
+                        IEvent @event = constructor.Invoke(null) as IEvent;
+                        if (@event == null)
+                            continue;
+
+                        if (!@event.Config.IsEnabled)
+                        {
+                            if (Config.EventManager.Debug)
+                                Log.Debug($"[ExiledGameMode] Checked {plugin.Name} IsEnabled is False, cannot continue");
+                            continue;
+                        }
+
+                        EventManager.AvailableEvents.Add(@event);
+                        Log.Info($"[ExiledGameMode] Successfully registered {@event.EventName} By {@event.EvenAuthor} ({@event.EventPrefix})");
+                    }
+                }
+            }
+#endif
+            
             foreach (var gamemode in handlers)
             {
                 if (EventManager.AvailableEventPlugins.Contains(gamemode.Value))
                 {
-                    Log.Error($"Found duplicate Event: {gamemode.Value.PluginName} Located at: {pluginLocations[gamemode.Value]} Please only have one of each Event installed");
+                    Log.Error($"[NWAPIGamemode] Found duplicate Event: {gamemode.Value.PluginName} Located at: {pluginLocations[gamemode.Value]} Please only have one of each Event installed");
                     continue;
                 }
                 EventManager.AvailableEventPlugins.Add(gamemode.Value);
@@ -218,19 +307,19 @@ namespace CedMod
                 }
                 catch (Exception e)
                 {
-                    Log.Info($"Failed to load {gamemode.Value.PluginName}.\n{e}");
+                    Log.Info($"[NWAPIGamemode] Failed to load {gamemode.Value.PluginName}.\n{e}");
                     continue;
                 }
 
                 foreach (var type in gamemode.Key.Assembly.GetTypes().Where(x => typeof(IEvent).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract))
                 {
                     if (Config.EventManager.Debug)
-                        Log.Debug($"Checked {gamemode.Value.PluginName} for CedMod-Events functionality, IEvent inherited");
+                        Log.Debug($"[NWAPIGamemode] Checked {gamemode.Value.PluginName} for CedMod-Events functionality, IEvent inherited");
                     var constructor = type.GetConstructor(Type.EmptyTypes);
                     if (constructor == null)
                     {
                         if (Config.EventManager.Debug)
-                            Log.Debug($"Checked {gamemode.Value.PluginName} Constructor is null, cannot continue");
+                            Log.Debug($"[NWAPIGamemode] Checked {gamemode.Value.PluginName} Constructor is null, cannot continue");
                         continue;
                     }
                     else
@@ -242,19 +331,26 @@ namespace CedMod
                         if (!@event.Config.IsEnabled)
                         {
                             if (Config.EventManager.Debug)
-                                Log.Debug($"Checked {gamemode.Value.PluginName} IsEnabled is False, cannot continue");
+                                Log.Debug($"[NWAPIGamemode] Checked {gamemode.Value.PluginName} IsEnabled is False, cannot continue");
                             continue;
                         }
                       
                         EventManager.AvailableEvents.Add(@event);
-                        Log.Info($"Successfully registered {@event.EventName} By {@event.EvenAuthor} ({@event.EventPrefix})");
+                        Log.Info($"[NWAPIGamemode] Successfully registered {@event.EventName} By {@event.EvenAuthor} ({@event.EventPrefix})");
                     }
                 }
             }
         }
 
+#if EXILED
+        public override void OnDisabled()
+        {
+            Disabled();
+        }
+#else
         [PluginUnload]
-        public void OnDisabled()
+#endif
+        public void Disabled()
         {
             _harmony.UnpatchAll();
             Singleton = null;

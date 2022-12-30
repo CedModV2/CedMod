@@ -32,6 +32,12 @@
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug EXILED|AnyCPU' ">
+      <OutputPath>bin\Debug EXILED\</OutputPath>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release EXILED|AnyCPU' ">
+      <OutputPath>bin\Release EXILED\</OutputPath>
+    </PropertyGroup>
     <ItemGroup>
         <Reference Include="0Harmony, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\0Harmony.dll</HintPath>
