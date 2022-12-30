@@ -4,7 +4,7 @@ VisualStudioVersion = 15.0.28307.645
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CedMod-Main", "CedMod\CedMod-Main.csproj", "{B404BA59-5C33-41DC-8FEE-0F10F087089D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CedMod-SampleEvent", "CedMod-SampleEvent\CedMod-SampleEvent.csproj", "{2F1B2CB5-0B6B-44DB-9FA4-CB357420C36D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CedMod-SampleEvent-NWApi", "CedMod-SampleEvent-NWApi\CedMod-SampleEvent-NWApi.csproj", "{2F1B2CB5-0B6B-44DB-9FA4-CB357420C36D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
