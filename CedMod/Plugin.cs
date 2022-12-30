@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CedMod.Addons.AdminSitSystem;
+using CedMod.Addons.Audio;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
@@ -98,6 +99,7 @@ namespace CedMod
                 Directory.CreateDirectory(PluginConfigFolder);
             }
 #endif
+            CharacterClassManager.OnInstanceModeChanged += HandleInstanceModeChange; 
             Assembly = Assembly.GetExecutingAssembly();
             CosturaUtility.Initialize();
             
@@ -350,6 +352,15 @@ namespace CedMod
             }
         }
 
+        private void HandleInstanceModeChange(ReferenceHub arg1, ClientInstanceMode arg2)
+        {
+            if ((arg2 != ClientInstanceMode.Unverified || arg2 != ClientInstanceMode.Host) && AudioCommand.FakeConnectionsIds.ContainsValue(arg1))
+            {
+                Log.Info($"Replaced instancemode for dummy to host.");
+                arg1.characterClassManager.InstanceMode = ClientInstanceMode.Host;
+            }
+        }
+
 #if EXILED
         public override void OnDisabled()
         {
@@ -360,6 +371,7 @@ namespace CedMod
 #endif
         public void Disabled()
         {
+            CharacterClassManager.OnInstanceModeChanged -= HandleInstanceModeChange;
             _harmony.UnpatchAll();
             Singleton = null;
             
