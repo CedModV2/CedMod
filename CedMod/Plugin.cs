@@ -399,6 +399,18 @@ namespace CedMod
                     Log.Error($"Failed to disable GameMode: {plugin.PluginName}\n{e}");
                 }
             }
+            
+            foreach (var plugin in EventManager.AvailableEventPluginsExiled)
+            {
+                try
+                {
+                    plugin.OnDisabled();
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"Failed to disable GameMode: {plugin.Name}\n{e}");
+                }
+            }
         }
         
         internal static string GetHashCode(Stream stream, HashAlgorithm cryptoService)
