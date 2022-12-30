@@ -21,6 +21,7 @@ using MEC;
 using Mirror;
 using Newtonsoft.Json;
 using NWAPIPermissionSystem;
+using Exiled.Permissions.Extensions;
 using NWAPIPermissionSystem.Commands;
 using NWAPIPermissionSystem.Models;
 using PluginAPI.Core;

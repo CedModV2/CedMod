@@ -3,7 +3,11 @@ using System.Linq;
 using CedMod.Addons.QuerySystem.Patches;
 using CedMod.Addons.QuerySystem.WS;
 using CommandSystem;
+#if !EXILED
 using NWAPIPermissionSystem;
+#else
+using Exiled.Permissions.Extensions;
+#endif
 using RemoteAdmin;
 
 namespace CedMod.Addons.QuerySystem.Commands

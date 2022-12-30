@@ -5,7 +5,11 @@ using CedMod.Addons.QuerySystem;
 using CommandSystem;
 using MEC;
 using Mirror;
+#if !EXILED
 using NWAPIPermissionSystem;
+#else
+using Exiled.Permissions.Extensions;
+#endif
 using PluginAPI.Core;
 using Object = UnityEngine.Object;
 

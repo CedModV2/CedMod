@@ -97,7 +97,7 @@ namespace CedMod.Components
                     TimePassedUpdateNotify = 0;
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Prepping Check");
-                    Log.Warning($"New CedMod Update available: {Pending.VersionString} - {Pending.VersionCommit}\nCurrent: {CedModMain.Version} - {CedModMain.GitCommitHash}\nPlease update your CedMod version by enabling AutoUpdate in your config or run installcedmodupdate if you dont want automatic updates");
+                    Log.Warning($"New CedMod Update available: {Pending.VersionString} - {Pending.VersionCommit}\nCurrent: {CedModMain.PluginVersion} - {CedModMain.GitCommitHash}\nPlease update your CedMod version by enabling AutoUpdate in your config or run installcedmodupdate if you dont want automatic updates");
                 }
             }
         }
@@ -139,7 +139,7 @@ namespace CedMod.Components
                     else
                     {
                         var dat = JsonConvert.DeserializeObject<CedModVersion>(response.Content.ReadAsStringAsync().Result);
-                        Log.Info($"Update available: {dat.VersionString} - {dat.VersionCommit}\nCurrent: {CedModMain.Version} - {CedModMain.GitCommitHash}");
+                        Log.Info($"Update available: {dat.VersionString} - {dat.VersionCommit}\nCurrent: {CedModMain.PluginVersion} - {CedModMain.GitCommitHash}");
                         return dat;
                     }
                 }

@@ -25,6 +25,7 @@ using PluginAPI.Loader;
 using PluginAPI.Loader.Features;
 using Log = PluginAPI.Core.Log;
 using Object = UnityEngine.Object;
+using Paths = Exiled.API.Features.Paths;
 using Server = PluginAPI.Core.Server;
 
 namespace CedMod
@@ -51,12 +52,19 @@ namespace CedMod
         public static PluginHandler Handler;
 #endif
 
-        public const string Version = "3.3.3";
+        public const string PluginVersion = "3.3.3";
 
+#if !EXILED
         [PluginConfig]
         public Config Config;
+#endif
 
 #if EXILED
+        public override string Name { get; } = "CedMod";
+        public override string Prefix { get; } = "cm";
+        public override string Author { get; } = "ced777ric#8321";
+        public override Version Version { get; } = new Version(PluginVersion);
+
         public override void OnEnabled()
         {
             LoadPlugin();
@@ -65,7 +73,7 @@ namespace CedMod
 
         #if !EXILED
         [PluginPriority(LoadPriority.Lowest)]
-        [PluginEntryPoint("CedMod", Version, "SCP:SL Moderation system https://cedmod.nl/About", "ced777ric#0001")]
+        [PluginEntryPoint("CedMod", PluginVersion, "SCP:SL Moderation system https://cedmod.nl/About", "ced777ric#8321")]
         #endif
         void LoadPlugin()
         {
@@ -83,8 +91,8 @@ namespace CedMod
             PluginConfigFolder = Handler.PluginDirectoryPath;
 #else
             PluginLocation = this.GetPath();
-            PluginConfigFolder = Path.Combine(Path.GetDirectoryName(ConfigPath));
-            
+            PluginConfigFolder = Path.Combine(Paths.Configs, "CedMod");
+            Log.Info($"Using {PluginConfigFolder} as CedMod data folder.");
             if (!Directory.Exists(PluginConfigFolder))
             {
                 Directory.CreateDirectory(PluginConfigFolder);

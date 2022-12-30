@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Linq;
 using CommandSystem;
+#if !EXILED
 using NWAPIPermissionSystem;
+#else
+using Exiled.Permissions.Extensions;
+#endif
 using PluginAPI.Core;
 
 namespace CedMod.Commands.Dialog

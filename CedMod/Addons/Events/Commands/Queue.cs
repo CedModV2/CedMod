@@ -1,7 +1,11 @@
 ﻿using System;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
+#if !EXILED
 using NWAPIPermissionSystem;
+#else
+using Exiled.Permissions.Extensions;
+#endif
 
 namespace CedMod.Addons.Events.Commands
 {

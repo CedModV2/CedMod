@@ -3,7 +3,11 @@ using System.Linq;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
 using MEC;
+#if !EXILED
 using NWAPIPermissionSystem;
+#else
+using Exiled.Permissions.Extensions;
+#endif
 using PluginAPI.Core;
 
 namespace CedMod.Addons.Events.Commands

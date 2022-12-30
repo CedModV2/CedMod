@@ -5,7 +5,11 @@ using CedMod.Addons.QuerySystem;
 using CedMod.ApiModals;
 using CommandSystem;
 using Newtonsoft.Json;
+#if !EXILED
 using NWAPIPermissionSystem;
+#else
+using Exiled.Permissions.Extensions;
+#endif
 
 namespace CedMod.Addons.Events.Commands
 {

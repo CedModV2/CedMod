@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using CommandSystem;
 using MEC;
+#if !EXILED
 using NWAPIPermissionSystem;
+#else
+using Exiled.Permissions.Extensions;
+#endif
 using PlayerRoles;
 
 namespace CedMod.Addons.AdminSitSystem.Commands.Jail

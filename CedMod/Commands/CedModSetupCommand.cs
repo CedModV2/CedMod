@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
+using Exiled.Loader;
 using MEC;
 using Newtonsoft.Json;
 using RoundRestarting;
@@ -52,7 +53,14 @@ namespace CedMod.Commands
                 Dictionary<string, string> PanelResponse = JsonConvert.DeserializeObject<Dictionary<string, string>>(result);
                 CedModMain.Singleton.Config.CedMod.CedModApiKey = key;
                 QuerySystem.QuerySystemKey = PanelResponse["QueryKey"];
+#if !EXILED
                 File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "config.yml"), YamlParser.Serializer.Serialize(CedModMain.Singleton.Config));
+#else
+                var pluginConfigs = ConfigManager.LoadSorted(ConfigManager.Read());
+                Config cedModCnf = pluginConfigs[CedModMain.Singleton.Prefix] as Config;
+                cedModCnf.CedMod.CedModApiKey = key;
+                ConfigManager.Save(pluginConfigs);
+#endif
                 response = $"CedMod has been setup, using the identifier: {PanelResponse["QueryIdentifier"]}\nThe server will now be restarted,";
                 ServerStatic.StopNextRound = ServerStatic.NextRoundAction.Restart;
                 RoundRestart.ChangeLevel(true);

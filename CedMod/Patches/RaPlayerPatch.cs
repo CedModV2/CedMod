@@ -11,7 +11,11 @@ using MEC;
 using Mirror;
 using Newtonsoft.Json;
 using NorthwoodLib.Pools;
+#if !EXILED
 using NWAPIPermissionSystem;
+#else
+using Exiled.Permissions.Extensions;
+#endif
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PlayerStatsSystem;

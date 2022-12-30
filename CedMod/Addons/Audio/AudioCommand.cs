@@ -7,7 +7,11 @@ using GameCore;
 using MapGeneration;
 using MEC;
 using Mirror;
+#if !EXILED
 using NWAPIPermissionSystem;
+#else
+using Exiled.Permissions.Extensions;
+#endif
 using PlayerRoles;
 using RemoteAdmin;
 using VoiceChat;

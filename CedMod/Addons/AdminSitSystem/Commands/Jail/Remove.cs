@@ -11,7 +11,11 @@ using InventorySystem.Items.MicroHID;
 using InventorySystem.Items.Radio;
 using MEC;
 using Mirror;
+#if !EXILED
 using NWAPIPermissionSystem;
+#else
+using Exiled.Permissions.Extensions;
+#endif
 using PlayerRoles;
 using PluginAPI.Core;
 using Vector3 = UnityEngine.Vector3;

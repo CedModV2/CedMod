@@ -2,7 +2,11 @@
 using CommandSystem;
 using GameCore;
 using Mirror;
+#if !EXILED
 using NWAPIPermissionSystem;
+#else
+using Exiled.Permissions.Extensions;
+#endif
 using RoundRestarting;
 
 namespace CedMod.Commands

@@ -222,7 +222,7 @@ namespace CedMod.Addons.QuerySystem
                             Events = events,
                             Players = players,
                             PluginCommitHash = CedModMain.GitCommitHash,
-                            PluginVersion = CedModMain.Version,
+                            PluginVersion = CedModMain.PluginVersion,
                             UpdateStats = updateStats,
                             TrackingEnabled = LevelerStore.TrackingEnabled && EventManager.currentEvent == null,
                             CedModVersionIdentifier = CedModMain.VersionIdentifier,

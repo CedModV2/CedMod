@@ -7,7 +7,11 @@ using CommandSystem.Commands.RemoteAdmin;
 using InventorySystem.Items;
 using MEC;
 using Mirror;
+#if !EXILED
 using NWAPIPermissionSystem;
+#else
+using Exiled.Permissions.Extensions;
+#endif
 using PlayerRoles;
 using UnityEngine;
 

@@ -2,7 +2,11 @@
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem.WS;
 using CommandSystem;
+#if !EXILED
 using NWAPIPermissionSystem;
+#else
+using Exiled.Permissions.Extensions;
+#endif
 
 namespace CedMod.Addons.QuerySystem.Commands
 {
