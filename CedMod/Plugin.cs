@@ -74,10 +74,10 @@ namespace CedMod
         }
 #endif
 
-        #if !EXILED
+#if !EXILED
         [PluginPriority(LoadPriority.Lowest)]
         [PluginEntryPoint("CedMod", PluginVersion, "SCP:SL Moderation system https://cedmod.nl/About", "ced777ric#8321")]
-        #endif
+#endif
         void LoadPlugin()
         {
 #if !EXILED
