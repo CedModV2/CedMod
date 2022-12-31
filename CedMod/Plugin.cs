@@ -70,6 +70,7 @@ namespace CedMod
         public override void OnEnabled()
         {
             LoadPlugin();
+            base.OnEnabled();
         }
 #endif
 
@@ -366,6 +367,7 @@ namespace CedMod
         public override void OnDisabled()
         {
             Disabled();
+            base.OnDisabled();
         }
 #else
         [PluginUnload]
