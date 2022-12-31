@@ -65,6 +65,7 @@ namespace CedMod
         public override string Prefix { get; } = "cm";
         public override string Author { get; } = "ced777ric#8321";
         public override Version Version { get; } = new Version(PluginVersion);
+        public override Version RequiredExiledVersion { get; } = new Version(6, 0, 0);
 
         public override void OnEnabled()
         {
