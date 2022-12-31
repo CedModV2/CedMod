@@ -44,8 +44,8 @@ namespace CedMod.Addons.Events
                 Log.Info($"Enabled {EventManager.currentEvent.EventName} has been disabled due to round restart");
                 EventManager.currentEvent.StopEvent();
                 EventManager.currentEvent = null;
-                HintManager.HintProcessed.Clear();
             }
+            HintManager.HintProcessed.Clear();
         }
     }
 }
