@@ -3,3 +3,4 @@ V: 3.4.0
  - Exiled support
  - Eventmanager tries to load NWApi AND Exiled events on the Exiled version
  - Fixed Broadcasts in eventmanager commands
+ - Watchlist has been reworked to also show in RA and a better broadcast.
