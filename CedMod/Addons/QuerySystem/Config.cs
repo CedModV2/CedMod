@@ -46,5 +46,14 @@ namespace CedMod.Addons.QuerySystem
         
         [Description("The message show to a player when a the state of their report updates")]
         public string PlayerReportUpdateNotification { get; set; } = "<size=30><color=yellow>Your report regarding {reportedName} is now {reportState} by {handlerName}</size>";
+        
+        [Description("The message show to staff if they do not have the ingame report in RA enabled")]
+        public string StaffReportWatchlistIngameDisabled { get; set; } = "<size=25>To be able to view Watchlisted players RemoteAdmin, open the CedMod website (External Lookup or navigating directly)\nClick on your user icon, and click Instance Preferences.\nenable ShowWatchListUsersInRemoteAdmin</size>";
+        
+        [Description("The message show to staff when a player on the watchlist joins")]
+        public string PlayerWatchlistJoin { get; set; } = "<size=25><color=yellow>{playerId} - {playerName} ({userId}) is on the watchlist for: {reason}</size></color>";
+        
+        [Description("The message show to staff when a player on the Group Watchlist joins")]
+        public string PlayerGroupWatchlistJoin { get; set; } = "<size=25><color=yellow>{playerId} - {playerName} ({userId}) is on the Group watchlist:\nGroups: {groups}\nReason: {reason}</size></color>";
     }
 }

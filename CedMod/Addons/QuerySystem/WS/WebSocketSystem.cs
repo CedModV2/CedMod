@@ -266,6 +266,70 @@ namespace CedMod.Addons.QuerySystem.WS
                 {
                     switch (text2)
                     {
+                        case "watchlistgroupack":
+                            RemoteAdminModificationHandler.UpdateWatchList();
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                            {
+                                foreach (var staff in ReferenceHub.AllHubs)
+                                {
+                                    if (staff.isLocalPlayer || !PermissionsHandler.IsPermitted(staff.serverRoles.Permissions, PlayerPermissions.PlayersManagement))
+                                        continue;
+
+                                    var plr = CedModPlayer.Get(staff);
+                                    var watchlistPlr = CedModPlayer.Get(jsonData["UserId"]);
+                                    if (watchlistPlr == null)
+                                        continue;
+                                    string msg = CedModMain.Singleton.Config.QuerySystem.PlayerGroupWatchlistJoin;
+                                    if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
+                                    {
+                                        Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, () =>
+                                            {
+                                                if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin)
+                                                    msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportWatchlistIngameDisabled;
+                                                Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{playerId}", $"{watchlistPlr.PlayerId}").Replace("{userId}", watchlistPlr.UserId).Replace("{playerName}", watchlistPlr.Nickname).Replace("{reason}", jsonData["Reason"]).Replace("{groups}", jsonData["Groups"]), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
+                                            }));
+                                    }
+                                    else
+                                    {
+                                        if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin)
+                                            msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportWatchlistIngameDisabled;
+                                        Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{playerId}", $"{watchlistPlr.PlayerId}").Replace("{userId}", watchlistPlr.UserId).Replace("{playerName}", watchlistPlr.Nickname).Replace("{reason}", jsonData["Reason"]).Replace("{groups}", jsonData["Groups"]), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
+                                    }
+                                }
+                            });
+                            break;
+                        case "watchlistack":
+                            RemoteAdminModificationHandler.UpdateWatchList();
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                            {
+                                foreach (var staff in ReferenceHub.AllHubs)
+                                {
+                                    if (staff.isLocalPlayer || !PermissionsHandler.IsPermitted(staff.serverRoles.Permissions, PlayerPermissions.PlayersManagement))
+                                        continue;
+
+                                    var plr = CedModPlayer.Get(staff);
+                                    var watchlistPlr = CedModPlayer.Get(jsonData["UserId"]);
+                                    if (watchlistPlr == null)
+                                        continue;
+                                    string msg = CedModMain.Singleton.Config.QuerySystem.PlayerWatchlistJoin;
+                                    if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
+                                    {
+                                        Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, () =>
+                                            {
+                                                if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin)
+                                                    msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportWatchlistIngameDisabled;
+                                                Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{playerId}", $"{watchlistPlr.PlayerId}").Replace("{playerName}", watchlistPlr.Nickname).Replace("{reason}", jsonData["Reason"]), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
+                                            }));
+                                    }
+                                    else
+                                    {
+                                        if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin)
+                                            msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportWatchlistIngameDisabled;
+                                        Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{playerId}", $"{watchlistPlr.PlayerId}").Replace("{playerName}", watchlistPlr.Nickname).Replace("{reason}", jsonData["Reason"]), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
+                                    }
+                                }
+                            });
+                            break;
                         case "updateuserpref":
                             ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                             {

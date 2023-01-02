@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.Audio;
 using CedMod.Commands;
+using CedMod.Components;
 using MEC;
 using Mirror;
 using Newtonsoft.Json;
@@ -27,6 +28,7 @@ namespace CedMod.Handlers
             }
             AudioCommand.FakeConnections.Clear();
             AudioCommand.FakeConnectionsIds.Clear();
+            RemoteAdminModificationHandler.IngameUserPreferencesMap.Clear();
         }
     }
 }

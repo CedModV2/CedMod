@@ -96,10 +96,34 @@ namespace CedMod.Patches
             {
                 if (hub.Mode != ClientInstanceMode.DedicatedServer && hub.Mode != ClientInstanceMode.Unverified)
                 {
+                    var plr = CedModPlayer.Get(sender.SenderId);
+                    if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
+                    {
+                        Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, null));
+                    }
+                    
                     bool flag2 = false;
                     stringBuilder.Append(__instance.GetPrefix(hub, viewHiddenBadges, viewHiddenGlobalBadges));
                     stringBuilder.Append(flag2 ? "<link=RA_OverwatchEnabled><color=white>[</color><color=#03f8fc>\uF06E</color><color=white>]</color></link> " : string.Empty);
                     stringBuilder.Append("<color={RA_ClassColor}>(").Append(hub.PlayerId).Append(") ");
+                    if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin)
+                    {
+                        if (RemoteAdminModificationHandler.GroupWatchlist.Any(s => s.UserIds.Contains(hub.characterClassManager.UserId)))
+                        {
+                            if (RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(hub.characterClassManager.UserId)) >= 2)
+                            {
+                                stringBuilder.Append($"<size=15><color=#00FFF6>[WMG{RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(hub.characterClassManager.UserId))}]</color></size> ");
+                            }
+                            else
+                            {
+                                stringBuilder.Append($"<size=15><color=#00FFF6>[WG{RemoteAdminModificationHandler.GroupWatchlist.FirstOrDefault(s => s.UserIds.Contains(hub.characterClassManager.UserId)).Id}]</color></size> ");
+                            }
+                        }
+                        else if (RemoteAdminModificationHandler.Watchlist.Any(s => s.Userid == hub.characterClassManager.UserId))
+                        {
+                            stringBuilder.Append($"<size=15><color=#00FFF6>[WG]</color></size> ");
+                        }
+                    }
                     stringBuilder.Append(hub.nicknameSync.CombinedName.Replace("\n", string.Empty).Replace("RA_", string.Empty)).Append("</color>");
                     stringBuilder.AppendLine();
                 }

@@ -19,7 +19,12 @@ namespace CedMod.Components
     public class RemoteAdminModificationHandler: MonoBehaviour
     {
         public float ReportGetTimer { get; set; }
+        public float WatchlistGetTimer { get; set; }
         public float UiBlinkTimer { get; set; }
+        
+        public static List<WatchList> Watchlist { get; set; } = new List<WatchList>();
+        public static List<WatchListGroup> GroupWatchlist { get; set; } = new List<WatchListGroup>();
+        
         public static List<Reports> ReportsList { get; set; } = new List<Reports>();
         public static RemoteAdminModificationHandler Singleton;
         public static Dictionary<CedModPlayer, Tuple<int, DateTime>> ReportUnHandledState { get; set; } = new Dictionary<CedModPlayer, Tuple<int, DateTime>>();
@@ -61,14 +66,26 @@ namespace CedMod.Components
             Singleton.ReportGetTimer = 30;
         }
         
+        public static void UpdateWatchList()
+        {
+            Singleton.WatchlistGetTimer = 30;
+        }
+        
         public void Update()
         {
             ReportGetTimer += Time.deltaTime;
+            WatchlistGetTimer += Time.deltaTime;
 
             if (ReportGetTimer >= 30)
             {
                 ReportGetTimer = 0;
                 Task.Factory.StartNew(() => GetReports());
+            }
+            
+            if (WatchlistGetTimer >= 30)
+            {
+                WatchlistGetTimer = 0;
+                Task.Factory.StartNew(() => GetWatchlist());
             }
 
             UiBlinkTimer += Time.deltaTime;
@@ -81,30 +98,86 @@ namespace CedMod.Components
         
         public void GetReports()
         {
-            using (HttpClient client = new HttpClient())
+            try
             {
-                if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                    Log.Debug($"Getting Reports.");
-                var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Api/v3/Reports/{QuerySystem.QuerySystemKey}").Result;
-                if (response.StatusCode != HttpStatusCode.OK)
+                using (HttpClient client = new HttpClient())
                 {
-                    Log.Error($"Failed to check for reports: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
-                }
-                else
-                {
-                    var dat = JsonConvert.DeserializeObject<ReportGetresponse>(response.Content.ReadAsStringAsync().Result);
-                    List<Reports> reportsList = new List<Reports>();
-                    foreach (var rept in dat.Reports)
+                    if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                        Log.Debug($"Getting Reports.");
+                    var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Api/v3/Reports/{QuerySystem.QuerySystemKey}").Result;
+                    if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        if (dat.ReportUserIdMap.ContainsKey(rept.Id.ToString()))
-                        {
-                            rept.AssignedHandler = dat.UserIdMap.FirstOrDefault(s => s.Key == dat.ReportUserIdMap[rept.Id.ToString()]).Value;
-                        }
-                        reportsList.Add(rept);
+                        Log.Error($"Failed to check for reports: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
                     }
+                    else
+                    {
+                        var dat = JsonConvert.DeserializeObject<ReportGetresponse>(response.Content.ReadAsStringAsync().Result);
+                        List<Reports> reportsList = new List<Reports>();
+                        foreach (var rept in dat.Reports)
+                        {
+                            if (dat.ReportUserIdMap.ContainsKey(rept.Id.ToString()))
+                            {
+                                rept.AssignedHandler = dat.UserIdMap.FirstOrDefault(s => s.Key == dat.ReportUserIdMap[rept.Id.ToString()]).Value;
+                            }
+                            reportsList.Add(rept);
+                        }
 
-                    ReportsList = reportsList;
+                        ReportsList = reportsList;
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Error ocurred when trying to load Reports: {e}");
+            }
+        }
+        
+        public void GetWatchlist()
+        {
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                        Log.Debug($"Getting Watchlist.");
+                    var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Api/v3/Watchlist/{QuerySystem.QuerySystemKey}").Result;
+                    if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        Log.Error($"Failed to check for reports: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
+                    }
+                    else
+                    {
+                        var dat = JsonConvert.DeserializeObject<WatchListGetResponse>(response.Content.ReadAsStringAsync().Result);
+                    
+                        List<WatchList> watchLists = new List<WatchList>();
+                        foreach (var rept in dat.WatchList.List)
+                        {
+                            if (dat.WatchList.IdMap.ContainsKey(rept.Id.ToString()))
+                            {
+                                rept.Issuer = dat.UserIdMap.FirstOrDefault(s => s.Key == dat.WatchList.IdMap[rept.Id.ToString()]).Value;
+                            }
+                            watchLists.Add(rept);
+                        }
+
+                        Watchlist = watchLists;
+                    
+                        List<WatchListGroup> watchListGroups = new List<WatchListGroup>();
+                        foreach (var rept in dat.WatchListGroup.List)
+                        {
+                            if (dat.WatchListGroup.IdMap.ContainsKey(rept.Id.ToString()))
+                            {
+                                rept.Issuer = dat.UserIdMap.FirstOrDefault(s => s.Key == dat.WatchListGroup.IdMap[rept.Id.ToString()]).Value;
+                            }
+                            watchListGroups.Add(rept);
+                        }
+
+                        GroupWatchlist = watchListGroups;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Error ocurred when trying to load Watchlist: {e}");
             }
         }
 
@@ -147,6 +220,51 @@ namespace CedMod.Components
                 Console.WriteLine(e);
             }
         }
+    }
+    
+    public class WatchListGroupResponse
+    {
+        public List<WatchListGroup> List { get; set; }
+        public Dictionary<string, string> IdMap { get; set; }
+    }
+    
+    public class WatchListResponse
+    {
+        public List<WatchList> List { get; set; }
+        public Dictionary<string, string> IdMap { get; set; }
+    }
+    
+    public class WatchListGetResponse
+    {
+        public WatchListResponse WatchList { get; set; }
+        public WatchListGroupResponse WatchListGroup { get; set; }
+        public Dictionary<string, UserObject> UserIdMap { get; set; }
+    }
+    
+    public class WatchListGroup
+    {
+        public int Id { get; set; }
+        public string GroupName { get; set; }
+        public List<string> UserIds { get; set; }
+        public UserObject Issuer { get; set; }
+        public string Reason { get; set; }
+        public bool DiscordNotify { get; set; }
+        public DateTime LastNotified { get; set; }
+        public DateTime Added { get; set; }
+        public TimeSpan? TimedEntry { get; set; }
+    }
+    
+    public class WatchList
+    {
+        public int Id { get; set; }
+        public string Userid { get; set; }
+        public UserObject Issuer { get; set; }
+        public string Reason { get; set; }
+        public bool DiscordNotify { get; set; }
+        public bool BanWatch { get; set; } = false;
+        public DateTime LastNotified { get; set; }
+        public DateTime Added { get; set; }
+        public TimeSpan? TimedEntry { get; set; }
     }
 
     public class ReportGetresponse

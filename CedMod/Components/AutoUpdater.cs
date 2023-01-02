@@ -47,8 +47,8 @@ namespace CedMod.Components
                     {
                         TimePassed += Time.deltaTime;
                         
-                        if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                            Log.Debug($"Checking players {Player.Count} {TimePassed}");
+                        // if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                        //     Log.Debug($"Checking players {Player.Count} {TimePassed}");
                     
                         if (TimePassed >= CedModMain.Singleton.Config.CedMod.AutoUpdateWait * 60 && !Installing)
                         { 
@@ -73,8 +73,8 @@ namespace CedMod.Components
             if (Pending == null)
             {
                 TimePassedCheck += Time.deltaTime;
-                if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                    Log.Debug($"Checking players {TimePassedCheck}");
+                // if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                //     Log.Debug($"Checking players {TimePassedCheck}");
                 if (TimePassedCheck >= 300)
                 { 
                     TimePassedCheck = 0;
@@ -90,8 +90,8 @@ namespace CedMod.Components
             else if (Pending != null && !CedModMain.Singleton.Config.CedMod.AutoUpdate)
             {
                 TimePassedUpdateNotify += Time.deltaTime;
-                if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                    Log.Debug($"Checking 3 {TimePassedUpdateNotify}");
+                // if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                //     Log.Debug($"Checking 3 {TimePassedUpdateNotify}");
                 if (TimePassedUpdateNotify >= 300)
                 { 
                     TimePassedUpdateNotify = 0;

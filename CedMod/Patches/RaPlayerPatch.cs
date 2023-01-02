@@ -306,6 +306,28 @@ namespace CedMod.Patches
                                 stringBuilder.Append($"\nPanelUser: {cmData["panelUser"]}");
 
                             stringBuilder.Append($"\nPossible Alt Accounts: {cmData["usersFound"]}");
+                            if (RemoteAdminModificationHandler.GroupWatchlist.Any(s => s.UserIds.Contains(referenceHub.characterClassManager.UserId)))
+                            {
+                                if (RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(referenceHub.characterClassManager.UserId)) >= 2)
+                                {
+                                    stringBuilder.Append($"\n<color=#00FFF6>User is in {RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(referenceHub.characterClassManager.UserId))} Watchlist groups.\nUse ExternalLookup to view details</color>");
+                                }
+                                else
+                                {
+                                    var group = RemoteAdminModificationHandler.GroupWatchlist.FirstOrDefault(s => s.UserIds.Contains(referenceHub.characterClassManager.UserId));
+                                    stringBuilder.Append($"\n<color=#00FFF6>User is in Group Watchlist: {group.GroupName} ({group.Id}) \n{group.Reason} Members:</color>");
+                                    foreach (var member in group.UserIds.Take(4))
+                                    {
+                                        var plr = CedModPlayer.Get(member);
+                                        stringBuilder.Append($"\n<color=#00FFF6>{(plr == null ? "Not Ingame" : $"{plr.PlayerId} - {plr.UserId}")}</color>");
+                                    }
+                                    stringBuilder.Append($"\n<color=#00FFF6>Use ExternalLookup for more info</color>");
+                                }
+                            }
+                            else if (RemoteAdminModificationHandler.Watchlist.Any(s => s.Userid == referenceHub.characterClassManager.UserId))
+                            {
+                                stringBuilder.Append($"\n<color=#00FFF6>User is on watchlist:\n{RemoteAdminModificationHandler.Watchlist.FirstOrDefault(s => s.Userid == referenceHub.characterClassManager.UserId).Reason}\nUse ExternalLookup for more info</color>");
+                            }
                         }
                     }
                     catch (Exception e)
