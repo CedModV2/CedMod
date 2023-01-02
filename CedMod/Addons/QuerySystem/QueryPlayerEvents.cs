@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem.WS;
+using Interactables.Interobjects;
 using InventorySystem.Disarming;
 using InventorySystem.Items;
 using InventorySystem.Items.ThrowableProjectiles;
@@ -69,7 +70,7 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.PlayerInteractElevator)]
-        public void OnElevatorInteraction(CedModPlayer player)
+        public void OnElevatorInteraction(CedModPlayer player, ElevatorChamber elevatorChamber)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -79,7 +80,7 @@ namespace CedMod.Addons.QuerySystem
                     {"UserId", player.UserId},
                     {"UserName", player.Nickname},
                     {"Type", nameof(OnElevatorInteraction)},
-                    {"Message", player.Nickname + " - " + player.UserId + " has interacted with elevator."}
+                    {"Message", player.Nickname + " - " + player.UserId + $" has interacted with elevator {elevatorChamber.AssignedGroup}."}
                 }
             });
         }
@@ -416,7 +417,7 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.PlayerThrowItem)]
-        public void OnGrenadeThrown(CedModPlayer player, ItemBase item)
+        public void OnGrenadeThrown(CedModPlayer player, ItemBase item, Rigidbody rigidbody)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -442,7 +443,7 @@ namespace CedMod.Addons.QuerySystem
         }
         
         [PluginEvent(ServerEventType.PlayerThrowProjectile)]
-        public void OnThrowProjectile(CedModPlayer player, ThrowableItem item, float forceAmount, float upwardsFactor, Vector3 torque, Vector3 velocity)
+        public void OnThrowProjectile(CedModPlayer player, ThrowableItem item, ThrowableItem.ProjectileSettings settings, bool fullForce)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {

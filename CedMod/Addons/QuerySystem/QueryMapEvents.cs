@@ -36,7 +36,7 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.WarheadStart)]
-        public void OnWarheadStart(bool b, CedModPlayer player)
+        public void OnWarheadStart(bool b, CedModPlayer player, bool isResumed)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
