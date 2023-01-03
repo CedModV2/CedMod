@@ -521,7 +521,19 @@ namespace CedMod.Addons.QuerySystem.Patches
 					if (CustomLiteNetLib4MirrorTransport.UserIdFastReload.Contains(userId))
 						CustomLiteNetLib4MirrorTransport.UserIdFastReload.Remove(userId);
 
-					if (LiteNetLib4MirrorCore.Host.ConnectedPeersCount < CustomNetworkManager.slots || LiteNetLib4MirrorCore.Host.ConnectedPeersCount != LiteNetLib4MirrorNetworkManager.singleton.maxConnections && (flags.HasFlagFast(CentralAuthPreauthFlags.ReservedSlot) && ServerStatic.PermissionsHandler.BanTeamSlots || ConfigFile.ServerConfig.GetBool("use_reserved_slots", true) && ReservedSlot.HasReservedSlot(userId, out bool bypass) && (bypass || LiteNetLib4MirrorCore.Host.ConnectedPeersCount < CustomNetworkManager.slots + CustomNetworkManager.reservedSlots) || QuerySystem.ReservedSlotUserids.Contains(userId)))
+					bool shouldLet = LiteNetLib4MirrorCore.Host.ConnectedPeersCount < CustomNetworkManager.slots;
+
+					if (!shouldLet && QuerySystem.ReservedSlotUserids.Contains(userId)) //todo. feature to allow users to join if the server is full due to a user with a reserved slot
+						shouldLet = true;
+
+					if (!shouldLet && flags.HasFlagFast(CentralAuthPreauthFlags.ReservedSlot) && ServerStatic.PermissionsHandler.BanTeamSlots)
+						shouldLet = true;
+
+					if (!shouldLet && ReservedSlot.HasReservedSlot(userId, out bool bypass) && (bypass || LiteNetLib4MirrorCore.Host.ConnectedPeersCount < CustomNetworkManager.slots + CustomNetworkManager.reservedSlots))
+						shouldLet = true;
+					
+
+					if (shouldLet)
 					{
 						if (CustomLiteNetLib4MirrorTransport.UserIds.ContainsKey(request.RemoteEndPoint))
 							CustomLiteNetLib4MirrorTransport.UserIds[request.RemoteEndPoint].SetUserId(userId);
@@ -556,10 +568,21 @@ namespace CedMod.Addons.QuerySystem.Patches
 					}
 					else
 					{
-						CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
-						CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.ServerFull);
-						request.Reject(CustomLiteNetLib4MirrorTransport.RequestWriter);
-						CustomLiteNetLib4MirrorTransport.ResetIdleMode();
+						if (string.IsNullOrEmpty(CedModMain.Singleton.Config.QuerySystem.CustomServerFullMessage))
+						{
+							CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
+							CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.ServerFull);
+							request.Reject(CustomLiteNetLib4MirrorTransport.RequestWriter);
+							CustomLiteNetLib4MirrorTransport.ResetIdleMode();
+						}
+						else
+						{
+							CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
+							CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Custom);
+							CustomLiteNetLib4MirrorTransport.RequestWriter.Put(CedModMain.Singleton.Config.QuerySystem.ServerFullBase + "\n" + CedModMain.Singleton.Config.QuerySystem.CustomServerFullMessage);
+							request.Reject(CustomLiteNetLib4MirrorTransport.RequestWriter);
+							CustomLiteNetLib4MirrorTransport.ResetIdleMode();
+						}
 					}
 				}
 				catch (Exception e)
