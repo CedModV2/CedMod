@@ -523,7 +523,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 
 					bool shouldLet = LiteNetLib4MirrorCore.Host.ConnectedPeersCount < CustomNetworkManager.slots;
 
-					if (!shouldLet && QuerySystem.ReservedSlotUserids.Contains(userId))
+					if (!shouldLet && QuerySystem.ReservedSlotUserids.Contains(userId)) //todo. feature to allow users to join if the server is full due to a user with a reserved slot
 						shouldLet = true;
 
 					if (!shouldLet && flags.HasFlagFast(CentralAuthPreauthFlags.ReservedSlot) && ServerStatic.PermissionsHandler.BanTeamSlots)
@@ -568,10 +568,21 @@ namespace CedMod.Addons.QuerySystem.Patches
 					}
 					else
 					{
-						CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
-						CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.ServerFull);
-						request.Reject(CustomLiteNetLib4MirrorTransport.RequestWriter);
-						CustomLiteNetLib4MirrorTransport.ResetIdleMode();
+						if (string.IsNullOrEmpty(CedModMain.Singleton.Config.QuerySystem.CustomServerFullMessage))
+						{
+							CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
+							CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.ServerFull);
+							request.Reject(CustomLiteNetLib4MirrorTransport.RequestWriter);
+							CustomLiteNetLib4MirrorTransport.ResetIdleMode();
+						}
+						else
+						{
+							CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
+							CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Custom);
+							CustomLiteNetLib4MirrorTransport.RequestWriter.Put(CedModMain.Singleton.Config.QuerySystem.ServerFullBase + "\n" + CedModMain.Singleton.Config.QuerySystem.CustomServerFullMessage);
+							request.Reject(CustomLiteNetLib4MirrorTransport.RequestWriter);
+							CustomLiteNetLib4MirrorTransport.ResetIdleMode();
+						}
 					}
 				}
 				catch (Exception e)
