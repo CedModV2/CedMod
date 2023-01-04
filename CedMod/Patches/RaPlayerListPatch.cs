@@ -121,7 +121,7 @@ namespace CedMod.Patches
                         }
                         else if (RemoteAdminModificationHandler.Watchlist.Any(s => s.Userid == hub.characterClassManager.UserId))
                         {
-                            stringBuilder.Append($"<size=15><color=#00FFF6>[WG]</color></size> ");
+                            stringBuilder.Append($"<size=15><color=#00FFF6>[WL]</color></size> ");
                         }
                     }
                     stringBuilder.Append(hub.nicknameSync.CombinedName.Replace("\n", string.Empty).Replace("RA_", string.Empty)).Append("</color>");
