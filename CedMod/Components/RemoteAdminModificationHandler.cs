@@ -153,11 +153,11 @@ namespace CedMod.Components
                         foreach (var rept in dat.WatchList.List)
                         {
                             if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                                Log.Info($"Resolving user for {rept.Id}");
+                                Log.Debug($"Resolving user for {rept.Id}");
                             if (dat.WatchList.IdMap.ContainsKey(rept.Id.ToString()))
                             {
                                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                                    Log.Info($"Found user in map for {rept.Id} as {dat.WatchList.IdMap[rept.Id.ToString()]} {dat.UserIdMap.Any(s => s.Key == dat.WatchList.IdMap[rept.Id.ToString()])}");
+                                    Log.Debug($"Found user in map for {rept.Id} as {dat.WatchList.IdMap[rept.Id.ToString()]} {dat.UserIdMap.Any(s => s.Key == dat.WatchList.IdMap[rept.Id.ToString()])}");
                                 rept.Issuer = dat.UserIdMap.FirstOrDefault(s => s.Key == dat.WatchList.IdMap[rept.Id.ToString()]).Value;
                             }
                             watchLists.Add(rept);
@@ -169,7 +169,7 @@ namespace CedMod.Components
                         foreach (var rept in dat.WatchListGroup.List)
                         {
                             if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                                Log.Info($"Resolving user for {rept.Id}");
+                                Log.Debug($"Resolving user for {rept.Id}");
                             if (dat.WatchListGroup.IdMap.ContainsKey(rept.Id.ToString()))
                             {
                                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
