@@ -46,7 +46,9 @@ namespace CedMod.Commands
 
             foreach (var cap in Object.FindObjectsOfType<Scp956Pinata>())
             {
-                Carpinchos.Add(cap, state);
+                if (!Carpinchos.ContainsKey(cap))
+                    Carpinchos.Add(cap, state);
+                Carpinchos[cap] = state;
                 cap.Network_carpincho = state ? (byte)69 : (byte) 1;
             }
             
