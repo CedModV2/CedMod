@@ -48,7 +48,7 @@ namespace CedMod.Commands
             }
             if (AutoUpdater.Pending == null)
             {
-                response = "There are no updates pending for this server, please run the checkforcedmodupdates command to check for updates. (Updates are also checked every 5 minutes)";
+                response = "There are no updates pending for this server, please run the checkforcedmodupdate command to check for updates. (Updates are also checked every 5 minutes)";
                 return false;
             }
             
