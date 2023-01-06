@@ -217,7 +217,7 @@ namespace CedMod.Patches
                     stringBuilder.Append(" <color=#BFFF00>[BYPASS MODE]</color>");
                 if (flag7 && serverRoles.RemoteAdmin)
                     stringBuilder.Append(" <color=#43C6DB>[RA AUTHENTICATED]</color>");
-                if (serverRoles.OverwatchEnabled)
+                if (serverRoles.IsInOverwatch)
                     stringBuilder.Append(" <color=#008080>[OVERWATCH MODE]</color>");
                 else if (flag3)
                 {
