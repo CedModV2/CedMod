@@ -70,6 +70,7 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
             {
                 plr.Position = sitPlr.Position;
                 plr.Health = sitPlr.Health;
+                plr.ClearInventory();
                 foreach (var item in sitPlr.Items)
                 {
                     var a = plr.ReferenceHub.inventory.ServerAddItem(item.Value.ItemTypeId);
@@ -107,13 +108,24 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
                         {
                             plr2.Position = sitPlr2.Position;
                             plr2.Health = sitPlr2.Health;
-                
+                            plr2.ClearInventory();
                             foreach (var item in sitPlr2.Items)
                             {
                                 var a = plr2.ReferenceHub.inventory.ServerAddItem(item.Value.ItemTypeId);
-                                if (a is not Firearm newFirearm) continue;
-                                if (item.Value is not Firearm oldFirearm) continue;
-                                newFirearm.Status = new FirearmStatus(oldFirearm.Status.Ammo, oldFirearm.Status.Flags, oldFirearm.Status.Attachments);
+                                if (a is Firearm newFirearm && item.Value is Firearm oldFirearm)
+                                {
+                                    newFirearm.Status = new FirearmStatus(oldFirearm.Status.Ammo, oldFirearm.Status.Flags, oldFirearm.Status.Attachments);
+                                }
+
+                                if (a is MicroHIDItem microHidItem && item.Value is MicroHIDItem oldMicroHidItem)
+                                {
+                                    microHidItem.RemainingEnergy = oldMicroHidItem.RemainingEnergy;
+                                }
+                    
+                                if (a is RadioItem radioItem && item.Value is RadioItem oldRadioItem)
+                                {
+                                    radioItem._battery = oldRadioItem._battery;
+                                }
                             }
 
                             foreach (var ammo in sitPlr2.Ammo)
