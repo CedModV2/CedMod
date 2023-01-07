@@ -157,7 +157,7 @@
     <Compile Include="RainbowLight.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="0Harmony, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null">
+    <Reference Include="0Harmony">
       <HintPath>..\References\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Accessibility, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
