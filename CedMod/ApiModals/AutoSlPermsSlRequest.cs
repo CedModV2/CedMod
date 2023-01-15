@@ -6,6 +6,7 @@ namespace CedMod.ApiModals
     {
         public List<SLPermissionEntry> PermissionEntries { get; set; } = new List<SLPermissionEntry>();
         public List<AutoSlPermissionMembers> MembersList { get; set; } = new List<AutoSlPermissionMembers>();
+        public List<string> DefaultPermissions { get; set; } = new List<string>();
     }
 
     public class AutoSlPermissionMembers

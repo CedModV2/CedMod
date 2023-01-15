@@ -12,7 +12,8 @@ namespace CedMod.Addons.Events
         public static List<Func<Player, string>> HintProcessed = new List<Func<Player, string>>();
         public Player player;
         public string currentHint = "";
-
+        private bool wipe = false;
+        
         public void Awake()
         {
             player = Player.Get(this.GetComponent<ReferenceHub>());
@@ -27,6 +28,11 @@ namespace CedMod.Addons.Events
 
         public void Update()
         {
+            if (!wipe)
+            {
+                wipe = true;
+                currentHint = "";
+            }
             hintTimer -= Time.deltaTime;
             if (hintTimer <= 0)
             {

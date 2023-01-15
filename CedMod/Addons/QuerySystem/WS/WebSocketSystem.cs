@@ -695,9 +695,16 @@ namespace CedMod.Addons.QuerySystem.WS
                     if (AppDomain.CurrentDomain.GetAssemblies().Any(s => s.GetName().Name == "NWAPIPermissionSystem"))
                     {
                         ClearNWApiPermissions();
+                        HandleDefault(permsSlRequest.DefaultPermissions);
                     }
 #if EXILED
                     Permissions.Groups.Clear();
+                    var epGroup = new Exiled.Permissions.Features.Group();
+                    epGroup.Permissions.AddRange(permsSlRequest.DefaultPermissions);
+                    epGroup.CombinedPermissions.AddRange(permsSlRequest.DefaultPermissions);
+                    epGroup.Inheritance.Clear();
+                    epGroup.IsDefault = true;
+                    Permissions.Groups.Add("default", epGroup);
 #endif
                     foreach (var perm in permsSlRequest.PermissionEntries)
                     {
@@ -773,6 +780,15 @@ namespace CedMod.Addons.QuerySystem.WS
                     ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
                 }
             }
+        }
+
+        private static void HandleDefault(List<string> defaultPermissions)
+        {
+            var epGroup = new Group();
+            epGroup.Permissions.AddRange(defaultPermissions);
+            epGroup.CombinedPermissions.AddRange(defaultPermissions);
+            epGroup.IsDefault = true;
+            PermissionHandler.PermissionGroups.Add("default", epGroup);
         }
 
         private static void ClearNWApiPermissions()
