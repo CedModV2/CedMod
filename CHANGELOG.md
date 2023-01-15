@@ -1,3 +1,3 @@
 
 V: 3.4.1
- - Support Default permission groups for Exiled and NWApi Permissions
+ - Supports the new SCP:SL Version (Removing the Carpincho command)
