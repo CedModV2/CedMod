@@ -121,7 +121,6 @@
     <Compile Include="CedModConfig.cs" />
     <Compile Include="CedModPlayer.cs" />
     <Compile Include="CedModPlayerFactory.cs" />
-    <Compile Include="Commands\CarbinchoCommand.cs" />
     <Compile Include="Commands\CedModSetupCommand.cs" />
     <Compile Include="Commands\CheckForUpdatesCommand.cs" />
     <Compile Include="Commands\DialogBox.cs" />
