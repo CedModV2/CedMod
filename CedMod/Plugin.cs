@@ -53,7 +53,7 @@ namespace CedMod
         public static PluginHandler Handler;
 #endif
 
-        public const string PluginVersion = "3.4.0";
+        public const string PluginVersion = "3.4.1";
 
 #if !EXILED
         [PluginConfig]
