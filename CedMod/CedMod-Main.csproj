@@ -150,6 +150,7 @@
     <Compile Include="Patches\RaPlayerPatch.cs" />
     <Compile Include="Patches\RAProcessPlayerPatch.cs" />
     <Compile Include="Patches\RoundEndPatchPatch.cs" />
+    <Compile Include="Patches\TransportReceivePatch.cs" />
     <Compile Include="Patches\UnMuteCommandPatch.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
