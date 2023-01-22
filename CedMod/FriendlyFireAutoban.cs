@@ -34,6 +34,14 @@ namespace CedMod
             else
                 Teamkillers.Add(attacker.UserId, 1);
 
+            if (new PlayerCommandSender(attacker.ReferenceHub).CheckPermission(new PlayerPermissions[]
+                {
+                    PlayerPermissions.FriendlyFireDetectorImmunity
+                }))
+            {
+                return;
+            }
+
             foreach (KeyValuePair<string, int> s in Teamkillers)
             {
                 if (s.Key == attacker.UserId)
