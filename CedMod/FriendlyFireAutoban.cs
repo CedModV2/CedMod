@@ -6,6 +6,7 @@ using InventorySystem.Disarming;
 using PlayerRoles;
 using PlayerStatsSystem;
 using PluginAPI.Core;
+using RemoteAdmin;
 
 namespace CedMod
 {
@@ -17,8 +18,17 @@ namespace CedMod
         {
             if (!RoundSummary.RoundInProgress() || !CedModMain.Singleton.Config.CedMod.AutobanEnabled || AdminDisabled || !IsTeamKill(player, attacker, damageHandler))
                 return;
+            bool attackerHasFFImmunity = false;
+            if (new PlayerCommandSender(attacker.ReferenceHub).CheckPermission(new PlayerPermissions[]
+                {
+                    PlayerPermissions.FriendlyFireDetectorImmunity
+                }))
+            {
+                attackerHasFFImmunity = true;
+            }
             
-            string ffaTextKiller = $"<size=25><b><color=yellow>You teamkilled: </color></b><color=red> {player.Nickname} </color><color=yellow><b> If you continue teamkilling it will result in a ban</b></color></size>";
+            string resultOfTK = attackerHasFFImmunity ? "<color=#49E1E9><b> You have Friendly Fire Ban Immunity.</b></color>" : "<color=yellow><b> If you continue teamkilling it will result in a ban</b></color>";
+            string ffaTextKiller = $"<size=25><b><color=yellow>You teamkilled: </color></b><color=red> {player.Nickname} </color><br>{resultOfTK}</size>";
             attacker.ReferenceHub.hints.Show(new TextHint(ffaTextKiller, new HintParameter[] {new StringHintParameter("")}, null, 20f));
             attacker.SendConsoleMessage(ffaTextKiller, "white");
             string ffaTextVictim = $"<size=25><b><color=yellow>You have been teamkilled by: </color></b></size><color=red><size=25> {attacker.Nickname} ({attacker.UserId} {attacker.Role} You were a {player.Role}</size></color>\n<size=25><b><color=yellow> Use this as a screenshot as evidence for a report</color></b>\n{CedModMain.Singleton.Config.CedMod.AutobanExtraMessage}\n</size><size=25><i><color=yellow> Note: if they continues to teamkill the server will ban them</color></i></size>";
@@ -34,11 +44,8 @@ namespace CedMod
             else
                 Teamkillers.Add(attacker.UserId, 1);
 
-            if (new PlayerCommandSender(attacker.ReferenceHub).CheckPermission(new PlayerPermissions[]
+            if (attackerHasFFImmunity)
                 {
-                    PlayerPermissions.FriendlyFireDetectorImmunity
-                }))
-            {
                 return;
             }
 
