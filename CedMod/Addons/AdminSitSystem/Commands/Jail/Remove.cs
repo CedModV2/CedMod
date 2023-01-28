@@ -54,7 +54,12 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
                 return false;
             }
 
-            var plr = CedModPlayer.Get(int.Parse(arguments.At(0)));
+            var plr = CedModPlayer.Get(arguments.At(0));
+            if (plr == null)
+            {
+                response = $"Player '{arguments.At(0)}' could not be found.";
+                return false;
+            }
             var sit = AdminSitHandler.Singleton.Sits.FirstOrDefault(s => s.Players.Any(s => s.UserId == plr.UserId));
             if (sit == null)
             {

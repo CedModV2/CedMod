@@ -46,8 +46,12 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
 
             var loc = AdminSitHandler.Singleton.Sits.FirstOrDefault(s => s.Players.Any(s => s.UserId == invoker.UserId)).Location;
             
-            var plr = CedModPlayer.Get(int.Parse(arguments.At(0)));
-            
+            var plr = CedModPlayer.Get(arguments.At(0));
+            if (plr is null)
+            {
+                response = $"Player '{arguments.At(0)}' could not be found";
+                return false;
+            }
             if (AdminSitHandler.Singleton.Sits.Any(s => s.Players.Any(s => s.UserId == plr.UserId)))
             {
                 response = "The specified player is already part of a jail.";

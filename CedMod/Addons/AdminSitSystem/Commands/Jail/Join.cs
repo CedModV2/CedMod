@@ -39,6 +39,11 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
             
             var invoker = CedModPlayer.Get((sender as CommandSender).SenderId);
             var plr = CedModPlayer.Get(int.Parse(arguments.At(0)));
+            if (plr == null)
+            {
+                response = $"Player '{arguments.At(0)}' could not be found.";
+                return false;
+            }
             if (!AdminSitHandler.Singleton.Sits.Any(s => s.Players.Any(s => s.UserId == plr.UserId)))
             {
                 response = "The specified player is not part of any jail.";
