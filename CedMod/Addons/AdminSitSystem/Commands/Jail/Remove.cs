@@ -73,7 +73,10 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
             plr.SetRole(sitPlr.Role, RoleChangeReason.RemoteAdmin);
             Timing.CallDelayed(0.1f, () => {
             {
-                plr.Position = sitPlr.Position;
+                if (!AlphaWarheadController.Detonated)
+                    plr.Position = sitPlr.Position;
+                else 
+                    plr.Position = new Vector3(132.714f, 995.456f, -38.340f);
                 plr.Health = sitPlr.Health;
                 plr.ClearInventory();
                 foreach (var item in sitPlr.Items)
@@ -111,7 +114,10 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
                         plr2.SetRole(sitPlr2.Role, RoleChangeReason.RemoteAdmin);
                         Timing.CallDelayed(0.1f, () =>
                         {
-                            plr2.Position = sitPlr2.Position;
+                            if (!AlphaWarheadController.Detonated)
+                                plr2.Position = sitPlr2.Position;
+                            else 
+                                plr2.Position = new Vector3(132.714f, 995.456f, -38.340f);
                             plr2.Health = sitPlr2.Health;
                             plr2.ClearInventory();
                             foreach (var item in sitPlr2.Items)
