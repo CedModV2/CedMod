@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CommandSystem;
+using InventorySystem.Items;
 using MEC;
 #if !EXILED
 using NWAPIPermissionSystem;
@@ -71,9 +72,9 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
                         Player = plr,
                         PlayerType = plr.RemoteAdminAccess ? AdminSitPlayerType.Staff : AdminSitPlayerType.User,
                         UserId = plr.UserId,
-                        Ammo = plr.ReferenceHub.inventory.UserInventory.ReserveAmmo,
+                        Ammo = new Dictionary<ItemType, ushort>(plr.ReferenceHub.inventory.UserInventory.ReserveAmmo),
                         Health = plr.Health,
-                        Items = plr.ReferenceHub.inventory.UserInventory.Items,
+                        Items = new Dictionary<ushort, ItemBase>(plr.ReferenceHub.inventory.UserInventory.Items),
                         Position = plr.Position,
                         Role = plr.Role
                     }
