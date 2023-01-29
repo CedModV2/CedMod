@@ -229,7 +229,7 @@ namespace CedMod.Addons.QuerySystem
             }
         }
 
-        [PluginEvent(ServerEventType.PlayerDeath)]
+        [PluginEvent(ServerEventType.PlayerDying)]
         public void OnPlayerDeath(CedModPlayer target, CedModPlayer player, DamageHandlerBase damageHandler)
         {
             if (player == null || target == null)
