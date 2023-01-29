@@ -40,7 +40,7 @@ namespace CedMod.Handlers
             }
         }
         
-        [PluginEvent(ServerEventType.PlayerDeath)]
+        [PluginEvent(ServerEventType.PlayerDying)]
         public void OnDying(CedModPlayer player, CedModPlayer attacker, DamageHandlerBase damageHandler)
         {
             if (player == null || attacker == null)
