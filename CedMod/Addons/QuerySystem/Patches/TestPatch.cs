@@ -154,10 +154,12 @@ namespace CedMod.Patches
                   (object)leadingTeam
                 };
                 object[] objArray2;
+                PluginAPI.Core.Log.Info($"Round End hang prevention checking");
                 for (RoundEndCancellationData cancellationData = EventManager.ExecuteEvent<RoundEndCancellationData>(ServerEventType.RoundEnd, objArray1); cancellationData.IsCancelled; cancellationData = EventManager.ExecuteEvent<RoundEndCancellationData>(ServerEventType.RoundEnd, objArray2))
                 {
                   if ((double)cancellationData.Delay <= 0.0)
                   {
+                    PluginAPI.Core.Log.Info($"Round End hang prevention: {cancellationData.IsCancelled} - {cancellationData.Delay}");
                     break;
                   }
                   else
