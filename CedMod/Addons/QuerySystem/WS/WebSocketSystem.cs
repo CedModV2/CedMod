@@ -742,15 +742,22 @@ namespace CedMod.Addons.QuerySystem.WS
                         handler._members.Add(member.UserId, member.Group);
 
                         var player = CedModPlayer.Get(member.UserId);
-                        if (player != null)
+                        try
                         {
-                            var hidden = player.PlayerInfo.IsBadgeHidden;
-                            player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false);
-                            Timing.CallDelayed(0.1f, () =>
+                            if (player != null)
                             {
-                                player.PlayerInfo.IsBadgeHidden = hidden;
-                            });
-                            Log.Info($"Refreshed Permissions from {member.UserId} as they were present in the AutoSlPerms response while ingame");
+                                var hidden = player.PlayerInfo.IsBadgeHidden;
+                                player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false);
+                                Timing.CallDelayed(0.1f, () =>
+                                {
+                                    player.PlayerInfo.IsBadgeHidden = hidden;
+                                });
+                                Log.Info($"Refreshed Permissions from {member.UserId} as they were present in the AutoSlPerms response while ingame");
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error($"Failed to apply permission at realtime for {player.UserId} - {player.Nickname}");
                         }
                     }
 
