@@ -227,6 +227,8 @@ namespace CedMod.Components
             {
                 Console.WriteLine(e);
             }
+            
+            www.Dispose();
         }
     }
     

@@ -68,7 +68,7 @@ namespace CedMod.Addons.Audio
             {
                 Log.Error($"{e} {www.responseCode} {www.downloadedBytes}");
             }
-            
+            www.Dispose();
             VorbisReader = new NVorbis.VorbisReader(CurrentPlayStream);
             Log.Info($"Playing with samplerate of {VorbisReader.SampleRate}");
             samplesPerSecond = VoiceChatSettings.SampleRate * VoiceChatSettings.Channels;

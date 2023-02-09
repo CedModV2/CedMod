@@ -274,7 +274,7 @@ namespace CedMod.Patches
                     {
                         Console.WriteLine(e);
                     }
-
+                    www.Dispose();
                     sender.RaReply(
                         string.Format("${0} {1}", __instance.DataId, "Loading from Panel API, please wait..."), true,
                         true, string.Empty);
@@ -334,6 +334,7 @@ namespace CedMod.Patches
                     {
                         Console.WriteLine(e);
                     }
+                    www.Dispose();
                 }
 
                 stringBuilder.Append("</color>");

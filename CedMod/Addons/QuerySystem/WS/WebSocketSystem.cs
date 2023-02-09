@@ -690,6 +690,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 {
                     var handler = ServerStatic.GetPermissionsHandler();
                     var oldMembers = new Dictionary<string, string>(handler._members);
+                    var oldGroups = new Dictionary<string, UserGroup>(handler._groups);
                     handler._groups.Clear();
                     handler._members.Clear();
                     if (AppDomain.CurrentDomain.GetAssemblies().Any(s => s.GetName().Name == "NWAPIPermissionSystem"))
@@ -740,19 +741,30 @@ namespace CedMod.Addons.QuerySystem.WS
                         if (member.ReservedSlot && !QuerySystem.ReservedSlotUserids.Contains(member.UserId))
                             QuerySystem.ReservedSlotUserids.Add(member.UserId);
                         handler._members.Add(member.UserId, member.Group);
-
+                        
                         var player = CedModPlayer.Get(member.UserId);
                         try
                         {
                             if (player != null)
                             {
-                                var hidden = player.PlayerInfo.IsBadgeHidden;
-                                player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false);
-                                Timing.CallDelayed(0.1f, () =>
+                                if (oldMembers.ContainsKey(member.UserId))
                                 {
-                                    player.PlayerInfo.IsBadgeHidden = hidden;
-                                });
-                                Log.Info($"Refreshed Permissions from {member.UserId} as they were present in the AutoSlPerms response while ingame");
+                                    UserGroup group = null;
+                                    if (oldMembers.ContainsKey(member.UserId))
+                                        group = oldGroups[oldMembers[member.UserId]];
+                                    var newGroup = permsSlRequest.PermissionEntries.FirstOrDefault(s => s.Name == member.Group);
+                                    
+                                    if (group == null || oldMembers[member.UserId] != member.Group || group.Permissions != (ulong)newGroup.Permissions || group.BadgeText != newGroup.BadgeText || group.BadgeColor != newGroup.BadgeColor || group.KickPower != newGroup.KickPower || group.RequiredKickPower != newGroup.RequiredKickPower || group.Cover != newGroup.Cover || group.HiddenByDefault != newGroup.Hidden)
+                                    {
+                                        var hidden = player.PlayerInfo.IsBadgeHidden;
+                                        player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false);
+                                        Timing.CallDelayed(0.1f, () =>
+                                        {
+                                            player.PlayerInfo.IsBadgeHidden = hidden;
+                                        });
+                                        Log.Info($"Refreshed Permissions from {member.UserId} as they were present and had changes in the AutoSlPerms response while ingame");
+                                    }
+                                }
                             }
                         }
                         catch (Exception e)
