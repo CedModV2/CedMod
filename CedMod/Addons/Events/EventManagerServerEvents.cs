@@ -1,8 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.IO;
+using System.Linq;
 using CedMod.Addons.QuerySystem;
-using PluginAPI.Core;
+using Exiled.API.Features;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
+using Log = PluginAPI.Core.Log;
 
 namespace CedMod.Addons.Events
 {
@@ -34,6 +37,30 @@ namespace CedMod.Addons.Events
                 Log.Info($"Enabled {EventManager.currentEvent.EventName} for this round");
             }
             ThreadDispatcher.SendHeartbeatMessage(true);
+            
+#if EXILED
+            if (AppDomain.CurrentDomain.GetAssemblies().Any(s => s.GetName().Name == "ScriptedEvents") && Directory.Exists(Path.Combine(Paths.Configs, "ScriptedEvents")) && EventManager.nextEvent.Count == 0)
+            {
+                EventManager.AvailableEvents.RemoveAll(s => s.GetType() == typeof(ScriptedEventIntergration));
+                foreach (var file in Directory.GetFiles(Path.Combine(Paths.Configs, "ScriptedEvents")))
+                {
+                    string data = File.ReadAllText(file);
+                    if (!data.Contains("!-- DISABLE") && data.Contains("!-- ADMINEVENT"))
+                    {
+                        EventManager.AvailableEvents.Add(new ScriptedEventIntergration()
+                        {
+                            BulletHolesAllowed = true,
+                            config = new ScriptedEventConfig(){ IsEnabled = true},
+                            eventAuthor = "ScriptedEvents",
+                            EventDescription = "ScriptedEvent",
+                            eventName = Path.GetFileNameWithoutExtension(file),
+                            eventPrefix = Path.GetFileNameWithoutExtension(file),
+                            FilePath = file
+                        });
+                    }
+                }
+            }
+#endif
         }
 
         [PluginEvent(ServerEventType.RoundRestart)]

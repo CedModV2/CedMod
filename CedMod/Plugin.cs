@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.AdminSitSystem;
 using CedMod.Addons.Audio;
@@ -53,7 +54,7 @@ namespace CedMod
         public static PluginHandler Handler;
 #endif
 
-        public const string PluginVersion = "3.4.2";
+        public const string PluginVersion = "3.4.3";
 
 #if !EXILED
         [PluginConfig]
@@ -444,6 +445,16 @@ namespace CedMod
             using (cryptoService)
             {
                 var hash = cryptoService.ComputeHash(stream);
+                var hashString = Convert.ToBase64String(hash);
+                return hashString.TrimEnd('=');
+            }
+        }
+        
+        internal static string GetHashCode(string text, HashAlgorithm cryptoService)
+        {
+            using (cryptoService)
+            {
+                var hash = cryptoService.ComputeHash(Encoding.Default.GetBytes(text));
                 var hashString = Convert.ToBase64String(hash);
                 return hashString.TrimEnd('=');
             }

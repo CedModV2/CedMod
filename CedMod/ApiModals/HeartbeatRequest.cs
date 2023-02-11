@@ -14,5 +14,6 @@ namespace CedMod.ApiModals
         public string ScpSlVersion { get; set; }
         public string FileHash { get; set; }
         public string CedModVersionIdentifier { get; set; }
+        public string KeyHash { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using CedMod.Addons.Audio;
@@ -232,7 +233,8 @@ namespace CedMod.Addons.QuerySystem
                             ExiledVersion = Loader.Version.ToString(),
 #endif
                             ScpSlVersion = $"{Version.Major}.{Version.Minor}.{Version.Revision}",
-                            FileHash = CedModMain.FileHash
+                            FileHash = CedModMain.FileHash,
+                            KeyHash = CedModMain.GetHashCode(CedModMain.Singleton.Config.CedMod.CedModApiKey, new MD5CryptoServiceProvider())
                         })
                     }
                 }

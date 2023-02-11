@@ -16,6 +16,7 @@ using CedMod.Components;
 using CommandSystem;
 using CommandSystem.Commands.RemoteAdmin;
 using CommandSystem.Commands.RemoteAdmin.Broadcasts;
+using Exiled.Loader;
 using Exiled.Permissions.Extensions;
 using MEC;
 using Mirror;
@@ -26,6 +27,7 @@ using NWAPIPermissionSystem.Commands;
 using NWAPIPermissionSystem.Models;
 using PluginAPI.Core;
 using RemoteAdmin;
+using Serialization;
 using Websocket.Client;
 using UnityEngine.Networking;
 using Utils;
@@ -605,6 +607,34 @@ namespace CedMod.Addons.QuerySystem.WS
                         case "ApplyRA":
                             Log.Info($"Panel requested AutoSlPerms reload: {jsonData["reason"]}");
                             Task.Factory.StartNew(ApplyRa);
+                            break;
+                        case "FetchApiKey":
+                            Log.Info($"Panel requested refresh of api key: {jsonData["Reason"]}");
+                            using (HttpClient client = new HttpClient())
+                            {
+                                var response = client.PostAsync("https://" + QuerySystem.CurrentMaster + $"/Api/v3/FetchKey/{QuerySystem.QuerySystemKey}", new StringContent(JsonConvert.SerializeObject(new
+                                {
+                                    Hash = jsonData["Hash"]
+                                }), Encoding.Default, "application/json")).Result;
+
+                                if (response.IsSuccessStatusCode)
+                                {
+                                    CedModMain.Singleton.Config.CedMod.CedModApiKey = response.Content.ReadAsStringAsync().Result;
+#if !EXILED
+                                    File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "config.yml"), YamlParser.Serializer.Serialize(CedModMain.Singleton.Config));
+#else
+                                    var pluginConfigs = ConfigManager.LoadSorted(ConfigManager.Read());
+                                    Config cedModCnf = pluginConfigs[CedModMain.Singleton.Prefix] as Config;
+                                    cedModCnf.CedMod.CedModApiKey = response.Content.ReadAsStringAsync().Result;
+                                    ConfigManager.Save(pluginConfigs);
+#endif
+                                    Log.Info($"Successfully saved apikey");
+                                }
+                                else
+                                {
+                                    Log.Error($"Failed to fetch key: {response.Content.ReadAsStringAsync().Result}");
+                                }
+                            }
                             break;
                     }
                 }
