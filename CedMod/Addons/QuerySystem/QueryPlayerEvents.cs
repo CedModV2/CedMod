@@ -597,7 +597,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", target.UserId},
                     {"UserName", target.Nickname},
-                    {"Type", nameof(OnPlayerFreed)},
+                    {"Type", nameof(OnPlayerHandcuffed)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has been cuffed by {4} - {5} (<color={6}>{7}</color>).",
