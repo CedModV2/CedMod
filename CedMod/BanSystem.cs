@@ -11,6 +11,8 @@ namespace CedMod
 {
     public class BanSystem
     {
+        public static Dictionary<string, Dictionary<string, string>> CachedStates = new Dictionary<string, Dictionary<string, string>>();
+
         public static readonly object Banlock = new object();
         public static void HandleJoin(CedModPlayer player)
         {
@@ -21,8 +23,19 @@ namespace CedMod
                 if (player.ReferenceHub.serverRoles.BypassStaff || player.ReferenceHub.isLocalPlayer)
                     return;
 
-                Dictionary<string, string> info = (Dictionary<string, string>) API.APIRequest("Auth/", $"{player.UserId}&{player.IpAddress}");
+                Dictionary<string, string> info = new Dictionary<string, string>();
+                bool req = false;
+                lock (CachedStates)
+                {
+                    if (CachedStates.ContainsKey(player.UserId))
+                        info = CachedStates[player.UserId];
+                    else
+                        req = true;
+                }
                 
+                if (req)
+                    info = (Dictionary<string, string>) API.APIRequest("Auth/", $"{player.UserId}&{player.IpAddress}");
+
                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                     Log.Debug(JsonConvert.SerializeObject(info));
                 

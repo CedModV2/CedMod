@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Cryptography;
 using GameCore;
 using HarmonyLib;
@@ -544,6 +545,26 @@ namespace CedMod.Addons.QuerySystem.Patches
 						if (!CustomLiteNetLib4MirrorTransport.ProcessCancellationData(request, EventManager.ExecuteEvent<PreauthCancellationData>(ServerEventType.PlayerPreauth, userId, request.RemoteEndPoint.Address.ToString(), expiration, flags, country, signature, request, position)))
 							return;
 
+						Task.Factory.StartNew(() =>
+						{
+							string id = userId;
+							string ip = realIp ?? request.RemoteEndPoint.Address.ToString();
+							lock (BanSystem.CachedStates)
+							{
+								if (BanSystem.CachedStates.ContainsKey(id))
+									BanSystem.CachedStates.Remove(id);
+							}
+							
+							Dictionary<string, string> info = (Dictionary<string, string>) API.APIRequest("Auth/", $"{id}&{ip}");
+							
+							lock (BanSystem.CachedStates)
+							{
+								if (BanSystem.CachedStates.ContainsKey(id))
+									BanSystem.CachedStates.Remove(id);
+								
+								BanSystem.CachedStates.Add(id, info);
+							}
+						});
 						NetPeer netPeer = request.Accept();
 
 						if (realIp != null)
