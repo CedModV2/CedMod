@@ -160,7 +160,6 @@ namespace CedMod
             if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", "dev.txt")))
             {
                 Log.Info("Plugin running as Dev");
-                QuerySystem.CurrentMaster = QuerySystem.DevPanelUrl;
                 QuerySystem.IsDev = true;
                 using (StreamReader reader = new StreamReader(Path.Combine(PluginConfigFolder, "CedMod", "dev.txt")))
                 {
@@ -174,7 +173,7 @@ namespace CedMod
                             var trim = line.Trim();
                             if(trim.StartsWith("APIUrl:"))
                             {
-                                API.DevUri = new Uri(trim.Replace("APIUrl:", ""));
+                                API.DevUri = trim.Replace("APIUrl:", "");
                                 continue;
                             }
                             if(trim.StartsWith("UseSSL:"))
@@ -189,6 +188,7 @@ namespace CedMod
                         }
                     }
                 }
+                QuerySystem.CurrentMaster = QuerySystem.DevPanelUrl;
             }
 
             Singleton = this;

@@ -20,12 +20,12 @@ namespace CedMod
 {
     public static class API
     {
-        public static Uri DevUri = new Uri("api.dev.cedmod.nl");
-        public static Uri APIUrl
+        public static string DevUri = "api.dev.cedmod.nl";
+        public static string APIUrl
         {
             get
             {
-                return QuerySystem.IsDev ? DevUri : new Uri("api.cedmod.nl");
+                return QuerySystem.IsDev ? DevUri : "api.cedmod.nl";
             }
         }
 
