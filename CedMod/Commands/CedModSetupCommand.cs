@@ -37,11 +37,11 @@ namespace CedMod.Commands
                 HttpResponseMessage panelResponse = null;
                 if (arguments.Count >= 2)
                 {
-                    panelResponse = client.GetAsync($"https://{QuerySystem.CurrentMaster}/Api/v3/AutomaticSetup?key={key}&token={arguments.At(1)}").Result;
+                    panelResponse = client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/AutomaticSetup?key={key}&token={arguments.At(1)}").Result;
                 }
                 else
                 {
-                    panelResponse = client.GetAsync($"https://{QuerySystem.CurrentMaster}/Api/v3/AutomaticSetup?key={key}").Result;
+                    panelResponse = client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/AutomaticSetup?key={key}").Result;
                 }
                 string result = panelResponse.Content.ReadAsStringAsync().Result;
                 if (!panelResponse.IsSuccessStatusCode)
