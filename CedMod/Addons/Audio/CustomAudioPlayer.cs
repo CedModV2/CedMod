@@ -11,6 +11,8 @@ using Random = UnityEngine.Random;
 
 namespace CedMod.Addons.Audio
 {
+    using CedMod.Addons.QuerySystem;
+
     public class CustomAudioPlayer: AudioPlayerBase
     {
         public static CustomAudioPlayer Get(ReferenceHub hub)
@@ -41,7 +43,7 @@ namespace CedMod.Addons.Audio
             }
             
             Log.Info($"Loading Audio");
-            UnityWebRequest www = new UnityWebRequest("https://" + QuerySystem.QuerySystem.CurrentMaster + $"/Api/v3/RetrieveAudio/{QuerySystem.QuerySystem.QuerySystemKey}?track={CurrentPlay}", "GET");
+            UnityWebRequest www = new UnityWebRequest($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/RetrieveAudio/{QuerySystem.QuerySystemKey}?track={CurrentPlay}", "GET");
             DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
             www.downloadHandler = dH;
             

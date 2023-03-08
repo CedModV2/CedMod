@@ -335,7 +335,7 @@ namespace CedMod.Addons.QuerySystem
                         {
                             var response = client
                                 .PostAsync(
-                                    $"https://{QuerySystem.CurrentMaster}/Api/v3/Teamkill/{QuerySystem.QuerySystemKey}?v=2",
+                                    $"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/Teamkill/{QuerySystem.QuerySystemKey}?v=2",
                                     new StringContent(JsonConvert.SerializeObject(data), Encoding.Default,
                                         "application/json")).Result;
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)

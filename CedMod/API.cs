@@ -20,11 +20,12 @@ namespace CedMod
 {
     public static class API
     {
-        public static Uri APIUrl
+        public static string DevUri = "api.dev.cedmod.nl";
+        public static string APIUrl
         {
             get
             {
-                return QuerySystem.IsDev ? new Uri("https://api.dev.cedmod.nl/") : new Uri("https://api.cedmod.nl/");
+                return QuerySystem.IsDev ? DevUri : "api.cedmod.nl";
             }
         }
 
@@ -39,7 +40,7 @@ namespace CedMod
                     using (HttpClient client = new HttpClient())
                     {
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
-                        resp = client.GetAsync(APIUrl + endpoint + arguments).Result;
+                        resp = client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint + arguments).Result;
                         response = resp.Content.ReadAsStringAsync().Result;
                     }
                 }
@@ -49,7 +50,7 @@ namespace CedMod
                     using (HttpClient client = new HttpClient())
                     {
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
-                        resp = client.DeleteAsync(APIUrl + endpoint + arguments).Result;
+                        resp = client.DeleteAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint + arguments).Result;
                         response = resp.Content.ReadAsStringAsync().Result;
                     }
                 }
@@ -59,7 +60,7 @@ namespace CedMod
                     using (HttpClient client = new HttpClient())
                     {
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
-                        resp = client.PostAsync(APIUrl + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json")).Result;
+                        resp = client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json")).Result;
                         response = resp.Content.ReadAsStringAsync().Result;
                     }
                 }

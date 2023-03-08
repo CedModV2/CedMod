@@ -90,7 +90,7 @@ namespace CedMod
                 if (!AppDomain.CurrentDomain.GetAssemblies().Any(s => s.GetName().Name == "NWAPIPermissionSystem"))
                     Timing.CallContinuously(1, () => Log.Error("You do not have the NWAPIPermissionSystem Installed, CedMod Requires the NWAPIPermission system in order to operate properly, please download it here: https://github.com/CedModV2/NWAPIPermissionSystem"));
             });
-            
+
             PluginLocation = Handler.PluginFilePath;
             PluginConfigFolder = Handler.PluginDirectoryPath;
 #else
@@ -105,21 +105,21 @@ namespace CedMod
             CharacterClassManager.OnInstanceModeChanged += HandleInstanceModeChange; 
             Assembly = Assembly.GetExecutingAssembly();
             CosturaUtility.Initialize();
-            
+
             PluginAPI.Events.EventManager.RegisterEvents<Handlers.Player>(this);
             PluginAPI.Events.EventManager.RegisterEvents<Handlers.Server>(this);
-            
+
             PluginAPI.Events.EventManager.RegisterEvents<QueryMapEvents>(this);
             PluginAPI.Events.EventManager.RegisterEvents<QueryServerEvents>(this);
             PluginAPI.Events.EventManager.RegisterEvents<QueryPlayerEvents>(this);
-            
+
             PluginAPI.Events.EventManager.RegisterEvents<EventManagerServerEvents>(this);
             PluginAPI.Events.EventManager.RegisterEvents<EventManagerPlayerEvents>(this);
-            
+
             PluginAPI.Events.EventManager.RegisterEvents<AutoUpdater>(this);
             PluginAPI.Events.EventManager.RegisterEvents<AdminSitHandler>(this);
             FactoryManager.RegisterPlayerFactory(this, new CedModPlayerFactory());
-            
+
 
             try
             {
@@ -144,40 +144,67 @@ namespace CedMod
                 PluginAPI.Events.EventManager.UnregisterAllEvents(this);
                 _harmony.UnpatchAll();
             }
-            
+
             using (Stream stream = Assembly.GetManifestResourceStream("CedMod.version.txt"))
             using (StreamReader reader = new StreamReader(stream))
             {
                 GitCommitHash = reader.ReadToEnd();
             }
-            
+
             using (Stream stream = Assembly.GetManifestResourceStream("CedMod.versionIdentifier.txt"))
             using (StreamReader reader = new StreamReader(stream))
             {
                 VersionIdentifier = reader.ReadToEnd();
             }
-            
+
             if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", "dev.txt")))
             {
                 Log.Info("Plugin running as Dev");
-                QuerySystem.CurrentMaster = QuerySystem.DevPanelUrl;
                 QuerySystem.IsDev = true;
+                using (StreamReader reader = new StreamReader(Path.Combine(PluginConfigFolder, "CedMod", "dev.txt")))
+                {
+                    var txt = reader.ReadToEnd();
+                    var lines = txt.Split(',');
+
+                    if (lines.Length > 0)
+                    {
+                        foreach (var line in lines)
+                        {
+                            var trim = line.Trim();
+                            if(trim.StartsWith("APIUrl:"))
+                            {
+                                API.DevUri = trim.Replace("APIUrl:", "");
+                                continue;
+                            }
+                            if(trim.StartsWith("UseSSL:"))
+                            {
+                                QuerySystem.UseSSL = bool.Parse(trim.Replace("UseSSL:", ""));
+                                continue;
+                            }
+                            if (trim.StartsWith("PanelUrl:"))
+                            {
+                                QuerySystem.DevPanelUrl = trim.Replace("PanelUrl:", "");
+                            }
+                        }
+                    }
+                }
+                QuerySystem.CurrentMaster = QuerySystem.DevPanelUrl;
             }
 
             Singleton = this;
-            
+
             ThreadDispatcher dispatcher = Object.FindObjectOfType<ThreadDispatcher>();
             if (dispatcher == null)
                 CustomNetworkManager.singleton.gameObject.AddComponent<ThreadDispatcher>();
-            
+
             AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
             if (updater == null)
                 updater = CustomNetworkManager.singleton.gameObject.AddComponent<AutoUpdater>();
-            
+
             AdminSitHandler adminSitHandler = Object.FindObjectOfType<AdminSitHandler>();
             if (adminSitHandler == null)
                 adminSitHandler = CustomNetworkManager.singleton.gameObject.AddComponent<AdminSitHandler>();
-            
+
             RemoteAdminModificationHandler remoteAdminModificationHandler = Object.FindObjectOfType<RemoteAdminModificationHandler>();
             if (remoteAdminModificationHandler == null)
                 remoteAdminModificationHandler = CustomNetworkManager.singleton.gameObject.AddComponent<RemoteAdminModificationHandler>();
@@ -199,7 +226,7 @@ namespace CedMod
             }
             else
                 Log.Warning("Plugin is not setup properly, please use refer to the cedmod setup guide"); //todo link guide
-            
+
             QuerySystem.QueryMapEvents = new QueryMapEvents();
             QuerySystem.QueryServerEvents = new QueryServerEvents();
             QuerySystem.QueryPlayerEvents = new QueryPlayerEvents();
@@ -208,12 +235,12 @@ namespace CedMod
             {
                 Directory.CreateDirectory(Path.Combine(PluginConfigFolder, "CedModEvents"));
             }
-            
+
             if (!Directory.Exists(Path.Combine(PluginConfigFolder, "CedMod")))
             {
                 Directory.CreateDirectory(Path.Combine(PluginConfigFolder, "CedMod"));
             }
-            
+
             int successes = 0;
             
             Dictionary<Type, PluginHandler> handlers = new Dictionary<Type, PluginHandler>();

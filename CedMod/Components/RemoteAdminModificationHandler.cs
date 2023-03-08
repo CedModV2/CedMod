@@ -47,7 +47,7 @@ namespace CedMod.Components
                 {
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Updating Report.");
-                    var response = client.PutAsync("https://" + QuerySystem.CurrentMaster + $"/Api/v3/Reports/{QuerySystem.QuerySystemKey}?reportId={reportId}&status={status}&userid={user}",
+                    var response = client.PutAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Reports/{QuerySystem.QuerySystemKey}?reportId={reportId}&status={status}&userid={user}",
                             new StringContent(reason, Encoding.Default, "text/plain")).Result;
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
@@ -104,7 +104,7 @@ namespace CedMod.Components
                 {
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Getting Reports.");
-                    var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Api/v3/Reports/{QuerySystem.QuerySystemKey}").Result;
+                    var response = client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Reports/{QuerySystem.QuerySystemKey}").Result;
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
                         Log.Error($"Failed to check for reports: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
@@ -140,7 +140,7 @@ namespace CedMod.Components
                 {
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Getting Watchlist.");
-                    var response = client.GetAsync("https://" + QuerySystem.CurrentMaster + $"/Api/v3/Watchlist/{QuerySystem.QuerySystemKey}").Result;
+                    var response = client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Watchlist/{QuerySystem.QuerySystemKey}").Result;
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
                         Log.Error($"Failed to check for reports: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
@@ -191,7 +191,7 @@ namespace CedMod.Components
 
         public IEnumerator<float> ResolvePreferences(CedModPlayer player, Action callback)
         {
-            UnityWebRequest www = new UnityWebRequest($"https://" + QuerySystem.CurrentMaster + $"/Api/v3/GetUserPreferences/{QuerySystem.QuerySystemKey}?id={player.UserId}", "OPTIONS");
+            UnityWebRequest www = new UnityWebRequest($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/GetUserPreferences/{QuerySystem.QuerySystemKey}?id={player.UserId}", "OPTIONS");
             DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
             www.downloadHandler = dH;
             

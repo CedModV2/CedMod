@@ -243,7 +243,7 @@ namespace CedMod.Patches
                 if (sender.CheckPermission("cedmod.requestdata"))
                 {
                     sender.RaReply(string.Format("${0} {1}", __instance.DataId, "Loading from CedMod API, please wait..."), true, true, string.Empty);
-                    UnityWebRequest www = new UnityWebRequest(API.APIUrl + $"/Auth/{characterClassManager.UserId}&{connectionToClient.address}", "OPTIONS");
+                    UnityWebRequest www = new UnityWebRequest($"http{(QuerySystem.UseSSL ? "s" : "")}://" + API.APIUrl + $"/Auth/{characterClassManager.UserId}&{connectionToClient.address}", "OPTIONS");
                     DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
                     www.downloadHandler = dH;
 
@@ -279,8 +279,9 @@ namespace CedMod.Patches
                         string.Format("${0} {1}", __instance.DataId, "Loading from Panel API, please wait..."), true,
                         true, string.Empty);
                     www = new UnityWebRequest(
-                        "https://" + QuerySystem.CurrentMaster +
-                        $"/Api/v3/RequestData/{QuerySystem.QuerySystemKey}/{characterClassManager.UserId}", "OPTIONS");
+                        $"http{(QuerySystem.UseSSL ? "s" : "")}://" 
+                        + QuerySystem.CurrentMaster 
+                        + $"/Api/v3/RequestData/{QuerySystem.QuerySystemKey}/{characterClassManager.UserId}", "OPTIONS");
                     DownloadHandlerBuffer dH1 = new DownloadHandlerBuffer();
                     www.downloadHandler = dH1;
                     yield return Timing.WaitUntilDone(www.SendWebRequest());

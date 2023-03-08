@@ -70,7 +70,8 @@ namespace CedMod.Addons.QuerySystem
         public static string CurrentMaster = MainPanelUrl;
         public static string CurrentMasterQuery = "";
         public const string MainPanelUrl = "panelapi.cedmod.nl";
-        public const string DevPanelUrl = "gameapi.dev.cedmod.nl";
+        public static string DevPanelUrl = "gameapi.dev.cedmod.nl";
+        public static bool UseSSL = true;
         public static bool IsDev { get; set; }
     }
 }

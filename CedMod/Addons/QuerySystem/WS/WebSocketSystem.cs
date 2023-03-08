@@ -91,7 +91,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     var resp = client.SendAsync(new HttpRequestMessage()
                     {
                         Method = HttpMethod.Options,
-                        RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/v3/QuerySystem/{QuerySystem.QuerySystemKey}"),
+                        RequestUri = new Uri($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/QuerySystem/{QuerySystem.QuerySystemKey}"),
                     }).Result;
                     data1 = resp.Content.ReadAsStringAsync().Result;
                     if (resp.StatusCode != HttpStatusCode.OK)
@@ -122,7 +122,7 @@ namespace CedMod.Addons.QuerySystem.WS
             try
             {
                 LastConnection = DateTime.UtcNow;
-                Socket = new WebsocketClient(new Uri($"wss://{QuerySystem.CurrentMasterQuery}/QuerySystem?key={QuerySystem.QuerySystemKey}&identity=SCPSL&version=3"));
+                Socket = new WebsocketClient(new Uri($"ws{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMasterQuery}/QuerySystem?key={QuerySystem.QuerySystemKey}&identity=SCPSL&version=3"));
                 Socket.ReconnectTimeout = TimeSpan.FromSeconds(5);
                 Socket.ErrorReconnectTimeout = TimeSpan.FromSeconds(5);
                 Socket.IsReconnectionEnabled = false;
@@ -612,7 +612,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             Log.Info($"Panel requested refresh of api key: {jsonData["Reason"]}");
                             using (HttpClient client = new HttpClient())
                             {
-                                var response = client.PostAsync("https://" + QuerySystem.CurrentMaster + $"/Api/v3/FetchKey/{QuerySystem.QuerySystemKey}", new StringContent(JsonConvert.SerializeObject(new
+                                var response = client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/FetchKey/{QuerySystem.QuerySystemKey}", new StringContent(JsonConvert.SerializeObject(new
                                 {
                                     Hash = jsonData["Hash"]
                                 }), Encoding.Default, "application/json")).Result;
@@ -660,7 +660,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         var responsePerms = client.SendAsync(new HttpRequestMessage()
                         {
                             Method = HttpMethod.Options,
-                            RequestUri = new Uri("https://" + QuerySystem.CurrentMaster + $"/Api/v3/GetPermissions/{QuerySystem.QuerySystemKey}"),
+                            RequestUri = new Uri($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/GetPermissions/{QuerySystem.QuerySystemKey}"),
                         }).Result;
                         if (!responsePerms.IsSuccessStatusCode)
                         {
