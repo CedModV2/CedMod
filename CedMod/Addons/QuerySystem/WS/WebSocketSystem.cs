@@ -136,7 +136,6 @@ namespace CedMod.Addons.QuerySystem.WS
                     if (i.CloseStatusDescription != null && i.CloseStatusDescription == "LOCATION SWITCH")
                     {
                         Log.Error($"Lost connection to CedMod Panel Instance location switched");
-                        Socket.Stop(WebSocketCloseStatus.NormalClosure, "Location switch");
                         Thread.Sleep(2000);
                         lock (reconnectLock)
                         {
@@ -152,6 +151,11 @@ namespace CedMod.Addons.QuerySystem.WS
                         }
                         Socket.Dispose();
                         return;
+                    }
+                    else if (i.CloseStatusDescription != null && i.CloseStatusDescription == "TERMINATE RECONNECT")
+                    {
+                        Log.Error($"Lost connection to CedMod Panel Instance location switched");
+                        Socket.Stop(WebSocketCloseStatus.NormalClosure, "Terminate Reconnect");
                     }
                     else
                     {
