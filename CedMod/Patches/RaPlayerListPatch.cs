@@ -95,10 +95,6 @@ namespace CedMod.Patches
             var plr = CedModPlayer.Get(sender.SenderId);
             if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
             {
-                RemoteAdminModificationHandler.IngameUserPreferencesMap[plr] = new()
-                {
-                    ShowReportsInRemoteAdmin = true
-                };
                 Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, null));
             }
 
