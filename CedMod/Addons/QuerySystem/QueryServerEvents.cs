@@ -23,6 +23,9 @@ namespace CedMod.Addons.QuerySystem
         {
             if (wait)
                 yield return Timing.WaitForSeconds(3);
+            else
+                yield return Timing.WaitForSeconds(0.2f);
+            
             if (QuerySystem.QuerySystemKey != "None")
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)

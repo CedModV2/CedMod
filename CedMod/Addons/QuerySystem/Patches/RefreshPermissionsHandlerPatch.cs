@@ -30,7 +30,7 @@ namespace CedMod.Addons.QuerySystem.Patches
         public static CoroutineHandle CoroutineHandle;
         public static bool Prefix()
         {
-            if (CoroutineHandle != null && CoroutineHandle.IsRunning)
+            if (CoroutineHandle.IsRunning)
                 return false;
 
             CoroutineHandle = Timing.RunCoroutine(QuerySystem.QueryServerEvents.SyncStart(false));
