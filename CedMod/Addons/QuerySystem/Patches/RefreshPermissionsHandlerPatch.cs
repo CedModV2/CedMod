@@ -35,7 +35,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 
             CoroutineHandle = Timing.RunCoroutine(QuerySystem.QueryServerEvents.SyncStart(false));
 
-            return false;
+            return true;
         }
     }
 }
