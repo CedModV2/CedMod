@@ -141,8 +141,8 @@ namespace CedMod
             catch (Exception e)
             {
                 Debug.LogError($"Failed to patch: {e.ToString()}");
-                PluginAPI.Events.EventManager.UnregisterAllEvents(this);
                 _harmony.UnpatchAll();
+                PluginAPI.Events.EventManager.UnregisterAllEvents(this);
             }
 
             using (Stream stream = Assembly.GetManifestResourceStream("CedMod.version.txt"))

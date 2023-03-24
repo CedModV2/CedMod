@@ -24,7 +24,7 @@ namespace CedMod.Addons.QuerySystem.Patches
         }
     }
     
-    [HarmonyPatch(typeof(RefreshRaConfigsPatch), nameof(ServerConfigSynchronizer.RefreshRAConfigs))]
+    [HarmonyPatch(typeof(ServerConfigSynchronizer), nameof(ServerConfigSynchronizer.RefreshRAConfigs))]
     public static class RefreshRaConfigsPatch
     {
         public static CoroutineHandle CoroutineHandle;
