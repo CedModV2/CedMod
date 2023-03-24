@@ -19,9 +19,10 @@ namespace CedMod.Addons.QuerySystem
 {
     public class QueryServerEvents
     {
-        public IEnumerator<float> SyncStart()
+        public IEnumerator<float> SyncStart(bool wait = true)
         {
-            yield return Timing.WaitForSeconds(3);
+            if (wait)
+                yield return Timing.WaitForSeconds(3);
             if (QuerySystem.QuerySystemKey != "None")
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)

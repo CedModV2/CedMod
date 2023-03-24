@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem.WS;
 using HarmonyLib;
 using InventorySystem.Items.Firearms.Modules;
+using MEC;
 using UnityEngine;
 
 namespace CedMod.Addons.QuerySystem.Patches
@@ -20,6 +21,21 @@ namespace CedMod.Addons.QuerySystem.Patches
             }
 
             return true;
+        }
+    }
+    
+    [HarmonyPatch(typeof(RefreshRaConfigsPatch), nameof(ServerConfigSynchronizer.RefreshRAConfigs))]
+    public static class RefreshRaConfigsPatch
+    {
+        public static CoroutineHandle CoroutineHandle;
+        public static bool Prefix()
+        {
+            if (CoroutineHandle != null && CoroutineHandle.IsRunning)
+                return false;
+
+            CoroutineHandle = Timing.RunCoroutine(QuerySystem.QueryServerEvents.SyncStart(false));
+
+            return false;
         }
     }
 }
