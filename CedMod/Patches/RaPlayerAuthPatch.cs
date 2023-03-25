@@ -1,102 +1,134 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CedMod.Addons.QuerySystem;
+using System.Reflection;
+using System.Reflection.Emit;
 using CedMod.Components;
-using CommandSystem.Commands.RemoteAdmin;
 using HarmonyLib;
 using MEC;
-using Mirror;
-using Newtonsoft.Json;
 using NorthwoodLib.Pools;
-using PlayerRoles;
-using PlayerRoles.FirstPersonControl;
-using PlayerStatsSystem;
-using PluginAPI.Core;
-using PluginAPI.Events;
 using RemoteAdmin;
 using RemoteAdmin.Communication;
-using UnityEngine;
-using UnityEngine.Networking;
-using Utils;
-using VoiceChat;
 
 namespace CedMod.Patches
 {
-    [HarmonyPatch(typeof(RaPlayerAuth), nameof(RaPlayerAuth.ReceiveData), new Type[] { typeof(CommandSender), typeof(string) })]
+    [HarmonyPatch(typeof(RaPlayerAuth), nameof(RaPlayerAuth.ReceiveData), typeof(CommandSender), typeof(string))]
     public static class RaPlayerAuthPatch
     {
-        public static bool Prefix(RaPlayerAuth __instance, CommandSender sender, string data)
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
-            Timing.RunCoroutine(RaPlayerCoRoutine(__instance, sender, data));
-            return false;
+            var list = ListPool<CodeInstruction>.Shared.Rent(instructions);
+
+            var label = generator.DefineLabel();
+            var source = generator.DeclareLocal(typeof(string[]));
+            list[0].labels.Add(label);
+
+            // replace the other split call with the source variable
+            int splitIndex = list.FindIndex(i => i.operand is MethodInfo {Name: nameof(string.Split)});
+            int splitStart = splitIndex - 7;
+            int splitEnd = splitIndex + 1;
+
+            var splitLabels = list[splitStart].ExtractLabels();
+
+            list.RemoveRange(splitStart, splitEnd - splitStart);
+            list.Insert(splitStart, new CodeInstruction(OpCodes.Ldloc, source.LocalIndex).WithLabels(splitLabels));
+
+            // main functionality
+            list.InsertRange(0, new[]
+            {
+                // source = string.Split(' ');
+                new CodeInstruction(OpCodes.Ldarg_2),
+                new CodeInstruction(OpCodes.Ldc_I4_1),
+                new CodeInstruction(OpCodes.Newarr, typeof(char)),
+                new CodeInstruction(OpCodes.Dup),
+                new CodeInstruction(OpCodes.Ldc_I4_0),
+                new CodeInstruction(OpCodes.Ldc_I4_S, 32),
+                new CodeInstruction(OpCodes.Stelem_I2),
+                CodeInstruction.Call(typeof(string), nameof(string.Split), new[]
+                {
+                    typeof(char[])
+                }),
+                new CodeInstruction(OpCodes.Stloc, source.LocalIndex),
+
+                // return if custom processing was successful
+                new CodeInstruction(OpCodes.Ldarg_1),
+                new CodeInstruction(OpCodes.Ldloc, source.LocalIndex),
+                CodeInstruction.Call(typeof(RaPlayerAuthPatch), nameof(TryHandleReportRequest)),
+                new CodeInstruction(OpCodes.Brfalse, label),
+                new CodeInstruction(OpCodes.Ret)
+            });
+
+            foreach (var codeInstruction in list)
+                yield return codeInstruction;
+
+            ListPool<CodeInstruction>.Shared.Return(list);
+
         }
 
-        public static IEnumerator<float> RaPlayerCoRoutine(RaPlayerAuth __instance, CommandSender sender, string data)
+        public static bool TryHandleReportRequest(CommandSender sender, string[] source)
         {
-            string[] source = data.Split(' ');
             if (source[0].StartsWith("-1") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
             {
-                var player = CedModPlayer.Get(sender.SenderId);
-                var open = RemoteAdminModificationHandler.ReportsList.Where(s => s.Status == HandleStatus.NoResponse).ToList();
-                if (!RemoteAdminModificationHandler.ReportUnHandledState.ContainsKey(player))
-                {
-                    sender.RaReply(string.Format("${0} {1}", (object)1, (object)"Please use 'Request' to select a report first."), true, true, string.Empty);
-                    yield break;
-                }
-                var currently = RemoteAdminModificationHandler.ReportUnHandledState[player];
-                var report = open.FirstOrDefault(s => s.Id == currently.Item1);
-                if (report == null)
-                {
-                    sender.RaReply(string.Format("${0} {1}", (object)1, (object)"Please use 'Request' to select a report first."), true, true, string.Empty);
-                    yield break;
-                }
-
-                var resp = RemoteAdminModificationHandler.UpdateReport(report.Id.ToString(), sender.SenderId, HandleStatus.InProgress, "");
-                yield return Timing.WaitUntilTrue(() => resp.IsCompleted);
-                Timing.RunCoroutine(RaPlayerPatch.HandleReportType1(sender, player, source = new string[] { "0", "-1" }, $"<color=green>Report {report.Id} Now inprogress, please use the Inprogress tab to complete</color>"));
-                yield break;
+                Timing.RunCoroutine(HandleUnhandledReport(sender));
+                return true;
             }
-            
+
             if (source[0].StartsWith("-2") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
             {
-                var player = CedModPlayer.Get(sender.SenderId);
-                var open = RemoteAdminModificationHandler.ReportsList.Where(s => s.Status == HandleStatus.InProgress).ToList();
-                if (!RemoteAdminModificationHandler.ReportInProgressState.ContainsKey(player))
-                {
-                    sender.RaReply(string.Format("${0} {1}", (object)1, (object)"Please use 'Request' to select a report first."), true, true, string.Empty);
-                    yield break;
-                }
-                var currently = RemoteAdminModificationHandler.ReportInProgressState[player];
-                var report = open.FirstOrDefault(s => s.Id == currently.Item1);
-                if (report == null)
-                {
-                    sender.RaReply(string.Format("${0} {1}", (object)1, (object)"Please use 'Request' to select a report first."), true, true, string.Empty);
-                    yield break;
-                }
-                var resp = RemoteAdminModificationHandler.UpdateReport(report.Id.ToString(), sender.SenderId, HandleStatus.Handled, "Handled using ingame RemoteAdmin");
-                yield return Timing.WaitUntilTrue(() => resp.IsCompleted);
-                Timing.RunCoroutine(RaPlayerPatch.HandleReportType2(sender, player, source = new string[] { "0", "-2" }, $"<color=green>Report {report.Id} Completed</color>"));
-                yield break;
+                Timing.RunCoroutine(HandleInProgressReport(sender));
+                return true;
             }
-            
-            if (sender is PlayerCommandSender playerCommandSender && !playerCommandSender.ServerRoles.Staff && !CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayerSensitiveDataAccess))
-                yield break;
-            List<ReferenceHub> referenceHubList = RAUtils.ProcessPlayerIdOrNamesList(new ArraySegment<string>(data.Split(' ')), 0, out string[] _);
-            if (referenceHubList.Count == 0 || referenceHubList.Count > 1)
-                yield break;
-            if (string.IsNullOrEmpty(referenceHubList[0].characterClassManager.AuthToken))
+
+            return false;
+        }
+        private static IEnumerator<float> HandleUnhandledReport(CommandSender sender)
+        {
+            var player = CedModPlayer.Get(sender.SenderId);
+            var open = RemoteAdminModificationHandler.ReportsList.Where(s => s.Status == HandleStatus.NoResponse).ToList();
+            if (!RemoteAdminModificationHandler.ReportUnHandledState.ContainsKey(player))
             {
-                sender.RaReply("PlayerInfo#Can't obtain auth token. Is server using offline mode or you selected the host?", false, true, "PlayerInfo");
+                sender.RaReply(string.Format("${0} {1}", 1, "Please use 'Request' to select a report first."), true, true, string.Empty);
+                yield break;
             }
-            else
+            var currently = RemoteAdminModificationHandler.ReportUnHandledState[player];
+            var report = open.FirstOrDefault(s => s.Id == currently.Item1);
+            if (report == null)
             {
-                ServerLogs.AddLog(ServerLogs.Modules.DataAccess, string.Format("{0} accessed authentication token of player {1} ({2}).", (object) sender.LogName, (object) referenceHubList[0].PlayerId, (object) referenceHubList[0].nicknameSync.MyNick), ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging);
-                sender.RaReply(string.Format("PlayerInfo#<color=white>Authentication token of player {0} ({1}):\n{2}</color>", (object) referenceHubList[0].nicknameSync.MyNick, (object) referenceHubList[0].PlayerId, (object) referenceHubList[0].characterClassManager.AuthToken), true, true, "null");
-                RaPlayerQR.Send(sender, true, referenceHubList[0].characterClassManager.AuthToken);
+                sender.RaReply(string.Format("${0} {1}", 1, "Please use 'Request' to select a report first."), true, true, string.Empty);
+                yield break;
             }
+
+            var resp = RemoteAdminModificationHandler.UpdateReport(report.Id.ToString(), sender.SenderId, HandleStatus.InProgress, "");
+            yield return Timing.WaitUntilTrue(() => resp.IsCompleted);
+            Timing.RunCoroutine(RaPlayerPatch.HandleReportType1(sender, player, new string[]
+            {
+                "0",
+                "-1"
+            }, $"<color=green>Report {report.Id} Now inprogress, please use the Inprogress tab to complete</color>"));
+        }
+
+        private static IEnumerator<float> HandleInProgressReport(CommandSender sender)
+        {
+            var player = CedModPlayer.Get(sender.SenderId);
+            var open = RemoteAdminModificationHandler.ReportsList.Where(s => s.Status == HandleStatus.InProgress).ToList();
+            if (!RemoteAdminModificationHandler.ReportInProgressState.ContainsKey(player))
+            {
+                sender.RaReply(string.Format("${0} {1}", 1, "Please use 'Request' to select a report first."), true, true, string.Empty);
+                yield break;
+            }
+            var currently = RemoteAdminModificationHandler.ReportInProgressState[player];
+            var report = open.FirstOrDefault(s => s.Id == currently.Item1);
+            if (report == null)
+            {
+                sender.RaReply(string.Format("${0} {1}", 1, "Please use 'Request' to select a report first."), true, true, string.Empty);
+                yield break;
+            }
+            var resp = RemoteAdminModificationHandler.UpdateReport(report.Id.ToString(), sender.SenderId, HandleStatus.Handled, "Handled using ingame RemoteAdmin");
+            yield return Timing.WaitUntilTrue(() => resp.IsCompleted);
+            Timing.RunCoroutine(RaPlayerPatch.HandleReportType2(sender, player, new string[]
+            {
+                "0",
+                "-2"
+            }, $"<color=green>Report {report.Id} Completed</color>"));
         }
     }
 }
