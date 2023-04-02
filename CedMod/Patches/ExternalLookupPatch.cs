@@ -31,24 +31,32 @@ namespace CedMod.Patches
     {
         public static bool Prefix(ExternalLookupCommand __instance, bool __result, ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (arguments.Count == 0)
+            try
             {
-                response = "";
-                return true;
+                if (arguments.Count == 0)
+                {
+                    response = "";
+                    return true;
+                }
+                if (arguments.At(0) == "-1")
+                {
+                    response = "";
+                    Timing.RunCoroutine(RaPlayerCoRoutine(__instance, sender as CommandSender, arguments));
+                    return false;
+                }
+                else if (arguments.At(0) == "-2")
+                {
+                    response = "";
+                    Timing.RunCoroutine(RaPlayerCoRoutine(__instance, sender as CommandSender, arguments));
+                    return false;
+                }
+                else
+                {
+                    response = "";
+                    return true;
+                }
             }
-            if (arguments.At(0) == "-1")
-            {
-                response = "";
-                Timing.RunCoroutine(RaPlayerCoRoutine(__instance, sender as CommandSender, arguments));
-                return false;
-            }
-            else if (arguments.At(0) == "-2")
-            {
-                response = "";
-                Timing.RunCoroutine(RaPlayerCoRoutine(__instance, sender as CommandSender, arguments));
-                return false;
-            }
-            else
+            catch (Exception e)
             {
                 response = "";
                 return true;
