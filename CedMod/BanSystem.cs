@@ -45,7 +45,21 @@ namespace CedMod
                 {
                     reason = info["reason"];
                     Log.Info($"user: {player.UserId} attempted connection with blocked ASN/IP/VPN/Hosting service");
-                    player.Disconnect(reason);
+                    int count = 5;
+                    while (count <= 0)
+                    {
+                        await Task.Delay(100);
+                        count--;
+                        try
+                        {
+                            player.Disconnect(reason);
+                        }
+                        catch (Exception e)
+                        {
+                        }
+                            
+                        break;
+                    }
                 }
                 else
                 {
@@ -53,7 +67,21 @@ namespace CedMod
                     {
                         reason = info["preformattedmessage"];
                         Log.Info($"user: {player.UserId} attempted connection with active ban disconnecting");
-                        player.Disconnect(reason + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage);
+                        int count = 5;
+                        while (count <= 0)
+                        {
+                            await Task.Delay(100);
+                            count--;
+                            try
+                            {
+                                player.Disconnect(reason + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage);
+                            }
+                            catch (Exception e)
+                            {
+                            }
+                            
+                            break;
+                        }
                     }
                     else
                     {
