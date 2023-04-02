@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using HarmonyLib;
 using PluginAPI.Core;
@@ -14,20 +15,20 @@ namespace CedMod.Patches
             try
             {
                 Log.Info($"MainGame ban patch: banning user. {duration} {reason} {issuer}");
-                Task.Factory.StartNew(() =>
+                new Thread(() =>
                 {
                     try
                     {
                         lock (BanSystem.Banlock)
                         {
-                            API.Ban(CedModPlayer.Get(target), duration, issuer.LoggedNameFromRefHub(), reason);
+                            API.Ban(CedModPlayer.Get(target), duration, issuer.LoggedNameFromRefHub(), reason).Wait();
                         }
                     }
                     catch (Exception ex)
                     {
                        Log.Error($"MainGame ban patch failed {ex}");
                     }
-                });
+                }).Start();
             }
             catch (Exception ex)
             {

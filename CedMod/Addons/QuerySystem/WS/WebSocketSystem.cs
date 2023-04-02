@@ -72,7 +72,7 @@ namespace CedMod.Addons.QuerySystem.WS
             SendThread = null;
         }
 
-        public static void Start()
+        public static async Task Start()
         {
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug($"ST4");
@@ -88,18 +88,18 @@ namespace CedMod.Addons.QuerySystem.WS
                 Dictionary<string, string> data2 = new Dictionary<string, string>();
                 using (HttpClient client = new HttpClient())
                 {
-                    var resp = client.SendAsync(new HttpRequestMessage()
+                    var resp = await client.SendAsync(new HttpRequestMessage()
                     {
                         Method = HttpMethod.Options,
                         RequestUri = new Uri($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/QuerySystem/{QuerySystem.QuerySystemKey}"),
-                    }).Result;
-                    data1 = resp.Content.ReadAsStringAsync().Result;
+                    });
+                    data1 = await resp.Content.ReadAsStringAsync();
                     if (resp.StatusCode != HttpStatusCode.OK)
                     {
                         Reconnect = false;
                         Log.Error($"Failed to retrieve panel location, API rejected request: {data1}, Retrying");
-                        Thread.Sleep(2000);
-                        Start(); //retry until we succeed or the thread gets aborted.
+                        await Task.Delay(2000);
+                        await Start(); //retry until we succeed or the thread gets aborted.
                         return;
                     }
                     data2 = JsonConvert.DeserializeObject<Dictionary<string, string>>(data1);
@@ -114,8 +114,8 @@ namespace CedMod.Addons.QuerySystem.WS
             {
                 Reconnect = false;
                 Log.Error($"Failed to retrieve server location\n{e}");
-                Thread.Sleep(2000);
-                Start(); //retry until we succeed or the thread gets aborted.
+                await Task.Delay(1000);
+                await Start(); //retry until we succeed or the thread gets aborted.
                 return;
             }
 
@@ -139,14 +139,14 @@ namespace CedMod.Addons.QuerySystem.WS
                         Thread.Sleep(2000);
                         lock (reconnectLock)
                         {
-                            Task.Factory.StartNew(() =>
+                            Task.Factory.StartNew(async () =>
                             { 
                                 WebSocketSystem.Reconnect = false;
                                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                     Log.Debug($"ST2");
                                 Stop();
-                                Thread.Sleep(1000);
-                                Start();
+                                await Task.Delay(1000);
+                                await Start();
                             });
                         }
                         Socket.Dispose();
@@ -163,7 +163,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         Thread.Sleep(5000);
                         lock (reconnectLock)
                         {
-                            Task.Factory.StartNew(() =>
+                            Task.Factory.StartNew(async () =>
                             {
                                 try
                                 {
@@ -171,8 +171,8 @@ namespace CedMod.Addons.QuerySystem.WS
                                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                         Log.Debug($"ST1");
                                     Stop();
-                                    Thread.Sleep(1000);
-                                    Start();
+                                    await Task.Delay(1000);
+                                    await Start();
                                 }
                                 catch (Exception e)
                                 {
@@ -196,21 +196,21 @@ namespace CedMod.Addons.QuerySystem.WS
                     }
                 });
 
-                Socket.MessageReceived.Subscribe(s =>
+                Socket.MessageReceived.Subscribe(async s =>
                 {
                     LastConnection = DateTime.UtcNow;
                     if (s.MessageType == WebSocketMessageType.Text)
-                        OnMessage(new object(), s.Text);
+                        await OnMessage(new object(), s.Text);
                 });
-                Socket.Start().Wait();
+                await Socket.Start();
                 Log.Info($"Connected to cedmod panel");
             }
             catch (Exception e)
             {
                 WebSocketSystem.Reconnect = false;
                 Log.Error(e.ToString());
-                Thread.Sleep(2000);
-                Start(); //retry until we succeed or the thread gets aborted.
+                await Task.Delay(1000);
+                await Start(); //retry until we succeed or the thread gets aborted.
             }
 
             Reconnect = false;
@@ -247,7 +247,7 @@ namespace CedMod.Addons.QuerySystem.WS
             }
         }
 
-        static void OnMessage(object sender, string ev)
+        static async Task OnMessage(object sender, string ev)
         {
             try
             {
@@ -286,7 +286,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                     if (watchlistPlr == null)
                                         continue;
                                     string msg = CedModMain.Singleton.Config.QuerySystem.PlayerGroupWatchlistJoin;
-                                    if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
+                                    if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && !RemoteAdminModificationHandler.Singleton.Requesting.Contains(plr.UserId))
                                     {
                                         Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, () =>
                                             {
@@ -295,7 +295,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                                 Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{playerId}", $"{watchlistPlr.PlayerId}").Replace("{userId}", watchlistPlr.UserId).Replace("{playerName}", watchlistPlr.Nickname).Replace("{reason}", jsonData["Reason"]).Replace("{groups}", jsonData["Groups"]), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
                                             }));
                                     }
-                                    else
+                                    else if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
                                     {
                                         if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin)
                                             msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportWatchlistIngameDisabled;
@@ -318,7 +318,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                     if (watchlistPlr == null)
                                         continue;
                                     string msg = CedModMain.Singleton.Config.QuerySystem.PlayerWatchlistJoin;
-                                    if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
+                                    if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && !RemoteAdminModificationHandler.Singleton.Requesting.Contains(plr.UserId))
                                     {
                                         Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, () =>
                                             {
@@ -327,7 +327,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                                 Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{playerId}", $"{watchlistPlr.PlayerId}").Replace("{playerName}", watchlistPlr.Nickname).Replace("{reason}", jsonData["Reason"]).Replace("{userId}", watchlistPlr.UserId), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
                                             }));
                                     }
-                                    else
+                                    else if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
                                     {
                                         if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin)
                                             msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportWatchlistIngameDisabled;
@@ -340,7 +340,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                             {
                                 var toRefresh = CedModPlayer.Get(jsonData["UserId"]);
-                                if (toRefresh == null)
+                                if (toRefresh == null && RemoteAdminModificationHandler.Singleton.Requesting.Contains(toRefresh.UserId))
                                     return;
                                 Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(toRefresh, null));
                             });
@@ -362,7 +362,7 @@ namespace CedMod.Addons.QuerySystem.WS
 
                                             var plr = CedModPlayer.Get(staff);
                                             string msg = CedModMain.Singleton.Config.QuerySystem.StaffReportNotification;
-                                            if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
+                                            if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && !RemoteAdminModificationHandler.Singleton.Requesting.Contains(plr.UserId))
                                             {
                                                 Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, () =>
                                                 {
@@ -371,7 +371,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                                     Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{reporterName}", $"{jsonData["ReporterName"]} {jsonData["Reporter"]}").Replace("{reportedName}", $"{jsonData["ReportedName"]} {jsonData["Reported"]}").Replace("{checkType}", RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin ? "RemoteAdmin" : "Discord"), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat); 
                                                 }));
                                             }
-                                            else
+                                            else if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
                                             {
                                                 if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin) 
                                                     msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportNotificationIngameDisabled;
@@ -610,33 +610,33 @@ namespace CedMod.Addons.QuerySystem.WS
                             break;
                         case "ApplyRA":
                             Log.Info($"Panel requested AutoSlPerms reload: {jsonData["reason"]}");
-                            Task.Factory.StartNew(ApplyRa);
+                            new Thread(ApplyRa).Start();
                             break;
                         case "FetchApiKey":
                             Log.Info($"Panel requested refresh of api key: {jsonData["Reason"]}");
                             using (HttpClient client = new HttpClient())
                             {
-                                var response = client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/FetchKey/{QuerySystem.QuerySystemKey}", new StringContent(JsonConvert.SerializeObject(new
+                                var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/FetchKey/{QuerySystem.QuerySystemKey}", new StringContent(JsonConvert.SerializeObject(new
                                 {
                                     Hash = jsonData["Hash"]
-                                }), Encoding.Default, "application/json")).Result;
+                                }), Encoding.Default, "application/json"));
 
                                 if (response.IsSuccessStatusCode)
                                 {
-                                    CedModMain.Singleton.Config.CedMod.CedModApiKey = response.Content.ReadAsStringAsync().Result;
+                                    CedModMain.Singleton.Config.CedMod.CedModApiKey = await response.Content.ReadAsStringAsync();
 #if !EXILED
                                     File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "config.yml"), YamlParser.Serializer.Serialize(CedModMain.Singleton.Config));
 #else
                                     var pluginConfigs = ConfigManager.LoadSorted(ConfigManager.Read());
                                     Config cedModCnf = pluginConfigs[CedModMain.Singleton.Prefix] as Config;
-                                    cedModCnf.CedMod.CedModApiKey = response.Content.ReadAsStringAsync().Result;
+                                    cedModCnf.CedMod.CedModApiKey = await response.Content.ReadAsStringAsync();
                                     ConfigManager.Save(pluginConfigs);
 #endif
                                     Log.Info($"Successfully saved apikey");
                                 }
                                 else
                                 {
-                                    Log.Error($"Failed to fetch key: {response.Content.ReadAsStringAsync().Result}");
+                                    Log.Error($"Failed to fetch key: {await response.Content.ReadAsStringAsync()}");
                                 }
                             }
                             break;

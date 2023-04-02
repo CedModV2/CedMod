@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem.Patches;
 using CedMod.Addons.QuerySystem.WS;
@@ -41,7 +42,7 @@ namespace CedMod.Addons.QuerySystem
                         QuerySystem.QuerySystemKey;
                 }
 
-                Task.Factory.StartNew(() =>
+                Task.Factory.StartNew(async () =>
                 {
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                         Log.Debug("Checking configs");
@@ -59,10 +60,10 @@ namespace CedMod.Addons.QuerySystem
                                 ServerConfigSynchronizer.Singleton.RemoteAdminPredefinedBanTemplates.Clear();
                                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                     Log.Debug("Downloading ban reasons");
-                                var response = client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/BanReasons/{QuerySystem.QuerySystemKey}");
+                                var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/BanReasons/{QuerySystem.QuerySystemKey}");
                                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                     Log.Debug("Addding ban reasons");
-                                foreach (var dict in JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(response.Result.Content.ReadAsStringAsync().Result))
+                                foreach (var dict in JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(await response.Content.ReadAsStringAsync()))
                                 {
                                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                         Log.Debug($"Addding ban reason {JsonConvert.SerializeObject(dict)}");
@@ -106,7 +107,7 @@ namespace CedMod.Addons.QuerySystem
                     {
                         Log.Error(e.ToString());
                     }
-                    WebSocketSystem.ApplyRa();
+                    new Thread(WebSocketSystem.ApplyRa).Start();
                 });
             }
         }
@@ -116,12 +117,12 @@ namespace CedMod.Addons.QuerySystem
         {
             Timing.RunCoroutine(SyncStart());
 
-            Task.Factory.StartNew(delegate
+            Task.Factory.StartNew(async delegate
             {
                 if (!WebSocketSystem.Socket.IsRunning)
                 {
                     WebSocketSystem.Stop();
-                    WebSocketSystem.Start();
+                    await WebSocketSystem.Start();
                 }
             });
 
@@ -203,7 +204,7 @@ namespace CedMod.Addons.QuerySystem
         {
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug("sending report WR");
-            Task.Factory.StartNew(() =>
+            Task.Factory.StartNew(async () =>
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug("Thread report send");
@@ -215,9 +216,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     try
                     {
-                        var response = client
-                            .PostAsync(
-                                $"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/Reports/{QuerySystem.QuerySystemKey}",
+                        var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/Reports/{QuerySystem.QuerySystemKey}",
                                 new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
                                     {
                                         {"reporter", plr.UserId},
@@ -225,9 +224,9 @@ namespace CedMod.Addons.QuerySystem
                                         {"reason", reason},
                                         {"cheating", "true"}
                                     }), Encoding.Default,
-                                    "application/json")).Result;
+                                    "application/json"));
                         if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Log.Debug(response.Content.ReadAsStringAsync().Result);
+                            Log.Debug(await response.Content.ReadAsStringAsync());
                     }
                     catch (Exception ex)
                     {
@@ -308,7 +307,7 @@ namespace CedMod.Addons.QuerySystem
             
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug("sending report WR");
-            Task.Factory.StartNew(() =>
+            Task.Factory.StartNew(async () =>
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug("Thread report send");    
@@ -324,8 +323,7 @@ namespace CedMod.Addons.QuerySystem
                         {
                             plr.SendConsoleMessage($"[REPORTING] Sending report to server staff...", "green");
                         });
-                        var response = client
-                            .PostAsync(
+                        var response = await client.PostAsync(
                                 $"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/Reports/{QuerySystem.QuerySystemKey}",
                                 new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
                                     {
@@ -333,7 +331,7 @@ namespace CedMod.Addons.QuerySystem
                                         { "reported", target.UserId },
                                         { "reason", reason },
                                     }), Encoding.Default,
-                                    "application/json")).Result;
+                                    "application/json"));
                         if (response.IsSuccessStatusCode)
                         {
                             ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
@@ -343,7 +341,7 @@ namespace CedMod.Addons.QuerySystem
                         }
                         else
                         {
-                            string textResponse = response.Content.ReadAsStringAsync().Result;
+                            string textResponse = await response.Content.ReadAsStringAsync();
                             ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                             {
                                 plr.SendConsoleMessage($"[REPORTING] Failed to send report, please let server staff know: {textResponse}", "green");
@@ -352,7 +350,7 @@ namespace CedMod.Addons.QuerySystem
                         }
 
                         if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Log.Debug(response.Content.ReadAsStringAsync().Result);
+                            Log.Debug(await response.Content.ReadAsStringAsync());
                     }
                     catch (Exception ex)
                     {

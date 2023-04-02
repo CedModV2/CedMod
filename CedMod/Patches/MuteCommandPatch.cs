@@ -124,9 +124,9 @@ namespace CedMod.Patches
 						VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.LocalRegular);
 						
 						plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", MuteType.Global.ToString());
-						Task.Factory.StartNew(() =>
+						Task.Factory.StartNew(async () =>
 						{
-							API.Mute(plr, sender.LogName, num, text, MuteType.Global);
+							await API.Mute(plr, sender.LogName, num, text, MuteType.Global);
 						});
 						global::ServerLogs.AddLog(global::ServerLogs.Modules.Administrative, sender.LogName + " muted player " + referenceHub.LoggedNameFromRefHub() + ".", global::ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging, false);
 						num2++;

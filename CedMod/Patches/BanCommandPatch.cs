@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CommandSystem;
 using CommandSystem.Commands.RemoteAdmin;
@@ -141,13 +142,13 @@ namespace CedMod.Patches
 							else if (num != 0L && ConfigFile.ServerConfig.GetBool("broadcast_bans", true))
 								Broadcast.Singleton.RpcAddElement(ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", combinedName), ConfigFile.ServerConfig.GetUShort("broadcast_ban_duration", (ushort) 5), Broadcast.BroadcastFlags.Normal);
 
-							Task.Factory.StartNew(() =>
+							new Thread(() =>
 							{
 								lock (BanSystem.Banlock)
 								{
-									API.Ban(CedModPlayer.Get(referenceHub), num, sender.LogName, text, false);
+									API.Ban(CedModPlayer.Get(referenceHub), num, sender.LogName, text, false).Wait();
 								}
-							});
+							}).Start();
 						}
 						num2 += 1;
 					}

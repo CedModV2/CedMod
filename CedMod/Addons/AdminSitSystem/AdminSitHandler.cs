@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
@@ -66,13 +67,13 @@ namespace CedMod.Addons.AdminSitSystem
                         if (!BannedUserIds.Contains(plr.UserId))
                         {
                             BannedUserIds.Add(plr.UserId);
-                            Task.Factory.StartNew(() =>
+                            new Thread(() =>
                             {
                                 lock (BanSystem.Banlock)
                                 {
-                                    API.BanId(plr.UserId, sit.InitialDuration, sit.Players.FirstOrDefault(s => s.PlayerType == AdminSitPlayerType.Handler).UserId, sit.InitialDuration + "Leaving an active Admin sit");
+                                    API.BanId(plr.UserId, sit.InitialDuration, sit.Players.FirstOrDefault(s => s.PlayerType == AdminSitPlayerType.Handler).UserId, sit.InitialDuration + "Leaving an active Admin sit").Wait();
                                 }
-                            });
+                            }).Start();
                         }
                     }
                 }

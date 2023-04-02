@@ -32,15 +32,15 @@ namespace CedMod.Commands
             AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
             if (!CedModMain.Singleton.Config.CedMod.AutoUpdate)
             {
-                Task.Factory.StartNew(() =>
+                Task.Factory.StartNew(async () =>
                 {
-                    var data = updater.CheckForUpdates(true);
+                    var data = await updater.CheckForUpdates(true);
                     if (data == null)
                         Log.Error($"There are no updates pending for this version.");
                     else
                     {
                         AutoUpdater.Pending = data;
-                        updater.InstallUpdate();
+                        await updater.InstallUpdate();
                     }
                 });
                 response = "";
@@ -52,15 +52,15 @@ namespace CedMod.Commands
                 return false;
             }
             
-            Task.Factory.StartNew(() =>
+            Task.Factory.StartNew(async () =>
             {
-                var data = updater.CheckForUpdates(true);
+                var data = await updater.CheckForUpdates(true);
                 if (data == null)
                     Log.Error($"There are no updates pending for this version.");
                 else
                 {
                     AutoUpdater.Pending = data;
-                    updater.InstallUpdate();
+                    await updater.InstallUpdate();
                 }
             });
             response = "Update Install requested to the UpdateService";

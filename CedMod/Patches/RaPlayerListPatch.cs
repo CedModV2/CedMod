@@ -54,7 +54,7 @@ namespace CedMod.Patches
             if (CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
             {
                 var plr = CedModPlayer.Get(sender.SenderId);
-                if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
+                if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && !RemoteAdminModificationHandler.Singleton.Requesting.Contains(plr.UserId))
                 {
                     Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, null));
                 }
@@ -97,7 +97,7 @@ namespace CedMod.Patches
                 if (hub.Mode != ClientInstanceMode.DedicatedServer && hub.Mode != ClientInstanceMode.Unverified)
                 {
                     var plr = CedModPlayer.Get(sender.SenderId);
-                    if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
+                    if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && !RemoteAdminModificationHandler.Singleton.Requesting.Contains(plr.UserId))
                     {
                         Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, null));
                     }

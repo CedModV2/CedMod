@@ -56,9 +56,9 @@ namespace CedMod
                     if (s.Value >= CedModMain.Singleton.Config.CedMod.AutobanThreshold)
                     {
                         Log.Info( $"Player: {attacker.Nickname} {attacker.PlayerId.ToString()} {attacker.UserId} exceeded teamkill limit");
-                        Task.Factory.StartNew(() =>
+                        Task.Factory.StartNew(async () =>
                         {
-                            API.Ban(attacker, (long) TimeSpan.FromMinutes(CedModMain.Singleton.Config.CedMod.AutobanDuration).TotalSeconds, "Server.Module.FriendlyFireAutoban", CedModMain.Singleton.Config.CedMod.AutobanReason);
+                            await API.Ban(attacker, (long) TimeSpan.FromMinutes(CedModMain.Singleton.Config.CedMod.AutobanDuration).TotalSeconds, "Server.Module.FriendlyFireAutoban", CedModMain.Singleton.Config.CedMod.AutobanReason);
                         });
                         Server.SendBroadcast($"<size=25><b><color=yellow>user: </color></b><color=red> {attacker.Nickname} </color><color=yellow><b> has been automatically banned for teamkilling</b></color></size>", 20);
                     }

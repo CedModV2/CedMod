@@ -41,21 +41,20 @@ namespace CedMod.Components
         
         public static Task UpdateReport(string reportId, string user, HandleStatus status, string reason)
         {
-            return Task.Factory.StartNew(() =>
+            return Task.Factory.StartNew(async () =>
             {
                 using (HttpClient client = new HttpClient())
                 {
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Updating Report.");
-                    var response = client.PutAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Reports/{QuerySystem.QuerySystemKey}?reportId={reportId}&status={status}&userid={user}",
-                            new StringContent(reason, Encoding.Default, "text/plain")).Result;
+                    var response = await client.PutAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Reports/{QuerySystem.QuerySystemKey}?reportId={reportId}&status={status}&userid={user}", new StringContent(reason, Encoding.Default, "text/plain"));
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        Log.Error($"Failed to update report {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
+                        Log.Error($"Failed to update report {response.StatusCode} | {await response.Content.ReadAsStringAsync()}");
                     }
                     else
                     {
-                        Singleton.GetReports();
+                        await Singleton.GetReports();
                     }
                 }
             });
@@ -79,13 +78,13 @@ namespace CedMod.Components
             if (ReportGetTimer >= 30)
             {
                 ReportGetTimer = 0;
-                Task.Factory.StartNew(() => GetReports());
+                Task.Factory.StartNew(async () => await GetReports());
             }
             
             if (WatchlistGetTimer >= 30)
             {
                 WatchlistGetTimer = 0;
-                Task.Factory.StartNew(() => GetWatchlist());
+                Task.Factory.StartNew(async () => await GetWatchlist());
             }
 
             UiBlinkTimer += Time.deltaTime;
@@ -95,8 +94,8 @@ namespace CedMod.Components
                 UiBlink = !UiBlink;
             }
         }
-        
-        public void GetReports()
+
+        public async Task GetReports()
         {
             try
             {
@@ -104,14 +103,14 @@ namespace CedMod.Components
                 {
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Getting Reports.");
-                    var response = client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Reports/{QuerySystem.QuerySystemKey}").Result;
+                    var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Reports/{QuerySystem.QuerySystemKey}");
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        Log.Error($"Failed to check for reports: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
+                        Log.Error($"Failed to check for reports: {response.StatusCode} | {await response.Content.ReadAsStringAsync()}");
                     }
                     else
                     {
-                        var dat = JsonConvert.DeserializeObject<ReportGetresponse>(response.Content.ReadAsStringAsync().Result);
+                        var dat = JsonConvert.DeserializeObject<ReportGetresponse>(await response.Content.ReadAsStringAsync());
                         List<Reports> reportsList = new List<Reports>();
                         foreach (var rept in dat.Reports)
                         {
@@ -132,7 +131,7 @@ namespace CedMod.Components
             }
         }
         
-        public void GetWatchlist()
+        public async Task GetWatchlist()
         {
             try
             {
@@ -140,14 +139,14 @@ namespace CedMod.Components
                 {
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Getting Watchlist.");
-                    var response = client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Watchlist/{QuerySystem.QuerySystemKey}").Result;
+                    var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Watchlist/{QuerySystem.QuerySystemKey}");
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        Log.Error($"Failed to check for reports: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
+                        Log.Error($"Failed to check for reports: {response.StatusCode} | {await response.Content.ReadAsStringAsync()}");
                     }
                     else
                     {
-                        var dat = JsonConvert.DeserializeObject<WatchListGetResponse>(response.Content.ReadAsStringAsync().Result);
+                        var dat = JsonConvert.DeserializeObject<WatchListGetResponse>(await response.Content.ReadAsStringAsync());
                     
                         List<WatchList> watchLists = new List<WatchList>();
                         foreach (var rept in dat.WatchList.List)
@@ -188,9 +187,16 @@ namespace CedMod.Components
                 Log.Error($"Error ocurred when trying to load Watchlist: {e}");
             }
         }
+        
+        public List<string> Requesting = new List<string>();
 
         public IEnumerator<float> ResolvePreferences(CedModPlayer player, Action callback)
         {
+            if (Requesting.Contains(player.UserId))
+                yield break; 
+            
+            Requesting.Add(player.UserId);
+            
             UnityWebRequest www = new UnityWebRequest($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/GetUserPreferences/{QuerySystem.QuerySystemKey}?id={player.UserId}", "OPTIONS");
             DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
             www.downloadHandler = dH;
@@ -229,6 +235,7 @@ namespace CedMod.Components
             }
             
             www.Dispose();
+            Requesting.Remove(player.UserId);
         }
     }
     

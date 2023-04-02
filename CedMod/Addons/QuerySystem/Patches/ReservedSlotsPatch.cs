@@ -545,11 +545,11 @@ namespace CedMod.Addons.QuerySystem.Patches
 						if (!CustomLiteNetLib4MirrorTransport.ProcessCancellationData(request, EventManager.ExecuteEvent<PreauthCancellationData>(ServerEventType.PlayerPreauth, userId, request.RemoteEndPoint.Address.ToString(), expiration, flags, country, signature, request, position)))
 							return;
 
-						Task.Factory.StartNew(() =>
+						Task.Factory.StartNew(async () =>
 						{
 							string id = userId;
 							string ip = realIp ?? request.RemoteEndPoint.Address.ToString();
-							Dictionary<string, string> info = (Dictionary<string, string>) API.APIRequest("Auth/", $"{id}&{ip}");
+							Dictionary<string, string> info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{id}&{ip}");
 							lock (BanSystem.CachedStates)
 							{
 								if (BanSystem.CachedStates.ContainsKey(id))

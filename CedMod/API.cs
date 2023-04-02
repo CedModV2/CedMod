@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
 using Footprinting;
 using GameCore;
@@ -29,7 +30,7 @@ namespace CedMod
             }
         }
 
-        public static object APIRequest(string endpoint, string arguments, bool returnstring = false, string type = "GET")
+        public static async Task<object> APIRequest(string endpoint, string arguments, bool returnstring = false, string type = "GET")
         {
             string response = "";  
             try
@@ -40,8 +41,8 @@ namespace CedMod
                     using (HttpClient client = new HttpClient())
                     {
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
-                        resp = client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint + arguments).Result;
-                        response = resp.Content.ReadAsStringAsync().Result;
+                        resp = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint + arguments);
+                        response = await resp.Content.ReadAsStringAsync();
                     }
                 }
                 
@@ -50,8 +51,8 @@ namespace CedMod
                     using (HttpClient client = new HttpClient())
                     {
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
-                        resp = client.DeleteAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint + arguments).Result;
-                        response = resp.Content.ReadAsStringAsync().Result;
+                        resp = await client.DeleteAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint + arguments);
+                        response = await resp.Content.ReadAsStringAsync();
                     }
                 }
 
@@ -60,8 +61,8 @@ namespace CedMod
                     using (HttpClient client = new HttpClient())
                     {
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
-                        resp = client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json")).Result;
-                        response = resp.Content.ReadAsStringAsync().Result;
+                        resp = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json"));
+                        response = await resp.Content.ReadAsStringAsync();
                     }
                 }
 
@@ -88,22 +89,22 @@ namespace CedMod
             }
         }
         
-        public static void Mute(Player player, string adminname, double duration, string reason, MuteType Type)
+        public static async Task Mute(Player player, string adminname, double duration, string reason, MuteType Type)
         {
             long realduration = (long)TimeSpan.FromSeconds(duration).TotalMinutes;
             string req = "{\"AdminName\": \"" + adminname + "\"," +
                          "\"Muteduration\": " + realduration + "," +
                          "\"Type\": " + (int)Type + "," +
                          "\"Mutereason\": \"" + reason + "\"}";
-            Dictionary<string, string> result = (Dictionary<string, string>) APIRequest($"api/Mute/{player.UserId}", req, false, "POST");
+            Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"api/Mute/{player.UserId}", req, false, "POST");
         }
         
-        public static void UnMute(Player player)
+        public static async Task UnMute(Player player)
         {
-            Dictionary<string, string> result = (Dictionary<string, string>) APIRequest($"api/Mute/{player.UserId}", "", false, "DELETE");
+            Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"api/Mute/{player.UserId}", "", false, "DELETE");
         }
 
-        public static void Ban(CedModPlayer player, long duration, string sender, string reason, bool bc = true)
+        public static async Task Ban(CedModPlayer player, long duration, string sender, string reason, bool bc = true)
         {
             long realduration = (long)TimeSpan.FromSeconds(duration).TotalMinutes;
             if (duration >= 1)
@@ -113,7 +114,7 @@ namespace CedMod
                               "\"AdminName\": \"" + sender.Replace("\"", "'") + "\"," +
                               "\"BanDuration\": "+realduration+"," +
                               "\"BanReason\": \""+reason.Replace("\"", "'")+"\"}";
-                Dictionary<string, string> result = (Dictionary<string, string>) APIRequest("Auth/Ban", json, false, "POST"); 
+                Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest("Auth/Ban", json, false, "POST"); 
                 ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>  Timing.RunCoroutine(StrikeBad(player, result.ContainsKey("preformattedmessage") ? result["preformattedmessage"] : $"Failed to execute api request {JsonConvert.SerializeObject(result)}")));
                 if (bc)
                     Server.SendBroadcast(ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", player.Nickname), (ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), Broadcast.BroadcastFlags.Normal);
@@ -127,7 +128,7 @@ namespace CedMod
             }
         }
         
-        public static void BanId(string UserId, long duration, string sender, string reason, bool bc = true)
+        public static async Task BanId(string UserId, long duration, string sender, string reason, bool bc = true)
         {
             double realduration = TimeSpan.FromSeconds(duration).TotalMinutes;
             if (duration >= 1)
@@ -137,7 +138,7 @@ namespace CedMod
                               "\"AdminName\": \"" + sender.Replace("\"", "'") + "\"," +
                               "\"BanDuration\": "+realduration+"," +
                               "\"BanReason\": \""+reason.Replace("\"", "'")+"\"}";
-                Dictionary<string, string> result = (Dictionary<string, string>) APIRequest("Auth/Ban", json, false, "POST");
+                Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest("Auth/Ban", json, false, "POST");
                 CedModPlayer player = CedModPlayer.Get(UserId);
                 if (player != null)
                 {

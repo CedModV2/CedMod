@@ -12,7 +12,7 @@ namespace CedMod.Handlers
         [PluginEvent(ServerEventType.PlayerJoined)]
         public void OnJoin(CedModPlayer player)
         {
-            Task.Factory.StartNew(() => { BanSystem.HandleJoin(player); });
+            Task.Factory.StartNew(async () => { await BanSystem.HandleJoin(player); });
             Timing.RunCoroutine(Name(player));
         }
         

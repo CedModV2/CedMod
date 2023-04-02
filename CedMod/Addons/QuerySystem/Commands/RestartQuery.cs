@@ -30,10 +30,10 @@ namespace CedMod.Addons.QuerySystem.Commands
                 return false;
             }
 
-            Task.Factory.StartNew(() =>
+            Task.Factory.StartNew(async () =>
             { 
                 WebSocketSystem.Stop();
-                WebSocketSystem.Start();
+                await WebSocketSystem.Start();
             });
             response = "Query server restarted";
             return true;

@@ -54,7 +54,7 @@ namespace CedMod
         public static PluginHandler Handler;
 #endif
 
-        public const string PluginVersion = "3.4.3";
+        public const string PluginVersion = "3.4.4";
 
 #if !EXILED
         [PluginConfig]
@@ -212,11 +212,11 @@ namespace CedMod
             if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt")))
             {
                 // Start the HTTP server.
-                Task.Factory.StartNew(() =>
+                Task.Factory.StartNew(async () =>
                 {
                     try
                     {
-                        WebSocketSystem.Start();
+                        await WebSocketSystem.Start();
                     }
                     catch (Exception e)
                     {

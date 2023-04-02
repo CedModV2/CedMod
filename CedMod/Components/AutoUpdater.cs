@@ -55,10 +55,10 @@ namespace CedMod.Components
                             if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                                 Log.Debug($"Prepping install 1");
                             TimePassed = 0;
-                            Task.Factory.StartNew(() =>
+                            Task.Factory.StartNew(async () =>
                             {
                                 Log.Info($"Installing update {Pending.VersionString} - {Pending.VersionCommit}");
-                                InstallUpdate();
+                                await InstallUpdate();
                             });
                         }
                         else if (Installing)
@@ -80,9 +80,9 @@ namespace CedMod.Components
                     TimePassedCheck = 0;
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Prepping Check");
-                    Task.Factory.StartNew(() =>
+                    Task.Factory.StartNew(async () =>
                     {
-                        var data = CheckForUpdates();
+                        var data = await CheckForUpdates();
                         Pending = data;
                     });
                 }
@@ -105,23 +105,23 @@ namespace CedMod.Components
         public void Start()
         {
             Log.Info($"CedMod AutoUpdater initialized, checking for updates.");
-            Task.Factory.StartNew(() =>
+            Task.Factory.StartNew(async () =>
             {
-                var data = CheckForUpdates(true);
+                var data = await CheckForUpdates(true);
                 Pending = data;
             });
         }
 
-        public CedModVersion CheckForUpdates(bool b = false)
+        public async Task<CedModVersion> CheckForUpdates(bool b = false)
         {
             try
             {
                 using (HttpClient client = new HttpClient())
                 {
 #if !EXILED
-                    var response = client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Version/UpdateAvailableNW?VersionId={CedModMain.VersionIdentifier}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+                    var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Version/UpdateAvailableNW?VersionId={CedModMain.VersionIdentifier}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}");
 #else
-                    var response = client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Version/UpdateAvailable?VersionId={CedModMain.VersionIdentifier}&ExiledVersion={Loader.Version.ToString()}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+                    var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Version/UpdateAvailable?VersionId={CedModMain.VersionIdentifier}&ExiledVersion={Loader.Version.ToString()}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}");
 #endif
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
@@ -132,13 +132,13 @@ namespace CedMod.Components
                         }
                         else
                         {
-                            Log.Error($"Failed to check for updates: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
+                            Log.Error($"Failed to check for updates: {response.StatusCode} | {await response.Content.ReadAsStringAsync()}");
                         }
                         return null;
                     }
                     else
                     {
-                        var dat = JsonConvert.DeserializeObject<CedModVersion>(response.Content.ReadAsStringAsync().Result);
+                        var dat = JsonConvert.DeserializeObject<CedModVersion>(await response.Content.ReadAsStringAsync());
                         Log.Info($"Update available: {dat.VersionString} - {dat.VersionCommit}\nCurrent: {CedModMain.PluginVersion} - {CedModMain.GitCommitHash}");
                         return dat;
                     }
@@ -157,19 +157,19 @@ namespace CedMod.Components
         {
             if (Pending == null)
             {
-                Task.Factory.StartNew(() =>
+                Task.Factory.StartNew(async () =>
                 {
-                    var data = CheckForUpdates();
+                    var data = await CheckForUpdates();
                     Pending = data;
                 });
             }
             
             if (CedModMain.Singleton.Config.CedMod.AutoUpdate && CedModMain.Singleton.Config.CedMod.AutoUpdateRoundEnd && Pending != null && !Installing)
             {
-                Task.Factory.StartNew(() =>
+                Task.Factory.StartNew(async () =>
                 {
                     Log.Info($"Installing update {Pending.VersionString} - {Pending.VersionCommit}");
-                    InstallUpdateDelayed();
+                    await InstallUpdateDelayed();
                 });
             }
         }
@@ -179,9 +179,9 @@ namespace CedMod.Components
         {
             if (Pending == null)
             {
-                Task.Factory.StartNew(() =>
+                Task.Factory.StartNew(async () =>
                 {
-                    var data = CheckForUpdates();
+                    var data = await CheckForUpdates();
                     Pending = data;
                 });
             }
@@ -200,7 +200,7 @@ namespace CedMod.Components
             }
         }
 
-        public void InstallUpdate()
+        public async Task InstallUpdate()
         {
             if (Installing)
                 return;
@@ -211,18 +211,18 @@ namespace CedMod.Components
                 using (HttpClient client = new HttpClient())
                 {
 #if !EXILED
-                    var response = client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Version/TargetDownloadNW?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+                    var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Version/TargetDownloadNW?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}");
 #else 
-                    var response = client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Version/TargetDownload?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ExiledVersion={Loader.Version.ToString()}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+                    var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Version/TargetDownload?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ExiledVersion={Loader.Version.ToString()}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}");
 #endif
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        Log.Error($"Failed to download update: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
+                        Log.Error($"Failed to download update: {response.StatusCode} | {await response.Content.ReadAsStringAsync()}");
                     }
                     else
                     {
                         Log.Info($"Downloading CedMod Version {Pending.VersionString} - {Pending.VersionCommit}");
-                        var data = response.Content.ReadAsStreamAsync().Result;
+                        var data = await response.Content.ReadAsStreamAsync();
                         var hash = CedModMain.GetHashCode(data, new MD5CryptoServiceProvider());
                         if (Pending.FileHash != hash)
                         {
@@ -230,7 +230,7 @@ namespace CedMod.Components
                         }
                         else
                         {
-                            var data1 = response.Content.ReadAsByteArrayAsync().Result;
+                            var data1 = await response.Content.ReadAsByteArrayAsync();
                             Log.Info($"Saving to: {CedModMain.PluginLocation}");
                             File.WriteAllBytes(CedModMain.PluginLocation, data1);
                         
@@ -248,7 +248,7 @@ namespace CedMod.Components
             Installing = false;
         }
         
-        public void InstallUpdateDelayed()
+        public async Task InstallUpdateDelayed()
         {
             if (Installing)
                 return;
@@ -259,18 +259,18 @@ namespace CedMod.Components
                 using (HttpClient client = new HttpClient())
                 {
 #if !EXILED
-                    var response = client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Version/TargetDownloadNW?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+                    var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Version/TargetDownloadNW?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}");
 #else 
-                    var response = client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Version/TargetDownload?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ExiledVersion={Loader.Version.ToString()}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}").Result;
+                    var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Version/TargetDownload?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ExiledVersion={Loader.Version.ToString()}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}");
 #endif
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        Log.Error($"Failed to download update: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
+                        Log.Error($"Failed to download update: {response.StatusCode} | {await response.Content.ReadAsStringAsync()}");
                     }
                     else
                     {
                         Log.Info($"Downloading CedMod Version {Pending.VersionString} - {Pending.VersionCommit}");
-                        var data = response.Content.ReadAsStreamAsync().Result;
+                        var data = await response.Content.ReadAsStreamAsync();
                         var hash = CedModMain.GetHashCode(data, new MD5CryptoServiceProvider());
                         if (Pending.FileHash != hash)
                         {
@@ -278,7 +278,7 @@ namespace CedMod.Components
                         }
                         else
                         {
-                            FileToWriteDelayed = response.Content.ReadAsByteArrayAsync().Result;
+                            FileToWriteDelayed = await response.Content.ReadAsByteArrayAsync();
                         }
                     }
                 }

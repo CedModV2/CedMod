@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CommandSystem;
 using CommandSystem.Commands.RemoteAdmin;
@@ -87,13 +88,13 @@ namespace CedMod.Patches
 				(text == string.Empty) ? "(none)" : text,
 				"."
 			}), ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging, false);
-			Task.Factory.StartNew(() =>
+			new Thread(() =>
 			{
 				lock (BanSystem.Banlock)
 				{
-					API.BanId(arguments.At(0), num, sender.LogName, text, true);
+					API.BanId(arguments.At(0), num, sender.LogName, text, true).Wait();
 				}
-			});
+			}).Start();
 			response = "UserID " + arguments.At(0) + " has been banned from this server.";
 			return false;
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MEC;
 using Newtonsoft.Json;
 using PluginAPI.Core;
@@ -14,7 +15,7 @@ namespace CedMod
         public static Dictionary<string, Dictionary<string, string>> CachedStates = new Dictionary<string, Dictionary<string, string>>();
 
         public static readonly object Banlock = new object();
-        public static void HandleJoin(CedModPlayer player)
+        public static async Task HandleJoin(CedModPlayer player)
         {
             if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                 Log.Debug("Join");
@@ -34,7 +35,7 @@ namespace CedMod
                 }
                 
                 if (req)
-                    info = (Dictionary<string, string>) API.APIRequest("Auth/", $"{player.UserId}&{player.IpAddress}");
+                    info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{player.UserId}&{player.IpAddress}");
 
                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                     Log.Debug(JsonConvert.SerializeObject(info));

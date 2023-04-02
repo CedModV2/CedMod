@@ -83,9 +83,9 @@ namespace CedMod.Patches
 						//plr.IntercomUnmute(false);
 						VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.None);
 						plr.CustomInfo = "";
-						Task.Factory.StartNew(() =>
+						Task.Factory.StartNew(async () =>
 						{
-							API.UnMute(plr);
+							await API.UnMute(plr);
 						});
 						global::ServerLogs.AddLog(global::ServerLogs.Modules.Administrative, sender.LogName + " revoked an intercom mute to player " + referenceHub.LoggedNameFromRefHub() + ".", global::ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging, false);
 						num2++;

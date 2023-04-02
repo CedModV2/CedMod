@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem.WS;
 using HarmonyLib;
@@ -16,7 +17,7 @@ namespace CedMod.Addons.QuerySystem.Patches
         {
             if (!WebSocketSystem.UseRa)
             {
-                Task.Factory.StartNew(() => { WebSocketSystem.ApplyRa(); });
+                new Thread(() => { WebSocketSystem.ApplyRa(); }).Start();
                 return false;
             }
 
