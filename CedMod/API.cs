@@ -169,7 +169,7 @@ namespace CedMod
             player.ReferenceHub.playerStats.KillPlayer(new DisruptorDamageHandler(new Footprint(player.ReferenceHub), -1));
             yield return Timing.WaitForSeconds(0.1f);
             int count = 5;
-            while (count <= 0)
+            while (count >= 0)
             {
                 yield return Timing.WaitForSeconds(0.1f);
                 count--;

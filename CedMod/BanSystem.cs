@@ -46,7 +46,7 @@ namespace CedMod
                     reason = info["reason"];
                     Log.Info($"user: {player.UserId} attempted connection with blocked ASN/IP/VPN/Hosting service");
                     int count = 5;
-                    while (count <= 0)
+                    while (count >= 0)
                     {
                         await Task.Delay(100);
                         count--;
@@ -68,7 +68,7 @@ namespace CedMod
                         reason = info["preformattedmessage"];
                         Log.Info($"user: {player.UserId} attempted connection with active ban disconnecting");
                         int count = 5;
-                        while (count <= 0)
+                        while (count >= 0)
                         {
                             await Task.Delay(100);
                             count--;
