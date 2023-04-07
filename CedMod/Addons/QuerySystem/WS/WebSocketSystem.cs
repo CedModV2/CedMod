@@ -52,7 +52,7 @@ namespace CedMod.Addons.QuerySystem.WS
         public static HelloMessage HelloMessage = null;
         public static DateTime LastConnection = DateTime.UtcNow;
 
-        public static void Stop()
+        public static async Task Stop()
         {
             if (Reconnect)
                 return;
@@ -66,7 +66,8 @@ namespace CedMod.Addons.QuerySystem.WS
             {
                 
             }
-            Thread.Sleep(1000);
+
+            await Task.Delay(1000);
             Socket = null;
             SendThread?.Abort();
             SendThread = null;
@@ -127,7 +128,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 Socket.ErrorReconnectTimeout = TimeSpan.FromSeconds(5);
                 Socket.IsReconnectionEnabled = false;
 
-                Socket.DisconnectionHappened.Subscribe(i =>
+                Socket.DisconnectionHappened.Subscribe(async i =>
                 {
                     if (i.Type == DisconnectionType.Exit)
                     {
@@ -136,7 +137,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     if (i.CloseStatusDescription != null && i.CloseStatusDescription == "LOCATION SWITCH")
                     {
                         Log.Error($"Lost connection to CedMod Panel Instance location switched");
-                        Thread.Sleep(2000);
+                        await Task.Delay(2000);
                         lock (reconnectLock)
                         {
                             Task.Factory.StartNew(async () =>
@@ -160,7 +161,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     else
                     {
                         Log.Error($"Lost connection to CedMod Panel {i.CloseStatus} {i.CloseStatusDescription} {i.Type}, reconnecting in 5000ms\n{(i.Exception == null || !CedModMain.Singleton.Config.QuerySystem.Debug ? "" : i.Exception)}");
-                        Thread.Sleep(5000);
+                        await Task.Delay(5000);
                         lock (reconnectLock)
                         {
                             Task.Factory.StartNew(async () =>
@@ -216,7 +217,7 @@ namespace CedMod.Addons.QuerySystem.WS
             Reconnect = false;
         }
 
-        public static void HandleSendQueue()
+        public static async Task HandleSendQueue()
         {
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug("Started SendQueueHandler");
@@ -243,7 +244,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     }
                 }
 
-                Thread.Sleep(10);
+                await Task.Delay(10);
             }
         }
 

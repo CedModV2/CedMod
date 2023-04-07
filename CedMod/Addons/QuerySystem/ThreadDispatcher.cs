@@ -103,7 +103,7 @@ namespace CedMod.Addons.QuerySystem
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: WS Sendthread not alive, restarting WS");
                             WebSocketSystem.Stop();
-                            Thread.Sleep(1000);
+                            await Task.Delay(1000);
                             await WebSocketSystem.Start();
                         });
                     }
@@ -117,8 +117,8 @@ namespace CedMod.Addons.QuerySystem
                         { 
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: WS inactive out of reconnect mode without activity for 1 minutes, restarting WS");
-                            WebSocketSystem.Stop();
-                            Thread.Sleep(1000);
+                            await WebSocketSystem.Stop();
+                            await Task.Delay(1000);
                             await WebSocketSystem.Start();
                         });
                     }
@@ -132,8 +132,8 @@ namespace CedMod.Addons.QuerySystem
                         { 
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: WS inactive in reconnect mode without activity for 2 minutes, restarting WS");
-                            WebSocketSystem.Stop();
-                            Thread.Sleep(1000);
+                            await WebSocketSystem.Stop();
+                            await Task.Delay(1000);
                             await WebSocketSystem.Start();
                         });
                     }
@@ -147,8 +147,8 @@ namespace CedMod.Addons.QuerySystem
                         { 
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: no activity for 3 minutes, restarting WS");
-                            WebSocketSystem.Stop();
-                            Thread.Sleep(1000);
+                            await WebSocketSystem.Stop();
+                            await Task.Delay(1000);
                             await WebSocketSystem.Start();
                         });
                     }
