@@ -192,10 +192,14 @@ namespace CedMod.Components
 
         public IEnumerator<float> ResolvePreferences(CedModPlayer player, Action callback)
         {
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Log.Debug($"start get pref 1");
             if (Requesting.Contains(player.UserId))
                 yield break; 
             
             Requesting.Add(player.UserId);
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Log.Debug($"start get pref 2");
             
             UnityWebRequest www = new UnityWebRequest($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/GetUserPreferences/{QuerySystem.QuerySystemKey}?id={player.UserId}", "OPTIONS");
             DownloadHandlerBuffer dH = new DownloadHandlerBuffer();

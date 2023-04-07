@@ -60,7 +60,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 Log.Debug($"ST3");
             try
             {
-                Socket.Stop(WebSocketCloseStatus.NormalClosure, "Stopping").Wait();
+                await Socket.Stop(WebSocketCloseStatus.NormalClosure, "Stopping");
             }
             catch (Exception e)
             {
