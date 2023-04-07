@@ -217,7 +217,7 @@ namespace CedMod.Addons.QuerySystem.WS
             Reconnect = false;
         }
 
-        public static async Task HandleSendQueue()
+        public static void HandleSendQueue()
         {
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug("Started SendQueueHandler");
@@ -244,7 +244,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     }
                 }
 
-                await Task.Delay(10);
+                Thread.Sleep(10);
             }
         }
 
