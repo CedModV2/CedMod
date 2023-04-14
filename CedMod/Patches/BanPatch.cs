@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Exiled.Events.EventArgs.Player;
 using HarmonyLib;
 using PluginAPI.Core;
 using UnityEngine;
+using Player = Exiled.API.Features.Player;
 
 namespace CedMod.Patches
 {
@@ -15,6 +17,19 @@ namespace CedMod.Patches
             try
             {
                 Log.Info($"MainGame ban patch: banning user. {duration} {reason} {issuer}");
+#if EXILED
+                var exiledEvent = new BannedEventArgs(Player.Get(target), Player.Get(issuer), new BanDetails()
+                {
+                    Expires = DateTime.Now.AddSeconds(duration).Ticks,
+                    IssuanceTime = DateTime.Now.Ticks,
+                    Id = target.characterClassManager.UserId,
+                    Issuer = issuer.LoggedNameFromRefHub(),
+                    OriginalName = target.nicknameSync.Network_myNickSync,
+                    Reason = reason
+                }, BanHandler.BanType.UserId, true);
+                
+                Exiled.Events.Handlers.Player.OnBanned(exiledEvent);
+#endif
                 new Thread(() =>
                 {
                     try
