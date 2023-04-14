@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Exiled.Events.EventArgs.Player;
 using HarmonyLib;
 using PluginAPI.Core;
 using UnityEngine;
+#if EXILED
+using Exiled.Events.EventArgs.Player;
 using Player = Exiled.API.Features.Player;
+#endif
 
 namespace CedMod.Patches
 {
