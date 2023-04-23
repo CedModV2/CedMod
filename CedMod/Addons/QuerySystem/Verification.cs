@@ -44,13 +44,13 @@ namespace CedMod.Addons.QuerySystem
             bool first = true;
             while (true)
             {
-                await Task.Delay(first ? 130000 : 15000);
+                await Task.Delay(first ? 45000 : 15000);
                 first = false;
                 using (HttpClient client = new HttpClient())
                 {
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"verifying Id.");
-                    var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Verification/ConfirmId/{QuerySystem.QuerySystemKey}?ip={ServerConsole.Ip}&port={ServerStatic.ServerPort}");
+                    var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Verification/ConfirmId/{QuerySystem.QuerySystemKey}?ip={ServerConsole.Ip}&port={ServerStatic.ServerPort}&queryId={ServerId}");
                     var responseString = await response.Content.ReadAsStringAsync();
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
