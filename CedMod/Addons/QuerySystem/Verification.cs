@@ -35,6 +35,9 @@ namespace CedMod.Addons.QuerySystem
                         AmountErrored++;
                         Log.Error($"Failed to obtain CedMod verification token: {responseString}");
                     }
+
+                    await Task.Delay(1000);
+                    await ObtainId();
                 }
             }
         }
