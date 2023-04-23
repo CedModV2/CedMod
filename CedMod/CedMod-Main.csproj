@@ -106,6 +106,7 @@
     <Compile Include="Addons\QuerySystem\QuerySystem.cs" />
     <Compile Include="Addons\QuerySystem\QueryServerEvents.cs" />
     <Compile Include="Addons\QuerySystem\ThreadDispatcher.cs" />
+    <Compile Include="Addons\QuerySystem\Verification.cs" />
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
     <Compile Include="API.cs" />
     <Compile Include="ApiModals\AudioHeartBeat.cs" />
@@ -150,6 +151,7 @@
     <Compile Include="Patches\RaPlayerListPatch.cs" />
     <Compile Include="Patches\RaPlayerPatch.cs" />
     <Compile Include="Patches\RAProcessPlayerPatch.cs" />
+    <Compile Include="Patches\ReloadServerNamePatch.cs" />
     <Compile Include="Patches\TransportReceivePatch.cs" />
     <Compile Include="Patches\UnMuteCommandPatch.cs" />
     <Compile Include="Plugin.cs" />

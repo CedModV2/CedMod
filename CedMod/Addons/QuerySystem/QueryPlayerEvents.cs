@@ -465,7 +465,7 @@ namespace CedMod.Addons.QuerySystem
             });
         }
 
-        [PluginEvent(ServerEventType.PlayerUseItem)]
+        [PluginEvent(ServerEventType.PlayerUsedItem)]
         public void OnUsedItem(CedModPlayer player, UsableItem item)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
@@ -479,7 +479,7 @@ namespace CedMod.Addons.QuerySystem
                     {"Type", nameof(OnUsedItem)},
                     {
                         "Message", string.Format(
-                            "{0} - {1} (<color={2}>{3}</color>) threw an item {4}.", new object[]
+                            "{0} - {1} (<color={2}>{3}</color>) used an item {4}.", new object[]
                             {
                                 player.Nickname,
                                 player.UserId,
