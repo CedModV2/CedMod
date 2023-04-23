@@ -390,7 +390,7 @@ namespace CedMod
                 }
             }
 
-            Task.Run(Verification.ConfirmId);
+            Task.Run(Verification.ObtainId);
         }
 
         private void HandleInstanceModeChange(ReferenceHub arg1, ClientInstanceMode arg2)

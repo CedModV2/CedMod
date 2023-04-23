@@ -466,7 +466,7 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.PlayerUsedItem)]
-        public void OnUsedItem(CedModPlayer player, UsableItem item)
+        public void OnUsedItem(CedModPlayer player, ItemBase item)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
