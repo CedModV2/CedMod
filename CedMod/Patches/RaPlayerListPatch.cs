@@ -56,7 +56,7 @@ namespace CedMod.Patches
                 var plr = CedModPlayer.Get(sender.SenderId);
                 if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && !RemoteAdminModificationHandler.Singleton.Requesting.Contains(plr.UserId))
                 {
-                    Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, null));
+                    RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, null);
                 }
 
                 if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin)
@@ -99,7 +99,7 @@ namespace CedMod.Patches
                     var plr = CedModPlayer.Get(sender.SenderId);
                     if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && !RemoteAdminModificationHandler.Singleton.Requesting.Contains(plr.UserId))
                     {
-                        Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, null));
+                        RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, null);
                     }
                     
                     bool flag2 = false;

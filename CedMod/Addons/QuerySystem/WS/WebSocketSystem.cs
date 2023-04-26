@@ -289,12 +289,20 @@ namespace CedMod.Addons.QuerySystem.WS
                                     string msg = CedModMain.Singleton.Config.QuerySystem.PlayerGroupWatchlistJoin;
                                     if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && !RemoteAdminModificationHandler.Singleton.Requesting.Contains(plr.UserId))
                                     {
-                                        Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, () =>
-                                            {
-                                                if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin)
-                                                    msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportWatchlistIngameDisabled;
-                                                Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{playerId}", $"{watchlistPlr.PlayerId}").Replace("{userId}", watchlistPlr.UserId).Replace("{playerName}", watchlistPlr.Nickname).Replace("{reason}", jsonData["Reason"]).Replace("{groups}", jsonData["Groups"]), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
-                                            }));
+                                        RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, () =>
+                                        {
+                                            if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr]
+                                                    .ShowWatchListUsersInRemoteAdmin)
+                                                msg += "\n" + CedModMain.Singleton.Config.QuerySystem
+                                                    .StaffReportWatchlistIngameDisabled;
+                                            Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient,
+                                                msg.Replace("{playerId}", $"{watchlistPlr.PlayerId}")
+                                                    .Replace("{userId}", watchlistPlr.UserId)
+                                                    .Replace("{playerName}", watchlistPlr.Nickname)
+                                                    .Replace("{reason}", jsonData["Reason"])
+                                                    .Replace("{groups}", jsonData["Groups"]),
+                                                RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
+                                        });
                                     }
                                     else if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
                                     {
@@ -321,12 +329,19 @@ namespace CedMod.Addons.QuerySystem.WS
                                     string msg = CedModMain.Singleton.Config.QuerySystem.PlayerWatchlistJoin;
                                     if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && !RemoteAdminModificationHandler.Singleton.Requesting.Contains(plr.UserId))
                                     {
-                                        Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, () =>
-                                            {
-                                                if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin)
-                                                    msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportWatchlistIngameDisabled;
-                                                Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{playerId}", $"{watchlistPlr.PlayerId}").Replace("{playerName}", watchlistPlr.Nickname).Replace("{reason}", jsonData["Reason"]).Replace("{userId}", watchlistPlr.UserId), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
-                                            }));
+                                        RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, () =>
+                                        {
+                                            if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr]
+                                                    .ShowWatchListUsersInRemoteAdmin)
+                                                msg += "\n" + CedModMain.Singleton.Config.QuerySystem
+                                                    .StaffReportWatchlistIngameDisabled;
+                                            Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient,
+                                                msg.Replace("{playerId}", $"{watchlistPlr.PlayerId}")
+                                                    .Replace("{playerName}", watchlistPlr.Nickname)
+                                                    .Replace("{reason}", jsonData["Reason"])
+                                                    .Replace("{userId}", watchlistPlr.UserId),
+                                                RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
+                                        });
                                     }
                                     else if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
                                     {
@@ -343,7 +358,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 var toRefresh = CedModPlayer.Get(jsonData["UserId"]);
                                 if (toRefresh == null && RemoteAdminModificationHandler.Singleton.Requesting.Contains(toRefresh.UserId))
                                     return;
-                                Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(toRefresh, null));
+                                RemoteAdminModificationHandler.Singleton.ResolvePreferences(toRefresh, null);
                             });
                             break;
                         case "reportstateack":
@@ -365,12 +380,19 @@ namespace CedMod.Addons.QuerySystem.WS
                                             string msg = CedModMain.Singleton.Config.QuerySystem.StaffReportNotification;
                                             if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && !RemoteAdminModificationHandler.Singleton.Requesting.Contains(plr.UserId))
                                             {
-                                                Timing.RunCoroutine(RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, () =>
+                                                RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, () =>
                                                 {
-                                                    if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin) 
-                                                        msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportNotificationIngameDisabled;
-                                                    Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{reporterName}", $"{jsonData["ReporterName"]} {jsonData["Reporter"]}").Replace("{reportedName}", $"{jsonData["ReportedName"]} {jsonData["Reported"]}").Replace("{checkType}", RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin ? "RemoteAdmin" : "Discord"), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat); 
-                                                }));
+                                                    if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr]
+                                                            .ShowReportsInRemoteAdmin)
+                                                        msg += "\n" + CedModMain.Singleton.Config.QuerySystem
+                                                            .StaffReportNotificationIngameDisabled;
+                                                    Broadcast.Singleton.TargetAddElement(
+                                                        plr.ReferenceHub.connectionToClient,
+                                                        msg.Replace("{reporterName}", $"{jsonData["ReporterName"]} {jsonData["Reporter"]}")
+                                                            .Replace("{reportedName}", $"{jsonData["ReportedName"]} {jsonData["Reported"]}")
+                                                            .Replace("{checkType}", RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin ? "RemoteAdmin" : "Discord"),
+                                                        RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
+                                                });
                                             }
                                             else if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
                                             {
