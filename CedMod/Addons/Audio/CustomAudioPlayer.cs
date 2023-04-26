@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Text;
 using MEC;
 using PluginAPI.Core;
 using SCPSLAudioApi.AudioCore;
@@ -43,16 +46,23 @@ namespace CedMod.Addons.Audio
             }
             
             Log.Info($"Loading Audio");
-            UnityWebRequest www = new UnityWebRequest($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/RetrieveAudio/{QuerySystem.QuerySystemKey}?track={CurrentPlay}", "GET");
-            DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
-            www.downloadHandler = dH;
-            
-            yield return Timing.WaitUntilDone(www.SendWebRequest());
-            
-            int cnt;
-            if (www.responseCode != 200)
+            byte[] respString;
+            HttpStatusCode code = HttpStatusCode.OK;
+            using (HttpClient client = new HttpClient())
             {
-                Log.Error($"Failed to retrieve audio {www.responseCode} {www.downloadHandler.text}");
+                var respTask = client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/RetrieveAudio/{QuerySystem.QuerySystemKey}?track={CurrentPlay}");
+                yield return Timing.WaitUntilTrue(() => respTask.IsCompleted);
+                var resp = respTask.Result;
+                var respStringTask = resp.Content.ReadAsByteArrayAsync();
+                yield return Timing.WaitUntilTrue(() => respStringTask.IsCompleted);
+                respString = respStringTask.Result;
+                code = resp.StatusCode;
+            }
+
+            int cnt;
+            if (code != HttpStatusCode.OK)
+            {
+                Log.Error($"Failed to retrieve audio {code} {Encoding.Default.GetString(respString)}");
                 if (Continue && AudioToPlay.Count >= 1)
                 {
                     yield return Timing.WaitForSeconds(1);
@@ -63,14 +73,14 @@ namespace CedMod.Addons.Audio
 
             try
             {
-                CurrentPlayStream = new MemoryStream(www.downloadHandler.data);
+                CurrentPlayStream = new MemoryStream(respString);
                 CurrentPlayStream.Seek(0, SeekOrigin.Begin);
             }
             catch (Exception e)
             {
-                Log.Error($"{e} {www.responseCode} {www.downloadedBytes}");
+                Log.Error($"{e} {code} {Encoding.Default.GetString(respString)}");
             }
-            www.Dispose();
+            
             VorbisReader = new NVorbis.VorbisReader(CurrentPlayStream);
             Log.Info($"Playing with samplerate of {VorbisReader.SampleRate}");
             samplesPerSecond = VoiceChatSettings.SampleRate * VoiceChatSettings.Channels;

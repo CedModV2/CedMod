@@ -190,55 +190,55 @@ namespace CedMod.Components
         
         public List<string> Requesting = new List<string>();
 
-        public IEnumerator<float> ResolvePreferences(CedModPlayer player, Action callback)
+        public async void ResolvePreferences(CedModPlayer player, Action callback)
         {
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug($"start get pref 1");
             if (Requesting.Contains(player.UserId))
-                yield break; 
+                return; 
             
             Requesting.Add(player.UserId);
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug($"start get pref 2");
-            
-            UnityWebRequest www = new UnityWebRequest($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/GetUserPreferences/{QuerySystem.QuerySystemKey}?id={player.UserId}", "OPTIONS");
-            DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
-            www.downloadHandler = dH;
-            
-            yield return Timing.WaitUntilDone(www.SendWebRequest());
+
+           
             try
             {
-                if (www.responseCode != 200)
+                using (HttpClient client = new HttpClient())
                 {
-                    if (www.responseCode == 400 && (www.downloadHandler.text == "user does not have prefs setup" || www.downloadHandler.text == "User could not be found, please ensure you have a CedMod account linked to the correct SteamId and DiscordId"))
+                    var resp = await client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/GetUserPreferences/{QuerySystem.QuerySystemKey}?id={player.UserId}"));
+                    var respString = await resp.Content.ReadAsStringAsync();
+                    if (resp.StatusCode != HttpStatusCode.OK)
                     {
+                        if (resp.StatusCode == HttpStatusCode.BadRequest && (respString == "user does not have prefs setup" || respString == "User could not be found, please ensure you have a CedMod account linked to the correct SteamId and DiscordId"))
+                        {
                         
+                        }
+                        else
+                        {
+                            Log.Error($"Failed to Request UserPreferences: {resp.StatusCode} | {respString}");
+                        }
                     }
                     else
                     {
-                        Log.Error($"Failed to Request UserPreferences: {www.responseCode} | {www.downloadHandler.text}");
-                    }
-                }
-                else
-                {
-                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug($"Got preferences: {www.downloadHandler.text}");
-                    IngameUserPreferences cmData = JsonConvert.DeserializeObject<IngameUserPreferences>(www.downloadHandler.text);
-                    if (IngameUserPreferencesMap.ContainsKey(player))
-                        IngameUserPreferencesMap[player] = cmData;
-                    else 
-                        IngameUserPreferencesMap.Add(player, cmData);
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug($"Got preferences: {respString}");
+                        IngameUserPreferences cmData = JsonConvert.DeserializeObject<IngameUserPreferences>(respString);
+                        if (IngameUserPreferencesMap.ContainsKey(player))
+                            IngameUserPreferencesMap[player] = cmData;
+                        else 
+                            IngameUserPreferencesMap.Add(player, cmData);
                     
-                    if (callback != null)
-                        callback.Invoke();
+                        if (callback != null)
+                            callback.Invoke();
+                    }
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Debug.LogError(e);
             }
             
-            www.Dispose();
             Requesting.Remove(player.UserId);
         }
     }

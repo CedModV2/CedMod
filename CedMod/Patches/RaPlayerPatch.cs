@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
@@ -243,22 +245,29 @@ namespace CedMod.Patches
                 if (sender.CheckPermission("cedmod.requestdata"))
                 {
                     sender.RaReply(string.Format("${0} {1}", __instance.DataId, "Loading from CedMod API, please wait..."), true, true, string.Empty);
-                    UnityWebRequest www = new UnityWebRequest($"http{(QuerySystem.UseSSL ? "s" : "")}://" + API.APIUrl + $"/Auth/{characterClassManager.UserId}&{connectionToClient.address}", "OPTIONS");
-                    DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
-                    www.downloadHandler = dH;
-
-                    www.SetRequestHeader("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
-                    yield return Timing.WaitUntilDone(www.SendWebRequest());
+                    string respString = "";
+                    var code = HttpStatusCode.OK;
+                    using (HttpClient client = new HttpClient())
+                    {
+                        client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
+                        var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + API.APIUrl + $"/Auth/{characterClassManager.UserId}&{connectionToClient.address}"));
+                        var resp = respTask.Result;
+                        var respStringTask = resp.Content.ReadAsStringAsync();
+                        yield return Timing.WaitUntilTrue(() => respStringTask.IsCompleted);
+                        respString = respStringTask.Result;
+                        code = resp.StatusCode;
+                    }
+                    
                     try
                     {
-                        if (www.responseCode != 200)
+                        if (code != HttpStatusCode.OK)
                         {
-                            Log.Error($"Failed to RequestData CMAPI: {www.responseCode} | {www.downloadHandler.text}");
+                            Log.Error($"Failed to RequestData CMAPI: {code} | {respString}");
                         }
                         else
                         {
                             Dictionary<string, object> cmData =
-                                JsonConvert.DeserializeObject<Dictionary<string, object>>(www.downloadHandler.text);
+                                JsonConvert.DeserializeObject<Dictionary<string, object>>(respString);
                             stringBuilder.Append("\n<color=#D4AF37>CedMod Added Fields:</color>");
                             if (cmData["antiVpnWhitelist"] is bool ? (bool)cmData["antiVpnWhitelist"] : false)
                                 stringBuilder.Append("\nActive flag: <color=#008080>AntiVpn Whitelisted</color>");
@@ -274,28 +283,31 @@ namespace CedMod.Patches
                     {
                         Console.WriteLine(e);
                     }
-                    www.Dispose();
-                    sender.RaReply(
-                        string.Format("${0} {1}", __instance.DataId, "Loading from Panel API, please wait..."), true,
-                        true, string.Empty);
-                    www = new UnityWebRequest(
-                        $"http{(QuerySystem.UseSSL ? "s" : "")}://" 
-                        + QuerySystem.CurrentMaster 
-                        + $"/Api/v3/RequestData/{QuerySystem.QuerySystemKey}/{characterClassManager.UserId}", "OPTIONS");
-                    DownloadHandlerBuffer dH1 = new DownloadHandlerBuffer();
-                    www.downloadHandler = dH1;
-                    yield return Timing.WaitUntilDone(www.SendWebRequest());
+                    
+                    sender.RaReply(string.Format("${0} {1}", __instance.DataId, "Loading from Panel API, please wait..."), true, true, string.Empty);
+                    
+                    using (HttpClient client = new HttpClient())
+                    {
+                        client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
+                        var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/RequestData/{QuerySystem.QuerySystemKey}/{characterClassManager.UserId}"));
+                        var resp = respTask.Result;
+                        var respStringTask = resp.Content.ReadAsStringAsync();
+                        yield return Timing.WaitUntilTrue(() => respStringTask.IsCompleted);
+                        respString = respStringTask.Result;
+                        code = resp.StatusCode;
+                    }
+                    
                     try
                     {
-                        if (www.responseCode != 200)
+                        if (code != HttpStatusCode.OK)
                         {
                             Log.Error(
-                                $"Failed to RequestData PanelAPI: {www.responseCode} | {www.downloadHandler.text}");
+                                $"Failed to RequestData PanelAPI: {code} | {respString}");
                         }
                         else
                         {
                             Dictionary<string, object> cmData =
-                                JsonConvert.DeserializeObject<Dictionary<string, object>>(www.downloadHandler.text);
+                                JsonConvert.DeserializeObject<Dictionary<string, object>>(respString);
 
                             if (!serverRoles.DoNotTrack)
                             {
@@ -335,7 +347,6 @@ namespace CedMod.Patches
                     {
                         Console.WriteLine(e);
                     }
-                    www.Dispose();
                 }
 
                 stringBuilder.Append("</color>");
