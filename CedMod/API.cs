@@ -179,6 +179,7 @@ namespace CedMod
                 }
                 catch (Exception e)
                 {
+                    continue;
                 }
                             
                 break;
