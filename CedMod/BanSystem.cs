@@ -56,6 +56,7 @@ namespace CedMod
                         }
                         catch (Exception e)
                         {
+                            continue;
                         }
                             
                         break;
@@ -78,6 +79,7 @@ namespace CedMod
                             }
                             catch (Exception e)
                             {
+                                continue;
                             }
                             
                             break;
