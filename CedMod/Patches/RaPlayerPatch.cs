@@ -251,6 +251,7 @@ namespace CedMod.Patches
                     {
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                         var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + API.APIUrl + $"/Auth/{characterClassManager.UserId}&{connectionToClient.address}"));
+                        yield return Timing.WaitUntilTrue(() => respTask.IsCompleted);
                         var resp = respTask.Result;
                         var respStringTask = resp.Content.ReadAsStringAsync();
                         yield return Timing.WaitUntilTrue(() => respStringTask.IsCompleted);
@@ -290,6 +291,7 @@ namespace CedMod.Patches
                     {
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                         var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/RequestData/{QuerySystem.QuerySystemKey}/{characterClassManager.UserId}"));
+                        yield return Timing.WaitUntilTrue(() => respTask.IsCompleted);
                         var resp = respTask.Result;
                         var respStringTask = resp.Content.ReadAsStringAsync();
                         yield return Timing.WaitUntilTrue(() => respStringTask.IsCompleted);

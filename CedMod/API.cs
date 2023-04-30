@@ -8,6 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
+using CedMod.Addons.QuerySystem.WS;
 using Footprinting;
 using GameCore;
 using InventorySystem.Items.Firearms;
@@ -114,7 +115,16 @@ namespace CedMod
                               "\"AdminName\": \"" + sender.Replace("\"", "'") + "\"," +
                               "\"BanDuration\": "+realduration+"," +
                               "\"BanReason\": \""+reason.Replace("\"", "'")+"\"}";
-                Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest("Auth/Ban", json, false, "POST"); 
+                Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest("Auth/Ban", json, false, "POST");
+                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                {
+                    Recipient = "PANEL",
+                    Data = new Dictionary<string, string>()
+                    {
+                        { "Message", "BANISSUED" },
+                        { "UserId", player.UserId }
+                    }
+                });
                 ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>  Timing.RunCoroutine(StrikeBad(player, result.ContainsKey("preformattedmessage") ? result["preformattedmessage"] : $"Failed to execute api request {JsonConvert.SerializeObject(result)}")));
                 if (bc)
                     Server.SendBroadcast(ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", player.Nickname), (ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), Broadcast.BroadcastFlags.Normal);
@@ -139,6 +149,15 @@ namespace CedMod
                               "\"BanDuration\": "+realduration+"," +
                               "\"BanReason\": \""+reason.Replace("\"", "'")+"\"}";
                 Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest("Auth/Ban", json, false, "POST");
+                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()   
+                {                                                      
+                    Recipient = "PANEL",                               
+                    Data = new Dictionary<string, string>()            
+                    {                  
+                        { "Message", "BANISSUED" },
+                        { "UserId", UserId }                    
+                    }                                                  
+                });                                                    
                 CedModPlayer player = CedModPlayer.Get(UserId);
                 if (player != null)
                 {
