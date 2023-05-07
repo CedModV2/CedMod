@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Cryptography;
+using Exiled.API.Enums;
+using Exiled.Events.EventArgs.Player;
 using GameCore;
 using HarmonyLib;
 using LiteNetLib;
@@ -15,6 +17,7 @@ using PluginAPI.Events;
 using SlProxy;
 using UnityEngine;
 using Log = PluginAPI.Core.Log;
+using Player = Exiled.Events.Handlers.Player;
 
 namespace CedMod.Addons.QuerySystem.Patches
 {
@@ -534,19 +537,6 @@ namespace CedMod.Addons.QuerySystem.Patches
 					if (!shouldLet && ReservedSlot.HasReservedSlot(userId, out bool bypass) && (bypass || LiteNetLib4MirrorCore.Host.ConnectedPeersCount < CustomNetworkManager.slots + CustomNetworkManager.reservedSlots))
 						shouldLet = true;
 					
-					Log.Debug($"Let: {shouldLet}\n" +
-					          $"1: {LiteNetLib4MirrorCore.Host.ConnectedPeersCount} < {CustomNetworkManager.slots} = {LiteNetLib4MirrorCore.Host.ConnectedPeersCount < CustomNetworkManager.slots}\n" +
-					          $"2: {flags.HasFlagFast(CentralAuthPreauthFlags.ReservedSlot) && ServerStatic.PermissionsHandler.BanTeamSlots}\n" +
-					          $"3: {ReservedSlot.HasReservedSlot(userId, out bool bypass1)} - {bypass1} - {(bypass1 || LiteNetLib4MirrorCore.Host.ConnectedPeersCount < CustomNetworkManager.slots + CustomNetworkManager.reservedSlots)}\n" +
-					          $"4: {QuerySystem.ReservedSlotUserids.Contains(userId)}");
-
-					foreach (var rn in EventManager.Events[ServerEventType.PlayerCheckReservedSlot].Invokers)
-					{
-						foreach (var r in rn.Value)
-						{
-							Log.Debug($"{r.Method.Name} - {r.Method.DeclaringType.FullName}");
-						}
-					}
 
 					if (shouldLet)
 					{
