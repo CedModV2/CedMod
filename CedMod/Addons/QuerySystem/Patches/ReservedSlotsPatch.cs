@@ -539,7 +539,14 @@ namespace CedMod.Addons.QuerySystem.Patches
 					          $"2: {flags.HasFlagFast(CentralAuthPreauthFlags.ReservedSlot) && ServerStatic.PermissionsHandler.BanTeamSlots}\n" +
 					          $"3: {ReservedSlot.HasReservedSlot(userId, out bool bypass1)} - {bypass1} - {(bypass1 || LiteNetLib4MirrorCore.Host.ConnectedPeersCount < CustomNetworkManager.slots + CustomNetworkManager.reservedSlots)}\n" +
 					          $"4: {QuerySystem.ReservedSlotUserids.Contains(userId)}");
-					
+
+					foreach (var rn in EventManager.Events[ServerEventType.PlayerCheckReservedSlot].Invokers)
+					{
+						foreach (var r in rn.Value)
+						{
+							Log.Debug($"{r.Method.Name} - {r.Method.DeclaringType.FullName}");
+						}
+					}
 
 					if (shouldLet)
 					{
