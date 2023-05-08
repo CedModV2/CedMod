@@ -107,6 +107,7 @@
     <Compile Include="Addons\QuerySystem\QueryServerEvents.cs" />
     <Compile Include="Addons\QuerySystem\ThreadDispatcher.cs" />
     <Compile Include="Addons\QuerySystem\Verification.cs" />
+    <Compile Include="Addons\QuerySystem\Verification.cs" />
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
     <Compile Include="API.cs" />
     <Compile Include="ApiModals\AudioHeartBeat.cs" />
@@ -152,7 +153,6 @@
     <Compile Include="Patches\RaPlayerPatch.cs" />
     <Compile Include="Patches\RAProcessPlayerPatch.cs" />
     <Compile Include="Patches\ReloadServerNamePatch.cs" />
-    <Compile Include="Patches\TransportReceivePatch.cs" />
     <Compile Include="Patches\UnMuteCommandPatch.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -179,6 +179,12 @@
     </Reference>
     <Reference Include="BouncyCastle.Crypto, Version=1.8.8.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
       <HintPath>..\References\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.8.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <HintPath>..\References\BouncyCastle.Cryptography.dll</HintPath>
+    </Reference>
+    <Reference Include="BouncyCastle.Cryptography">
+      <HintPath>..\References\BouncyCastle.Cryptography.dll</HintPath>
     </Reference>
     <Reference Include="ch.sycoforge.Decal, Version=1.6.8.1, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\ch.sycoforge.Decal.dll</HintPath>
