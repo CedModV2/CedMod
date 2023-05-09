@@ -49,6 +49,7 @@ namespace CedMod.Patches
                 viewHiddenBadges = true;
                 viewHiddenGlobalBadges = true;
             }
+            
             StringBuilder stringBuilder = StringBuilderPool.Shared.Rent("\n");
 
             if (CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
