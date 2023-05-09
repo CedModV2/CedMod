@@ -1,3 +1,3 @@
 
-V: 3.4.5
- - Updated Panel intergration to support stats extras
+V: 3.4.6
+ - Updated to 13.0
