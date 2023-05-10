@@ -64,7 +64,7 @@ namespace CedMod.Addons.QuerySystem.Patches
             const char permSeparator = '.';
             const string allPerms = ".*";
 
-            if (group.CombinedPermissions.Contains(allPerms))
+            if (group.CombinedPermissions.Contains(allPerms) || group.CombinedPermissions.Contains("*"))
             {
                 __result = true;
                 return false;
