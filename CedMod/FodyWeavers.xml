@@ -12,6 +12,7 @@
             NVorbis
             SCPSLAudioApi
             0Harmony
+            System.Memory
         </IncludeAssemblies>
     </Costura>
 </Weavers>
