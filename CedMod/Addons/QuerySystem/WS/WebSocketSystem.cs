@@ -642,7 +642,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/FetchKey/{QuerySystem.QuerySystemKey}", new StringContent(JsonConvert.SerializeObject(new
                                 {
                                     Hash = jsonData["Hash"]
-                                }), Encoding.Default, "application/json"));
+                                }), Encoding.UTF8, "application/json"));
 
                                 if (response.IsSuccessStatusCode)
                                 {

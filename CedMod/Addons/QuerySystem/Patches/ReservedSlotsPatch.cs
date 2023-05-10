@@ -142,7 +142,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 				{
 					if (responseKey == 0 || response == null || response.Length == 0)
 					{
-						string s = Encoding.Default.GetString(response);
+						string s = Encoding.UTF8.GetString(response);
 						var reader = new NetDataReader(request.Data.RawData);
 						reader._position = 30;
 						var preauthdata = PreAuthModel.ReadPreAuth(reader);

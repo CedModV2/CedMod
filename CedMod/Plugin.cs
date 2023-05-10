@@ -483,7 +483,7 @@ namespace CedMod
         {
             using (cryptoService)
             {
-                var hash = cryptoService.ComputeHash(Encoding.Default.GetBytes(text));
+                var hash = cryptoService.ComputeHash(Encoding.UTF8.GetBytes(text));
                 var hashString = Convert.ToBase64String(hash);
                 return hashString.TrimEnd('=');
             }

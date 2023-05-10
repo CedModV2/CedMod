@@ -47,7 +47,7 @@ namespace CedMod.Components
                 {
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Updating Report.");
-                    var response = await client.PutAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Reports/{QuerySystem.QuerySystemKey}?reportId={reportId}&status={status}&userid={user}", new StringContent(reason, Encoding.Default, "text/plain"));
+                    var response = await client.PutAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Reports/{QuerySystem.QuerySystemKey}?reportId={reportId}&status={status}&userid={user}", new StringContent(reason, Encoding.UTF8, "text/plain"));
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
                         Log.Error($"Failed to update report {response.StatusCode} | {await response.Content.ReadAsStringAsync()}");

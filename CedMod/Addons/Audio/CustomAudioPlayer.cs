@@ -62,7 +62,7 @@ namespace CedMod.Addons.Audio
             int cnt;
             if (code != HttpStatusCode.OK)
             {
-                Log.Error($"Failed to retrieve audio {code} {Encoding.Default.GetString(respString)}");
+                Log.Error($"Failed to retrieve audio {code} {Encoding.UTF8.GetString(respString)}");
                 if (Continue && AudioToPlay.Count >= 1)
                 {
                     yield return Timing.WaitForSeconds(1);
@@ -78,7 +78,7 @@ namespace CedMod.Addons.Audio
             }
             catch (Exception e)
             {
-                Log.Error($"{e} {code} {Encoding.Default.GetString(respString)}");
+                Log.Error($"{e} {code} {Encoding.UTF8.GetString(respString)}");
             }
             
             VorbisReader = new NVorbis.VorbisReader(CurrentPlayStream);

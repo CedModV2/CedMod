@@ -223,7 +223,7 @@ namespace CedMod.Addons.QuerySystem
                                         {"reported", target.UserId},
                                         {"reason", reason},
                                         {"cheating", "true"}
-                                    }), Encoding.Default,
+                                    }), Encoding.UTF8,
                                     "application/json"));
                         if (CedModMain.Singleton.Config.QuerySystem.Debug)
                             Log.Debug(await response.Content.ReadAsStringAsync());
@@ -330,7 +330,7 @@ namespace CedMod.Addons.QuerySystem
                                         { "reporter", plr.UserId },
                                         { "reported", target.UserId },
                                         { "reason", reason },
-                                    }), Encoding.Default,
+                                    }), Encoding.UTF8,
                                     "application/json"));
                         if (response.IsSuccessStatusCode)
                         {
