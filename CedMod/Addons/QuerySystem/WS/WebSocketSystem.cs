@@ -155,8 +155,10 @@ namespace CedMod.Addons.QuerySystem.WS
                     }
                     else if (i.CloseStatusDescription != null && i.CloseStatusDescription == "TERMINATE RECONNECT")
                     {
-                        Log.Error($"Lost connection to CedMod Panel Instance location switched");
-                        Socket.Stop(WebSocketCloseStatus.NormalClosure, "Terminate Reconnect");
+                        Log.Error($"Lost connection to CedMod Panel Connection terminated, Watchdog does not create a reconnect restart the server");
+                        Socket = null;
+                        SendThread?.Abort();
+                        SendThread = null;
                     }
                     else
                     {
