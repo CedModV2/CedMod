@@ -62,7 +62,7 @@ namespace CedMod.Addons.QuerySystem
                 Data = new Dictionary<string, string>()
                 {
                     {"Type", nameof(OnWarheadCancelled)},
-                    {"Message", player.Nickname + " - " + player.UserId + " has stopped the detonation."}
+                    {"Message", (player != null ? player.Nickname + " - " + player.UserId : "Server") + " has stopped the detonation."}
                 }
             });
         }
