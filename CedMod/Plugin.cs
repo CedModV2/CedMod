@@ -84,16 +84,35 @@ namespace CedMod
 #if !EXILED
             if (!Config.IsEnabled)
                 return;
+            var loadProperty = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(s => s.GetName().Name == "CedModV3").GetType("CedMod.API").GetProperty("HasLoaded");
+            bool loaded = (bool)loadProperty.GetValue(null);
+            Log.Info($"Loading {loaded}");
+            if (loaded)
+            {
+                Timing.CallPeriodically(100000, 1, () => Log.Error("It would appear that the NWApi tried loading CedMod twice, please ensure that you do not have CedMod installed twice"));
+                return;
+            }
+            loadProperty.SetValue(null, true);
             Handler = PluginHandler.Get(this);
             Timing.CallDelayed(5, () =>
             {
                 if (!AppDomain.CurrentDomain.GetAssemblies().Any(s => s.GetName().Name == "NWAPIPermissionSystem"))
-                    Timing.CallContinuously(1, () => Log.Error("You do not have the NWAPIPermissionSystem Installed, CedMod Requires the NWAPIPermission system in order to operate properly, please download it here: https://github.com/CedModV2/NWAPIPermissionSystem"));
+                    Timing.CallPeriodically(100000, 1, () => Log.Error("You do not have the NWAPIPermissionSystem Installed, CedMod Requires the NWAPIPermission system in order to operate properly, please download it here: https://github.com/CedModV2/NWAPIPermissionSystem"));
+                return;
             });
 
             PluginLocation = Handler.PluginFilePath;
             PluginConfigFolder = Handler.PluginDirectoryPath;
 #else
+            var loadProperty = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(s => s.GetName().Name == "CedModV3").GetType("CedMod.API").GetProperty("HasLoaded");
+            bool loaded = (bool)loadProperty.GetValue(null);
+            Log.Info($"Loading {loaded}");
+            if (loaded)
+            {
+                Timing.CallPeriodically(100000, 1, () => Log.Error("It would appear that EXILED tried loading CedMod twice, please ensure that you do not have CedMod or EXILED installed twice"));
+                return;
+            }
+            loadProperty.SetValue(null, true);
             PluginLocation = this.GetPath();
             PluginConfigFolder = Path.Combine(Paths.Configs, "CedMod");
             Log.Info($"Using {PluginConfigFolder} as CedMod data folder.");
@@ -140,7 +159,7 @@ namespace CedMod
             }
             catch (Exception e)
             {
-                Debug.LogError($"Failed to patch: {e.ToString()}");
+                PluginAPI.Core.Log.Error($"Failed to patch: {e.ToString()}");
                 _harmony.UnpatchAll();
                 PluginAPI.Events.EventManager.UnregisterAllEvents(this);
             }
@@ -413,6 +432,8 @@ namespace CedMod
 #endif
         public void Disabled()
         {
+            var loadProperty = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(s => s.GetName().Name == "CedModV3").GetType("CedMod.API").GetProperty("HasLoaded");
+            loadProperty.SetValue(null, false);
             CharacterClassManager.OnInstanceModeChanged -= HandleInstanceModeChange;
             _harmony.UnpatchAll();
             Singleton = null;

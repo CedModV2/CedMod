@@ -22,6 +22,7 @@ namespace CedMod
 {
     public static class API
     {
+        public static bool HasLoaded { get; set; }
         public static string DevUri = "api.dev.cedmod.nl";
         public static string APIUrl
         {
