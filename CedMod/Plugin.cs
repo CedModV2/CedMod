@@ -86,7 +86,6 @@ namespace CedMod
                 return;
             var loadProperty = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(s => s.GetName().Name == "CedModV3").GetType("CedMod.API").GetProperty("HasLoaded");
             bool loaded = (bool)loadProperty.GetValue(null);
-            Log.Info($"Loading {loaded}");
             if (loaded)
             {
                 Timing.CallPeriodically(100000, 1, () => Log.Error("It would appear that the NWApi tried loading CedMod twice, please ensure that you do not have CedMod installed twice"));
@@ -106,7 +105,6 @@ namespace CedMod
 #else
             var loadProperty = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(s => s.GetName().Name == "CedModV3").GetType("CedMod.API").GetProperty("HasLoaded");
             bool loaded = (bool)loadProperty.GetValue(null);
-            Log.Info($"Loading {loaded}");
             if (loaded)
             {
                 Timing.CallPeriodically(100000, 1, () => Log.Error("It would appear that EXILED tried loading CedMod twice, please ensure that you do not have CedMod or EXILED installed twice"));
