@@ -6,6 +6,7 @@ using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CedMod.Addons.AdminSitSystem;
 using CedMod.Addons.Audio;
@@ -67,6 +68,7 @@ namespace CedMod
         public override string Author { get; } = "ced777ric#8321";
         public override Version Version { get; } = new Version(PluginVersion);
         public override Version RequiredExiledVersion { get; } = new Version(6, 0, 0);
+        public Thread CacheHandler;
 
         public override void OnEnabled()
         {
@@ -117,6 +119,16 @@ namespace CedMod
             if (!Directory.Exists(PluginConfigFolder))
             {
                 Directory.CreateDirectory(PluginConfigFolder);
+            }
+            
+            if (!Directory.Exists(Path.Combine(PluginConfigFolder, "CedMod")))
+            {
+                Directory.CreateDirectory(Path.Combine(PluginConfigFolder, "CedMod"));
+            }
+            
+            if (!Directory.Exists(Path.Combine(PluginConfigFolder, "CedMod", "Internal")))
+            {
+                Directory.CreateDirectory(Path.Combine(PluginConfigFolder, "CedMod", "Internal"));
             }
 #endif
             CharacterClassManager.OnInstanceModeChanged += HandleInstanceModeChange; 
@@ -243,6 +255,9 @@ namespace CedMod
             }
             else
                 Log.Warning("Plugin is not setup properly, please use refer to the cedmod setup guide"); //todo link guide
+
+            CacheHandler = new Thread(CedMod.CacheHandler.Loop);
+            CacheHandler.Start();
 
             QuerySystem.QueryMapEvents = new QueryMapEvents();
             QuerySystem.QueryServerEvents = new QueryServerEvents();
@@ -453,6 +468,7 @@ namespace CedMod
                 Object.Destroy(remoteAdminModificationHandler);
             
             WebSocketSystem.Stop();
+            CacheHandler.Interrupt();
             
             QuerySystem.QueryMapEvents = null;
             QuerySystem.QueryServerEvents = null;

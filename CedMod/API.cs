@@ -97,13 +97,22 @@ namespace CedMod
             string req = "{\"AdminName\": \"" + adminname + "\"," +
                          "\"Muteduration\": " + realduration + "," +
                          "\"Type\": " + (int)Type + "," +
-                         "\"Mutereason\": \"" + reason + "\"}";
+                         "\"Mutereason\": \"" + reason + "\"," +
+                         "\"UserId\": \"" + player.UserId + "\"}";
             Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"api/Mute/{player.UserId}", req, false, "POST");
+            if (result == null)
+            {
+                await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempm-{player.UserId}"), req);
+            }
         }
         
         public static async Task UnMute(Player player)
         {
             Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"api/Mute/{player.UserId}", "", false, "DELETE");
+            if (result == null)
+            {
+                await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempum-{player.UserId}"), player.UserId);
+            }
         }
 
         public static async Task Ban(CedModPlayer player, long duration, string sender, string reason, bool bc = true)
@@ -117,6 +126,14 @@ namespace CedMod
                               "\"BanDuration\": "+realduration+"," +
                               "\"BanReason\": \""+reason.Replace("\"", "'")+"\"}";
                 Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest("Auth/Ban", json, false, "POST");
+                if (result == null)
+                {
+                    await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempb-{player.UserId}"), json);
+                    result = new Dictionary<string, string>()
+                    {
+                        { "preformattedmessage", $"You have been banned from this server: {reason}" }
+                    };
+                }
                 WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
                 {
                     Recipient = "PANEL",
@@ -150,6 +167,14 @@ namespace CedMod
                               "\"BanDuration\": "+realduration+"," +
                               "\"BanReason\": \""+reason.Replace("\"", "'")+"\"}";
                 Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest("Auth/Ban", json, false, "POST");
+                if (result == null)
+                {
+                    await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempb-{UserId}"), json);
+                    result = new Dictionary<string, string>()
+                    {
+                        { "preformattedmessage", $"You have been banned from this server: {reason}" }
+                    };
+                }
                 WebSocketSystem.SendQueue.Enqueue(new QueryCommand()   
                 {                                                      
                     Recipient = "PANEL",                               

@@ -121,6 +121,7 @@
     <Compile Include="ApiModals\PlayerObject.cs" />
     <Compile Include="ApiModals\SCPSLVersion.cs" />
     <Compile Include="BanSystem.cs" />
+    <Compile Include="CacheHandler.cs" />
     <Compile Include="CedModConfig.cs" />
     <Compile Include="CedModPlayer.cs" />
     <Compile Include="CedModPlayerFactory.cs" />

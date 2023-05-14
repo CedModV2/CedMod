@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using MEC;
@@ -36,6 +37,45 @@ namespace CedMod
                 
                 if (req)
                     info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{player.UserId}&{player.IpAddress}");
+
+                if (info == null)
+                {
+                    if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempb-{player.UserId}")))
+                    {
+                        info = new Dictionary<string, string>()
+                        {
+                            {"success", "true"},
+                            {"success", "false"},
+                            {"isbanned", "true"},
+                            {"preformattedmessage", "You are banned from this server, please check back later to see the ban reason."}
+                        };
+                    }
+                    else if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempd-{player.UserId}")))
+                    {
+                        info = JsonConvert.DeserializeObject<Dictionary<string, string>>(await File.ReadAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempd-{player.UserId}")));
+                        File.SetLastWriteTimeUtc(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempd-{player.UserId}"), DateTime.UtcNow);
+                    }
+                    else
+                    {
+                        info = new Dictionary<string, string>()
+                        {
+                            {"success", "true"},
+                            {"success", "false"},
+                            {"isbanned", "false"},
+                        };
+                    }
+
+                    if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempm-{player.UserId}")) && !File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempum-{player.UserId}")))
+                    {
+                        info.Add("mute", "1");
+                        info.Add("mutereason", "Temporarily unavailable");
+                        info.Add("muteduration", "Until revoked");
+                    }
+                }
+                else
+                {
+                    await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempd-{player.UserId}"), JsonConvert.SerializeObject(info));
+                }
 
                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                     Log.Debug(JsonConvert.SerializeObject(info));
