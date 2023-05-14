@@ -71,6 +71,7 @@ namespace CedMod
                 catch (Exception e)
                 {
                     Log.Error($"Failed to process cache: {e}");
+                    Thread.Sleep(10000);
                 }
             }
         }
