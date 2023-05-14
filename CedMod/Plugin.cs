@@ -116,6 +116,8 @@ namespace CedMod
             PluginLocation = this.GetPath();
             PluginConfigFolder = Path.Combine(Paths.Configs, "CedMod");
             Log.Info($"Using {PluginConfigFolder} as CedMod data folder.");
+#endif
+            
             if (!Directory.Exists(PluginConfigFolder))
             {
                 Directory.CreateDirectory(PluginConfigFolder);
@@ -130,7 +132,8 @@ namespace CedMod
             {
                 Directory.CreateDirectory(Path.Combine(PluginConfigFolder, "CedMod", "Internal"));
             }
-#endif
+            
+            
             CharacterClassManager.OnInstanceModeChanged += HandleInstanceModeChange; 
             Assembly = Assembly.GetExecutingAssembly();
             CosturaUtility.Initialize();
