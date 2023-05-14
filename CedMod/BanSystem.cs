@@ -45,7 +45,7 @@ namespace CedMod
                         info = new Dictionary<string, string>()
                         {
                             {"success", "true"},
-                            {"success", "false"},
+                            {"vpn", "false"},
                             {"isbanned", "true"},
                             {"preformattedmessage", "You are banned from this server, please check back later to see the ban reason."}
                         };
@@ -60,7 +60,7 @@ namespace CedMod
                         info = new Dictionary<string, string>()
                         {
                             {"success", "true"},
-                            {"success", "false"},
+                            {"vpn", "false"},
                             {"isbanned", "false"},
                         };
                     }
