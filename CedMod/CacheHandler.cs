@@ -18,7 +18,9 @@ namespace CedMod
                 {
                     foreach (var file in Directory.GetFiles(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal")))
                     {
-                        if (file.StartsWith("tempb-"))
+                        var fileData = new FileInfo(file);
+                        
+                        if (fileData.Name.StartsWith("tempb-"))
                         {
                             var fileContent = File.ReadAllText(file);
                             Dictionary<string, string> result = (Dictionary<string, string>) API.APIRequest("Auth/Ban", fileContent, false, "POST").Result;
@@ -30,7 +32,7 @@ namespace CedMod
                             Log.Info($"Ban api request succeeded");
                             File.Delete(file);
                         }
-                        else if (file.StartsWith("tempm-"))
+                        else if (fileData.Name.StartsWith("tempm-"))
                         {
                             var fileContent = File.ReadAllText(file);
                             var dat = JsonConvert.DeserializeObject<Dictionary<string, object>>(fileContent);
@@ -43,7 +45,7 @@ namespace CedMod
                             Log.Info($"Mute api request succeeded");
                             File.Delete(file);
                         }
-                        else if (file.StartsWith("tempum-"))
+                        else if (fileData.Name.StartsWith("tempum-"))
                         {
                             var fileContent = File.ReadAllText(file);
                             Dictionary<string, string> result = (Dictionary<string, string>) API.APIRequest($"api/Mute/{fileContent}", fileContent, false, "DELETE").Result;
@@ -55,7 +57,7 @@ namespace CedMod
                             Log.Info($"Unmute api request succeeded");
                             File.Delete(file);
                         }
-                        else if (file.StartsWith("tempd-"))
+                        else if (fileData.Name.StartsWith("tempd-"))
                         {
                             var date = File.GetLastWriteTime(file);
                             if (date < DateTime.UtcNow.AddDays(-14))
