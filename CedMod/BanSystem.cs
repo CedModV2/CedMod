@@ -74,7 +74,8 @@ namespace CedMod
                 }
                 else
                 {
-                    await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempd-{player.UserId}"), JsonConvert.SerializeObject(info));
+                    if (info["isbanned"] == "true")
+                        await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempd-{player.UserId}"), JsonConvert.SerializeObject(info));
                 }
 
                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)

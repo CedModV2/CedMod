@@ -60,7 +60,7 @@ namespace CedMod
                         else if (fileData.Name.StartsWith("tempd-"))
                         {
                             var date = File.GetLastWriteTime(file);
-                            if (date < DateTime.UtcNow.AddDays(-14))
+                            if (date < DateTime.UtcNow.AddDays(-30))
                             {
                                 File.Delete(file);
                             }
