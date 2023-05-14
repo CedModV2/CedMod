@@ -17,15 +17,13 @@ namespace CedMod
                 return Get<CedModPlayer>(id);
 
             // Check Userid
-            if (userid.EndsWith("@steam") || userid.EndsWith("@discord") || userid.EndsWith("@northwood") ||
-                userid.EndsWith("@patreon"))
+            if (userid.EndsWith("@steam") || userid.EndsWith("@discord") || userid.EndsWith("@northwood") || userid.EndsWith("@patreon"))
             {
-            foreach (var hub in ReferenceHub.AllHubs)
-            {
-                if (hub.characterClassManager.UserId == userid)
-                    return Get<CedModPlayer>(hub);
-            }
-
+                foreach (var hub in ReferenceHub.AllHubs)
+                {
+                    if (hub.characterClassManager.UserId == userid)
+                        return Get<CedModPlayer>(hub);
+                }
             }
             else // Check username
             {
