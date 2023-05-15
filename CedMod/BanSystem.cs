@@ -67,7 +67,7 @@ namespace CedMod
 
                     if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempm-{player.UserId}")) && !File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempum-{player.UserId}")))
                     {
-                        info.Add("mute", "1");
+                        info.Add("mute", "Global");
                         info.Add("mutereason", "Temporarily unavailable");
                         info.Add("muteduration", "Until revoked");
                     }
