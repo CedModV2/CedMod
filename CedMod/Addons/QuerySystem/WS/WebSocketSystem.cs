@@ -552,7 +552,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             var plr = CedModPlayer.Get(jsonData["steamid"]);
                             if (plr != null)
                             {
-                                Log.Info($"user: {plr.UserId} muted trough panel, issuing mute...");
+                                Log.Info($"user: {plr.UserId} muted through panel, issuing mute...");
                                 Enum.TryParse(jsonData["type"], out MuteType muteType);
                                 plr.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), "red");
                                 Broadcast.Singleton.TargetAddElement(plr.Connection, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), 5, Broadcast.BroadcastFlags.Normal);
