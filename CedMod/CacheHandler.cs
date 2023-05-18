@@ -48,7 +48,7 @@ namespace CedMod
                         else if (fileData.Name.StartsWith("tempum-"))
                         {
                             var fileContent = File.ReadAllText(file);
-                            Dictionary<string, string> result = (Dictionary<string, string>) API.APIRequest($"api/Mute/{fileContent}", fileContent, false, "DELETE").Result;
+                            Dictionary<string, string> result = (Dictionary<string, string>) API.APIRequest($"api/Mute/{fileContent}", "", false, "DELETE").Result;
                             if (result == null)
                             {
                                 Log.Error($"Unmute api request still failed, retrying later");

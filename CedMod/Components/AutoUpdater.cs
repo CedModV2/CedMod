@@ -170,6 +170,13 @@ namespace CedMod.Components
                 {
                     Log.Info($"Installing update {Pending.VersionString} - {Pending.VersionCommit}");
                     await InstallUpdateDelayed();
+                    await Task.Delay(2000);
+                    Log.Info($"Saving update {Pending.VersionString} - {Pending.VersionCommit}");
+                    Log.Info($"Saving to: {CedModMain.PluginLocation}");
+                    File.WriteAllBytes(CedModMain.PluginLocation, FileToWriteDelayed);
+                        
+                    ServerStatic.StopNextRound = ServerStatic.NextRoundAction.Restart;
+                    RoundRestarting.RoundRestart.ChangeLevel(true);
                 });
             }
         }
