@@ -94,6 +94,9 @@ namespace CedMod
         public static async Task Mute(Player player, string adminname, double duration, string reason, MuteType Type)
         {
             long realduration = (long)TimeSpan.FromSeconds(duration).TotalMinutes;
+            if (realduration <= 3)
+                return;
+            
             string req = "{\"AdminName\": \"" + adminname + "\"," +
                          "\"Muteduration\": " + realduration + "," +
                          "\"Type\": " + (int)Type + "," +
@@ -216,7 +219,7 @@ namespace CedMod
             int count = 5;
             while (count >= 0)
             {
-                yield return Timing.WaitForSeconds(0.1f);
+                yield return Timing.WaitForSeconds(0.2f);
                 count--;
                 try
                 {

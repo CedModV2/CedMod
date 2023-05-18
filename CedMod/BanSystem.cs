@@ -89,7 +89,7 @@ namespace CedMod
                     int count = 5;
                     while (count >= 0)
                     {
-                        await Task.Delay(100);
+                        await Task.Delay(500);
                         count--;
                         try
                         {
@@ -112,7 +112,7 @@ namespace CedMod
                         int count = 5;
                         while (count >= 0)
                         {
-                            await Task.Delay(100);
+                            await Task.Delay(500);
                             count--;
                             try
                             {

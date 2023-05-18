@@ -85,7 +85,7 @@ namespace CedMod.Patches
 				}
 			}
 			
-			long num = (long)TimeSpan.FromMinutes(143998560).TotalSeconds;
+			long num = (long)TimeSpan.FromMinutes(CedModMain.Singleton.Config.CedMod.DefaultMuteDuration).TotalSeconds;
 			if (CedModMain.Singleton.Config.CedMod.UseMuteDurationAndReason)
 			{
 				try

@@ -48,6 +48,8 @@ namespace CedMod
         public bool UseMuteDurationAndReason { get; set; } = false;
         [Description("If mutes will only be possible using the panel")]
         public bool OnlyAllowPanelMutes { get; set; } = false;
+        [Description("If Enabled mutes that dont have a duration specified will have this duration, Set to a low value if you wish for ingame mutes to only apply for a small amount of time, Mutes with a duration smaller or equal to 3 minutes (value of 3) will not be synced to the panel.")]
+        public long DefaultMuteDuration { get; set; } = 143998560;
         
         [Description("If debug logs are shown")]
         public bool ShowDebug { get; set; } = false;
