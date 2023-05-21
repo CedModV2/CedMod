@@ -142,7 +142,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 				{
 					if (responseKey == 0 || response == null || response.Length == 0)
 					{
-						/*string s = Encoding.UTF8.GetString(response);
+						string s = Encoding.UTF8.GetString(response);
 						var reader = new NetDataReader(request.Data.RawData);
 						reader._position = 30;
 						var preauthdata = PreAuthModel.ReadPreAuth(reader);
@@ -168,7 +168,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 								$"[CedModAntiPreAuthSpam]\nYour connection has been rejected as the 'PreAuth' data sent from your client appears to be invalid, please restart your game or run 'ar' in your client console, You can usually open the client console by pressing ` or ~");
 							request.RejectForce(CustomLiteNetLib4MirrorTransport.RequestWriter);
 							return;
-						}*/
+						}
 						
 						if (!CustomLiteNetLib4MirrorTransport.CheckIpRateLimit(request)) return;
 						int id = 0;

@@ -47,7 +47,8 @@ namespace CedMod
                             {"success", "true"},
                             {"vpn", "false"},
                             {"isbanned", "true"},
-                            {"preformattedmessage", "You are banned from this server, please check back later to see the ban reason."}
+                            {"preformattedmessage", "You are banned from this server, please check back later to see the ban reason."},
+                            {"iserror", "false"}
                         };
                     }
                     else if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempd-{player.UserId}")))
@@ -62,6 +63,7 @@ namespace CedMod
                             {"success", "true"},
                             {"vpn", "false"},
                             {"isbanned", "false"},
+                            {"iserror", "false"}
                         };
                     }
 
