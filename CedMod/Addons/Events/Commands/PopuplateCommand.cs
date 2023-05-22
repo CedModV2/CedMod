@@ -54,7 +54,8 @@ namespace CedMod.Addons.Events.Commands
 
         public IEnumerator<float> SpawnDummies(int amount)
         {
-            var id = AudioCommand.FakeConnectionsIds.OrderByDescending(s => s.Key).FirstOrDefault().Key;
+            var first = AudioCommand.FakeConnectionsIds.OrderByDescending(s => s.Key);
+            var id = AudioCommand.FakeConnectionsIds.Count <= 0 ? 1 : first.FirstOrDefault().Key;
             while (id < amount)
             {
                 id++;
