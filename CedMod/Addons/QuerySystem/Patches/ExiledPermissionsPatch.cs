@@ -12,7 +12,6 @@ using InventorySystem.Items.Firearms.Modules;
 using NorthwoodLib.Pools;
 using RemoteAdmin;
 using UnityEngine;
-using Log = Dissonance.Log;
 
 namespace CedMod.Addons.QuerySystem.Patches
 {
