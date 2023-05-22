@@ -28,7 +28,7 @@ namespace CedMod.Addons.Events
 
         public void Update()
         {
-            if (!wipe)
+            if (!wipe && RoundSummary.RoundInProgress())
             {
                 wipe = true;
                 currentHint = "";
