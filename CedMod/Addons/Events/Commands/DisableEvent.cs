@@ -35,9 +35,9 @@ namespace CedMod.Addons.Events.Commands
                 return false;
             }
             int queuepos = Convert.ToInt16(arguments.At(0));
-            if (queuepos >= 1 && EventManager.nextEvent.Count <= 0)
+            if (queuepos >= 1 && EventManager.EventQueue.Count <= 0)
             {
-                if (EventManager.nextEvent.Count == 0)
+                if (EventManager.EventQueue.Count == 0)
                 {
                     response = "There is no event pending for the next round";
                     return false;
@@ -45,7 +45,7 @@ namespace CedMod.Addons.Events.Commands
             }
             else if (queuepos <= 0)
             {
-                if (EventManager.currentEvent == null)
+                if (EventManager.CurrentEvent == null)
                 {
                     response = "There is no event in progress";
                     return false;
@@ -60,13 +60,13 @@ namespace CedMod.Addons.Events.Commands
             
             if (queuepos >= 1)
             {
-                var toRemove = EventManager.nextEvent[queuepos - 1];
-                EventManager.nextEvent.Remove(toRemove);
+                var toRemove = EventManager.EventQueue[queuepos - 1];
+                EventManager.EventQueue.Remove(toRemove);
                 Broadcast.Singleton.RpcAddElement($"EventManager: {toRemove.EventName} has been removed from the queue", 5, Broadcast.BroadcastFlags.Normal);
             }
             else
             {
-                Server.SendBroadcast($"EventManager: {EventManager.currentEvent.EventName} is being now disabled, round will restart in 3 seconds", 10);
+                Server.SendBroadcast($"EventManager: {EventManager.CurrentEvent.EventName} is being now disabled, round will restart in 3 seconds", 10);
                 Timing.CallDelayed(3, () =>
                 {
                     Round.Restart(false, false);

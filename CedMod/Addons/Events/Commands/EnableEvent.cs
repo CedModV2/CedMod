@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
+using CedMod.Addons.Events.Interfaces;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
 using MEC;
@@ -53,8 +54,8 @@ namespace CedMod.Addons.Events.Commands
 
             if (force)
             {
-                EventManager.nextEvent.RemoveAll(ev => ev.EventName == @event.EventName);
-                EventManager.nextEvent.Insert(0, @event);
+                EventManager.EventQueue.RemoveAll(ev => ev.EventName == @event.EventName);
+                EventManager.EventQueue.Insert(0, @event);
                 Broadcast.Singleton.RpcAddElement($"EventManager: {@event.EventName} is being enabled.\nRound will restart in 3 seconds", 5, Broadcast.BroadcastFlags.Normal);
                 Timing.CallDelayed(3, () =>
                 {
@@ -63,13 +64,13 @@ namespace CedMod.Addons.Events.Commands
             }
             else
             {
-                if (EventManager.nextEvent.Any(ev => ev.EventName == @event.EventName))
+                if (EventManager.EventQueue.Any(ev => ev.EventName == @event.EventName))
                 {
                     response = "This event is already added to the queue";
                     return false;
                 }
-                EventManager.nextEvent.Add(@event);
-                Broadcast.Singleton.RpcAddElement($"EventManager: {@event.EventName} has been added to the event queue: position {EventManager.nextEvent.IndexOf(@event)}", 10, Broadcast.BroadcastFlags.Normal);
+                EventManager.EventQueue.Add(@event);
+                Broadcast.Singleton.RpcAddElement($"EventManager: {@event.EventName} has been added to the event queue: position {EventManager.EventQueue.IndexOf(@event)}", 10, Broadcast.BroadcastFlags.Normal);
             }
             ThreadDispatcher.SendHeartbeatMessage(true);
             response = "Success";

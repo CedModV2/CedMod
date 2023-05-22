@@ -81,11 +81,16 @@
     <Compile Include="Addons\Events\Config.cs" />
     <Compile Include="Addons\Events\EventManager.cs" />
     <Compile Include="Addons\Events\HintManager.cs" />
-    <Compile Include="Addons\Events\IEvent.cs" />
     <Compile Include="Addons\Events\IEventConfig.cs" />
+    <Compile Include="Addons\Events\Interfaces\IBulletHoleBehaviour.cs" />
+    <Compile Include="Addons\Events\Interfaces\IEndConditionBehaviour.cs" />
+    <Compile Include="Addons\Events\Interfaces\IEvent.cs" />
+    <Compile Include="Addons\Events\Interfaces\IFriendlyFireAutoBanBehaviour.cs" />
+    <Compile Include="Addons\Events\Interfaces\IMapgenBehaviour.cs" />
     <Compile Include="Addons\Events\Patches\BulletHolePatch.cs" />
     <Compile Include="Addons\Events\EventManagerPlayerEvents.cs" />
     <Compile Include="Addons\Events\EventManagerServerEvents.cs" />
+    <Compile Include="Addons\Events\Patches\SeedGenerationPatch.cs" />
     <Compile Include="Addons\Events\ScriptedEventIntergration.cs" />
     <Compile Include="Addons\QuerySystem\Commands\CmSyncCommand.cs" />
     <Compile Include="Addons\QuerySystem\Commands\RestartQuery.cs" />

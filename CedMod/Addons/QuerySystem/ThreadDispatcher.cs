@@ -180,14 +180,14 @@ namespace CedMod.Addons.QuerySystem
                 {
                     events.Add(new EventModal()
                     {
-                        Active = EventManager.currentEvent != null &&
-                                 EventManager.currentEvent.EventPrefix == ev.EventPrefix,
+                        Active = EventManager.CurrentEvent != null &&
+                                 EventManager.CurrentEvent.EventPrefix == ev.EventPrefix,
                         Author = ev.EvenAuthor,
                         Description = ev.EventDescription,
                         Name = ev.EventName,
                         Prefix = ev.EventPrefix,
-                        QueuePos = EventManager.nextEvent.Any(ev1 => ev1.EventName == ev.EventName)
-                            ? EventManager.nextEvent.FindIndex(ev1 => ev1.EventName == ev.EventName) + 1
+                        QueuePos = EventManager.EventQueue.Any(ev1 => ev1.EventName == ev.EventName)
+                            ? EventManager.EventQueue.FindIndex(ev1 => ev1.EventName == ev.EventName) + 1
                             : -1
                     });
                 }
@@ -225,7 +225,7 @@ namespace CedMod.Addons.QuerySystem
                             PluginCommitHash = CedModMain.GitCommitHash,
                             PluginVersion = CedModMain.PluginVersion,
                             UpdateStats = updateStats,
-                            TrackingEnabled = LevelerStore.TrackingEnabled && EventManager.currentEvent == null,
+                            TrackingEnabled = LevelerStore.TrackingEnabled && EventManager.CurrentEvent == null,
                             CedModVersionIdentifier = CedModMain.VersionIdentifier,
 #if !EXILED
                             ExiledVersion = "NWAPI",

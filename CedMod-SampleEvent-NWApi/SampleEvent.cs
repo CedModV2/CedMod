@@ -1,5 +1,6 @@
 ﻿using System;
 using CedMod.Addons.Events;
+using CedMod.Addons.Events.Interfaces;
 using HarmonyLib;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;

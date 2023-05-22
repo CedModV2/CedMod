@@ -12,8 +12,8 @@ namespace CedMod.Addons.Events
         public void OnPlayerJoin(CedModPlayer player)
         {
             if (CedModMain.Singleton.Config.EventManager.Debug)
-                Log.Debug($"Join {EventManager.currentEvent != null}");
-            if (EventManager.currentEvent != null)
+                Log.Debug($"Join {EventManager.CurrentEvent != null}");
+            if (EventManager.CurrentEvent != null)
             {
                 player.GameObject.AddComponent<HintManager>();
             }

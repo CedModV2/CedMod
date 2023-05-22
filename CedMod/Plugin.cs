@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using CedMod.Addons.AdminSitSystem;
 using CedMod.Addons.Audio;
 using CedMod.Addons.Events;
+using CedMod.Addons.Events.Interfaces;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
 using CedMod.Components;
