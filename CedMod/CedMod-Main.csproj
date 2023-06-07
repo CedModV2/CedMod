@@ -140,6 +140,7 @@
     <Compile Include="Commands\LightColor.cs" />
     <Compile Include="Commands\RainbowLights.cs" />
     <Compile Include="Commands\Redirect.cs" />
+    <Compile Include="Commands\WarnCommand.cs" />
     <Compile Include="Components\AutoUpdater.cs" />
     <Compile Include="Components\RemoteAdminModificationHandler.cs" />
     <Compile Include="FriendlyFireAutoban.cs" />
