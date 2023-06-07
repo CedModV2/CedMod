@@ -81,11 +81,16 @@
     <Compile Include="Addons\Events\Config.cs" />
     <Compile Include="Addons\Events\EventManager.cs" />
     <Compile Include="Addons\Events\HintManager.cs" />
-    <Compile Include="Addons\Events\IEvent.cs" />
     <Compile Include="Addons\Events\IEventConfig.cs" />
+    <Compile Include="Addons\Events\Interfaces\IBulletHoleBehaviour.cs" />
+    <Compile Include="Addons\Events\Interfaces\IEndConditionBehaviour.cs" />
+    <Compile Include="Addons\Events\Interfaces\IEvent.cs" />
+    <Compile Include="Addons\Events\Interfaces\IFriendlyFireAutoBanBehaviour.cs" />
+    <Compile Include="Addons\Events\Interfaces\IMapgenBehaviour.cs" />
     <Compile Include="Addons\Events\Patches\BulletHolePatch.cs" />
     <Compile Include="Addons\Events\EventManagerPlayerEvents.cs" />
     <Compile Include="Addons\Events\EventManagerServerEvents.cs" />
+    <Compile Include="Addons\Events\Patches\SeedGenerationPatch.cs" />
     <Compile Include="Addons\Events\ScriptedEventIntergration.cs" />
     <Compile Include="Addons\QuerySystem\Commands\CmSyncCommand.cs" />
     <Compile Include="Addons\QuerySystem\Commands\RestartQuery.cs" />
@@ -135,6 +140,7 @@
     <Compile Include="Commands\LightColor.cs" />
     <Compile Include="Commands\RainbowLights.cs" />
     <Compile Include="Commands\Redirect.cs" />
+    <Compile Include="Commands\WarnCommand.cs" />
     <Compile Include="Components\AutoUpdater.cs" />
     <Compile Include="Components\RemoteAdminModificationHandler.cs" />
     <Compile Include="FriendlyFireAutoban.cs" />
@@ -213,28 +219,28 @@
       <HintPath>..\References\dnlib.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.API, Version=7.0.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.7.0.0-alpha.1\lib\net48\Exiled.API.dll</HintPath>
+      <HintPath>..\packages\EXILED.7.0.0-rc.3-1\lib\net48\Exiled.API.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.CreditTags, Version=7.0.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.7.0.0-alpha.1\lib\net48\Exiled.CreditTags.dll</HintPath>
+      <HintPath>..\packages\EXILED.7.0.0-rc.3-1\lib\net48\Exiled.CreditTags.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.CustomItems, Version=7.0.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.7.0.0-alpha.1\lib\net48\Exiled.CustomItems.dll</HintPath>
+      <HintPath>..\packages\EXILED.7.0.0-rc.3-1\lib\net48\Exiled.CustomItems.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.CustomRoles, Version=7.0.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.7.0.0-alpha.1\lib\net48\Exiled.CustomRoles.dll</HintPath>
+      <HintPath>..\packages\EXILED.7.0.0-rc.3-1\lib\net48\Exiled.CustomRoles.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.Events, Version=7.0.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.7.0.0-alpha.1\lib\net48\Exiled.Events.dll</HintPath>
+      <HintPath>..\packages\EXILED.7.0.0-rc.3-1\lib\net48\Exiled.Events.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.Loader, Version=7.0.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.7.0.0-alpha.1\lib\net48\Exiled.Loader.dll</HintPath>
+      <HintPath>..\packages\EXILED.7.0.0-rc.3-1\lib\net48\Exiled.Loader.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.Permissions, Version=7.0.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.7.0.0-alpha.1\lib\net48\Exiled.Permissions.dll</HintPath>
+      <HintPath>..\packages\EXILED.7.0.0-rc.3-1\lib\net48\Exiled.Permissions.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.Updater, Version=3.1.2.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.7.0.0-alpha.1\lib\net48\Exiled.Updater.dll</HintPath>
+      <HintPath>..\packages\EXILED.7.0.0-rc.3-1\lib\net48\Exiled.Updater.dll</HintPath>
     </Reference>
     <Reference Include="Facepunch.Steamworks.Win64, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\Facepunch.Steamworks.Win64.dll</HintPath>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using CedMod.Addons.Events.Interfaces;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
 using MEC;
@@ -50,8 +51,8 @@ namespace CedMod.Addons.Events.Commands
                 return false;
             }
             
-            EventManager.nextEvent.RemoveAll(ev => ev.EventName == @event.EventName);
-            EventManager.nextEvent.Insert(0, @event);
+            EventManager.EventQueue.RemoveAll(ev => ev.EventName == @event.EventName);
+            EventManager.EventQueue.Insert(0, @event);
             
             if (force)
             {
@@ -63,7 +64,7 @@ namespace CedMod.Addons.Events.Commands
             }
             else
             {
-                Broadcast.Singleton.RpcAddElement($"EventManager: {@event.EventName} has been moved to queue position {EventManager.nextEvent.IndexOf(@event)}", 10, Broadcast.BroadcastFlags.Normal);
+                Broadcast.Singleton.RpcAddElement($"EventManager: {@event.EventName} has been moved to queue position {EventManager.EventQueue.IndexOf(@event)}", 10, Broadcast.BroadcastFlags.Normal);
             }
             ThreadDispatcher.SendHeartbeatMessage(true);
             response = "Success";

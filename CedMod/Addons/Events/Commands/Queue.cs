@@ -29,10 +29,10 @@ namespace CedMod.Addons.Events.Commands
             }
 
             response = "";
-            response += $"Current event: [0] {(EventManager.currentEvent == null ? "None" : $"{EventManager.currentEvent.EventName} - ({EventManager.currentEvent.EventPrefix})")}\n\n\nQueue:\n";
-            foreach (var evnt in EventManager.nextEvent)
+            response += $"Current event: [0] {(EventManager.CurrentEvent == null ? "None" : $"{EventManager.CurrentEvent.EventName} - ({EventManager.CurrentEvent.EventPrefix})")}\n\n\nQueue:\n";
+            foreach (var evnt in EventManager.EventQueue)
             {
-                response += $"[{EventManager.nextEvent.IndexOf(evnt) + 1}] {evnt.EventName} - ({evnt.EventPrefix})\n";
+                response += $"[{EventManager.EventQueue.IndexOf(evnt) + 1}] {evnt.EventName} - ({evnt.EventPrefix})\n";
             }
             ThreadDispatcher.SendHeartbeatMessage(true);
             return true;
