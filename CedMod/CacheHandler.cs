@@ -81,16 +81,8 @@ namespace CedMod
 
         public static string EnsureValidJson(string json)
         {
-            try
-            {
-                Dictionary<string, object> data = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
-                return json;
-            }
-            catch (Exception e)
-            {
-                json = json.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty);
-                return json;
-            }
+            json = json.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty);
+            return json;
         }
     }
 }
