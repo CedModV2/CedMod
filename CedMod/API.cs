@@ -97,15 +97,19 @@ namespace CedMod
             if (realduration <= 3)
                 return;
             
-            string req = "{\"AdminName\": \"" + adminname + "\"," +
-                         "\"Muteduration\": " + realduration + "," +
-                         "\"Type\": " + (int)Type + "," +
-                         "\"Mutereason\": \"" + reason + "\"," +
-                         "\"UserId\": \"" + player.UserId + "\"}";
-            Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"api/Mute/{player.UserId}", req, false, "POST");
+            Dictionary<string, object> data = new Dictionary<string, object>()
+            {
+                { "Userid", player.UserId },
+                { "Type", (int)Type },
+                { "AdminName", adminname },
+                { "Mutereason", reason },
+                { "Muteduration", realduration }
+            };
+            
+            Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"api/Mute/{player.UserId}", JsonConvert.SerializeObject(data), false, "POST");
             if (result == null)
             {
-                await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempm-{player.UserId}"), req);
+                await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempm-{player.UserId}"), JsonConvert.SerializeObject(data));
             }
         }
         
@@ -123,15 +127,19 @@ namespace CedMod
             long realduration = (long)TimeSpan.FromSeconds(duration).TotalMinutes;
             if (duration >= 1)
             {
-                string json = "{\"Userid\": \"" + player.UserId + "\"," +
-                              "\"Ip\": \"" + player.IpAddress+"\"," +
-                              "\"AdminName\": \"" + sender.Replace("\"", "'") + "\"," +
-                              "\"BanDuration\": "+realduration+"," +
-                              "\"BanReason\": \""+reason.Replace("\"", "'")+"\"}";
-                Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest("Auth/Ban", json, false, "POST");
+                Dictionary<string, object> data = new Dictionary<string, object>()
+                {
+                    { "Userid", player.UserId },
+                    { "Ip", player.IpAddress },
+                    { "AdminName", sender.Replace("\"", "'") },
+                    { "BanDuration", sender.Replace("\"", "'") },
+                    { "BanReason", reason.Replace("\"", "'") }
+                };
+                
+                Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest("Auth/Ban", JsonConvert.SerializeObject(data), false, "POST");
                 if (result == null)
                 {
-                    await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempb-{player.UserId}"), json);
+                    await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempb-{player.UserId}"), JsonConvert.SerializeObject(data));
                     result = new Dictionary<string, string>()
                     {
                         { "preformattedmessage", $"You have been banned from this server: {reason}" }
@@ -164,15 +172,19 @@ namespace CedMod
             double realduration = TimeSpan.FromSeconds(duration).TotalMinutes;
             if (duration >= 1)
             {
-                string json = "{\"Userid\": \"" + UserId + "\"," +
-                              "\"Ip\": \"0.0.0.0\"," +
-                              "\"AdminName\": \"" + sender.Replace("\"", "'") + "\"," +
-                              "\"BanDuration\": "+realduration+"," +
-                              "\"BanReason\": \""+reason.Replace("\"", "'")+"\"}";
-                Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest("Auth/Ban", json, false, "POST");
+                Dictionary<string, object> data = new Dictionary<string, object>()
+                {
+                    { "Userid", UserId },
+                    { "Ip", "0.0.0.0" },
+                    { "AdminName", sender.Replace("\"", "'") },
+                    { "BanDuration", sender.Replace("\"", "'") },
+                    { "BanReason", reason.Replace("\"", "'") }
+                };
+                
+                Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest("Auth/Ban", JsonConvert.SerializeObject(data), false, "POST");
                 if (result == null)
                 {
-                    await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempb-{UserId}"), json);
+                    await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempb-{UserId}"), JsonConvert.SerializeObject(data));
                     result = new Dictionary<string, string>()
                     {
                         { "preformattedmessage", $"You have been banned from this server: {reason}" }

@@ -358,7 +358,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                             {
                                 var toRefresh = CedModPlayer.Get(jsonData["UserId"]);
-                                if (toRefresh == null && RemoteAdminModificationHandler.Singleton.Requesting.Contains(toRefresh.UserId))
+                                if (toRefresh == null || RemoteAdminModificationHandler.Singleton.Requesting.Contains(toRefresh.UserId))
                                     return;
                                 RemoteAdminModificationHandler.Singleton.ResolvePreferences(toRefresh, null);
                             });

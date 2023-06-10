@@ -530,7 +530,7 @@ namespace CedMod.Patches
                 
                 stringBuilder.AppendLine(additional);
 
-                int count = report.IsCheatReport ? 8 : 9;
+                int count = report.IsCheatReport ? 6 : 7;
                 while (count >= 1)
                 {
                     count--;
@@ -747,7 +747,7 @@ namespace CedMod.Patches
 
                     stringBuilder.AppendLine(additional);
                     
-                    int count = report.IsCheatReport ? 7 : 8;
+                    int count = report.IsCheatReport ? 5 : 6;
                     while (count >= 1)
                     {
                         count--;

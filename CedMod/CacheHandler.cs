@@ -23,6 +23,7 @@ namespace CedMod
                         if (fileData.Name.StartsWith("tempb-"))
                         {
                             var fileContent = File.ReadAllText(file);
+                            fileContent = EnsureValidJson(fileContent);
                             Dictionary<string, string> result = (Dictionary<string, string>) API.APIRequest("Auth/Ban", fileContent, false, "POST").Result;
                             if (result == null)
                             {
@@ -35,6 +36,7 @@ namespace CedMod
                         else if (fileData.Name.StartsWith("tempm-"))
                         {
                             var fileContent = File.ReadAllText(file);
+                            fileContent = EnsureValidJson(fileContent);
                             var dat = JsonConvert.DeserializeObject<Dictionary<string, object>>(fileContent);
                             Dictionary<string, string> result = (Dictionary<string, string>) API.APIRequest($"api/Mute/{dat["UserId"]}", fileContent, false, "POST").Result;
                             if (result == null)
@@ -48,6 +50,7 @@ namespace CedMod
                         else if (fileData.Name.StartsWith("tempum-"))
                         {
                             var fileContent = File.ReadAllText(file);
+                            fileContent = EnsureValidJson(fileContent);
                             Dictionary<string, string> result = (Dictionary<string, string>) API.APIRequest($"api/Mute/{fileContent}", "", false, "DELETE").Result;
                             if (result == null)
                             {
@@ -73,6 +76,20 @@ namespace CedMod
                     Log.Error($"Failed to process cache: {e}");
                     Thread.Sleep(10000);
                 }
+            }
+        }
+
+        public static string EnsureValidJson(string json)
+        {
+            try
+            {
+                Dictionary<string, object> data = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+                return json;
+            }
+            catch (Exception e)
+            {
+                json = json.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty);
+                return json;
             }
         }
     }
