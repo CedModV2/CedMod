@@ -51,7 +51,7 @@ namespace CedMod
                             var fileContent = File.ReadAllText(file);
                             fileContent = EnsureValidJson(fileContent);
                             var dat1 = JsonConvert.DeserializeObject<Dictionary<string, object>>(fileContent);
-                            if (!int.TryParse(dat1["BanDuration"].ToString(), out int dat))
+                            if (!int.TryParse(dat1["Muteduration"].ToString(), out int dat))
                             {
                                 Log.Info($"Fixing broke pending mute");
                                 dat1["Muteduration"] = 1440;
