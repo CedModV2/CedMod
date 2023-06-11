@@ -30,6 +30,10 @@ namespace CedMod
                                 Log.Info($"Fixing broke pending ban");
                                 dat1["BanDuration"] = 1440;
                             }
+                            else
+                            {
+                                dat1["BanDuration"] = dat;
+                            }
 
                             fileContent = JsonConvert.SerializeObject(dat1);
                             
@@ -46,8 +50,17 @@ namespace CedMod
                         {
                             var fileContent = File.ReadAllText(file);
                             fileContent = EnsureValidJson(fileContent);
-                            var dat = JsonConvert.DeserializeObject<Dictionary<string, object>>(fileContent);
-                            Dictionary<string, string> result = (Dictionary<string, string>) API.APIRequest($"api/Mute/{dat["UserId"]}", fileContent, false, "POST").Result;
+                            var dat1 = JsonConvert.DeserializeObject<Dictionary<string, object>>(fileContent);
+                            if (!int.TryParse(dat1["BanDuration"].ToString(), out int dat))
+                            {
+                                Log.Info($"Fixing broke pending mute");
+                                dat1["Muteduration"] = 1440;
+                            }
+                            else
+                            {
+                                dat1["Muteduration"] = dat;
+                            }
+                            Dictionary<string, string> result = (Dictionary<string, string>) API.APIRequest($"api/Mute/{dat1["UserId"]}", fileContent, false, "POST").Result;
                             if (result == null)
                             {
                                 Log.Error($"Mute api request still failed, retrying later");

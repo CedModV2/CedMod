@@ -103,7 +103,7 @@ namespace CedMod
                 { "Type", (int)Type },
                 { "AdminName", adminname },
                 { "Mutereason", reason },
-                { "Muteduration", realduration }
+                { "Muteduration", (int)realduration }
             };
             
             Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"api/Mute/{player.UserId}", JsonConvert.SerializeObject(data), false, "POST");
@@ -132,7 +132,7 @@ namespace CedMod
                     { "Userid", player.UserId },
                     { "Ip", player.IpAddress },
                     { "AdminName", sender.Replace("\"", "'") },
-                    { "BanDuration", realduration },
+                    { "BanDuration", (int)realduration },
                     { "BanReason", reason.Replace("\"", "'") }
                 };
                 
@@ -177,7 +177,7 @@ namespace CedMod
                     { "Userid", UserId },
                     { "Ip", "0.0.0.0" },
                     { "AdminName", sender.Replace("\"", "'") },
-                    { "BanDuration", realduration },
+                    { "BanDuration", (int)realduration },
                     { "BanReason", reason.Replace("\"", "'") }
                 };
                 
