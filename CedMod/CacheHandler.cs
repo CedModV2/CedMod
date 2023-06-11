@@ -30,6 +30,8 @@ namespace CedMod
                                 Log.Info($"Fixing broke pending ban");
                                 dat1["BanDuration"] = 1440;
                             }
+
+                            fileContent = JsonConvert.SerializeObject(dat1);
                             
                             Dictionary<string, string> result = (Dictionary<string, string>) API.APIRequest("Auth/Ban", fileContent, false, "POST").Result;
                             if (result == null)
