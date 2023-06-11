@@ -62,7 +62,7 @@ namespace CedMod
                             }
 
                             if (dat1.ContainsKey("Userid"))
-                                dat1["UserId"] = dat1["userid"];
+                                dat1["UserId"] = dat1["Userid"];
                             
                             fileContent = JsonConvert.SerializeObject(dat1);
                             
