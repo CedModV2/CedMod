@@ -56,6 +56,7 @@ namespace CedMod.Patches
             }
             
             StringBuilder stringBuilder = StringBuilderPool.Shared.Rent("\n");
+            stringBuilder.Clear();
 
             if (CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
             {

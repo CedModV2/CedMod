@@ -83,6 +83,7 @@ namespace CedMod.Patches
             if (referenceHubList.Count > 1)
             {
                 StringBuilder stringBuilder = StringBuilderPool.Shared.Rent("<color=white>");
+                stringBuilder.Clear();
                 stringBuilder.Append("Selecting multiple players:");
                 stringBuilder.Append("\nPlayer ID: <color=green><link=CP_ID>\uF0C5</link></color>");
                 stringBuilder.Append("\nIP Address: " +
@@ -129,6 +130,7 @@ namespace CedMod.Patches
                 if (sender is PlayerCommandSender playerCommandSender2)
                     playerCommandSender2.ReferenceHub.queryProcessor.GameplayData = flag3;
                 StringBuilder stringBuilder = StringBuilderPool.Shared.Rent("<color=white>");
+                stringBuilder.Clear();
                 stringBuilder.Append("Nickname: " + nicknameSync.CombinedName);
                 stringBuilder.Append(string.Format("\nPlayer ID: {0} <color=green><link=CP_ID>\uF0C5</link></color>",
                     (object)referenceHub.PlayerId));
