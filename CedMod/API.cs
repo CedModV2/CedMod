@@ -132,7 +132,7 @@ namespace CedMod
                     { "Userid", player.UserId },
                     { "Ip", player.IpAddress },
                     { "AdminName", sender.Replace("\"", "'") },
-                    { "BanDuration", sender.Replace("\"", "'") },
+                    { "BanDuration", realduration },
                     { "BanReason", reason.Replace("\"", "'") }
                 };
                 
@@ -177,7 +177,7 @@ namespace CedMod
                     { "Userid", UserId },
                     { "Ip", "0.0.0.0" },
                     { "AdminName", sender.Replace("\"", "'") },
-                    { "BanDuration", sender.Replace("\"", "'") },
+                    { "BanDuration", realduration },
                     { "BanReason", reason.Replace("\"", "'") }
                 };
                 

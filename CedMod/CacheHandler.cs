@@ -24,6 +24,13 @@ namespace CedMod
                         {
                             var fileContent = File.ReadAllText(file);
                             fileContent = EnsureValidJson(fileContent);
+                            var dat1 = JsonConvert.DeserializeObject<Dictionary<string, object>>(fileContent);
+                            if (!int.TryParse(dat1["BanDuration"].ToString(), out int dat))
+                            {
+                                Log.Info($"Fixing broke pending ban");
+                                dat1["BanDuration"] = 1440;
+                            }
+                            
                             Dictionary<string, string> result = (Dictionary<string, string>) API.APIRequest("Auth/Ban", fileContent, false, "POST").Result;
                             if (result == null)
                             {
