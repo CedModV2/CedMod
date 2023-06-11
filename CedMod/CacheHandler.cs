@@ -60,7 +60,13 @@ namespace CedMod
                             {
                                 dat1["Muteduration"] = dat;
                             }
-                            Dictionary<string, string> result = (Dictionary<string, string>) API.APIRequest($"api/Mute/{dat1["Userid"]}", fileContent, false, "POST").Result;
+
+                            if (dat1.ContainsKey("Userid"))
+                                dat1["UserId"] = dat1["userid"];
+                            
+                            fileContent = JsonConvert.SerializeObject(dat1);
+                            
+                            Dictionary<string, string> result = (Dictionary<string, string>) API.APIRequest($"api/Mute/{dat1["UserId"]}", fileContent, false, "POST").Result;
                             if (result == null)
                             {
                                 Log.Error($"Mute api request still failed, retrying later");

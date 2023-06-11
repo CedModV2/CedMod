@@ -99,7 +99,7 @@ namespace CedMod
             
             Dictionary<string, object> data = new Dictionary<string, object>()
             {
-                { "Userid", player.UserId },
+                { "UserId", player.UserId },
                 { "Type", (int)Type },
                 { "AdminName", adminname },
                 { "Mutereason", reason },
