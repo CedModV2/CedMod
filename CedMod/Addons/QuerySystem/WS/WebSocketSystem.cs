@@ -604,7 +604,11 @@ namespace CedMod.Addons.QuerySystem.WS
                                 List<SLPermissionEntry> Groups = new List<SLPermissionEntry>();
                                 foreach (var group in ServerStatic.GetPermissionsHandler()._groups)
                                 {
-                                    //var perms = Permissions.Groups.FirstOrDefault(s => s.Key == group.Key);
+#if EXILED
+                                    var perms = Permissions.Groups.FirstOrDefault(s => s.Key == group.Key);
+#else
+                                    var perms = PermissionHandler.PermissionGroups.FirstOrDefault(s => s.Key == group.Key);
+#endif
                                     Groups.Add(new SLPermissionEntry()
                                     {
                                         Name = group.Key,
@@ -617,8 +621,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                         BadgeColor = group.Value.BadgeColor,
                                         RoleId = 0,
                                         Permissions = (PlayerPermissions) group.Value.Permissions,
-                                        ExiledPermissions = new List<string>(),
-                                        //perms.Value == null ? new List<string>() : perms.Value.CombinedPermissions
+                                        ExiledPermissions = perms.Value == null ? new List<string>() : perms.Value.CombinedPermissions
                                     });
                                 }
 
