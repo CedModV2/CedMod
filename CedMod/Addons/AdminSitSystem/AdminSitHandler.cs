@@ -62,7 +62,7 @@ namespace CedMod.Addons.AdminSitSystem
         [PluginEvent(ServerEventType.PlayerJoined)]
         public void OnPlayerJoin(CedModPlayer player)
         {
-            var sit = Sits.FirstOrDefault(s => s.Players.Any(s => s.UserId == player.UserId));
+            var sit = Singleton.Sits.FirstOrDefault(s => s.Players.Any(s => s.UserId == player.UserId));
             if (sit != null)
             {
                 Timing.CallDelayed(0.1f, () =>
@@ -76,9 +76,9 @@ namespace CedMod.Addons.AdminSitSystem
                 return;
             }
 
-            if (LeftPlayers.TryGetValue(player.UserId, out var leftPlayer))
+            if (Singleton.LeftPlayers.TryGetValue(player.UserId, out var leftPlayer))
             {
-                sit = Sits.FirstOrDefault(s => s.Id == leftPlayer);
+                sit = Singleton.Sits.FirstOrDefault(s => s.Id == leftPlayer);
                 if (sit == null)
                 {
                     var loc = AdminSitHandler.Singleton.AdminSitLocations.FirstOrDefault(s => !s.InUse);
@@ -121,10 +121,10 @@ namespace CedMod.Addons.AdminSitSystem
         [PluginEvent(ServerEventType.PlayerLeft)]
         public void OnPlayerLeft(CedModPlayer player)
         {
-            var sit = Sits.FirstOrDefault(s => s.Players.Any(s => s.UserId == player.UserId));
+            var sit = Singleton.Sits.FirstOrDefault(s => s.Players.Any(s => s.UserId == player.UserId));
             if (sit != null)
             {
-                LeftPlayers.Add(player.UserId, sit.Id);
+                Singleton.LeftPlayers.TryAdd(player.UserId, sit.Id);
             }
         }
 

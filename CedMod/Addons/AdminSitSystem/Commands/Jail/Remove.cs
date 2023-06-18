@@ -105,6 +105,7 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
                 }
 
                 sit.Players.Remove(sitPlr);
+                AdminSitHandler.Singleton.LeftPlayers.Remove(sitPlr.UserId);
 
                 if (!sit.Players.Any(s => s.PlayerType == AdminSitPlayerType.Staff || s.PlayerType == AdminSitPlayerType.Handler))
                 {
@@ -145,6 +146,7 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
                             }
 
                             sit.Players.Remove(sitPlr2);
+                            AdminSitHandler.Singleton.LeftPlayers.Remove(sitPlr2.UserId);
                         });
                     }
 

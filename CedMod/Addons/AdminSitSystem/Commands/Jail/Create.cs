@@ -22,7 +22,8 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
         public string Command { get; } = "create";
 
         public string[] Aliases { get; } = {
-            "cr"
+            "cr",
+            "c"
         };
 
         public string Description { get; } = "Assigns an available jail location to your player.";
