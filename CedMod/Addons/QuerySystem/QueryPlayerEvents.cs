@@ -166,6 +166,7 @@ namespace CedMod.Addons.QuerySystem
             if (target == null)
                 return;
 
+            RoomIdentifier killerRoom = RoomIdUtils.RoomAtPosition(target.Position);
             if (player != null)
             {
                 WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
@@ -183,7 +184,7 @@ namespace CedMod.Addons.QuerySystem
                         {"Type", nameof(OnPlayerHurt)},
                         {
                             "Message", string.Format(
-                                "{0} - {1} (<color={2}>{3}</color>) hurt {4} - {5} (<color={6}>{7}</color>) with {8}.",
+                                "{0} - {1} (<color={2}>{3}</color>) hurt {4} - {5} (<color={6}>{7}</color>) with {8} in {9}.",
                                 new object[]
                                 {
                                     player.Nickname,
@@ -194,7 +195,8 @@ namespace CedMod.Addons.QuerySystem
                                     target.UserId,
                                     Misc.ToHex(target.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                     target.Role,
-                                    damageHandler.ToString()
+                                    damageHandler.ToString(),
+                                    killerRoom.Zone.ToString()
                                 })
                         }
                     }
@@ -214,14 +216,15 @@ namespace CedMod.Addons.QuerySystem
                         {"Type", nameof(OnPlayerHurt)},
                         {
                             "Message", string.Format(
-                                "Server - () hurt {0} - {1} (<color={2}>{3}</color>) with {4}.",
+                                "Server - () hurt {0} - {1} (<color={2}>{3}</color>) with {4} in {5}.",
                                 new object[]
                                 {
                                     target.Nickname,
                                     target.UserId,
                                     Misc.ToHex(target.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                     target.Role,
-                                    damageHandler.ToString()
+                                    damageHandler.ToString(),
+                                    killerRoom.Zone.ToString()
                                 })
                         }
                     }
@@ -360,7 +363,7 @@ namespace CedMod.Addons.QuerySystem
                         {"Type", nameof(OnPlayerDeath)},
                         {
                             "Message", string.Format(
-                                "Teamkill ⚠: {0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8}.",
+                                "Teamkill ⚠: {0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8} in {9}.",
                                 new object[]
                                 {
                                     player.Nickname,
@@ -371,7 +374,8 @@ namespace CedMod.Addons.QuerySystem
                                     target.UserId,
                                     Misc.ToHex(target.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                     target.Role,
-                                    damageHandler.ToString()
+                                    damageHandler.ToString(),
+                                    killerRoom.Zone.ToString()
                                 })
                         }
                     }
@@ -379,6 +383,7 @@ namespace CedMod.Addons.QuerySystem
             }
             else
             {
+                RoomIdentifier killerRoom = RoomIdUtils.RoomAtPosition(target.Position);
                 WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
                 {
                     Recipient = "ALL",
@@ -394,7 +399,7 @@ namespace CedMod.Addons.QuerySystem
                         {"Type", nameof(OnPlayerDeath)},
                         {
                             "Message", string.Format(
-                                "{0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8}.",
+                                "{0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8} In {9}.",
                                 new object[]
                                 {
                                     player.Nickname,
@@ -405,7 +410,8 @@ namespace CedMod.Addons.QuerySystem
                                     target.UserId,
                                     Misc.ToHex(target.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                     target.Role,
-                                    damageHandler.ToString()
+                                    damageHandler.ToString(),
+                                    killerRoom.Zone.ToString()
                                 })
                         }
                     }
