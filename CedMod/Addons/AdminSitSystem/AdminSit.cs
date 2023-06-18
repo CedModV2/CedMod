@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AdminToys;
 using InventorySystem.Items;
 using InventorySystem.Items.Firearms.Ammo;
@@ -10,6 +11,7 @@ namespace CedMod.Addons.AdminSitSystem
 {
     public class AdminSit
     {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
         public AdminSitLocation Location { get; set; }
         public AdminSitType Type { get; set; }
         public string InitialReason { get; set; }
