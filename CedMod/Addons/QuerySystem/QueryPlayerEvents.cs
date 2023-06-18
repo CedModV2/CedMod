@@ -196,7 +196,7 @@ namespace CedMod.Addons.QuerySystem
                                     Misc.ToHex(target.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                     target.Role,
                                     damageHandler.ToString(),
-                                    killerRoom.Zone.ToString()
+                                    killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
                                 })
                         }
                     }
@@ -224,7 +224,7 @@ namespace CedMod.Addons.QuerySystem
                                     Misc.ToHex(target.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                     target.Role,
                                     damageHandler.ToString(),
-                                    killerRoom.Zone.ToString()
+                                    killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
                                 })
                         }
                     }
@@ -375,7 +375,7 @@ namespace CedMod.Addons.QuerySystem
                                     Misc.ToHex(target.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                     target.Role,
                                     damageHandler.ToString(),
-                                    killerRoom.Zone.ToString()
+                                    killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
                                 })
                         }
                     }
@@ -411,7 +411,7 @@ namespace CedMod.Addons.QuerySystem
                                     Misc.ToHex(target.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                     target.Role,
                                     damageHandler.ToString(),
-                                    killerRoom.Zone.ToString()
+                                    killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
                                 })
                         }
                     }
