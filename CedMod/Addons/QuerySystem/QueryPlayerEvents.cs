@@ -363,14 +363,14 @@ namespace CedMod.Addons.QuerySystem
                                 "Teamkill ⚠: {0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8}.",
                                 new object[]
                                 {
+                                    player.Nickname,
+                                    player.UserId,
+                                    Misc.ToHex(player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                    player.Role,
                                     target.Nickname,
                                     target.UserId,
                                     Misc.ToHex(target.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                     target.Role,
-                                    player.Nickname,
-                                    player.UserId,
-                                    Misc.ToHex(target.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                    player.Role,
                                     damageHandler.ToString()
                                 })
                         }
