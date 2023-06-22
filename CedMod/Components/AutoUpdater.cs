@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
+using PluginAPI.Events;
 using UnityEngine;
 using Version = GameCore.Version;
 
@@ -153,7 +154,7 @@ namespace CedMod.Components
         }
         
         [PluginEvent(ServerEventType.RoundEnd)]
-        public void RoundEnd(RoundSummary.LeadingTeam team)
+        public void RoundEnd(RoundEndEvent ev)
         {
             if (Pending == null)
             {
@@ -182,7 +183,7 @@ namespace CedMod.Components
         }
 
         [PluginEvent(ServerEventType.RoundRestart)]
-        public void RoundRestart()
+        public void RoundRestart(RoundRestartEvent ev)
         {
             if (Pending == null)
             {

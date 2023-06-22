@@ -19,6 +19,7 @@ using PlayerStatsSystem;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
+using PluginAPI.Events;
 using UnityEngine;
 using EventManager = PluginAPI.Events.EventManager;
 
@@ -53,7 +54,7 @@ namespace CedMod.Addons.QuerySystem
     public class QueryPlayerEvents
     {
         [PluginEvent(ServerEventType.PlayerLeft)]
-        public void OnPlayerLeave(CedModPlayer player)
+        public void OnPlayerLeave(PlayerLeftEvent ev)
         {
             ThreadDispatcher.SendHeartbeatMessage(true);
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
@@ -61,26 +62,26 @@ namespace CedMod.Addons.QuerySystem
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"UserId", player.UserId},
-                    {"UserName", player.Nickname},
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
                     {"Type", nameof(OnPlayerLeave)},
-                    {"Message", player.Nickname + " - " + player.UserId + " has left the server."}
+                    {"Message", ev.Player.Nickname + " - " + ev.Player.UserId + " has left the server."}
                 }
             });
         }
 
         [PluginEvent(ServerEventType.PlayerInteractElevator)]
-        public void OnElevatorInteraction(CedModPlayer player, ElevatorChamber elevatorChamber)
+        public void OnElevatorInteraction(PlayerInteractElevatorEvent ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"UserId", player.UserId},
-                    {"UserName", player.Nickname},
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
                     {"Type", nameof(OnElevatorInteraction)},
-                    {"Message", player.Nickname + " - " + player.UserId + $" has interacted with elevator {elevatorChamber.AssignedGroup}."}
+                    {"Message", ev.Player.Nickname + " - " + ev.Player.UserId + $" has interacted with elevator {ev.Elevator.AssignedGroup}."}
                 }
             });
         }
@@ -161,41 +162,41 @@ namespace CedMod.Addons.QuerySystem
         }
         
         [PluginEvent(ServerEventType.PlayerDamage)]
-        public void OnPlayerHurt(CedModPlayer target, CedModPlayer player, DamageHandlerBase damageHandler)
+        public void OnPlayerHurt(PlayerDamageEvent ev)
         {
-            if (target == null)
+            if (ev.Target == null)
                 return;
 
-            RoomIdentifier killerRoom = RoomIdUtils.RoomAtPosition(target.Position);
-            if (player != null)
+            RoomIdentifier killerRoom = RoomIdUtils.RoomAtPosition(ev.Target.Position);
+            if (ev.Player != null)
             {
                 WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
-                        {"UserId", target.UserId},
-                        {"UserName", target.Nickname},
-                        {"Class", target.Role.ToString()},
-                        {"AttackerClass", player.Role.ToString()},
-                        {"AttackerId", player.UserId},
-                        {"AttackerName", player.Nickname},
-                        {"Weapon", damageHandler.ToString()},
+                        {"UserId", ev.Target.UserId},
+                        {"UserName", ev.Target.Nickname},
+                        {"Class", ev.Target.Role.ToString()},
+                        {"AttackerClass", ev.Player.Role.ToString()},
+                        {"AttackerId", ev.Player.UserId},
+                        {"AttackerName", ev.Player.Nickname},
+                        {"Weapon", ev.DamageHandler.ToString()},
                         {"Type", nameof(OnPlayerHurt)},
                         {
                             "Message", string.Format(
                                 "{0} - {1} (<color={2}>{3}</color>) hurt {4} - {5} (<color={6}>{7}</color>) with {8} in {9}.",
                                 new object[]
                                 {
-                                    player.Nickname,
-                                    player.UserId,
-                                    Misc.ToHex(player.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                    player.Role,
-                                    target.Nickname,
-                                    target.UserId,
-                                    Misc.ToHex(target.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                    target.Role,
-                                    damageHandler.ToString(),
+                                    ev.Player.Nickname,
+                                    ev.Player.UserId,
+                                    Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                    ev.Player.Role,
+                                    ev.Target.Nickname,
+                                    ev.Target.UserId,
+                                    Misc.ToHex(ev.Target.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                    ev.Target.Role,
+                                    ev.DamageHandler.ToString(),
                                     killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
                                 })
                         }
@@ -209,21 +210,21 @@ namespace CedMod.Addons.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
-                        {"UserId", target.UserId},
-                        {"UserName", target.Nickname},
-                        {"Class", target.Role.ToString()},
-                        {"Weapon", damageHandler.ToString()},
+                        {"UserId", ev.Target.UserId},
+                        {"UserName", ev.Target.Nickname},
+                        {"Class", ev.Target.Role.ToString()},
+                        {"Weapon", ev.DamageHandler.ToString()},
                         {"Type", nameof(OnPlayerHurt)},
                         {
                             "Message", string.Format(
                                 "Server - () hurt {0} - {1} (<color={2}>{3}</color>) with {4} in {5}.",
                                 new object[]
                                 {
-                                    target.Nickname,
-                                    target.UserId,
-                                    Misc.ToHex(target.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                    target.Role,
-                                    damageHandler.ToString(),
+                                    ev.Target.Nickname,
+                                    ev.Target.UserId,
+                                    Misc.ToHex(ev.Target.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                    ev.Target.Role,
+                                    ev.DamageHandler.ToString(),
                                     killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
                                 })
                         }
@@ -233,37 +234,37 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.PlayerDying)]
-        public void OnPlayerDeath(CedModPlayer target, CedModPlayer player, DamageHandlerBase damageHandler)
+        public void OnPlayerDeath(PlayerDyingEvent ev)
         {
-            if (player == null || target == null)
+            if (ev.Player == null || ev.Attacker == null)
                 return;
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug("plrdeath");
-            if (FriendlyFireAutoban.IsTeamKill(target, player, damageHandler))
+            if (FriendlyFireAutoban.IsTeamKill(CedModPlayer.Get(ev.Player.ReferenceHub), CedModPlayer.Get(ev.Attacker.ReferenceHub), ev.DamageHandler))
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug("istk");
                 TeamkillData data = new TeamkillData();
-                RoomIdentifier killerRoom = RoomIdUtils.RoomAtPosition(player.Position);
-                RoomIdentifier targetRoom = RoomIdUtils.RoomAtPosition(target.Position);
+                RoomIdentifier killerRoom = RoomIdUtils.RoomAtPosition(ev.Attacker.Position);
+                RoomIdentifier targetRoom = RoomIdUtils.RoomAtPosition(ev.Player.Position);
                 data.PlayersOnScene.Add(new UsersOnScene()
                 {
-                    CurrentHealth = player.Health,
+                    CurrentHealth = ev.Attacker.Health,
                     Distance = 0,
-                    Position = player.Position.ToString(),
-                    RoleType = player.Role,
-                    UserId = player.UserId,
+                    Position = ev.Attacker.Position.ToString(),
+                    RoleType = ev.Attacker.Role,
+                    UserId = ev.Attacker.UserId,
                     Killer = true,
                     Room = killerRoom.name
                 });
 
                 data.PlayersOnScene.Add(new UsersOnScene()
                 {
-                    CurrentHealth = player.Health,
-                    Distance = Vector3.Distance(player.Position, target.Position),
-                    Position = target.Position.ToString(),
-                    RoleType = target.Role,
-                    UserId = target.UserId,
+                    CurrentHealth = ev.Player.Health,
+                    Distance = Vector3.Distance(ev.Attacker.Position, ev.Attacker.Position),
+                    Position = ev.Attacker.Position.ToString(),
+                    RoleType = ev.Attacker.Role,
+                    UserId = ev.Attacker.UserId,
                     Victim = true,
                     Room = targetRoom.name
                 });
@@ -289,12 +290,12 @@ namespace CedMod.Addons.QuerySystem
                     Log.Debug("resolving on scene players");
                 foreach (var bystanders in Player.GetPlayers<CedModPlayer>())
                 {
-                    if (bystanders.Role == RoleTypeId.Spectator || player.Role == RoleTypeId.Overwatch || player.Role == RoleTypeId.None)
+                    if (bystanders.Role == RoleTypeId.Spectator || ev.Attacker.Role == RoleTypeId.Overwatch || ev.Attacker.Role == RoleTypeId.None)
                         continue;
 
-                    var distance = Vector3.Distance(player.Position, bystanders.Position);
+                    var distance = Vector3.Distance(ev.Attacker.Position, bystanders.Position);
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug($"Checking distance on killer {distance} from {player.Nickname} to {bystanders.Nickname} {data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId)}");
+                        Log.Debug($"Checking distance on killer {distance} from {ev.Attacker.Nickname} to {bystanders.Nickname} {data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId)}");
                     if (distance <= 60 && data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId))
                     {
                         RoomIdentifier bystanderRoom = RoomIdUtils.RoomAtPosition(bystanders.Position);
@@ -311,7 +312,7 @@ namespace CedMod.Addons.QuerySystem
                         data.PlayersOnScene.Add(new UsersOnScene()
                         {
                             CurrentHealth = bystanders.Health,
-                            Distance = Vector3.Distance(player.Position, bystanders.Position),
+                            Distance = Vector3.Distance(ev.Attacker.Position, bystanders.Position),
                             Position = bystanders.Position.ToString(),
                             RoleType = bystanders.Role,
                             UserId = bystanders.UserId,
@@ -353,28 +354,28 @@ namespace CedMod.Addons.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
-                        {"UserId", target.UserId},
-                        {"UserName", target.Nickname},
-                        {"Class", target.Role.ToString()},
-                        {"AttackerClass", player.Role.ToString()},
-                        {"AttackerId", player.UserId},
-                        {"AttackerName", player.Nickname},
-                        {"Weapon", damageHandler.ToString()},
+                        {"UserId", ev.Player.UserId},
+                        {"UserName", ev.Player.Nickname},
+                        {"Class", ev.Player.Role.ToString()},
+                        {"AttackerClass", ev.Attacker.Role.ToString()},
+                        {"AttackerId", ev.Attacker.UserId},
+                        {"AttackerName", ev.Attacker.Nickname},
+                        {"Weapon", ev.DamageHandler.ToString()},
                         {"Type", nameof(OnPlayerDeath)},
                         {
                             "Message", string.Format(
                                 "Teamkill ⚠: {0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8} in {9}.",
                                 new object[]
                                 {
-                                    player.Nickname,
-                                    player.UserId,
-                                    Misc.ToHex(player.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                    player.Role,
-                                    target.Nickname,
-                                    target.UserId,
-                                    Misc.ToHex(target.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                    target.Role,
-                                    damageHandler.ToString(),
+                                    ev.Attacker.Nickname,
+                                    ev.Attacker.UserId,
+                                    Misc.ToHex(ev.Attacker.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                    ev.Attacker.Role,
+                                    ev.Player.Nickname,
+                                    ev.Player.UserId,
+                                    Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                    ev.Player.Role,
+                                    ev.DamageHandler.ToString(),
                                     killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
                                 })
                         }
@@ -383,34 +384,34 @@ namespace CedMod.Addons.QuerySystem
             }
             else
             {
-                RoomIdentifier killerRoom = RoomIdUtils.RoomAtPosition(target.Position);
+                RoomIdentifier killerRoom = RoomIdUtils.RoomAtPosition(ev.Player.Position);
                 WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
-                        {"UserId", target.UserId},
-                        {"UserName", target.Nickname},
-                        {"Class", target.Role.ToString()},
-                        {"AttackerClass", player.Role.ToString()},
-                        {"AttackerId", player.UserId},
-                        {"AttackerName", player.Nickname},
-                        {"Weapon", damageHandler.ToString()},
+                        {"UserId", ev.Player.UserId},
+                        {"UserName", ev.Player.Nickname},
+                        {"Class", ev.Player.Role.ToString()},
+                        {"AttackerClass", ev.Attacker.Role.ToString()},
+                        {"AttackerId", ev.Attacker.UserId},
+                        {"AttackerName", ev.Attacker.Nickname},
+                        {"Weapon", ev.DamageHandler.ToString()},
                         {"Type", nameof(OnPlayerDeath)},
                         {
                             "Message", string.Format(
                                 "{0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8} In {9}.",
                                 new object[]
                                 {
-                                    player.Nickname,
-                                    player.UserId,
-                                    Misc.ToHex(player.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                    player.Role,
-                                    target.Nickname,
-                                    target.UserId,
-                                    Misc.ToHex(target.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                    target.Role,
-                                    damageHandler.ToString(),
+                                    ev.Attacker.Nickname,
+                                    ev.Attacker.UserId,
+                                    Misc.ToHex(ev.Attacker.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                    ev.Attacker.Role,
+                                    ev.Player.Nickname,
+                                    ev.Player.UserId,
+                                    Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                    ev.Player.Role,
+                                    ev.DamageHandler.ToString(),
                                     killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
                                 })
                         }
@@ -420,25 +421,25 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.PlayerThrowItem)]
-        public void OnGrenadeThrown(CedModPlayer player, ItemBase item, Rigidbody rigidbody)
+        public void OnGrenadeThrown(PlayerThrowItemEvent ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"UserId", player.UserId},
-                    {"UserName", player.Nickname},
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
                     {"Type", nameof(OnGrenadeThrown)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) threw an item {4}.", new object[]
                             {
-                                player.Nickname,
-                                player.UserId,
-                                Misc.ToHex(player.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                player.Role,
-                                item.ItemTypeId
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Item.ItemTypeId
                             })
                     }
                 }
@@ -446,25 +447,25 @@ namespace CedMod.Addons.QuerySystem
         }
         
         [PluginEvent(ServerEventType.PlayerThrowProjectile)]
-        public void OnThrowProjectile(CedModPlayer player, ThrowableItem item, ThrowableItem.ProjectileSettings settings, bool fullForce)
+        public void OnThrowProjectile(PlayerThrowProjectileEvent ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"UserId", player.UserId},
-                    {"UserName", player.Nickname},
+                    {"UserId", ev.Thrower.UserId},
+                    {"UserName", ev.Thrower.Nickname},
                     {"Type", nameof(OnThrowProjectile)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) threw a projectile {4}.", new object[]
                             {
-                                player.Nickname,
-                                player.UserId,
-                                Misc.ToHex(player.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                player.Role,
-                                item.ItemTypeId
+                                ev.Thrower.Nickname,
+                                ev.Thrower.UserId,
+                                Misc.ToHex(ev.Thrower.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Thrower.Role,
+                                ev.Item.ItemTypeId
                             })
                     }
                 }
@@ -472,26 +473,26 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.PlayerUsedItem)]
-        public void OnUsedItem(CedModPlayer player, ItemBase item)
+        public void OnUsedItem(PlayerUsedItemEvent ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"UserId", player.UserId},
-                    {"UserName", player.Nickname},
-                    {"ItemType", item.ItemTypeId.ToString()},
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"ItemType", ev.Item.ItemTypeId.ToString()},
                     {"Type", nameof(OnUsedItem)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) used an item {4}.", new object[]
                             {
-                                player.Nickname,
-                                player.UserId,
-                                Misc.ToHex(player.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                player.Role,
-                                item.ItemTypeId
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Item.ItemTypeId
                             })
                     }
                 }
@@ -499,48 +500,49 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.PlayerChangeRole)]
-        public void OnSetClass(CedModPlayer player, PlayerRoleBase oldrole, RoleTypeId newrole, RoleChangeReason reason)
+        public void OnSetClass(PlayerChangeRoleEvent ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"UserId", player.UserId},
-                    {"UserName", player.Nickname},
-                    {"Reason", reason.ToString()},
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Reason", ev.ChangeReason.ToString()},
                     {"Type", nameof(OnSetClass)},
                     {
                         "Message", string.Format("{0} - {1}'s role has been changed to {2}",
                             new object[]
                             {
-                                player.Nickname,
-                                player.UserId,
-                                newrole
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                ev.NewRole
                             })
                     }
                 }
             });
 
-            if (LevelerStore.TrackingEnabled && LevelerStore.InitialPlayerRoles.ContainsKey(player))
+            var plr = CedModPlayer.Get(ev.Player.ReferenceHub);
+            if (LevelerStore.TrackingEnabled && LevelerStore.InitialPlayerRoles.ContainsKey(plr))
             {
-                if (reason != RoleChangeReason.Escaped)
-                    LevelerStore.InitialPlayerRoles.Remove(player);
+                if (ev.ChangeReason != RoleChangeReason.Escaped)
+                    LevelerStore.InitialPlayerRoles.Remove(plr);
                 else
-                    LevelerStore.InitialPlayerRoles[player] = newrole;
+                    LevelerStore.InitialPlayerRoles[plr] = ev.NewRole;
             }
         }
 
         [PluginEvent(ServerEventType.PlayerJoined)]
-        public void OnPlayerJoin(CedModPlayer player)
+        public void OnPlayerJoin(PlayerJoinedEvent ev)
         {
             ThreadDispatcher.SendHeartbeatMessage(true);
-            if (CommandHandler.Synced.Contains(player.UserId))
+            if (CommandHandler.Synced.Contains(ev.Player.UserId))
             {
-                if (ServerStatic.GetPermissionsHandler()._members.ContainsKey(player.UserId))
-                    ServerStatic.GetPermissionsHandler()._members.Remove(player.UserId);
-                player.ReferenceHub.serverRoles.RefreshPermissions();
-                CommandHandler.Synced.Remove(player.UserId);
+                if (ServerStatic.GetPermissionsHandler()._members.ContainsKey(ev.Player.UserId))
+                    ServerStatic.GetPermissionsHandler()._members.Remove(ev.Player.UserId);
+                ev.Player.ReferenceHub.serverRoles.RefreshPermissions();
+                CommandHandler.Synced.Remove(ev.Player.UserId);
             }
 
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
@@ -548,42 +550,42 @@ namespace CedMod.Addons.QuerySystem
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"UserId", player.UserId},
-                    {"UserName", player.Nickname},
-                    {"PlayerId", player.PlayerId.ToString()},
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"PlayerId", ev.Player.PlayerId.ToString()},
                     {"Type", nameof(OnPlayerJoin)},
                     {
                         "Message", string.Format("({0}) {1} - {2} joined the game.",
-                            player.PlayerId, player.Nickname, player.UserId)
+                            ev.Player.PlayerId, ev.Player.Nickname, ev.Player.UserId)
                     }
                 }
             });
         }
 
         [PluginEvent(ServerEventType.PlayerRemoveHandcuffs)]
-        public void OnPlayerFreed(CedModPlayer player, CedModPlayer target)
+        public void OnPlayerFreed(PlayerRemoveHandcuffsEvent ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"UserId", target.UserId},
-                    {"UserName", target.Nickname},
+                    {"UserId", ev.Target.UserId},
+                    {"UserName", ev.Target.Nickname},
                     {"Type", nameof(OnPlayerFreed)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has been freed by {4} - {5} (<color={6}>{7}</color>).",
                             new object[]
                             {
-                                target.Nickname,
-                                target.UserId,
-                                Misc.ToHex(target.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                target.Role,
-                                player.Nickname,
-                                player.UserId,
-                                Misc.ToHex(player.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                player.Role
+                                ev.Target.Nickname,
+                                ev.Target.UserId,
+                                Misc.ToHex(ev.Target.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Target.Role,
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role
                             })
                     }
                 }
@@ -591,29 +593,29 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.PlayerHandcuff)]
-        public void OnPlayerHandcuffed(CedModPlayer player, CedModPlayer target)
+        public void OnPlayerHandcuffed(PlayerHandcuffEvent ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"UserId", target.UserId},
-                    {"UserName", target.Nickname},
+                    {"UserId", ev.Target.UserId},
+                    {"UserName", ev.Target.Nickname},
                     {"Type", nameof(OnPlayerHandcuffed)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has been cuffed by {4} - {5} (<color={6}>{7}</color>).",
                             new object[]
                             {
-                                target.Nickname,
-                                target.UserId,
-                                Misc.ToHex(target.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                target.Role,
-                                player.Nickname,
-                                player.UserId,
-                                Misc.ToHex(player.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                player.Role
+                                ev.Target.Nickname,
+                                ev.Target.UserId,
+                                Misc.ToHex(ev.Target.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Target.Role,
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role
                             })
                     }
                 }
@@ -621,15 +623,15 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.PlayerEscape)]
-        public void OnEscape(CedModPlayer player, RoleTypeId newrole)
+        public void OnEscape(PlayerEscapeEvent ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"UserId", player.UserId},
-                    {"UserName", player.Nickname},
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
                     {"Time", Statistics.Round.Duration.ToString()},
                     {"Type", nameof(OnEscape)},
                     {
@@ -637,11 +639,11 @@ namespace CedMod.Addons.QuerySystem
                             "{0} - {1} (<color={2}>{3}</color>) has escaped, Cuffed: {4}",
                             new object[]
                             {
-                                player.Nickname,
-                                player.UserId,
-                                Misc.ToHex(player.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                player.Role,
-                                player.ReferenceHub.inventory.IsDisarmed()
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Player.ReferenceHub.inventory.IsDisarmed()
                             })
                     }
                 }
@@ -656,9 +658,9 @@ namespace CedMod.Addons.QuerySystem
                     {
                         {"Message", "GRANTEXP"},
                         {"GrantType", "Escape"},
-                        {"UserId", player.UserId},
-                        {"RoleType", player.Role.ToString()},
-                        {"Cuffed", player.ReferenceHub.inventory.IsDisarmed().ToString()}
+                        {"UserId", ev.Player.UserId},
+                        {"RoleType", ev.Player.Role.ToString()},
+                        {"Cuffed", ev.Player.ReferenceHub.inventory.IsDisarmed().ToString()}
                     }
                 });
 

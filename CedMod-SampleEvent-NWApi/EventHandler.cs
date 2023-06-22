@@ -1,6 +1,7 @@
 ﻿using PlayerStatsSystem;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
+using PluginAPI.Events;
 
 namespace CedMod.SampleEvent
 {
@@ -8,9 +9,9 @@ namespace CedMod.SampleEvent
     {
 
         [PluginEvent(ServerEventType.PlayerDeath)]
-        public void OnPlayerDeath(CedModPlayer target, CedModPlayer player, DamageHandlerBase damageHandler)
+        public void OnPlayerDeath(PlayerDeathEvent ev)
         {
-            target.SendBroadcast("You died!", 1, Broadcast.BroadcastFlags.Normal);
+            ev.Player.SendBroadcast("You died!", 1, Broadcast.BroadcastFlags.Normal);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace CedMod.Addons.Events
         }
         
         [PluginEvent(ServerEventType.RoundEnd)]
-        public void EndRound(RoundSummary.LeadingTeam team)
+        public void EndRound(RoundEndEvent ev)
         {
             if (EventManager.CurrentEvent != null)
             {
@@ -36,7 +36,7 @@ namespace CedMod.Addons.Events
         }
 
         [PluginEvent(ServerEventType.WaitingForPlayers)]
-        public void WaitingForPlayers()
+        public void WaitingForPlayers(WaitingForPlayersEvent ev)
         {
             if (EventManager.EventQueue.Count >= 1)
             {
@@ -77,7 +77,7 @@ namespace CedMod.Addons.Events
         }
 
         [PluginEvent(ServerEventType.RoundRestart)]
-        public void RestartingRound()
+        public void RestartingRound(RoundRestartEvent ev)
         {
             if (EventManager.CurrentEvent != null)
             {

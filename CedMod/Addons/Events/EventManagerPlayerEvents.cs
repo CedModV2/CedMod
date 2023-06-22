@@ -2,6 +2,7 @@
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
+using PluginAPI.Events;
 
 namespace CedMod.Addons.Events
 {
@@ -9,13 +10,13 @@ namespace CedMod.Addons.Events
     {
         
         [PluginEvent(ServerEventType.PlayerJoined)]
-        public void OnPlayerJoin(CedModPlayer player)
+        public void OnPlayerJoin(PlayerJoinedEvent ev)
         {
             if (CedModMain.Singleton.Config.EventManager.Debug)
                 Log.Debug($"Join {EventManager.CurrentEvent != null}");
             if (EventManager.CurrentEvent != null)
             {
-                player.GameObject.AddComponent<HintManager>();
+                ev.Player.GameObject.AddComponent<HintManager>();
             }
         }
     }

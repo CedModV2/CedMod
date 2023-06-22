@@ -112,7 +112,6 @@
     <Compile Include="Addons\QuerySystem\QueryServerEvents.cs" />
     <Compile Include="Addons\QuerySystem\ThreadDispatcher.cs" />
     <Compile Include="Addons\QuerySystem\Verification.cs" />
-    <Compile Include="Addons\QuerySystem\Verification.cs" />
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
     <Compile Include="API.cs" />
     <Compile Include="ApiModals\AudioHeartBeat.cs" />

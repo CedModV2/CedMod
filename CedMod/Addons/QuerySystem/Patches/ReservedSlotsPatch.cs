@@ -317,8 +317,9 @@ namespace CedMod.Addons.QuerySystem.Patches
 						return;
 					}
 
-					if (!CustomLiteNetLib4MirrorTransport.ProcessCancellationData(request, EventManager.ExecuteEvent<PreauthCancellationData>(ServerEventType.PlayerPreauth, null, request.RemoteEndPoint.Address.ToString(), 0, CentralAuthPreauthFlags.None, null, null, request, position)))
+					if (!CustomLiteNetLib4MirrorTransport.ProcessCancellationData(request, EventManager.ExecuteEvent<PreauthCancellationData>(new PlayerPreauthEvent(null, request.RemoteEndPoint.Address.ToString(), 0, CentralAuthPreauthFlags.None, null, null, request, position))))
 						return;
+
 
 					request.Accept();
 					CustomLiteNetLib4MirrorTransport.PreauthDisableIdleMode();
@@ -546,8 +547,9 @@ namespace CedMod.Addons.QuerySystem.Patches
 							CustomLiteNetLib4MirrorTransport.UserIds.Add(request.RemoteEndPoint,
 								new PreauthItem(userId));
 
-						if (!CustomLiteNetLib4MirrorTransport.ProcessCancellationData(request, EventManager.ExecuteEvent<PreauthCancellationData>(ServerEventType.PlayerPreauth, userId, request.RemoteEndPoint.Address.ToString(), expiration, flags, country, signature, request, position)))
+						if (!CustomLiteNetLib4MirrorTransport.ProcessCancellationData(request, EventManager.ExecuteEvent<PreauthCancellationData>(new PlayerPreauthEvent(userId, request.RemoteEndPoint.Address.ToString(), expiration, flags, country, signature, request, position))))
 							return;
+
 
 						Task.Factory.StartNew(async () =>
 						{

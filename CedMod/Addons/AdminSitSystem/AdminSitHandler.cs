@@ -9,6 +9,7 @@ using MEC;
 using PlayerRoles;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
+using PluginAPI.Events;
 using UnityEngine;
 
 namespace CedMod.Addons.AdminSitSystem
@@ -50,7 +51,7 @@ namespace CedMod.Addons.AdminSitSystem
         }
 
         [PluginEvent(ServerEventType.WaitingForPlayers)]
-        public void WaitingForPlayers()
+        public void WaitingForPlayers(WaitingForPlayersEvent ev)
         {
             Singleton.Sits.Clear();
             foreach (var loc in Singleton.AdminSitLocations)
@@ -60,23 +61,23 @@ namespace CedMod.Addons.AdminSitSystem
         }
 
         [PluginEvent(ServerEventType.PlayerJoined)]
-        public void OnPlayerJoin(CedModPlayer player)
+        public void OnPlayerJoin(PlayerJoinedEvent ev)
         {
-            var sit = Singleton.Sits.FirstOrDefault(s => s.Players.Any(s => s.UserId == player.UserId));
+            var sit = Singleton.Sits.FirstOrDefault(s => s.Players.Any(s => s.UserId == ev.Player.UserId));
             if (sit != null)
             {
                 Timing.CallDelayed(0.1f, () =>
                 {
-                    player.SetRole(RoleTypeId.Tutorial, RoleChangeReason.RemoteAdmin);
+                    ev.Player.SetRole(RoleTypeId.Tutorial, RoleChangeReason.RemoteAdmin);
                     Timing.CallDelayed(0.1f, () => {
                     {
-                        player.Position = sit.Location.SpawnPosition;
+                        ev.Player.Position = sit.Location.SpawnPosition;
                     }});
                 });
                 return;
             }
 
-            if (Singleton.LeftPlayers.TryGetValue(player.UserId, out var leftPlayer))
+            if (Singleton.LeftPlayers.TryGetValue(ev.Player.UserId, out var leftPlayer))
             {
                 sit = Singleton.Sits.FirstOrDefault(s => s.Id == leftPlayer);
                 if (sit == null)
@@ -100,31 +101,31 @@ namespace CedMod.Addons.AdminSitSystem
                 {
                     sit.Players.Add(new AdminSitPlayer()
                     {
-                        Player = player,
+                        Player = CedModPlayer.Get(ev.Player.ReferenceHub),
                         PlayerType = AdminSitPlayerType.Handler,
-                        UserId = player.UserId,
-                        Ammo = new Dictionary<ItemType, ushort>(player.ReferenceHub.inventory.UserInventory.ReserveAmmo),
-                        Health = player.Health,
-                        Items = new Dictionary<ushort, ItemBase>(player.ReferenceHub.inventory.UserInventory.Items),
-                        Position = player.Position,
-                        Role = player.Role,
+                        UserId = ev.Player.UserId,
+                        Ammo = new Dictionary<ItemType, ushort>(ev.Player.ReferenceHub.inventory.UserInventory.ReserveAmmo),
+                        Health = ev.Player.Health,
+                        Items = new Dictionary<ushort, ItemBase>(ev.Player.ReferenceHub.inventory.UserInventory.Items),
+                        Position = ev.Player.Position,
+                        Role = ev.Player.Role,
                     });
-                    player.SetRole(RoleTypeId.Tutorial, RoleChangeReason.RemoteAdmin);
+                    ev.Player.SetRole(RoleTypeId.Tutorial, RoleChangeReason.RemoteAdmin);
                     Timing.CallDelayed(0.1f, () => {
                     {
-                        player.Position = sit.Location.SpawnPosition;
+                        ev.Player.Position = sit.Location.SpawnPosition;
                     }});
                 });
             }
         }
 
         [PluginEvent(ServerEventType.PlayerLeft)]
-        public void OnPlayerLeft(CedModPlayer player)
+        public void OnPlayerLeft(PlayerLeftEvent ev)
         {
-            var sit = Singleton.Sits.FirstOrDefault(s => s.Players.Any(s => s.UserId == player.UserId));
+            var sit = Singleton.Sits.FirstOrDefault(s => s.Players.Any(s => s.UserId == ev.Player.UserId));
             if (sit != null)
             {
-                Singleton.LeftPlayers.TryAdd(player.UserId, sit.Id);
+                Singleton.LeftPlayers.TryAdd(ev.Player.UserId, sit.Id);
             }
         }
 

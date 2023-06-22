@@ -3,12 +3,13 @@ using CedMod.Addons.QuerySystem.WS;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
+using PluginAPI.Events;
 
 namespace CedMod.Addons.QuerySystem
 {
     public class QueryMapEvents
     {
-        public void OnWarheadDetonation()
+        public void OnWarheadDetonation(WarheadDetonationEvent ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -22,7 +23,7 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.LczDecontaminationAnnouncement)]
-        public void OnDecon(int i)
+        public void OnDecon(LczDecontaminationAnnouncementEvent ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -36,7 +37,7 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.WarheadStart)]
-        public void OnWarheadStart(bool b, CedModPlayer player, bool isResumed)
+        public void OnWarheadStart(WarheadStartEvent ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -54,7 +55,7 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.WarheadStop)]
-        public void OnWarheadCancelled(CedModPlayer player)
+        public void OnWarheadCancelled(WarheadStopEvent ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -62,7 +63,7 @@ namespace CedMod.Addons.QuerySystem
                 Data = new Dictionary<string, string>()
                 {
                     {"Type", nameof(OnWarheadCancelled)},
-                    {"Message", (player != null ? player.Nickname + " - " + player.UserId : "Server") + " has stopped the detonation."}
+                    {"Message", (ev.Player != null ? ev.Player.Nickname + " - " + ev.Player.UserId : "Server") + " has stopped the detonation."}
                 }
             });
         }
