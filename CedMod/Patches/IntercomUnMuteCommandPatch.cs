@@ -82,7 +82,8 @@ namespace CedMod.Patches
 						Broadcast.Singleton.TargetAddElement(plr.Connection, "You have been unmuted", 5, Broadcast.BroadcastFlags.Normal);
 						//plr.IntercomUnmute(false);
 						VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.None);
-						plr.CustomInfo = "";
+						if (!string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.MuteCustomInfo))
+							plr.CustomInfo = "";
 						Task.Factory.StartNew(async () =>
 						{
 							await API.UnMute(plr);

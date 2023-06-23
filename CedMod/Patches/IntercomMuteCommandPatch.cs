@@ -122,7 +122,8 @@ namespace CedMod.Patches
 						Broadcast.Singleton.TargetAddElement(plr.Connection, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", MuteType.Intercom.ToString()).Replace("{duration}", num.ToString()).Replace("{reason}", text), 5, Broadcast.BroadcastFlags.Normal);
 						//plr.IntercomMute(true);
 						VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.LocalIntercom);
-						plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", MuteType.Intercom.ToString());
+						if (!string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.MuteCustomInfo))
+							plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", MuteType.Intercom.ToString());
 						Task.Factory.StartNew(async () =>
 						{
 							await API.Mute(plr, sender.LogName, num, text, MuteType.Intercom);

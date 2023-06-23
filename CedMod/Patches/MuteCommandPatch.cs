@@ -123,7 +123,8 @@ namespace CedMod.Patches
 						//plr.Mute(true);
 						VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.LocalRegular);
 						
-						plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", MuteType.Global.ToString());
+						if (!string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.MuteCustomInfo))
+							plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", MuteType.Global.ToString());
 						Task.Factory.StartNew(async () =>
 						{
 							await API.Mute(plr, sender.LogName, num, text, MuteType.Global);
