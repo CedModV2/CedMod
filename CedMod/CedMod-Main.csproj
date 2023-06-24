@@ -218,28 +218,28 @@
       <HintPath>..\References\dnlib.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.API, Version=7.0.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.7.0.0-rc.3-1\lib\net48\Exiled.API.dll</HintPath>
+      <HintPath>..\packages\EXILED.7.0.0-rc.7\lib\net48\Exiled.API.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.CreditTags, Version=7.0.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.7.0.0-rc.3-1\lib\net48\Exiled.CreditTags.dll</HintPath>
+      <HintPath>..\packages\EXILED.7.0.0-rc.7\lib\net48\Exiled.CreditTags.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.CustomItems, Version=7.0.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.7.0.0-rc.3-1\lib\net48\Exiled.CustomItems.dll</HintPath>
+      <HintPath>..\packages\EXILED.7.0.0-rc.7\lib\net48\Exiled.CustomItems.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.CustomRoles, Version=7.0.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.7.0.0-rc.3-1\lib\net48\Exiled.CustomRoles.dll</HintPath>
+      <HintPath>..\packages\EXILED.7.0.0-rc.7\lib\net48\Exiled.CustomRoles.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.Events, Version=7.0.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.7.0.0-rc.3-1\lib\net48\Exiled.Events.dll</HintPath>
+      <HintPath>..\packages\EXILED.7.0.0-rc.7\lib\net48\Exiled.Events.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.Loader, Version=7.0.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.7.0.0-rc.3-1\lib\net48\Exiled.Loader.dll</HintPath>
+      <HintPath>..\packages\EXILED.7.0.0-rc.7\lib\net48\Exiled.Loader.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.Permissions, Version=7.0.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.7.0.0-rc.3-1\lib\net48\Exiled.Permissions.dll</HintPath>
+      <HintPath>..\packages\EXILED.7.0.0-rc.7\lib\net48\Exiled.Permissions.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.Updater, Version=3.1.2.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.7.0.0-rc.3-1\lib\net48\Exiled.Updater.dll</HintPath>
+      <HintPath>..\packages\EXILED.7.0.0-rc.7\lib\net48\Exiled.Updater.dll</HintPath>
     </Reference>
     <Reference Include="Facepunch.Steamworks.Win64, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\Facepunch.Steamworks.Win64.dll</HintPath>
@@ -759,8 +759,8 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="WindowsBase" />
-    <Reference Include="YamlDotNet, Version=11.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e">
-      <HintPath>..\References\YamlDotNet.dll</HintPath>
+    <Reference Include="YamlDotNet, Version=11.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
+      <HintPath>..\packages\EXILED.7.0.0-rc.7\lib\net48\YamlDotNet.dll</HintPath>
     </Reference>
     <Reference Include="zxing.unity, Version=0.16.4.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\zxing.unity.dll</HintPath>
