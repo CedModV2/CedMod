@@ -261,10 +261,10 @@ namespace CedMod.Addons.QuerySystem
                 data.PlayersOnScene.Add(new UsersOnScene()
                 {
                     CurrentHealth = ev.Player.Health,
-                    Distance = Vector3.Distance(ev.Attacker.Position, ev.Attacker.Position),
-                    Position = ev.Attacker.Position.ToString(),
-                    RoleType = ev.Attacker.Role,
-                    UserId = ev.Attacker.UserId,
+                    Distance = Vector3.Distance(ev.Player.Position, ev.Player.Position),
+                    Position = ev.Player.Position.ToString(),
+                    RoleType = ev.Player.Role,
+                    UserId = ev.Player.UserId,
                     Victim = true,
                     Room = targetRoom.name
                 });
