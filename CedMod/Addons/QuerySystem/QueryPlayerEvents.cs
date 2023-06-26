@@ -164,7 +164,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerDamage)]
         public void OnPlayerHurt(PlayerDamageEvent ev)
         {
-            ev = new PlayerDamageEvent(ev.Target.ReferenceHub, ev.Player.ReferenceHub, ev.DamageHandler); //todo remove once nwapi fixed
+            ev = new PlayerDamageEvent(ev.Target == null ? null : ev.Target.ReferenceHub, ev.Player == null ? null : ev.Player.ReferenceHub, ev.DamageHandler); //todo remove once nwapi fixed
             if (ev.Target == null)
                 return;
 
