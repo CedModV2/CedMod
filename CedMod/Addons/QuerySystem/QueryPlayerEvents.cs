@@ -538,9 +538,9 @@ namespace CedMod.Addons.QuerySystem
         public void OnPlayerJoin(PlayerJoinedEvent ev)
         {
             ThreadDispatcher.SendHeartbeatMessage(true);
-            if (CommandHandler.Synced.Contains(ev.Player.UserId))
+            if (CommandHandler.Synced.ContainsKey(ev.Player.UserId))
             {
-                if (ServerStatic.GetPermissionsHandler()._members.ContainsKey(ev.Player.UserId))
+                if (ServerStatic.GetPermissionsHandler()._members.ContainsKey(ev.Player.UserId) && CommandHandler.Synced[ev.Player.UserId] == ServerStatic.GetPermissionsHandler()._members[ev.Player.UserId])
                     ServerStatic.GetPermissionsHandler()._members.Remove(ev.Player.UserId);
                 ev.Player.ReferenceHub.serverRoles.RefreshPermissions();
                 CommandHandler.Synced.Remove(ev.Player.UserId);

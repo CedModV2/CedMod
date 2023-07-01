@@ -38,7 +38,7 @@ namespace CedMod.Addons.QuerySystem.Commands
                 }
                 ServerStatic.GetPermissionsHandler()._members[CedModPlayer.Get(int.Parse(arguments.At(0))).UserId] = arguments.At(1);
                 CedModPlayer.Get(int.Parse(arguments.At(0))).ReferenceHub.serverRoles.SetGroup(ServerStatic.GetPermissionsHandler()._groups[arguments.At(1)], false);
-                CommandHandler.Synced.Add(CedModPlayer.Get(int.Parse(arguments.At(0))).UserId);
+                CommandHandler.Synced.Add(CedModPlayer.Get(int.Parse(arguments.At(0))).UserId, arguments.At(1));
                 response = "Done.";
                 return true;
             }
