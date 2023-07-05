@@ -31,7 +31,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                         Player player = Player.Get(sender.SenderId);
                         if (player == null)
                         {
-                            __result = false;
+                            __result = CheckPermission(sender.SenderId, permission);
                             return false;
                         }
                         __result = player == Server.Host || player.CheckPermission(permission);
