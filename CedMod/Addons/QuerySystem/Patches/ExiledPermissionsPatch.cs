@@ -23,6 +23,9 @@ namespace CedMod.Addons.QuerySystem.Patches
         {
             if (!sender.FullPermissions)
             {
+                if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                    PluginAPI.Core.Log.Info($"Exiled perms: {sender.GetType().FullName}");
+                
                 switch (sender)
                 {
                     case ServerConsoleSender _:
@@ -53,7 +56,7 @@ namespace CedMod.Addons.QuerySystem.Patches
             if (string.IsNullOrEmpty(permission))
                 return false;
             
-            string plyGroupKey = Player.Get(userId) != null ? Player.Get(userId).GroupName : ServerStatic.GetPermissionsHandler()._members.FirstOrDefault(g => g.Value == userId).Value;
+            string plyGroupKey = Player.Get(userId) != null ? Player.Get(userId).GroupName : ServerStatic.GetPermissionsHandler()._members.FirstOrDefault(g => g.Key == userId).Value;
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 PluginAPI.Core.Log.Info(plyGroupKey);
             
