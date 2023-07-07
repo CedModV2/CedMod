@@ -16,10 +16,12 @@ namespace CedMod.Addons.QuerySystem
         
         public static async Task ObtainId()
         {
-            if (!ServerStatic.PermissionsHandler.IsVerified)
-                await Task.Delay(20000); //wait a bit incase its slow
-            if (!ServerStatic.PermissionsHandler.IsVerified)
-                return;
+            while (!ServerStatic.PermissionsHandler.IsVerified)
+            {
+                if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                    Log.Debug($"Verification paused as server is not verified.");
+                await Task.Delay(2000);
+            }
             
             using (HttpClient client = new HttpClient())
             {
@@ -32,6 +34,7 @@ namespace CedMod.Addons.QuerySystem
                     ServerId = int.Parse(responseString);
                     AmountErrored = 0;
                     ServerConsole.ReloadServerName();
+                    ServerConsole.Update = true;
                     await ConfirmId();
                 }
                 else

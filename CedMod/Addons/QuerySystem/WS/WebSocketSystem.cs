@@ -677,6 +677,7 @@ namespace CedMod.Addons.QuerySystem.WS
 
                                 Verification.ServerId = Convert.ToInt32(jsonData["ServerId"]);
                                 ServerConsole.ReloadServerName();
+                                ServerConsole.Update = true;
 
                                 if (delay)
                                     Task.Run(async () =>
@@ -750,7 +751,7 @@ namespace CedMod.Addons.QuerySystem.WS
             });
         }
 
-        public static bool IsCheckingToken = true;
+        public static bool IsCheckingToken = false;
         public static bool UseRa = true;
         public static object LockObj = new object();
 
