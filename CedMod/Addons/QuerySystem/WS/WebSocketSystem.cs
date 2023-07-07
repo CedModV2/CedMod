@@ -689,7 +689,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                         }
                                         catch (Exception e)
                                         {
-                                            Log.Error($"Panel requested verification check however check failed, {ServerConsole.Ip} {ServerStatic.ServerPort}  {e.ToString()}");
+                                            Log.Error($"Panel requested verification check however check failed, {e.ToString()}");
                                             SendQueue.Enqueue(new QueryCommand()
                                             {
                                                 Data = new Dictionary<string, string>()
@@ -710,7 +710,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             }
                             catch (Exception e)
                             {
-                                Log.Error($"Panel requested verification check however check failed, {ServerConsole.Ip} {ServerStatic.ServerPort}  {e.ToString()}");
+                                Log.Error($"Panel requested verification check however check failed, {e.ToString()}");
                                 SendQueue.Enqueue(new QueryCommand()
                                 {
                                     Data = new Dictionary<string, string>()
@@ -721,7 +721,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                     Identity = "",
                                     Recipient = "PANEL",
                                 });
-                                IsCheckingToken = false;
+                                IsCheckingToken = false
                             }
                             break;
                     }
@@ -737,13 +737,13 @@ namespace CedMod.Addons.QuerySystem.WS
         {
             string result = await Verification.ConfirmId(false);
             if (result != string.Empty)
-                Log.Error($"Panel requested verification check however check failed, {ServerConsole.Ip} {ServerStatic.ServerPort} {result}");
+                Log.Error($"Panel requested verification check however check failed, {result}");
             SendQueue.Enqueue(new QueryCommand()
             {
                 Data = new Dictionary<string, string>()
                 {
                     {"Message", "VERIFICATIONFEEDBACK"},
-                    {"Result", result}
+                    {"Result", $"{ServerConsole.Ip} {ServerStatic.ServerPort} {result}"}
                 },
                 Identity = "",
                 Recipient = "PANEL",
