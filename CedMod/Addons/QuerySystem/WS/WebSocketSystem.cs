@@ -669,8 +669,9 @@ namespace CedMod.Addons.QuerySystem.WS
                         case "VerificationCheck":
                             try
                             {
-                                if (!ServerStatic.PermissionsHandler.IsVerified)
+                                if (!ServerStatic.PermissionsHandler.IsVerified || IsCheckingToken)
                                     return;
+                                IsCheckingToken = true;
 
                                 var delay = !ServerConsole._serverName.Contains("CedModVerification");
 
@@ -682,8 +683,9 @@ namespace CedMod.Addons.QuerySystem.WS
                                     {
                                         try
                                         {
-                                            await Task.Delay(60000);
+                                            await Task.Delay(90000);
                                             await HandleVerification();
+                                            IsCheckingToken = false;
                                         }
                                         catch (Exception e)
                                         {
@@ -701,7 +703,10 @@ namespace CedMod.Addons.QuerySystem.WS
                                         }
                                     });
                                 else
+                                {
                                     await HandleVerification();
+                                    IsCheckingToken = false;
+                                }
                             }
                             catch (Exception e)
                             {
@@ -716,6 +721,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                     Identity = "",
                                     Recipient = "PANEL",
                                 });
+                                IsCheckingToken = false;
                             }
                             break;
                     }
@@ -744,6 +750,7 @@ namespace CedMod.Addons.QuerySystem.WS
             });
         }
 
+        public static bool IsCheckingToken = true;
         public static bool UseRa = true;
         public static object LockObj = new object();
 
