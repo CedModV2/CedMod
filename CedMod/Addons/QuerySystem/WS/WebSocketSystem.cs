@@ -687,7 +687,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                         }
                                         catch (Exception e)
                                         {
-                                            Log.Error($"Panel requested verification check however check failed, {e.ToString()}");
+                                            Log.Error($"Panel requested verification check however check failed, {ServerConsole.Ip} {ServerStatic.ServerPort}  {e.ToString()}");
                                             SendQueue.Enqueue(new QueryCommand()
                                             {
                                                 Data = new Dictionary<string, string>()
@@ -705,7 +705,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             }
                             catch (Exception e)
                             {
-                                Log.Error($"Panel requested verification check however check failed, {e.ToString()}");
+                                Log.Error($"Panel requested verification check however check failed, {ServerConsole.Ip} {ServerStatic.ServerPort}  {e.ToString()}");
                                 SendQueue.Enqueue(new QueryCommand()
                                 {
                                     Data = new Dictionary<string, string>()
@@ -731,7 +731,7 @@ namespace CedMod.Addons.QuerySystem.WS
         {
             string result = await Verification.ConfirmId(false);
             if (result != string.Empty)
-                Log.Error($"Panel requested verification check however check failed, {result}");
+                Log.Error($"Panel requested verification check however check failed, {ServerConsole.Ip} {ServerStatic.ServerPort} {result}");
             SendQueue.Enqueue(new QueryCommand()
             {
                 Data = new Dictionary<string, string>()
