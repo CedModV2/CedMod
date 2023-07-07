@@ -721,7 +721,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                     Identity = "",
                                     Recipient = "PANEL",
                                 });
-                                IsCheckingToken = false
+                                IsCheckingToken = false;
                             }
                             break;
                     }
