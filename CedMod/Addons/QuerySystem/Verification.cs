@@ -16,6 +16,11 @@ namespace CedMod.Addons.QuerySystem
         
         public static async Task ObtainId()
         {
+            if (!ServerStatic.PermissionsHandler.IsVerified)
+                await Task.Delay(20000); //wait a bit incase its slow
+            if (!ServerStatic.PermissionsHandler.IsVerified)
+                return;
+            
             using (HttpClient client = new HttpClient())
             {
                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
@@ -42,12 +47,13 @@ namespace CedMod.Addons.QuerySystem
             }
         }
         
-        public static async Task ConfirmId()
+        public static async Task<string> ConfirmId(bool loop = true)
         {
             bool first = true;
             while (true)
             {
-                await Task.Delay(first ? 45000 : 15000);
+                if (loop)
+                    await Task.Delay(first ? 45000 : 15000);
                 first = false;
                 using (HttpClient client = new HttpClient())
                 {
@@ -59,6 +65,8 @@ namespace CedMod.Addons.QuerySystem
                     {
                         ServerId = int.Parse(responseString);
                         AmountErrored = 0;
+                        if (!loop)
+                            return "";
                     }
                     else
                     {
@@ -67,9 +75,14 @@ namespace CedMod.Addons.QuerySystem
                             AmountErrored++;
                             Log.Error($"Failed to verify CedMod verification token: {responseString}");
                         }
+
+                        if (!loop)
+                            return responseString;
                     }
                 }
             }
+
+            return "";
         }
     }
 }

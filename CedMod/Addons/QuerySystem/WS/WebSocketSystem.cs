@@ -666,6 +666,42 @@ namespace CedMod.Addons.QuerySystem.WS
                                 }
                             }
                             break;
+                        case "VerificationCheck":
+                            try
+                            {
+                                if (!ServerStatic.PermissionsHandler.IsVerified)
+                                    return;
+                            
+                                Verification.ServerId = Convert.ToInt32(jsonData["ServerId"]);
+                                string result = await Verification.ConfirmId(false);
+                                if (result != string.Empty)
+                                    Log.Error($"Panel requested verification check however check failed, {result}");
+                                SendQueue.Enqueue(new QueryCommand()
+                                {
+                                    Data = new Dictionary<string, string>()
+                                    {
+                                        {"Message", "VERIFICATIONFEEDBACK"},
+                                        {"Result", result}
+                                    },
+                                    Identity = "",
+                                    Recipient = "PANEL",
+                                });
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error($"Panel requested verification check however check failed, {e.ToString()}");
+                                SendQueue.Enqueue(new QueryCommand()
+                                {
+                                    Data = new Dictionary<string, string>()
+                                    {
+                                        {"Message", "VERIFICATIONFEEDBACK"},
+                                        {"Result", e.ToString()}
+                                    },
+                                    Identity = "",
+                                    Recipient = "PANEL",
+                                });
+                            }
+                            break;
                     }
                 }
             }

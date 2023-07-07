@@ -206,7 +206,8 @@ namespace CedMod.Addons.QuerySystem
                         Staff = PermissionsHandler.IsPermitted(player.ReferenceHub.serverRoles.Permissions, new PlayerPermissions[3] { PlayerPermissions.KickingAndShortTermBanning, PlayerPermissions.BanningUpToDay, PlayerPermissions.LongTermBanning}),
                         UserId = player.UserId,
                         PlayerId = player.PlayerId,
-                        RoleType = player.Role
+                        RoleType = player.Role,
+                        HashedUserId = player.ReferenceHub.serverRoles.SyncHashed
                     });
                 }
             }
@@ -234,7 +235,8 @@ namespace CedMod.Addons.QuerySystem
 #endif
                             ScpSlVersion = $"{Version.Major}.{Version.Minor}.{Version.Revision}",
                             FileHash = CedModMain.FileHash,
-                            KeyHash = CedModMain.GetHashCode(CedModMain.Singleton.Config.CedMod.CedModApiKey, new MD5CryptoServiceProvider())
+                            KeyHash = CedModMain.GetHashCode(CedModMain.Singleton.Config.CedMod.CedModApiKey, new MD5CryptoServiceProvider()),
+                            IsVerified = ServerStatic.PermissionsHandler.IsVerified
                         })
                     }
                 }
