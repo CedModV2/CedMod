@@ -31,6 +31,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     ServerId = int.Parse(responseString);
                     AmountErrored = 0;
+                    ServerConsole.ReloadServerName();
                     await ConfirmId();
                 }
                 else

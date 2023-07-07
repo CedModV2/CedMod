@@ -671,21 +671,37 @@ namespace CedMod.Addons.QuerySystem.WS
                             {
                                 if (!ServerStatic.PermissionsHandler.IsVerified)
                                     return;
-                            
+
+                                var delay = false || !ServerConsole._serverName.Contains("CedModVerification");
+
                                 Verification.ServerId = Convert.ToInt32(jsonData["ServerId"]);
-                                string result = await Verification.ConfirmId(false);
-                                if (result != string.Empty)
-                                    Log.Error($"Panel requested verification check however check failed, {result}");
-                                SendQueue.Enqueue(new QueryCommand()
-                                {
-                                    Data = new Dictionary<string, string>()
+                                ServerConsole.ReloadServerName();
+
+                                if (delay)
+                                    Task.Run(async () =>
                                     {
-                                        {"Message", "VERIFICATIONFEEDBACK"},
-                                        {"Result", result}
-                                    },
-                                    Identity = "",
-                                    Recipient = "PANEL",
-                                });
+                                        try
+                                        {
+                                            await Task.Delay(60000);
+                                            await HandleVerification();
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            Log.Error($"Panel requested verification check however check failed, {e.ToString()}");
+                                            SendQueue.Enqueue(new QueryCommand()
+                                            {
+                                                Data = new Dictionary<string, string>()
+                                                {
+                                                    {"Message", "VERIFICATIONFEEDBACK"},
+                                                    {"Result", e.ToString()}
+                                                },
+                                                Identity = "",
+                                                Recipient = "PANEL",
+                                            });
+                                        }
+                                    });
+                                else
+                                    await HandleVerification();
                             }
                             catch (Exception e)
                             {
@@ -709,6 +725,23 @@ namespace CedMod.Addons.QuerySystem.WS
             {
                 Log.Error(ex.ToString());
             }
+        }
+
+        private static async Task HandleVerification()
+        {
+            string result = await Verification.ConfirmId(false);
+            if (result != string.Empty)
+                Log.Error($"Panel requested verification check however check failed, {result}");
+            SendQueue.Enqueue(new QueryCommand()
+            {
+                Data = new Dictionary<string, string>()
+                {
+                    {"Message", "VERIFICATIONFEEDBACK"},
+                    {"Result", result}
+                },
+                Identity = "",
+                Recipient = "PANEL",
+            });
         }
 
         public static bool UseRa = true;
