@@ -672,7 +672,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 if (!ServerStatic.PermissionsHandler.IsVerified)
                                     return;
 
-                                var delay = false || !ServerConsole._serverName.Contains("CedModVerification");
+                                var delay = !ServerConsole._serverName.Contains("CedModVerification");
 
                                 Verification.ServerId = Convert.ToInt32(jsonData["ServerId"]);
                                 ServerConsole.ReloadServerName();
