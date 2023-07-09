@@ -87,7 +87,7 @@ namespace CedMod
 #if !EXILED
             if (Config == null)
             {
-                Timing.CallPeriodically(100000, 1, () => Log.Error("Failed to load CedMod, your CedMod config file is invalid. Please make sure the config.yml file is valid, the config.yml file is located in the CedMod folder inside the folder you installed the dll into, if the file does not contain valid yml, delete it and restart."));
+                Timing.CallPeriodically(100000, 1, () => Log.Error("Failed to load CedMod, your CedMod config file is invalid. Please make sure the config.yml file is valid, the config.yml file is located in the CedMod folder inside the folder you installed the dll into, if the file does not contain valid yml, delete it, or resolve issues, and restart."));
                 return;
             }
             
