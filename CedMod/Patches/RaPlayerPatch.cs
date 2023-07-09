@@ -202,16 +202,18 @@ namespace CedMod.Patches
                 if (flags != 0)
                 {
                     stringBuilder.Append("\nMUTE STATUS:");
-                    foreach (int num in Enum.GetValues(typeof(VcMuteFlags)))
+
+                    foreach (int flag in Enum.GetValues(typeof(VoiceChat.VcMuteFlags)))
                     {
-                        if (num != 0 && (flags & num) == num)
-                        {
-                            stringBuilder.Append(" <color=#F70D1A>");
-                            stringBuilder.Append((object)(VcMuteFlags)num);
-                            stringBuilder.Append("</color>");
-                        }
+                        if (flag == 0 || (flags & flag) != flag)
+                            continue;
+
+                        stringBuilder.Append(" <color=#F70D1A>");
+                        stringBuilder.Append((VoiceChat.VcMuteFlags) flag);
+                        stringBuilder.Append("</color>");
                     }
                 }
+
 
                 stringBuilder.Append("\nActive flag(s):");
                 if (characterClassManager.GodMode)
