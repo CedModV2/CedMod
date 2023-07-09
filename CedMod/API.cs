@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Security;
@@ -106,7 +107,7 @@ namespace CedMod
                 { "Muteduration", (int)realduration }
             };
             
-            Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"api/Mute/{player.UserId}", JsonConvert.SerializeObject(data), false, "POST");
+            Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"api/Mute/{player.UserId}?banLists={string.Join(",", ServerPreferences.Prefs.BanListWriteMutes.Select(s => s.Id))}", JsonConvert.SerializeObject(data), false, "POST");
             if (result == null)
             {
                 await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempm-{player.UserId}"), JsonConvert.SerializeObject(data));
@@ -115,7 +116,7 @@ namespace CedMod
         
         public static async Task UnMute(Player player)
         {
-            Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"api/Mute/{player.UserId}", "", false, "DELETE");
+            Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"api/Mute/{player.UserId}?banLists={string.Join(",", ServerPreferences.Prefs.BanListWriteMutes.Select(s => s.Id))}", "", false, "DELETE");
             if (result == null)
             {
                 await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempum-{player.UserId}"), player.UserId);
@@ -136,7 +137,7 @@ namespace CedMod
                     { "BanReason", reason.Replace("\"", "'") }
                 };
                 
-                Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest("Auth/Ban", JsonConvert.SerializeObject(data), false, "POST");
+                Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"Auth/Ban?banLists={string.Join(",", ServerPreferences.Prefs.BanListWriteBans.Select(s => s.Id))}", JsonConvert.SerializeObject(data), false, "POST");
                 if (result == null)
                 {
                     await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempb-{player.UserId}"), JsonConvert.SerializeObject(data));
@@ -181,7 +182,7 @@ namespace CedMod
                     { "BanReason", reason.Replace("\"", "'") }
                 };
                 
-                Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest("Auth/Ban", JsonConvert.SerializeObject(data), false, "POST");
+                Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"Auth/Ban?banLists={string.Join(",", ServerPreferences.Prefs.BanListWriteBans.Select(s => s.Id))}", JsonConvert.SerializeObject(data), false, "POST");
                 if (result == null)
                 {
                     await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempb-{UserId}"), JsonConvert.SerializeObject(data));

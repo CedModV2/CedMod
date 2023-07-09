@@ -257,7 +257,7 @@ namespace CedMod.Patches
                     using (HttpClient client = new HttpClient())
                     {
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
-                        var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + API.APIUrl + $"/Auth/{characterClassManager.UserId}&{connectionToClient.address}"));
+                        var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + API.APIUrl + $"/Auth/{characterClassManager.UserId}&{connectionToClient.address}?banLists={string.Join(",", ServerPreferences.Prefs.BanListWriteBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&banListWarns={string.Join(",", ServerPreferences.Prefs.BanListReadWarns.Select(s => s.Id))}"));
                         yield return Timing.WaitUntilTrue(() => respTask.IsCompleted);
                         var resp = respTask.Result;
                         var respStringTask = resp.Content.ReadAsStringAsync();
@@ -283,8 +283,7 @@ namespace CedMod.Patches
                             if (cmData["triggeredAvpnPast"] is bool ? (bool)cmData["triggeredAvpnPast"] : false)
                                 stringBuilder.Append("\nActive flag: <color=#red>AntiVpn Triggered</color>");
 
-                            stringBuilder.Append(
-                                $"\nModeration: {cmData["warns"]} Warnings, {cmData["banLogs"]} Banlogs");
+                            stringBuilder.Append($"\nModeration: {cmData["warns"]} Warnings, {cmData["banLogs"]} Banlogs");
                         }
                     }
                     catch (Exception e)

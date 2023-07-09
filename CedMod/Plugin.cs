@@ -427,6 +427,7 @@ namespace CedMod
             }
 
             Task.Run(Verification.ObtainId);
+            Task.Run(ServerPreferences.ResolvePreferences);
         }
 
         private void HandleInstanceModeChange(ReferenceHub arg1, ClientInstanceMode arg2)

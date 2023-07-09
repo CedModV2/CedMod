@@ -110,6 +110,7 @@
     <Compile Include="Addons\QuerySystem\PlayerList.cs" />
     <Compile Include="Addons\QuerySystem\QuerySystem.cs" />
     <Compile Include="Addons\QuerySystem\QueryServerEvents.cs" />
+    <Compile Include="Addons\QuerySystem\ServerPreferences.cs" />
     <Compile Include="Addons\QuerySystem\ThreadDispatcher.cs" />
     <Compile Include="Addons\QuerySystem\Verification.cs" />
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
@@ -124,6 +125,7 @@
     <Compile Include="ApiModals\IngameUserPreferences.cs" />
     <Compile Include="ApiModals\PlayerObject.cs" />
     <Compile Include="ApiModals\SCPSLVersion.cs" />
+    <Compile Include="ApiModals\ServerPreferenceModel.cs" />
     <Compile Include="BanSystem.cs" />
     <Compile Include="CacheHandler.cs" />
     <Compile Include="CedModConfig.cs" />
