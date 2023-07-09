@@ -85,6 +85,12 @@ namespace CedMod
         void LoadPlugin()
         {
 #if !EXILED
+            if (Config == null)
+            {
+                Timing.CallPeriodically(100000, 1, () => Log.Error("Failed to load CedMod, your CedMod config file is invalid. Please make sure the config.yml file is valid, the config.yml file is located in the CedMod folder inside the folder you installed the dll into, if the file does not contain valid yml, delete it and restart."));
+                return;
+            }
+            
             if (!Config.IsEnabled)
                 return;
             var loadProperty = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(s => s.GetName().Name == "CedModV3").GetType("CedMod.API").GetProperty("HasLoaded");
