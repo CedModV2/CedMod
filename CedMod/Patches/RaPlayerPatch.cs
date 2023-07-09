@@ -203,13 +203,13 @@ namespace CedMod.Patches
                 {
                     stringBuilder.Append("\nMUTE STATUS:");
 
-                    foreach (int flag in Enum.GetValues(typeof(VoiceChat.VcMuteFlags)))
+                    foreach (int flag in Enum.GetValues(typeof(VoiceChat.VcMuteFlags)).ToArray<VcMuteFlags>())
                     {
                         if (flag == 0 || (flags & flag) != flag)
                             continue;
 
                         stringBuilder.Append(" <color=#F70D1A>");
-                        stringBuilder.Append((VoiceChat.VcMuteFlags) flag);
+                        stringBuilder.Append(flag);
                         stringBuilder.Append("</color>");
                     }
                 }
