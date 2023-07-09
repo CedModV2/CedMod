@@ -119,7 +119,7 @@ namespace CedMod.Patches
 					{
 						var plr = CedModPlayer.Get(referenceHub);
 						plr.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", MuteType.Intercom.ToString()).Replace("{duration}", num.ToString()).Replace("{reason}", text), "red");
-						Broadcast.Singleton.TargetAddElement(plr.Connection, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", MuteType.Intercom.ToString()).Replace("{duration}", num.ToString()).Replace("{reason}", text), 5, Broadcast.BroadcastFlags.Normal);
+						Broadcast.Singleton.TargetAddElement(plr.Connection, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", MuteType.Intercom.ToString()).Replace("{duration}", $"{num.ToString()} seconds").Replace("{reason}", text), 5, Broadcast.BroadcastFlags.Normal);
 						//plr.IntercomMute(true);
 						VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.LocalIntercom);
 						if (!string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.MuteCustomInfo))
