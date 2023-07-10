@@ -555,7 +555,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 						{
 							string id = userId;
 							string ip = realIp ?? request.RemoteEndPoint.Address.ToString();
-							Dictionary<string, string> info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{id}&{ip}");
+							Dictionary<string, string> info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{id}&{ip}?banLists={string.Join(",", ServerPreferences.Prefs.BanListWriteBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}");
 							lock (BanSystem.CachedStates)
 							{
 								if (BanSystem.CachedStates.ContainsKey(id))
