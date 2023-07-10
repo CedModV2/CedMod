@@ -37,7 +37,7 @@ namespace CedMod
                 }
                 
                 if (req)
-                    info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{player.UserId}&{player.IpAddress}?banLists={string.Join(",", ServerPreferences.Prefs.BanListWriteBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}");
+                    info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{player.UserId}&{player.IpAddress}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}");
 
                 if (info == null)
                 {
