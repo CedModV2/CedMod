@@ -433,7 +433,7 @@ namespace CedMod
             }
 
             Task.Run(Verification.ObtainId);
-            Task.Run(ServerPreferences.ResolvePreferences);
+            Task.Run(() => ServerPreferences.ResolvePreferences(true));
         }
 
         private void HandleInstanceModeChange(ReferenceHub arg1, ClientInstanceMode arg2)
