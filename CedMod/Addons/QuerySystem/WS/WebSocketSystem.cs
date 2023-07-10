@@ -725,6 +725,9 @@ namespace CedMod.Addons.QuerySystem.WS
                                 IsCheckingToken = false;
                             }
                             break;
+                        case "reloadsrvprefs":
+                            await ServerPreferences.ResolvePreferences(false);
+                            break;
                     }
                 }
             }
