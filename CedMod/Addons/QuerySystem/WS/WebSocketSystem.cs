@@ -851,7 +851,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     {
                         handler._groups.Add(perm.Name, new UserGroup()
                         {
-                            BadgeColor = perm.BadgeColor,
+                            BadgeColor = string.IsNullOrEmpty(perm.BadgeColor) ? "none" : perm.BadgeColor,
                             BadgeText = perm.BadgeText,
                             Cover = perm.Cover,
                             HiddenByDefault = perm.Hidden,

@@ -62,5 +62,8 @@ namespace CedMod
         
         [Description("If an update is pending and the server has been empty for the past X time, the plugin will start the autoupdate process (All updates are tested before pushed live)")]
         public int AutoUpdateWait { get; set; } = 5;
+
+        [Description("If bullet holes should be spawned for a player that is globally muted.")]
+        public bool PreventBulletHolesWhenMuted { get; set; } = true;
     }
 }
