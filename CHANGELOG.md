@@ -1,3 +1,3 @@
 
-V: 3.4.8
- - Rerelease for 13.1.0
+V: 3.4.9
+ - Adds support for the Banlists feature, more info on https://cedmod.nl/Changelogs
