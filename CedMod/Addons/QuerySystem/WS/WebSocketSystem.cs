@@ -747,7 +747,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 Data = new Dictionary<string, string>()
                 {
                     {"Message", "VERIFICATIONFEEDBACK"},
-                    {"Result", $"{ServerConsole.Ip} {ServerStatic.ServerPort} {result}"}
+                    {"Result", $"{ServerConsole.Ip} {(ServerConsole.PortOverride == 0 ? ServerStatic.ServerPort : ServerConsole.PortOverride)} {result}"}
                 },
                 Identity = "",
                 Recipient = "PANEL",
