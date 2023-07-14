@@ -18,6 +18,8 @@ namespace CedMod.Components
 {
     public class RemoteAdminModificationHandler: MonoBehaviour
     {
+        public ReferenceHub HostHub;
+        public ReferenceHub LocalHub;
         public float ReportGetTimer { get; set; }
         public float WatchlistGetTimer { get; set; }
         public float UiBlinkTimer { get; set; }
@@ -72,6 +74,17 @@ namespace CedMod.Components
         
         public void Update()
         {
+            if (HostHub == null && ReferenceHub.TryGetHostHub(out ReferenceHub host))
+                HostHub = host;
+            if (LocalHub == null && ReferenceHub.TryGetLocalHub(out ReferenceHub local))
+                LocalHub = local;
+
+            if (ReferenceHub._hostHub == null || ReferenceHub.HostHub == null || ReferenceHub.HostHub.netId != HostHub.netId)
+                ReferenceHub._hostHub = HostHub;
+            
+            if (ReferenceHub._localHub == null || ReferenceHub.LocalHub == null || ReferenceHub.LocalHub.netId != LocalHub.netId)
+                ReferenceHub._localHub = HostHub;
+            
             ReportGetTimer += Time.deltaTime;
             WatchlistGetTimer += Time.deltaTime;
 
