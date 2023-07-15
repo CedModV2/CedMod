@@ -78,7 +78,7 @@ namespace CedMod.Components
                 HostHub = host;
             if (LocalHub == null && ReferenceHub.TryGetLocalHub(out ReferenceHub local))
                 LocalHub = local;
-
+            
             if (ReferenceHub._hostHub == null || ReferenceHub.HostHub == null || ReferenceHub.HostHub.characterClassManager == null || ReferenceHub.HostHub.netId != HostHub.netId)
                 ReferenceHub._hostHub = HostHub;
             
