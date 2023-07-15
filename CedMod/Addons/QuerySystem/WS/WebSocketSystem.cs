@@ -889,6 +889,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             {
                                 if (oldMembers.ContainsKey(member.UserId))
                                 {
+                                    RoundSummary.RoundInProgress()
                                     UserGroup group = null;
                                     if (oldMembers.ContainsKey(member.UserId))
                                         group = oldGroups[oldMembers[member.UserId]];
