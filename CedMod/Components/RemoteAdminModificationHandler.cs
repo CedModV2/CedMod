@@ -85,6 +85,7 @@ namespace CedMod.Components
             if (ReferenceHub._localHub == null || ReferenceHub.LocalHub == null || ReferenceHub.LocalHub.netId != LocalHub.netId)
                 ReferenceHub._localHub = HostHub;
             
+            
             ReportGetTimer += Time.deltaTime;
             WatchlistGetTimer += Time.deltaTime;
 

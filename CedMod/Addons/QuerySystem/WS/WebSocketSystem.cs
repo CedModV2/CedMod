@@ -896,12 +896,8 @@ namespace CedMod.Addons.QuerySystem.WS
                                     
                                     if (group == null || oldMembers[member.UserId] != member.Group || group.Permissions != (ulong)newGroup.Permissions || group.BadgeText != newGroup.BadgeText || group.BadgeColor != newGroup.BadgeColor || group.KickPower != newGroup.KickPower || group.RequiredKickPower != newGroup.RequiredKickPower || group.Cover != newGroup.Cover || group.HiddenByDefault != newGroup.Hidden)
                                     {
-                                        var hidden = player.PlayerInfo.IsBadgeHidden;
-                                        player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false);
-                                        Timing.CallDelayed(0.1f, () =>
-                                        {
-                                            player.PlayerInfo.IsBadgeHidden = hidden;
-                                        });
+                                        var hidden = !string.IsNullOrEmpty(player.ReferenceHub.serverRoles.HiddenBadge);
+                                        player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false, false, hidden);
                                         Log.Info($"Refreshed Permissions from {member.UserId} as they were present and had changes in the AutoSlPerms response while ingame");
                                     }
                                 }
