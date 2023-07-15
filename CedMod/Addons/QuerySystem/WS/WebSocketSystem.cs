@@ -898,7 +898,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                     {
                                         var hidden = !string.IsNullOrEmpty(player.ReferenceHub.serverRoles.HiddenBadge);
                                         player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false, false, !hidden);
-                                        Log.Info($"Refreshed Permissions from {member.UserId} as they were present and had changes in the AutoSlPerms response while ingame");
+                                        Log.Info($"Refreshed Permissions from {member.UserId} with hidden value: {hidden} as they were present and had changes in the AutoSlPerms response while ingame");
                                     }
                                 }
                             }
