@@ -199,11 +199,23 @@ namespace CedMod.Addons.QuerySystem
                 {
                     if (player.ReferenceHub.isLocalPlayer)
                         continue;
+                    bool staff = false;
+
+                    var data = ServerStatic.GetPermissionsHandler();
+                    if (data._members.ContainsKey(player.UserId))
+                    {
+                        var group = data.GetGroup(data._members[player.UserId]);
+                        if (group != null)
+                        {
+                            staff = PermissionsHandler.IsPermitted(group.Permissions, new PlayerPermissions[3] { PlayerPermissions.KickingAndShortTermBanning, PlayerPermissions.BanningUpToDay, PlayerPermissions.LongTermBanning });
+                        }
+                    }
+                    
                     players.Add(new PlayerObject()
                     {
                         DoNotTrack = player.DoNotTrack,
                         Name = player.Nickname,
-                        Staff = PermissionsHandler.IsPermitted(player.ReferenceHub.serverRoles.Permissions, new PlayerPermissions[3] { PlayerPermissions.KickingAndShortTermBanning, PlayerPermissions.BanningUpToDay, PlayerPermissions.LongTermBanning}),
+                        Staff = staff,
                         UserId = player.UserId,
                         PlayerId = player.PlayerId,
                         RoleType = player.Role,
