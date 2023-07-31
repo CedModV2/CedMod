@@ -202,7 +202,7 @@ namespace CedMod.Addons.QuerySystem
                     bool staff = false;
 
                     var data = ServerStatic.GetPermissionsHandler();
-                    if (data._members.ContainsKey(player.UserId))
+                    if (player.UserId != null && data._members.ContainsKey(player.UserId))
                     {
                         var group = data.GetGroup(data._members[player.UserId]);
                         if (group != null)
