@@ -195,16 +195,19 @@ namespace CedMod.Addons.QuerySystem
 
             if (WebSocketSystem.HelloMessage.SendStats)
             {
-                foreach (var player in Player.GetPlayers<CedModPlayer>())
+                foreach (ReferenceHub player in ReferenceHub.AllHubs)
                 {
-                    if (player.ReferenceHub.isLocalPlayer)
+                    if (player.characterClassManager.InstanceMode != ClientInstanceMode.ReadyClient)
+                        continue;
+                    
+                    if (player.isLocalPlayer)
                         continue;
                     bool staff = false;
 
                     var data = ServerStatic.GetPermissionsHandler();
-                    if (player.UserId != null && data._members.ContainsKey(player.UserId))
+                    if (player.characterClassManager.UserId != null && data._members.ContainsKey(player.characterClassManager.UserId))
                     {
-                        var group = data.GetGroup(data._members[player.UserId]);
+                        var group = data.GetGroup(data._members[player.characterClassManager.UserId]);
                         if (group != null)
                         {
                             staff = PermissionsHandler.IsPermitted(group.Permissions, new PlayerPermissions[3] { PlayerPermissions.KickingAndShortTermBanning, PlayerPermissions.BanningUpToDay, PlayerPermissions.LongTermBanning });
@@ -213,13 +216,13 @@ namespace CedMod.Addons.QuerySystem
                     
                     players.Add(new PlayerObject()
                     {
-                        DoNotTrack = player.DoNotTrack,
-                        Name = player.Nickname,
+                        DoNotTrack = player.serverRoles.DoNotTrack,
+                        Name = player.nicknameSync.Network_myNickSync,
                         Staff = staff,
-                        UserId = player.UserId,
+                        UserId = player.characterClassManager.UserId,
                         PlayerId = player.PlayerId,
-                        RoleType = player.Role,
-                        HashedUserId = player.ReferenceHub.serverRoles.SyncHashed
+                        RoleType = player.roleManager.CurrentRole.RoleTypeId,
+                        HashedUserId = player.serverRoles.SyncHashed
                     });
                 }
             }
