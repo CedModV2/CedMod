@@ -102,6 +102,12 @@ namespace CedMod
                 return false;
             if (attacker == player)
                 return false;
+
+            if (attacker.CurrentItem is not null && attacker.CurrentItem.name == "Scp330(Clone)" && !CedModMain.Singleton.Config.CedMod.AutobanPinkCandies)
+            {
+                return false;
+            }
+            
             switch (attacker.Role.GetTeam())
             {
                 case Team.ClassD when player.Role.GetTeam() == Team.ChaosInsurgency:
