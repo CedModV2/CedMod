@@ -23,6 +23,9 @@ namespace CedMod
         [Description("The ban reason of the ban a user gets if the autoban is triggered")]
         public string AutobanReason { get; set; } = "You have been automatically banned for teamkilling";
         
+        [Description("If the autoban will count pink candy teamkills")]
+        public bool AutobanPinkCandies { get; set; } = true;
+        
         [Description("If the autoban will count killing disarmed class D as teamkill")]
         public bool AutobanDisarmedClassDTk { get; set; } = true;
         
