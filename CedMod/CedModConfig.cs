@@ -68,5 +68,12 @@ namespace CedMod
 
         [Description("If bullet holes should be spawned for a player that is globally muted.")]
         public bool PreventBulletHolesWhenMuted { get; set; } = true;
+        
+        [Description("If true Ingame reports are enabled, if false the IngameReportDisabledMessage will be shown to the user.")]
+        public bool EnableIngameReports { get; set; } = true;
+        
+        [Description("If EnableIngameReports is set to false this message will be shown to the user.")]
+        public string IngameReportDisabledMessage { get; set; } = "Ingame reporting is disabled on this server.";
+        
     }
 }

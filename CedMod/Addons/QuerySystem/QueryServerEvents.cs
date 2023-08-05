@@ -209,7 +209,7 @@ namespace CedMod.Addons.QuerySystem
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug("Thread report send");
-                if (QuerySystem.QuerySystemKey == "None")
+                if (QuerySystem.QuerySystemKey == "None" || !CedModMain.Singleton.Config.CedMod.EnableIngameReports)
                     return;
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug("sending report WR");
@@ -277,6 +277,19 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerReport)]
         public bool OnReport(PlayerReportEvent ev)
         {
+            if (!CedModMain.Singleton.Config.CedMod.EnableIngameReports)
+            {
+                if (string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.IngameReportDisabledMessage))
+                {
+                    ev.Player.SendConsoleMessage($"[REPORTING] Ingame reporting is disabled on this server.", "green");
+                    return false;
+                }
+                else
+                {
+                    ev.Player.SendConsoleMessage($"[REPORTING] {CedModMain.Singleton.Config.CedMod.IngameReportDisabledMessage}", "green");
+                    return false;
+                }
+            }
             if (CedModMain.Singleton.Config.QuerySystem.ReportBlacklist.Contains(ev.Player.UserId))
             {
                 ev.Player.SendConsoleMessage($"[REPORTING] You are blacklisted from ingame reporting", "green");
