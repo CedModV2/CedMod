@@ -43,7 +43,7 @@ namespace CedMod.Addons.QuerySystem
                         QuerySystem.QuerySystemKey;
                 }
 
-                Task.Factory.StartNew(async () =>
+                Task.Run(async () =>
                 {
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                         Log.Debug("Checking configs");
@@ -51,6 +51,7 @@ namespace CedMod.Addons.QuerySystem
                     {
                         using (HttpClient client = new HttpClient())
                         {
+                            await VerificationChallenge.AwaitVerification();
                             if (CedModMain.Singleton.Config.QuerySystem.EnableBanreasonSync)
                             {
                                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
@@ -118,7 +119,7 @@ namespace CedMod.Addons.QuerySystem
         {
             Timing.RunCoroutine(SyncStart());
 
-            Task.Factory.StartNew(async delegate
+            Task.Run(async delegate
             {
                 if (!WebSocketSystem.Socket.IsRunning)
                 {
@@ -205,7 +206,7 @@ namespace CedMod.Addons.QuerySystem
         {
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug("sending report WR");
-            Task.Factory.StartNew(async () =>
+            Task.Run(async () =>
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug("Thread report send");
@@ -215,6 +216,7 @@ namespace CedMod.Addons.QuerySystem
                     Log.Debug("sending report WR");
                 using (HttpClient client = new HttpClient())
                 {
+                    await VerificationChallenge.AwaitVerification();
                     try
                     {
                         var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/Reports/{QuerySystem.QuerySystemKey}",
@@ -321,7 +323,7 @@ namespace CedMod.Addons.QuerySystem
             
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug("sending report WR");
-            Task.Factory.StartNew(async () =>
+            Task.Run(async () =>
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug("Thread report send");    
@@ -331,6 +333,7 @@ namespace CedMod.Addons.QuerySystem
                     Log.Debug("sending report WR");
                 using (HttpClient client = new HttpClient())
                 {
+                    await VerificationChallenge.AwaitVerification();
                     try
                     {
                         ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>

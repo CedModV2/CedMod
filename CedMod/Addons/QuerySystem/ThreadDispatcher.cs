@@ -98,7 +98,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     lock (WebSocketSystem.reconnectLock)
                     {
-                        Task.Factory.StartNew(async () =>
+                        Task.Run(async () =>
                         {
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: WS Sendthread not alive, restarting WS");
@@ -113,7 +113,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     lock (WebSocketSystem.reconnectLock)
                     {
-                        Task.Factory.StartNew(async () =>
+                        Task.Run(async () =>
                         { 
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: WS inactive out of reconnect mode without activity for 1 minutes, restarting WS");
@@ -128,7 +128,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     lock (WebSocketSystem.reconnectLock)
                     {
-                        Task.Factory.StartNew(async () =>
+                        Task.Run(async () =>
                         { 
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: WS inactive in reconnect mode without activity for 2 minutes, restarting WS");
@@ -143,7 +143,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     lock (WebSocketSystem.reconnectLock)
                     {
-                        Task.Factory.StartNew(async () =>
+                        Task.Run(async () =>
                         { 
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: no activity for 3 minutes, restarting WS");

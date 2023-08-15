@@ -84,7 +84,7 @@ namespace CedMod.Patches
 						VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.None);
 						if (!string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.MuteCustomInfo))
 							plr.CustomInfo = "";
-						Task.Factory.StartNew(async () =>
+						Task.Run(async () =>
 						{
 							await API.UnMute(plr);
 						});

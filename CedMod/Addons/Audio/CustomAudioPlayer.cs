@@ -50,6 +50,9 @@ namespace CedMod.Addons.Audio
             HttpStatusCode code = HttpStatusCode.OK;
             using (HttpClient client = new HttpClient())
             {
+                var t = VerificationChallenge.AwaitVerification();
+                yield return Timing.WaitUntilTrue(() => t.IsCompleted);
+                
                 var respTask = client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/RetrieveAudio/{QuerySystem.QuerySystemKey}?track={CurrentPlay}");
                 yield return Timing.WaitUntilTrue(() => respTask.IsCompleted);
                 var resp = respTask.Result;

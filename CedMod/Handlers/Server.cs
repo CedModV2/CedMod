@@ -31,7 +31,7 @@ namespace CedMod.Handlers
             AudioCommand.FakeConnectionsIds.Clear();
             RemoteAdminModificationHandler.IngameUserPreferencesMap.Clear();
             RemoteAdminModificationHandler.Singleton.Requesting.Clear();
-            Task.Factory.StartNew(() =>
+            Task.Run(() =>
             {
                 lock (BanSystem.CachedStates)
                 {

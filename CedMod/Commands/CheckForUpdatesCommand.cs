@@ -32,7 +32,7 @@ namespace CedMod.Commands
             AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
             if (!CedModMain.Singleton.Config.CedMod.AutoUpdate)
             {
-                Task.Factory.StartNew(() =>
+                Task.Run(() =>
                 {
                     var data = updater.CheckForUpdates(true);
                     if (data != null)

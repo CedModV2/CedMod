@@ -21,11 +21,10 @@ namespace CedMod.Addons.QuerySystem
             {
                 using (HttpClient client = new HttpClient())
                 {
+                    await VerificationChallenge.AwaitVerification();
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Getting Prefs.");
-                    var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" +
-                                                         QuerySystem.CurrentMaster +
-                                                         $"/ServerPreference/GetServerPreference/{QuerySystem.QuerySystemKey}");
+                    var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/ServerPreference/GetServerPreference/{QuerySystem.QuerySystemKey}");
                     if (response.IsSuccessStatusCode)
                     {
                         var data = JsonConvert.DeserializeObject<ServerPreferenceModel>(

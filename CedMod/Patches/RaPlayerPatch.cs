@@ -258,6 +258,8 @@ namespace CedMod.Patches
                     var code = HttpStatusCode.OK;
                     using (HttpClient client = new HttpClient())
                     {
+                        var t = VerificationChallenge.AwaitVerification();
+                        yield return Timing.WaitUntilTrue(() => t.IsCompleted);
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                         var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + API.APIUrl + $"/Auth/{characterClassManager.UserId}&{connectionToClient.address}?banLists={string.Join(",", ServerPreferences.Prefs.BanListWriteBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&banListWarns={string.Join(",", ServerPreferences.Prefs.BanListReadWarns.Select(s => s.Id))}"));
                         yield return Timing.WaitUntilTrue(() => respTask.IsCompleted);
@@ -297,6 +299,8 @@ namespace CedMod.Patches
                     
                     using (HttpClient client = new HttpClient())
                     {
+                        var t = VerificationChallenge.AwaitVerification();
+                        yield return Timing.WaitUntilTrue(() => t.IsCompleted);
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                         var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/RequestData/{QuerySystem.QuerySystemKey}/{characterClassManager.UserId}"));
                         yield return Timing.WaitUntilTrue(() => respTask.IsCompleted);

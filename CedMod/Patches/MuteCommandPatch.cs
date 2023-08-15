@@ -125,7 +125,7 @@ namespace CedMod.Patches
 						
 						if (!string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.MuteCustomInfo))
 							plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", MuteType.Global.ToString());
-						Task.Factory.StartNew(async () =>
+						Task.Run(async () =>
 						{
 							await API.Mute(plr, sender.LogName, num, text, MuteType.Global);
 						});

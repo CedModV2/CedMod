@@ -19,7 +19,7 @@ namespace CedMod.Addons.QuerySystem.Patches
         {
             if (!WebSocketSystem.UseRa)
             {
-                Task.Factory.StartNew(() => { WebSocketSystem.ApplyRa(); });
+                Task.Run(() => { WebSocketSystem.ApplyRa(); });
                 return false;
             }
 

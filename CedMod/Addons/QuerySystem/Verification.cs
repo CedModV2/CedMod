@@ -25,6 +25,7 @@ namespace CedMod.Addons.QuerySystem
             
             using (HttpClient client = new HttpClient())
             {
+                await VerificationChallenge.AwaitVerification();
                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                     Log.Debug($"Getting Id.");
                 var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Verification/GetId/{QuerySystem.QuerySystemKey}?ip={ServerConsole.Ip}&port={(ServerConsole.PortOverride == 0 ? ServerStatic.ServerPort : ServerConsole.PortOverride)}");
@@ -61,6 +62,7 @@ namespace CedMod.Addons.QuerySystem
                 first = false;
                 using (HttpClient client = new HttpClient())
                 {
+                    await VerificationChallenge.AwaitVerification();
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"verifying Id.");
                     var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Verification/ConfirmId/{QuerySystem.QuerySystemKey}?ip={ServerConsole.Ip}&port={(ServerConsole.PortOverride == 0 ? ServerStatic.ServerPort : ServerConsole.PortOverride)}&queryId={ServerId}");

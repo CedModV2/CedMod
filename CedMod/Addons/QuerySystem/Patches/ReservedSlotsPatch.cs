@@ -551,7 +551,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 							return;
 
 
-						Task.Factory.StartNew(async () =>
+						Task.Run(async () =>
 						{
 							string id = userId;
 							string ip = realIp ?? request.RemoteEndPoint.Address.ToString();

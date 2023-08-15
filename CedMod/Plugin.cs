@@ -251,10 +251,11 @@ namespace CedMod
             if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt")))
             {
                 // Start the HTTP server.
-                Task.Factory.StartNew(async () =>
+                Task.Run(async () =>
                 {
                     try
                     {
+                        await VerificationChallenge.AwaitVerification();
                         await WebSocketSystem.Start();
                     }
                     catch (Exception e)

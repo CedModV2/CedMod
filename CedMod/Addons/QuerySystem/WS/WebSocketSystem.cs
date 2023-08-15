@@ -89,6 +89,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 Dictionary<string, string> data2 = new Dictionary<string, string>();
                 using (HttpClient client = new HttpClient())
                 {
+                    await VerificationChallenge.AwaitVerification();
                     var resp = await client.SendAsync(new HttpRequestMessage()
                     {
                         Method = HttpMethod.Options,
@@ -140,7 +141,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         await Task.Delay(2000);
                         lock (reconnectLock)
                         {
-                            Task.Factory.StartNew(async () =>
+                            Task.Run(async () =>
                             { 
                                 WebSocketSystem.Reconnect = false;
                                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
@@ -166,7 +167,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         await Task.Delay(5000);
                         lock (reconnectLock)
                         {
-                            Task.Factory.StartNew(async () =>
+                            Task.Run(async () =>
                             {
                                 try
                                 {
@@ -366,7 +367,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         case "reportstateack":
                         case "reportack":
                             Log.Info("Updating Reports list from panel ack.");
-                            Task.Factory.StartNew(() =>
+                            Task.Run(() =>
                             {
                                 RemoteAdminModificationHandler.UpdateReportList();
                                 if (text2 == "reportack")
@@ -642,6 +643,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             Log.Info($"Panel requested refresh of api key: {jsonData["Reason"]}");
                             using (HttpClient client = new HttpClient())
                             {
+                                await VerificationChallenge.AwaitVerification();
                                 var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/FetchKey/{QuerySystem.QuerySystemKey}", new StringContent(JsonConvert.SerializeObject(new
                                 {
                                     Hash = jsonData["Hash"]
@@ -767,6 +769,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 {
                     using (HttpClient client = new HttpClient())
                     {
+                        VerificationChallenge.AwaitVerification().Wait();
                         var responsePerms = client.SendAsync(new HttpRequestMessage()
                         {
                             Method = HttpMethod.Options,

@@ -43,6 +43,7 @@ namespace CedMod
                 {
                     using (HttpClient client = new HttpClient())
                     {
+                        await VerificationChallenge.AwaitVerification();
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                         resp = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint + arguments);
                         response = await resp.Content.ReadAsStringAsync();
@@ -53,6 +54,7 @@ namespace CedMod
                 {
                     using (HttpClient client = new HttpClient())
                     {
+                        await VerificationChallenge.AwaitVerification();
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                         resp = await client.DeleteAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint + arguments);
                         response = await resp.Content.ReadAsStringAsync();
@@ -63,6 +65,7 @@ namespace CedMod
                 {
                     using (HttpClient client = new HttpClient())
                     {
+                        await VerificationChallenge.AwaitVerification();
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                         resp = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json"));
                         response = await resp.Content.ReadAsStringAsync();

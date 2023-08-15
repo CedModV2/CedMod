@@ -30,7 +30,7 @@ namespace CedMod.Addons.QuerySystem.Commands
                 return false;
             }
 
-            Task.Factory.StartNew(async () =>
+            Task.Run(async () =>
             { 
                 WebSocketSystem.Stop();
                 await WebSocketSystem.Start();

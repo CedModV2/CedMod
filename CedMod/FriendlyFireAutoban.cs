@@ -74,7 +74,7 @@ namespace CedMod
                         if ((!attackerHasFFImmunity || ignoreImmunity) && s.Value >= threshold)
                         {
                             Log.Info( $"Player: {attacker.Nickname} {attacker.PlayerId.ToString()} {attacker.UserId} exceeded teamkill limit");
-                            Task.Factory.StartNew(async () =>
+                            Task.Run(async () =>
                             {
                                 await API.Ban(attacker, (long) banDuration.TotalSeconds, "Server.Module.FriendlyFireAutoban", banReason, false);
                             });

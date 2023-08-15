@@ -325,7 +325,7 @@ namespace CedMod.Addons.QuerySystem
 
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug("sending WR");
-                Task.Factory.StartNew(async () =>
+                Task.Run(async () =>
                 {
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                         Log.Debug("Thread send");
@@ -335,10 +335,10 @@ namespace CedMod.Addons.QuerySystem
                         Log.Debug("sending WR");
                     using (HttpClient client = new HttpClient())
                     {
+                        await VerificationChallenge.AwaitVerification();
                         try
                         {
-                            var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/Teamkill/{QuerySystem.QuerySystemKey}?v=2", new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8,
-                                        "application/json"));
+                            var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/Teamkill/{QuerySystem.QuerySystemKey}?v=2", new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json"));
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                 Log.Debug(await response.Content.ReadAsStringAsync());
                         }
