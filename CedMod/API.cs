@@ -35,6 +35,11 @@ namespace CedMod
 
         public static async Task<object> APIRequest(string endpoint, string arguments, bool returnstring = false, string type = "GET")
         {
+            if (VerificationChallenge.CompletedChallenge)
+            {
+                Log.Error($"API request failed: Challenge not complete");
+                return null;
+            }
             string response = "";  
             try
             {
