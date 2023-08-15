@@ -1,3 +1,3 @@
 
-V: 3.4.9
- - Adds support for the Banlists feature, more info on https://cedmod.nl/Changelog
+V: 3.4.10
+ - Adds support for the backend changes regarding ddos protection.
