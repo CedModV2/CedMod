@@ -1,3 +1,3 @@
 
-V: 3.4.10
- - Adds support for the backend changes regarding ddos protection.
+V: 3.4.11
+- Added support for the Whitelist system on the panel.
