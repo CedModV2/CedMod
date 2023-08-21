@@ -770,6 +770,75 @@ namespace CedMod.Addons.QuerySystem.WS
                     using (HttpClient client = new HttpClient())
                     {
                         VerificationChallenge.AwaitVerification().Wait();
+                        
+                        try
+                        {
+                            var responseWhitelist = client.SendAsync(new HttpRequestMessage()
+                            {
+                                Method = HttpMethod.Options,
+                                RequestUri = new Uri($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/GetWhitelist/{QuerySystem.QuerySystemKey}"),
+                            }).Result;
+
+                            if (responseWhitelist.IsSuccessStatusCode)
+                            {
+                                var data = responseWhitelist.Content.ReadAsStringAsync().Result;
+                                List<string> whitelist = JsonConvert.DeserializeObject<List<string>>(data);
+                                QuerySystem.Whitelist = whitelist;
+                                QuerySystem.UseWhitelist = true;
+                                ServerConsole.WhiteListEnabled = true;
+                                if (Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
+                                {
+                                    File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json"), data);
+                                }
+                                Log.Info("Loaded whitelist from Api");
+                                CheckWhitelist();
+                            }
+                            else if (responseWhitelist.StatusCode == HttpStatusCode.BadRequest)
+                            {
+                                QuerySystem.Whitelist = new List<string>();
+                                QuerySystem.UseWhitelist = false;
+                                ServerConsole.WhiteListEnabled = false;
+                                if (Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
+                                {
+                                    if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json")))
+                                    {
+                                        File.Delete(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json"));
+                                        Log.Info("Removed whitelist as whitelist is inactive.");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
+                                {
+                                    if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json")))
+                                    {
+                                        List<string> whitelist = JsonConvert.DeserializeObject<List<string>>(File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json")));
+                                        QuerySystem.Whitelist = whitelist;
+                                        QuerySystem.UseWhitelist = true;
+                                        ServerConsole.WhiteListEnabled = true;
+                                        Log.Info("Loaded whitelist from file");
+                                        CheckWhitelist();
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error($"Failed to check for whitelist {e}");
+                            if (Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
+                            {
+                                if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json")))
+                                {
+                                    List<string> whitelist = JsonConvert.DeserializeObject<List<string>>(File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json")));
+                                    QuerySystem.Whitelist = whitelist;
+                                    QuerySystem.UseWhitelist = true;
+                                    Log.Info("Loaded whitelist from file");
+                                    CheckWhitelist();
+                                }
+                            }
+                        }
+                        
                         var responsePerms = client.SendAsync(new HttpRequestMessage()
                         {
                             Method = HttpMethod.Options,
@@ -936,6 +1005,20 @@ namespace CedMod.Addons.QuerySystem.WS
                     UseRa = true;
                     Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
                     ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
+                }
+            }
+        }
+
+        private static void CheckWhitelist()
+        {
+            if (QuerySystem.UseWhitelist)
+            {
+                foreach (CedModPlayer plr in Player.GetPlayers<CedModPlayer>())
+                {
+                    if (!plr.ReferenceHub.serverRoles.Staff && !plr.UserId.EndsWith("@northwood") && !QuerySystem.Whitelist.Contains(plr.UserId) && !WhiteList.Users.Contains(plr.UserId))
+                    {
+                        Timing.RunCoroutine(API.StrikeBad(plr, "You are not whitelisted on this server."));
+                    }
                 }
             }
         }

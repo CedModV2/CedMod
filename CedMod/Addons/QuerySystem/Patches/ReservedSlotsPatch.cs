@@ -482,12 +482,22 @@ namespace CedMod.Addons.QuerySystem.Patches
 						return;
 					}
 
-					if (!(flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreWhitelist) &&
-					      ServerStatic.GetPermissionsHandler().IsVerified) && !WhiteList.IsWhitelisted(userId))
+					if (!(flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreWhitelist) && ServerStatic.GetPermissionsHandler().IsVerified) && !WhiteList.IsWhitelisted(userId) && !QuerySystem.Whitelist.Contains(userId))
 					{
 						if (CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
-							ServerConsole.AddLog(
-								$"Player {userId} tried joined from endpoint {ep}, but is not whitelisted.");
+							ServerConsole.AddLog($"Player {userId} tried joined from endpoint {ep}, but is not whitelisted.");
+
+						CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
+						CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.NotWhitelisted);
+						request.Reject(CustomLiteNetLib4MirrorTransport.RequestWriter);
+						CustomLiteNetLib4MirrorTransport.ResetIdleMode();
+						return;
+					}
+
+					if (!(flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreWhitelist) && ServerStatic.GetPermissionsHandler().IsVerified) && QuerySystem.UseWhitelist && !QuerySystem.Whitelist.Contains(userId) && !WhiteList.Users.Contains(userId))
+					{
+						if (CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
+							ServerConsole.AddLog($"Player {userId} tried joined from endpoint {ep}, but is not whitelisted.");
 
 						CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
 						CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.NotWhitelisted);

@@ -73,5 +73,7 @@ namespace CedMod.Addons.QuerySystem
         public static string DevPanelUrl = "gameapi.dev.cedmod.nl";
         public static bool UseSSL = true;
         public static bool IsDev { get; set; }
+        public static List<string> Whitelist { get; set; }
+        public static bool UseWhitelist = false;
     }
 }

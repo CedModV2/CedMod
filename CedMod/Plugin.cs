@@ -180,7 +180,7 @@ namespace CedMod
             catch (Exception e)
             {
                 PluginAPI.Core.Log.Error($"Failed to patch: {e.ToString()}");
-                _harmony.UnpatchAll();
+                _harmony.UnpatchAll(_harmony.Id);
                 PluginAPI.Events.EventManager.UnregisterAllEvents(this);
             }
 

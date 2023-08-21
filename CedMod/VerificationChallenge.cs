@@ -23,9 +23,15 @@ namespace CedMod
         {
             try
             {
+                if (QuerySystem.IsDev)
+                {
+                    CompletedChallenge = true;
+                    return;
+                }
+                
                 if (!ChallengeStarted)
                     await PerformVerification();
-
+                
                 while (!CompletedChallenge)
                 {
                     await Task.Delay(100);
@@ -41,6 +47,11 @@ namespace CedMod
 
         public static async Task PerformVerification(string key = "", bool ignore = false)
         {
+            if (QuerySystem.IsDev)
+            {
+                CompletedChallenge = true;
+                return;
+            }
             if (ChallengeStarted && !ignore)
                 return;
 
