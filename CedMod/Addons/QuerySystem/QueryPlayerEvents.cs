@@ -255,7 +255,7 @@ namespace CedMod.Addons.QuerySystem
                     RoleType = ev.Attacker.Role,
                     UserId = ev.Attacker.UserId,
                     Killer = true,
-                    Room = killerRoom.name
+                    Room = killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
                 });
 
                 data.PlayersOnScene.Add(new UsersOnScene()
@@ -266,26 +266,29 @@ namespace CedMod.Addons.QuerySystem
                     RoleType = ev.Player.Role,
                     UserId = ev.Player.UserId,
                     Victim = true,
-                    Room = targetRoom.name
+                    Room = targetRoom == null ? "Unknown" : targetRoom.Zone.ToString()
                 });
-                
-                 data.RoomsInvolved.Add(new RoomsInvolved()
-                 {
-                     Position = killerRoom.transform.position.ToString(),
-                     Rotation = killerRoom.transform.rotation.ToString(),
-                     RoomType = killerRoom.Name.ToString()
-                 });
 
-                 if (!data.RoomsInvolved.Any(s => s.RoomType == targetRoom.Name.ToString() && s.Position == targetRoom.transform.position.ToString()))
-                 {
-                     data.RoomsInvolved.Add(new RoomsInvolved()
-                     {
-                         Position = targetRoom.transform.position.ToString(),
-                         Rotation = targetRoom.transform.rotation.ToString(),
-                         RoomType = targetRoom.name.ToString()
-                     });
-                 }
+                if (targetRoom != null && !data.RoomsInvolved.Any(s => s.RoomType == targetRoom.Name.ToString() && s.Position == targetRoom.transform.position.ToString()))
+                {
+                    data.RoomsInvolved.Add(new RoomsInvolved()
+                    {
+                        Position = targetRoom.transform.position.ToString(),
+                        Rotation = targetRoom.transform.rotation.ToString(),
+                        RoomType = targetRoom.Name.ToString()
+                    });
+                }
                 
+                if (killerRoom != null && !data.RoomsInvolved.Any(s => s.RoomType == killerRoom.Name.ToString() && s.Position == killerRoom.transform.position.ToString()))
+                {
+                    data.RoomsInvolved.Add(new RoomsInvolved()
+                    {
+                        Position = killerRoom.transform.position.ToString(),
+                        Rotation = killerRoom.transform.rotation.ToString(),
+                        RoomType = killerRoom.Name.ToString()
+                    });
+                }
+
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug("resolving on scene players");
                 foreach (var bystanders in Player.GetPlayers<CedModPlayer>())
@@ -299,7 +302,7 @@ namespace CedMod.Addons.QuerySystem
                     if (distance <= 60 && data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId))
                     {
                         RoomIdentifier bystanderRoom = RoomIdUtils.RoomAtPosition(bystanders.Position);
-                        if (!data.RoomsInvolved.Any(s => s.RoomType == targetRoom.Name.ToString() && s.Position == targetRoom.transform.position.ToString()))
+                        if (bystanderRoom != null && !data.RoomsInvolved.Any(s => s.RoomType == bystanderRoom.Name.ToString() && s.Position == bystanderRoom.transform.position.ToString()))
                         {
                             data.RoomsInvolved.Add(new RoomsInvolved()
                             {
@@ -317,7 +320,7 @@ namespace CedMod.Addons.QuerySystem
                             RoleType = bystanders.Role,
                             UserId = bystanders.UserId,
                             Bystander = true,
-                            Room = bystanderRoom.Name.ToString()
+                            Room = bystanderRoom == null ? "Unknown" : bystanderRoom.Zone.ToString()
                         });
                     }
                 }
