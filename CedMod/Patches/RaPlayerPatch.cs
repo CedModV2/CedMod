@@ -461,7 +461,8 @@ namespace CedMod.Patches
                     }
 
                     index = open.IndexOf(report);
-                    Log.Debug($"Rept 8 {index} {targetIndex}");
+                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                        Log.Debug($"Rept 8 {index} {targetIndex}");
 
                     if (index == 0)
                     {
@@ -658,7 +659,8 @@ namespace CedMod.Patches
 
                         index = inProgress.IndexOf(report);
 
-                        Log.Debug($"Rept 8 {index} {targetIndex}");
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug($"Rept 8 {index} {targetIndex}");
 
                         if (index == 0)
                         {
