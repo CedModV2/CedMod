@@ -25,18 +25,18 @@ namespace CedMod.Addons.AdminSitSystem
             new AdminSitLocation()
             {
                 InUse = false,
-                SpawnPosition = new Vector3(130.847f, 994.308f, 21.027f)
-            },
-            new AdminSitLocation()
-            {
-                InUse = false,
                 SpawnPosition = new Vector3(38.558f, 1014.676f, -32.289f)
             },
             new AdminSitLocation()
             {
                 InUse = false,
-                SpawnPosition = new Vector3(15.156f, 1014.676f, -32.289f)
+                SpawnPosition = new Vector3(130.847f, 994.308f, 21.027f)
             },
+            //new AdminSitLocation()
+            //{
+            //    InUse = false,
+            //    SpawnPosition = new Vector3(15.156f, 1014.676f, -32.289f)
+            //},
             new AdminSitLocation()
             {
                 InUse = false,
