@@ -254,7 +254,7 @@ namespace CedMod.Addons.QuerySystem
                             ScpSlVersion = $"{Version.Major}.{Version.Minor}.{Version.Revision}",
                             FileHash = CedModMain.FileHash,
                             KeyHash = CedModMain.GetHashCode(CedModMain.Singleton.Config.CedMod.CedModApiKey, new MD5CryptoServiceProvider()),
-                            IsVerified = ServerStatic.PermissionsHandler.IsVerified
+                            IsVerified = CustomNetworkManager.IsVerified
                         })
                     }
                 }

@@ -671,7 +671,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         case "VerificationCheck":
                             try
                             {
-                                if (!ServerStatic.PermissionsHandler.IsVerified || IsCheckingToken)
+                                if (!CustomNetworkManager.IsVerified || IsCheckingToken)
                                     return;
                                 IsCheckingToken = true;
 

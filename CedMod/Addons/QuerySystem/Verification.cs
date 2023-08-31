@@ -16,7 +16,7 @@ namespace CedMod.Addons.QuerySystem
         
         public static async Task ObtainId()
         {
-            while (ServerStatic.PermissionsHandler == null || !ServerStatic.PermissionsHandler.IsVerified)
+            while (ServerStatic.PermissionsHandler == null || !CustomNetworkManager.IsVerified)
             {
                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                     Log.Debug($"Verification paused as server is not verified.");

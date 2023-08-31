@@ -423,8 +423,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 						CustomLiteNetLib4MirrorTransport.UserRateLimit.Add(userId);
 					}
 
-					if (!flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreBans) ||
-					    !ServerStatic.GetPermissionsHandler().IsVerified)
+					if (!flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreBans) || !CustomNetworkManager.IsVerified)
 					{
 						var ban = BanHandler.QueryBan(userId, realIp ?? request.RemoteEndPoint.Address.ToString());
 						if (ban.Key != null || ban.Value != null)
@@ -469,8 +468,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 						return;
 					}
 
-					if (flags.HasFlagFast(CentralAuthPreauthFlags.GloballyBanned) &&
-					    (ServerStatic.PermissionsHandler.IsVerified || CustomLiteNetLib4MirrorTransport.UseGlobalBans))
+					if (flags.HasFlagFast(CentralAuthPreauthFlags.GloballyBanned) && (CustomNetworkManager.IsVerified || CustomLiteNetLib4MirrorTransport.UseGlobalBans))
 					{
 						if (CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
 							ServerConsole.AddLog($"Player {userId} ({ep}) kicked due to an active global ban.");
@@ -482,7 +480,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 						return;
 					}
 
-					if (!(flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreWhitelist) && ServerStatic.GetPermissionsHandler().IsVerified) && !WhiteList.IsWhitelisted(userId) && !QuerySystem.Whitelist.Contains(userId))
+					if (!(flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreWhitelist) && CustomNetworkManager.IsVerified) && !WhiteList.IsWhitelisted(userId) && !QuerySystem.Whitelist.Contains(userId))
 					{
 						if (CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
 							ServerConsole.AddLog($"Player {userId} tried joined from endpoint {ep}, but is not whitelisted.");
@@ -494,7 +492,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 						return;
 					}
 
-					if (!(flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreWhitelist) && ServerStatic.GetPermissionsHandler().IsVerified) && QuerySystem.UseWhitelist && !QuerySystem.Whitelist.Contains(userId) && !WhiteList.Users.Contains(userId))
+					if (!(flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreWhitelist) && CustomNetworkManager.IsVerified) && QuerySystem.UseWhitelist && !QuerySystem.Whitelist.Contains(userId) && !WhiteList.Users.Contains(userId))
 					{
 						if (CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
 							ServerConsole.AddLog($"Player {userId} tried joined from endpoint {ep}, but is not whitelisted.");

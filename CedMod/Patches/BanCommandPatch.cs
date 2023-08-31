@@ -134,7 +134,7 @@ namespace CedMod.Patches
 							(text == string.Empty) ? "(none)" : text,
 							"."
 						}), ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging);
-						if (ServerStatic.PermissionsHandler.IsVerified && referenceHub.serverRoles.BypassStaff)
+						if (CustomNetworkManager.IsVerified && referenceHub.serverRoles.BypassStaff)
 						{
 							BanPlayer.KickUser(referenceHub, text);
 						}
