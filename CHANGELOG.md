@@ -1,3 +1,3 @@
 
-V: 3.4.11
-- Added support for the Whitelist system on the panel.
+V: 3.4.12
+ - Updated for scpsl 13.2.0
