@@ -479,6 +479,18 @@ namespace CedMod.Addons.QuerySystem.WS
                                     }));
                                 }
 
+                                if (CedModMain.Singleton.Config.QuerySystem.RejectRemoteCommands)
+                                {
+                                    Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                                    {
+                                        Recipient = cmd.Recipient,
+                                        Data = new Dictionary<string, string>()
+                                        {
+                                            { "Message", "Remote commands is disabled, features may not function as intended, to resolve, enabled RejectRemoteCommands in the QueryServer section of the CedMod plugin config" }
+                                        }
+                                    }));
+                                }
+
                                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                     Log.Debug("CustomCommandCheckPerm");
                                 if (ServerStatic.PermissionsHandler._members.ContainsKey(jsonData["user"]))

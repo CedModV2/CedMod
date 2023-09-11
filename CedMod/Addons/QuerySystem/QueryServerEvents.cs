@@ -27,6 +27,11 @@ namespace CedMod.Addons.QuerySystem
                 yield return Timing.WaitForSeconds(3);
             else
                 yield return Timing.WaitForSeconds(0.2f);
+
+            if (CedModMain.Singleton.Config.QuerySystem.RejectRemoteCommands)
+            {
+                Log.Warning("You have RejectRemoteCommands enabled in the CedMod QuerySystem config, features such as RemoteCommands, EventManager, and more");
+            }
             
             if (QuerySystem.QuerySystemKey != "None")
             {
