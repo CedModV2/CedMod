@@ -455,8 +455,8 @@ namespace CedMod.Addons.QuerySystem.WS
                                 {
                                     ' '
                                 });
-                                if (jsonData["command"].ToUpper().Contains("REQUEST_DATA AUTH") ||
-                                    jsonData["command"].ToUpper().Contains("SUDO QUIT"))
+                                
+                                if (jsonData["command"].ToUpper().Contains("REQUEST_DATA AUTH") || jsonData["command"].ToUpper().Contains("SUDO QUIT"))
                                 {
                                     Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                                     {
@@ -468,7 +468,8 @@ namespace CedMod.Addons.QuerySystem.WS
                                     }));
                                     return;
                                 }
-                                else if (CedModMain.Singleton.Config.QuerySystem.DisallowedWebCommands.Contains(array[0].ToUpper()))
+                                
+                                if (CedModMain.Singleton.Config.QuerySystem.DisallowedWebCommands.Contains(array[0].ToUpper()))
                                 {
                                     Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                                     {
