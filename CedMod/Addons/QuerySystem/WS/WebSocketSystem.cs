@@ -466,6 +466,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                             { "Message", "This command is disabled" }
                                         }
                                     }));
+                                    return;
                                 }
                                 else if (CedModMain.Singleton.Config.QuerySystem.DisallowedWebCommands.Contains(array[0].ToUpper()))
                                 {
@@ -477,6 +478,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                             { "Message", "This command is disabled" }
                                         }
                                     }));
+                                    return;
                                 }
 
                                 if (CedModMain.Singleton.Config.QuerySystem.RejectRemoteCommands)
@@ -489,6 +491,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                             { "Message", "Remote commands is disabled, features may not function as intended, to resolve, enabled RejectRemoteCommands in the QueryServer section of the CedMod plugin config" }
                                         }
                                     }));
+                                    return;
                                 }
 
                                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
