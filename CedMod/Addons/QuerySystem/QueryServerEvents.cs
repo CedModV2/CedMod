@@ -30,7 +30,7 @@ namespace CedMod.Addons.QuerySystem
 
             if (CedModMain.Singleton.Config.QuerySystem.RejectRemoteCommands)
             {
-                Log.Warning("You have RejectRemoteCommands enabled in the CedMod QuerySystem config, features such as RemoteCommands, EventManager, and more");
+                Log.Warning("You have RejectRemoteCommands enabled in the CedMod QuerySystem config, features such as RemoteCommands, EventManager, and more will not function correctly");
             }
             
             if (QuerySystem.QuerySystemKey != "None")
