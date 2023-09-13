@@ -57,7 +57,7 @@ namespace CedMod
         public static PluginHandler Handler;
 #endif
 
-        public const string PluginVersion = "3.4.12";
+        public const string PluginVersion = "3.4.13";
 
 #if !EXILED
         [PluginConfig]
@@ -442,7 +442,7 @@ namespace CedMod
             if ((arg2 != ClientInstanceMode.Unverified || arg2 != ClientInstanceMode.Host) && AudioCommand.FakeConnectionsIds.ContainsValue(arg1))
             {
                 Log.Info($"Replaced instancemode for dummy to host.");
-                arg1.characterClassManager.InstanceMode = ClientInstanceMode.Host;
+                arg1.authManager.InstanceMode = ClientInstanceMode.Host;
             }
         }
 
