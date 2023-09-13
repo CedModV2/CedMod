@@ -55,7 +55,7 @@ namespace CedMod.Commands
             Color lightColors = new Color(r, g, b);
             foreach (RoomLightController flc in RoomLightController.Instances)
             {
-                flc.OverrideColor = lightColors;
+                flc.NetworkOverrideColor = lightColors;
             }
 
             response = "Light intensity set to " + lightColors;

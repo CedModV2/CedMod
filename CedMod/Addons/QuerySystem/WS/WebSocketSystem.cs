@@ -984,9 +984,12 @@ namespace CedMod.Addons.QuerySystem.WS
                                     
                                     if (group == null || oldMembers[member.UserId] != member.Group || group.Permissions != (ulong)newGroup.Permissions || group.BadgeText != newGroup.BadgeText || group.BadgeColor != newGroup.BadgeColor || group.KickPower != newGroup.KickPower || group.RequiredKickPower != newGroup.RequiredKickPower || group.Cover != newGroup.Cover || group.HiddenByDefault != newGroup.Hidden)
                                     {
-                                        var hidden = !string.IsNullOrEmpty(player.ReferenceHub.serverRoles.HiddenBadge);
-                                        player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false, false, !hidden);
-                                        Log.Info($"Refreshed Permissions from {member.UserId} with hidden value: {hidden} as they were present and had changes in the AutoSlPerms response while ingame");
+                                        ThreadDispatcher.ThreadDispatchQueue.Enqueue((() =>
+                                        {
+                                            var hidden = !string.IsNullOrEmpty(player.ReferenceHub.serverRoles.HiddenBadge);
+                                            player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false, false, !hidden);
+                                            Log.Info($"Refreshed Permissions from {member.UserId} with hidden value: {hidden} as they were present and had changes in the AutoSlPerms response while ingame");
+                                        }));
                                     }
                                 }
                             }
@@ -1008,9 +1011,12 @@ namespace CedMod.Addons.QuerySystem.WS
                         {
                             if (permsSlRequest.MembersList.All(s => s.UserId != member.Key))
                             {
-                                Log.Info(member.Key + " 3");
-                                CedModPlayer.Get(member.Key).ReferenceHub.serverRoles.SetGroup(null, false);
-                                Log.Info($"Removed Permissions from {member.Key} as they were no longer present in the AutoSlPerms response while ingame");
+                                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                                {
+                                    Log.Info(member.Key + " 3");
+                                    CedModPlayer.Get(member.Key).ReferenceHub.serverRoles.SetGroup(null, false);
+                                    Log.Info($"Removed Permissions from {member.Key} as they were no longer present in the AutoSlPerms response while ingame");
+                                });
                             }
                         }
                     }
