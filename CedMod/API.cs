@@ -235,7 +235,14 @@ namespace CedMod
 
         public static IEnumerator<float> StrikeBad(CedModPlayer player, string reason)
         {
-            player.ReferenceHub.playerStats.KillPlayer(new DisruptorDamageHandler(new Footprint(player.ReferenceHub), -1));
+            try
+            {
+                player.ReferenceHub.playerStats.KillPlayer(new DisruptorDamageHandler(new Footprint(player.ReferenceHub), -1));
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Failed to kill for kick: {e}");
+            }
             yield return Timing.WaitForSeconds(0.1f);
             int count = 5;
             while (count >= 0)

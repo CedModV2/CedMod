@@ -1033,18 +1033,32 @@ namespace CedMod.Addons.QuerySystem.WS
 
         private static void CheckWhitelist()
         {
-            if (QuerySystem.UseWhitelist)
+            try
             {
-                foreach (ReferenceHub plr in ReferenceHub.AllHubs)
+                if (QuerySystem.UseWhitelist)
                 {
-                    if (plr.isLocalPlayer)
-                        continue;
-                    
-                    if (!plr.serverRoles.Staff && !plr.characterClassManager.UserId.EndsWith("@northwood") && !QuerySystem.Whitelist.Contains(plr.characterClassManager.UserId) && !WhiteList.Users.Contains(plr.characterClassManager.UserId))
+                    foreach (ReferenceHub plr in ReferenceHub.AllHubs)
                     {
-                        Timing.RunCoroutine(API.StrikeBad(CedModPlayer.Get(plr), "You are not whitelisted on this server."));
+                        if (plr.isLocalPlayer)
+                            continue;
+                    
+                        if (!plr.serverRoles.Staff && !plr.characterClassManager.UserId.EndsWith("@northwood") && !QuerySystem.Whitelist.Contains(plr.characterClassManager.UserId) && !WhiteList.Users.Contains(plr.characterClassManager.UserId))
+                        {
+                            try
+                            {
+                                Timing.RunCoroutine(API.StrikeBad(CedModPlayer.Get(plr), "You are not whitelisted on this server."));
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error($"Failed to kick user {e}");
+                            }
+                        }
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Failed to check whitelist: {e}");
             }
         }
 
