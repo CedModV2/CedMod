@@ -1035,11 +1035,14 @@ namespace CedMod.Addons.QuerySystem.WS
         {
             if (QuerySystem.UseWhitelist)
             {
-                foreach (CedModPlayer plr in Player.GetPlayers<CedModPlayer>())
+                foreach (ReferenceHub plr in ReferenceHub.AllHubs)
                 {
-                    if (!plr.ReferenceHub.serverRoles.Staff && !plr.UserId.EndsWith("@northwood") && !QuerySystem.Whitelist.Contains(plr.UserId) && !WhiteList.Users.Contains(plr.UserId))
+                    if (plr.isLocalPlayer)
+                        continue;
+                    
+                    if (!plr.serverRoles.Staff && !plr.characterClassManager.UserId.EndsWith("@northwood") && !QuerySystem.Whitelist.Contains(plr.characterClassManager.UserId) && !WhiteList.Users.Contains(plr.UserId))
                     {
-                        Timing.RunCoroutine(API.StrikeBad(plr, "You are not whitelisted on this server."));
+                        Timing.RunCoroutine(API.StrikeBad(CedModPlayer.Get(plr), "You are not whitelisted on this server."));
                     }
                 }
             }
