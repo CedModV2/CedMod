@@ -1040,7 +1040,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     if (plr.isLocalPlayer)
                         continue;
                     
-                    if (!plr.serverRoles.Staff && !plr.characterClassManager.UserId.EndsWith("@northwood") && !QuerySystem.Whitelist.Contains(plr.characterClassManager.UserId) && !WhiteList.Users.Contains(plr.UserId))
+                    if (!plr.serverRoles.Staff && !plr.characterClassManager.UserId.EndsWith("@northwood") && !QuerySystem.Whitelist.Contains(plr.characterClassManager.UserId) && !WhiteList.Users.Contains(plr.characterClassManager.UserId))
                     {
                         Timing.RunCoroutine(API.StrikeBad(CedModPlayer.Get(plr), "You are not whitelisted on this server."));
                     }
