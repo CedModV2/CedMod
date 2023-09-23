@@ -71,14 +71,14 @@ namespace CedMod.Patches
                 yield break;
             }
             
-            if (!flag1 && playerCommandSender1 != null && !playerCommandSender1.ServerRoles.Staff && !CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayerSensitiveDataAccess))
+            if (!flag1 && playerCommandSender1 != null && !playerCommandSender1.ReferenceHub.authManager.NorthwoodStaff && !CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayerSensitiveDataAccess))
                 yield break;
             List<ReferenceHub> referenceHubList = RAUtils.ProcessPlayerIdOrNamesList(new ArraySegment<string>(((IEnumerable<string>)source).Skip<string>(1).ToArray<string>()), 0, out string[] _);
             if (referenceHubList.Count == 0)
                 yield break;
             bool flag2 = PermissionsHandler.IsPermitted(sender.Permissions, 18007046UL);
             if (playerCommandSender1 != null &&
-                (playerCommandSender1.ServerRoles.Staff || playerCommandSender1.ServerRoles.RaEverywhere))
+                (playerCommandSender1.ReferenceHub.authManager.NorthwoodStaff || playerCommandSender1.ReferenceHub.authManager.RemoteAdminGlobalAccess))
                 flag2 = true;
             if (referenceHubList.Count > 1)
             {
@@ -102,7 +102,7 @@ namespace CedMod.Patches
                             ? referenceHub.networkIdentity.connectionToClient.OriginalIpAddress
                             : referenceHub.networkIdentity.connectionToClient.address) + ",";
                     if (flag2)
-                        data3 = data3 + referenceHub.characterClassManager.UserId + ".";
+                        data3 = data3 + referenceHub.authManager.UserId + ".";
                 }
 
                 if (data1.Length > 0)
@@ -157,24 +157,22 @@ namespace CedMod.Patches
 
                 stringBuilder.Append("\nUser ID: " +
                                      (flag2
-                                         ? (string.IsNullOrEmpty(characterClassManager.UserId)
+                                         ? (string.IsNullOrEmpty(referenceHub.authManager.UserId)
                                              ? "(none)"
-                                             : characterClassManager.UserId +
+                                             : referenceHub.authManager.UserId +
                                                " <color=green><link=CP_USERID>\uF0C5</link></color>")
                                          : "<color=#D4AF37>INSUFFICIENT PERMISSIONS</color>"));
                 if (flag2)
                 {
-                    RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, characterClassManager.UserId ?? "");
-                    if (characterClassManager.SaltedUserId != null && characterClassManager.SaltedUserId.Contains("$"))
-                        stringBuilder.Append("\nSalted User ID: " + characterClassManager.SaltedUserId);
-                    if (!string.IsNullOrEmpty(characterClassManager.UserId2))
-                        stringBuilder.Append("\nUser ID 2: " + characterClassManager.UserId2);
+                    RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, referenceHub.authManager.UserId ?? "");
+                    if (referenceHub.authManager.SaltedUserId != null && referenceHub.authManager.SaltedUserId.Contains("$"))
+                        stringBuilder.Append("\nSalted User ID: " + referenceHub.authManager.SaltedUserId);
                 }
 
                 stringBuilder.Append("\nServer role: " + serverRoles.GetColoredRoleString());
                 bool flag4 = CommandProcessor.CheckPermissions(sender, PlayerPermissions.ViewHiddenBadges);
                 bool flag5 = CommandProcessor.CheckPermissions(sender, PlayerPermissions.ViewHiddenGlobalBadges);
-                if (playerCommandSender1 != null && playerCommandSender1.ServerRoles.Staff)
+                if (playerCommandSender1 != null && playerCommandSender1.ReferenceHub.authManager.NorthwoodStaff)
                 {
                     flag4 = true;
                     flag5 = true;
@@ -191,10 +189,10 @@ namespace CedMod.Patches
                                              (serverRoles.GlobalHidden ? "GLOBAL" : "LOCAL"));
                     }
 
-                    if (serverRoles.RaEverywhere)
+                    if (referenceHub.authManager.RemoteAdminGlobalAccess)
                         stringBuilder.Append(
                             "\nStudio Status: <color=#BCC6CC>Studio GLOBAL Staff (management or global moderation)</color>");
-                    else if (serverRoles.Staff)
+                    else if (referenceHub.authManager.NorthwoodStaff)
                         stringBuilder.Append("\nStudio Status: <color=#94B9CF>Studio Staff</color>");
                 }
 
@@ -222,7 +220,7 @@ namespace CedMod.Patches
                     stringBuilder.Append(" <color=#DC143C>[NOCLIP ENABLED]</color>");
                 else if (FpcNoclip.IsPermitted(referenceHub))
                     stringBuilder.Append(" <color=#E52B50>[NOCLIP UNLOCKED]</color>");
-                if (serverRoles.DoNotTrack)
+                if (referenceHub.authManager.DoNotTrack)
                     stringBuilder.Append(" <color=#BFFF00>[DO NOT TRACK]</color>");
                 if (serverRoles.BypassMode)
                     stringBuilder.Append(" <color=#BFFF00>[BYPASS MODE]</color>");
@@ -261,7 +259,7 @@ namespace CedMod.Patches
                         var t = VerificationChallenge.AwaitVerification();
                         yield return Timing.WaitUntilTrue(() => t.IsCompleted);
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
-                        var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + API.APIUrl + $"/Auth/{characterClassManager.UserId}&{connectionToClient.address}?banLists={string.Join(",", ServerPreferences.Prefs.BanListWriteBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&banListWarns={string.Join(",", ServerPreferences.Prefs.BanListReadWarns.Select(s => s.Id))}"));
+                        var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + API.APIUrl + $"/Auth/{referenceHub.authManager.UserId}&{connectionToClient.address}?banLists={string.Join(",", ServerPreferences.Prefs.BanListWriteBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&banListWarns={string.Join(",", ServerPreferences.Prefs.BanListReadWarns.Select(s => s.Id))}"));
                         yield return Timing.WaitUntilTrue(() => respTask.IsCompleted);
                         var resp = respTask.Result;
                         var respStringTask = resp.Content.ReadAsStringAsync();
@@ -302,7 +300,7 @@ namespace CedMod.Patches
                         var t = VerificationChallenge.AwaitVerification();
                         yield return Timing.WaitUntilTrue(() => t.IsCompleted);
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
-                        var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/RequestData/{QuerySystem.QuerySystemKey}/{characterClassManager.UserId}"));
+                        var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/RequestData/{QuerySystem.QuerySystemKey}/{referenceHub.authManager.UserId}"));
                         yield return Timing.WaitUntilTrue(() => respTask.IsCompleted);
                         var resp = respTask.Result;
                         var respStringTask = resp.Content.ReadAsStringAsync();
@@ -323,7 +321,7 @@ namespace CedMod.Patches
                             Dictionary<string, object> cmData =
                                 JsonConvert.DeserializeObject<Dictionary<string, object>>(respString);
 
-                            if (!serverRoles.DoNotTrack)
+                            if (!referenceHub.authManager.DoNotTrack)
                             {
                                 stringBuilder.Append(
                                     $"\nActivity in the last 14 days: {TimeSpan.FromMinutes(cmData["activityLast14"] is double ? (double)cmData["activityLast14"] : 0).TotalHours}. Level {cmData["level"]} ({cmData["experience"]} Exp)");
@@ -333,15 +331,15 @@ namespace CedMod.Patches
                                 stringBuilder.Append($"\nPanelUser: {cmData["panelUser"]}");
 
                             stringBuilder.Append($"\nPossible Alt Accounts: {cmData["usersFound"]}");
-                            if (RemoteAdminModificationHandler.GroupWatchlist.Any(s => s.UserIds.Contains(referenceHub.characterClassManager.UserId)))
+                            if (RemoteAdminModificationHandler.GroupWatchlist.Any(s => s.UserIds.Contains(referenceHub.authManager.UserId)))
                             {
-                                if (RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(referenceHub.characterClassManager.UserId)) >= 2)
+                                if (RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(referenceHub.authManager.UserId)) >= 2)
                                 {
-                                    stringBuilder.Append($"\n<color=#00FFF6>User is in {RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(referenceHub.characterClassManager.UserId))} Watchlist groups.\nUse ExternalLookup to view details</color>");
+                                    stringBuilder.Append($"\n<color=#00FFF6>User is in {RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(referenceHub.authManager.UserId))} Watchlist groups.\nUse ExternalLookup to view details</color>");
                                 }
                                 else
                                 {
-                                    var group = RemoteAdminModificationHandler.GroupWatchlist.FirstOrDefault(s => s.UserIds.Contains(referenceHub.characterClassManager.UserId));
+                                    var group = RemoteAdminModificationHandler.GroupWatchlist.FirstOrDefault(s => s.UserIds.Contains(referenceHub.authManager.UserId));
                                     stringBuilder.Append($"\n<color=#00FFF6>User is in Group Watchlist: {group.GroupName} ({group.Id}) \n{group.Reason} Members:</color>");
                                     foreach (var member in group.UserIds.Take(4))
                                     {
@@ -351,9 +349,9 @@ namespace CedMod.Patches
                                     stringBuilder.Append($"\n<color=#00FFF6>Use ExternalLookup for more info</color>");
                                 }
                             }
-                            else if (RemoteAdminModificationHandler.Watchlist.Any(s => s.Userid == referenceHub.characterClassManager.UserId))
+                            else if (RemoteAdminModificationHandler.Watchlist.Any(s => s.Userid == referenceHub.authManager.UserId))
                             {
-                                stringBuilder.Append($"\n<color=#00FFF6>User is on watchlist:\n{RemoteAdminModificationHandler.Watchlist.FirstOrDefault(s => s.Userid == referenceHub.characterClassManager.UserId).Reason}\nUse ExternalLookup for more info</color>");
+                                stringBuilder.Append($"\n<color=#00FFF6>User is on watchlist:\n{RemoteAdminModificationHandler.Watchlist.FirstOrDefault(s => s.Userid == referenceHub.authManager.UserId).Reason}\nUse ExternalLookup for more info</color>");
                             }
                         }
                     }
@@ -366,7 +364,7 @@ namespace CedMod.Patches
                 stringBuilder.Append("</color>");
                 sender.RaReply(string.Format("${0} {1}", (object)__instance.DataId, (object)StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, true, string.Empty);
                 RaPlayerQR.Send(sender, false,
-                    string.IsNullOrEmpty(characterClassManager.UserId) ? "(no User ID)" : characterClassManager.UserId);
+                    string.IsNullOrEmpty(referenceHub.authManager.UserId) ? "(no User ID)" : referenceHub.authManager.UserId);
             }
         }
 

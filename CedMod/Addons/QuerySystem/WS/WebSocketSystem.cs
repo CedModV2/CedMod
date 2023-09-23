@@ -13,6 +13,7 @@ using CedMod.Addons.Events.Commands;
 using CedMod.Addons.QuerySystem.Commands;
 using CedMod.ApiModals;
 using CedMod.Components;
+using CentralAuth;
 using CommandSystem;
 using CommandSystem.Commands.RemoteAdmin;
 using CommandSystem.Commands.RemoteAdmin.Broadcasts;
@@ -536,12 +537,11 @@ namespace CedMod.Addons.QuerySystem.WS
                         case "kicksteamid":
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                 Log.Debug("KickCmd");
-                            foreach (CedModPlayer player in Player.GetPlayers<CedModPlayer>())
+                            foreach (ReferenceHub player in ReferenceHub.AllHubs)
                             {
-                                CharacterClassManager component = player.ReferenceHub.characterClassManager;
-                                if (component.UserId == jsonData["steamid"])
+                                if (player.authManager.UserId == jsonData["steamid"])
                                 {
-                                    ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>  Timing.RunCoroutine(API.StrikeBad(player, jsonData["reason"] + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage)));
+                                    ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>  Timing.RunCoroutine(API.StrikeBad(CedModPlayer.Get(player), jsonData["reason"] + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage)));
                                     Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                                     {
                                         Recipient = cmd.Recipient,
@@ -987,7 +987,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                         ThreadDispatcher.ThreadDispatchQueue.Enqueue((() =>
                                         {
                                             var hidden = !string.IsNullOrEmpty(player.ReferenceHub.serverRoles.HiddenBadge);
-                                            player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false, false, !hidden);
+                                            player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false, !hidden);
                                             Log.Info($"Refreshed Permissions from {member.UserId} with hidden value: {hidden} as they were present and had changes in the AutoSlPerms response while ingame");
                                         }));
                                     }
@@ -1042,7 +1042,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         if (plr.isLocalPlayer)
                             continue;
                     
-                        if (!plr.serverRoles.Staff && !plr.characterClassManager.UserId.EndsWith("@northwood") && !QuerySystem.Whitelist.Contains(plr.characterClassManager.UserId) && !WhiteList.Users.Contains(plr.characterClassManager.UserId))
+                        if (!plr.authManager.NorthwoodStaff && !plr.authManager.UserId.EndsWith("@northwood") && !QuerySystem.Whitelist.Contains(plr.authManager.UserId) && !WhiteList.Users.Contains(plr.authManager.UserId))
                         {
                             try
                             {

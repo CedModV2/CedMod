@@ -15,6 +15,7 @@ using CedMod.Addons.Events.Interfaces;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
 using CedMod.Components;
+using CentralAuth;
 using Exiled.API.Features;
 using Exiled.Loader;
 using HarmonyLib;
@@ -141,7 +142,7 @@ namespace CedMod
             }
             
             
-            CharacterClassManager.OnInstanceModeChanged += HandleInstanceModeChange; 
+            PlayerAuthenticationManager.OnInstanceModeChanged += HandleInstanceModeChange; 
             Assembly = Assembly.GetExecutingAssembly();
             CosturaUtility.Initialize();
 
@@ -442,7 +443,7 @@ namespace CedMod
             if ((arg2 != ClientInstanceMode.Unverified || arg2 != ClientInstanceMode.Host) && AudioCommand.FakeConnectionsIds.ContainsValue(arg1))
             {
                 Log.Info($"Replaced instancemode for dummy to host.");
-                arg1.characterClassManager.InstanceMode = ClientInstanceMode.Host;
+                arg1.authManager.InstanceMode = ClientInstanceMode.Host;
             }
         }
 
@@ -459,7 +460,7 @@ namespace CedMod
         {
             var loadProperty = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(s => s.GetName().Name == "CedModV3").GetType("CedMod.API").GetProperty("HasLoaded");
             loadProperty.SetValue(null, false);
-            CharacterClassManager.OnInstanceModeChanged -= HandleInstanceModeChange;
+            PlayerAuthenticationManager.OnInstanceModeChanged -= HandleInstanceModeChange;
             _harmony.UnpatchAll();
             Singleton = null;
             

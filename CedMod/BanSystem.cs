@@ -23,7 +23,7 @@ namespace CedMod
                 Log.Debug("Join");
             try
             {
-                if (player.ReferenceHub.serverRoles.BypassStaff || player.ReferenceHub.isLocalPlayer)
+                if (player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.BypassBans || player.ReferenceHub.isLocalPlayer)
                     return;
 
                 Dictionary<string, string> info = new Dictionary<string, string>();

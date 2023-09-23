@@ -17,6 +17,7 @@ using MEC;
 using Newtonsoft.Json;
 using PlayerStatsSystem;
 using PluginAPI.Core;
+using Console = System.Console;
 using Log = PluginAPI.Core.Log;
 
 namespace CedMod

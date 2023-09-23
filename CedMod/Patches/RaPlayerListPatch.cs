@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
 using CedMod.Components;
+using CentralAuth;
 using HarmonyLib;
 using MEC;
 using Mirror;
@@ -49,7 +50,7 @@ namespace CedMod.Patches
             RaPlayerList.PlayerSorting sortingType = (RaPlayerList.PlayerSorting) result2;
             bool viewHiddenBadges = CommandProcessor.CheckPermissions(sender, PlayerPermissions.ViewHiddenBadges);
             bool viewHiddenGlobalBadges = CommandProcessor.CheckPermissions(sender, PlayerPermissions.ViewHiddenGlobalBadges);
-            if (sender is PlayerCommandSender playerCommandSender && playerCommandSender.ServerRoles.Staff)
+            if (sender is PlayerCommandSender playerCommandSender && playerCommandSender.ReferenceHub.authManager.NorthwoodStaff)
             {
                 viewHiddenBadges = true;
                 viewHiddenGlobalBadges = true;
@@ -110,23 +111,23 @@ namespace CedMod.Patches
                     }
                     
                     bool flag2 = false;
-                    stringBuilder.Append(__instance.GetPrefix(hub, viewHiddenBadges, viewHiddenGlobalBadges));
+                    stringBuilder.Append(RaPlayerList.GetPrefix(hub, viewHiddenBadges, viewHiddenGlobalBadges));
                     stringBuilder.Append(flag2 ? "<link=RA_OverwatchEnabled><color=white>[</color><color=#03f8fc>\uF06E</color><color=white>]</color></link> " : string.Empty);
                     stringBuilder.Append("<color={RA_ClassColor}>(").Append(hub.PlayerId).Append(") ");
                     if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin)
                     {
-                        if (RemoteAdminModificationHandler.GroupWatchlist.Any(s => s.UserIds.Contains(hub.characterClassManager.UserId)))
+                        if (RemoteAdminModificationHandler.GroupWatchlist.Any(s => s.UserIds.Contains(hub.authManager.UserId)))
                         {
-                            if (RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(hub.characterClassManager.UserId)) >= 2)
+                            if (RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(hub.authManager.UserId)) >= 2)
                             {
-                                stringBuilder.Append($"<size=15><color=#00FFF6>[WMG{RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(hub.characterClassManager.UserId))}]</color></size> ");
+                                stringBuilder.Append($"<size=15><color=#00FFF6>[WMG{RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(hub.authManager.UserId))}]</color></size> ");
                             }
                             else
                             {
-                                stringBuilder.Append($"<size=15><color=#00FFF6>[WG{RemoteAdminModificationHandler.GroupWatchlist.FirstOrDefault(s => s.UserIds.Contains(hub.characterClassManager.UserId)).Id}]</color></size> ");
+                                stringBuilder.Append($"<size=15><color=#00FFF6>[WG{RemoteAdminModificationHandler.GroupWatchlist.FirstOrDefault(s => s.UserIds.Contains(hub.authManager.UserId)).Id}]</color></size> ");
                             }
                         }
-                        else if (RemoteAdminModificationHandler.Watchlist.Any(s => s.Userid == hub.characterClassManager.UserId))
+                        else if (RemoteAdminModificationHandler.Watchlist.Any(s => s.Userid == hub.authManager.UserId))
                         {
                             stringBuilder.Append($"<size=15><color=#00FFF6>[WL]</color></size> ");
                         }

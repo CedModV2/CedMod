@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CentralAuth;
 using Cryptography;
 using Exiled.API.Enums;
 using Exiled.Events.EventArgs.Player;
@@ -299,7 +300,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 
 				int position = request.Data.Position;
 
-				if (!CharacterClassManager.OnlineMode)
+				if (!PlayerAuthenticationManager.OnlineMode)
 				{
 					var ban = BanHandler.QueryBan(null, request.RemoteEndPoint.Address.ToString());
 					if (ban.Value != null)

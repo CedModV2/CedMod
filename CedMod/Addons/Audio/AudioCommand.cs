@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CentralAuth;
 using CommandSystem;
 using CommandSystem.Commands.RemoteAdmin;
 using GameCore;
@@ -72,12 +73,12 @@ namespace CedMod.Addons.Audio
                         NetworkServer.AddPlayerForConnection(fakeConnection, newPlayer);
                         try
                         {
-                            hubPlayer.characterClassManager.UserId = $"player{id}@server";
+                            hubPlayer.authManager.UserId = $"player{id}@server";
                         }
                         catch (Exception e)
                         {
                         }
-                        hubPlayer.characterClassManager.InstanceMode = ClientInstanceMode.Host;
+                        hubPlayer.authManager.InstanceMode = ClientInstanceMode.Host;
                         try
                         {
                             hubPlayer.nicknameSync.SetNick($"Dummy player {id}");
