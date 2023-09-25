@@ -87,13 +87,10 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
             
             JailParentCommand.AddPlr(plr, sit);
             
-            if (arguments.Count > 1)
+            foreach (var plr1 in arguments)
             {
-                foreach (var plr1 in arguments)
-                {
-                    CedModPlayer cmPlr = CedModPlayer.Get(plr1);
-                    JailParentCommand.AddPlr(cmPlr, sit);
-                }
+                CedModPlayer cmPlr = CedModPlayer.Get(plr1);
+                JailParentCommand.AddPlr(cmPlr, sit);
             }
 
             response = "Jail assigned. Use jail add {playerId} to add someone and jail remove {playerId}";
