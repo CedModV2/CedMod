@@ -53,7 +53,7 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
 
             var sit = AdminSitHandler.Singleton.Sits.FirstOrDefault(s => s.Players.Any(s => s.UserId == plr.UserId));
 
-            JailParentCommand.AddPlr(plr, sit);
+            JailParentCommand.AddPlr(invoker, sit);
 
             response = "Added, use jail remove {playerId} to remove yourself";
             return false;
