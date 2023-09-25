@@ -66,6 +66,7 @@
     <Compile Include="Addons\AdminSitSystem\Commands\JailCommand.cs" />
     <Compile Include="Addons\AdminSitSystem\Commands\Jail\Add.cs" />
     <Compile Include="Addons\AdminSitSystem\Commands\Jail\Create.cs" />
+    <Compile Include="Addons\AdminSitSystem\Commands\Jail\Delete.cs" />
     <Compile Include="Addons\AdminSitSystem\Commands\Jail\Join.cs" />
     <Compile Include="Addons\AdminSitSystem\Commands\Jail\Remove.cs" />
     <Compile Include="Addons\Audio\CustomAudioPlayer.cs" />

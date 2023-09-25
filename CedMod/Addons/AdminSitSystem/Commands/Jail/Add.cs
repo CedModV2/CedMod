@@ -45,7 +45,7 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
                 return false;
             }
 
-            var loc = AdminSitHandler.Singleton.Sits.FirstOrDefault(s => s.Players.Any(s => s.UserId == invoker.UserId)).Location;
+            var sit = AdminSitHandler.Singleton.Sits.FirstOrDefault(s => s.Players.Any(s => s.UserId == invoker.UserId));
             
             var plr = CedModPlayer.Get(arguments.At(0));
             if (plr is null)
@@ -59,33 +59,7 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
                 return false;
             }
             
-            AdminSitHandler.Singleton.Sits.Add(new AdminSit()
-            {
-                AssociatedReportId = 0,
-                InitialDuration = 0,
-                InitialReason = "",
-                Location = loc,
-                Players = new List<AdminSitPlayer>()
-                {
-                    new AdminSitPlayer()
-                    {
-                        Player = plr,
-                        PlayerType = plr.RemoteAdminAccess ? AdminSitPlayerType.Staff : AdminSitPlayerType.User,
-                        UserId = plr.UserId,
-                        Ammo = new Dictionary<ItemType, ushort>(plr.ReferenceHub.inventory.UserInventory.ReserveAmmo),
-                        Health = plr.Health,
-                        Items = new Dictionary<ushort, ItemBase>(plr.ReferenceHub.inventory.UserInventory.Items),
-                        Position = plr.Position,
-                        Role = plr.Role
-                    }
-                }
-            });
-            
-            plr.SetRole(RoleTypeId.Tutorial, RoleChangeReason.RemoteAdmin);
-            Timing.CallDelayed(0.1f, () => {
-            {
-                plr.Position = loc.SpawnPosition;
-            } });
+            JailParentCommand.AddPlr(plr, sit);
 
             response = "Player Added, use jail remove {playerId} to remove the player.";
             return false;
