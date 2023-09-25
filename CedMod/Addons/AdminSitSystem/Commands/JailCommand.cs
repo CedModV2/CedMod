@@ -42,7 +42,7 @@ namespace CedMod.Addons.AdminSitSystem.Commands
             out string response)
         {
             response =
-                "jail -\ncreate - creates and assigns a jail location to you for use.\njail (a)add {playerid} - adds a player to the jail\njail (r)remove {playerid} - removes a player from the jail\njail (j)join {playerid} - adds you to the jail of the specified player\njail (d)delete - deletes the jail your currently in.";
+                "jail -\ncreate [player1 player2 player3] - creates and assigns a jail location to you for use, and adds any players you put in\njail (a)add {playerid} - adds a player to the jail\njail (r)remove {playerid} - removes a player from the jail\njail (j)join {playerid} - adds you to the jail of the specified player\njail (d)delete - deletes the jail your currently in.";
             return false;
         }
 

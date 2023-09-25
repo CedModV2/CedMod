@@ -39,7 +39,7 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
             }
             
             var invoker = CedModPlayer.Get((sender as CommandSender).SenderId);
-            var plr = CedModPlayer.Get(int.Parse(arguments.At(0)));
+            var plr = CedModPlayer.Get(arguments.At(0));
             if (plr == null)
             {
                 response = $"Player '{arguments.At(0)}' could not be found.";
