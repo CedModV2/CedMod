@@ -55,6 +55,8 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
             AdminToyBase adminToyBase = null;
             foreach (GameObject gameObject in NetworkClient.prefabs.Values)
             {
+                if (gameObject == null)
+                    continue;
                 AdminToyBase component;
                 if (gameObject.TryGetComponent<AdminToyBase>(out component))
                 {

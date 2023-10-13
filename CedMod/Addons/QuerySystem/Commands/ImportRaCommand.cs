@@ -53,9 +53,9 @@ namespace CedMod.Commands
                     });
                 }
 
-                SendQueue.Enqueue(new QueryCommand()
+                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
                 {
-                    Recipient = cmd.Recipient,
+                    Recipient = "PANEL",
                     Data = new Dictionary<string, string>()
                     {
                         { "Message", "ImportRAResponse" },
