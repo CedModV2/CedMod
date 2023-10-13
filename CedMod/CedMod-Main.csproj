@@ -87,6 +87,7 @@
     <Compile Include="Addons\Events\EventManagerPlayerEvents.cs" />
     <Compile Include="Addons\Events\EventManagerServerEvents.cs" />
     <Compile Include="Addons\Events\ScriptedEventIntergration.cs" />
+    <Compile Include="Addons\QuerySystem\Commands\ImportRaCommand.cs" />
     <Compile Include="Addons\QuerySystem\Commands\CmSyncCommand.cs" />
     <Compile Include="Addons\QuerySystem\Commands\RestartQuery.cs" />
     <Compile Include="Addons\QuerySystem\Commands\ToggleExpTracking.cs" />
