@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
+using PluginAPI.Events;
 using UnityEngine;
 using Version = GameCore.Version;
 
@@ -55,7 +56,7 @@ namespace CedMod.Components
                             if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                                 Log.Debug($"Prepping install 1");
                             TimePassed = 0;
-                            Task.Factory.StartNew(async () =>
+                            Task.Run(async () =>
                             {
                                 Log.Info($"Installing update {Pending.VersionString} - {Pending.VersionCommit}");
                                 await InstallUpdate();
@@ -80,7 +81,7 @@ namespace CedMod.Components
                     TimePassedCheck = 0;
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Prepping Check");
-                    Task.Factory.StartNew(async () =>
+                    Task.Run(async () =>
                     {
                         var data = await CheckForUpdates();
                         Pending = data;
@@ -105,7 +106,7 @@ namespace CedMod.Components
         public void Start()
         {
             Log.Info($"CedMod AutoUpdater initialized, checking for updates.");
-            Task.Factory.StartNew(async () =>
+            Task.Run(async () =>
             {
                 var data = await CheckForUpdates(true);
                 Pending = data;
@@ -118,6 +119,7 @@ namespace CedMod.Components
             {
                 using (HttpClient client = new HttpClient())
                 {
+                    await VerificationChallenge.AwaitVerification();
 #if !EXILED
                     var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Version/UpdateAvailableNW?VersionId={CedModMain.VersionIdentifier}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}");
 #else
@@ -153,11 +155,11 @@ namespace CedMod.Components
         }
         
         [PluginEvent(ServerEventType.RoundEnd)]
-        public void RoundEnd(RoundSummary.LeadingTeam team)
+        public void RoundEnd(RoundEndEvent ev)
         {
             if (Pending == null)
             {
-                Task.Factory.StartNew(async () =>
+                Task.Run(async () =>
                 {
                     var data = await CheckForUpdates();
                     Pending = data;
@@ -166,20 +168,27 @@ namespace CedMod.Components
             
             if (CedModMain.Singleton.Config.CedMod.AutoUpdate && CedModMain.Singleton.Config.CedMod.AutoUpdateRoundEnd && Pending != null && !Installing)
             {
-                Task.Factory.StartNew(async () =>
+                Task.Run(async () =>
                 {
                     Log.Info($"Installing update {Pending.VersionString} - {Pending.VersionCommit}");
                     await InstallUpdateDelayed();
+                    await Task.Delay(2000);
+                    Log.Info($"Saving update {Pending.VersionString} - {Pending.VersionCommit}");
+                    Log.Info($"Saving to: {CedModMain.PluginLocation}");
+                    File.WriteAllBytes(CedModMain.PluginLocation, FileToWriteDelayed);
+                        
+                    ServerStatic.StopNextRound = ServerStatic.NextRoundAction.Restart;
+                    RoundRestarting.RoundRestart.ChangeLevel(true);
                 });
             }
         }
 
         [PluginEvent(ServerEventType.RoundRestart)]
-        public void RoundRestart()
+        public void RoundRestart(RoundRestartEvent ev)
         {
             if (Pending == null)
             {
-                Task.Factory.StartNew(async () =>
+                Task.Run(async () =>
                 {
                     var data = await CheckForUpdates();
                     Pending = data;
@@ -188,7 +197,7 @@ namespace CedMod.Components
             
             if (CedModMain.Singleton.Config.CedMod.AutoUpdate && CedModMain.Singleton.Config.CedMod.AutoUpdateRoundEnd && Pending != null && Installing && FileToWriteDelayed.Length >= 1)
             {
-                Task.Factory.StartNew(() =>
+                Task.Run(() =>
                 {
                     Log.Info($"Saving update {Pending.VersionString} - {Pending.VersionCommit}");
                     Log.Info($"Saving to: {CedModMain.PluginLocation}");
@@ -210,6 +219,7 @@ namespace CedMod.Components
             {
                 using (HttpClient client = new HttpClient())
                 {
+                    await VerificationChallenge.AwaitVerification();
 #if !EXILED
                     var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Version/TargetDownloadNW?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}");
 #else 
@@ -258,6 +268,7 @@ namespace CedMod.Components
             {
                 using (HttpClient client = new HttpClient())
                 {
+                    await VerificationChallenge.AwaitVerification();
 #if !EXILED
                     var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Version/TargetDownloadNW?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}");
 #else 

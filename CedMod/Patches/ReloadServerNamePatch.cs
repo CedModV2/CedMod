@@ -13,7 +13,7 @@ namespace CedMod.Patches
     {
         public static void Postfix()
         {
-            if (Verification.ServerId != 0)
+            if (Verification.ServerId != 0 && !ServerConsole._serverName.Contains($"<color=#00000000><size=1>CedModVerification{Verification.ServerId}</size></color>"))
             {
                 ServerConsole._serverName += $"<color=#00000000><size=1>CedModVerification{Verification.ServerId}</size></color>";
             }

@@ -26,9 +26,14 @@ namespace CedMod.Patches
     [HarmonyPatch(typeof(RaPlayerList), nameof(RaPlayerList.ReceiveData), new Type[] { typeof(CommandSender), typeof(string) })]
     public static class RaPlayerListPatch
     {
+        public static Dictionary<string, CoroutineHandle> Handles = new Dictionary<string, CoroutineHandle>();
+
         public static bool Prefix(RaPlayerList __instance, CommandSender sender, string data)
         {
-            Timing.RunCoroutine(RaPlayerCoRoutine(__instance, sender, data));
+            if (Handles.ContainsKey(sender.SenderId) && Handles[sender.SenderId].IsRunning)
+                return false;
+            
+            Handles[sender.SenderId] = Timing.RunCoroutine(RaPlayerCoRoutine(__instance, sender, data));
             return false;
         }
 
@@ -51,6 +56,7 @@ namespace CedMod.Patches
             }
             
             StringBuilder stringBuilder = StringBuilderPool.Shared.Rent("\n");
+            stringBuilder.Clear();
 
             if (CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
             {

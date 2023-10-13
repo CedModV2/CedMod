@@ -35,6 +35,9 @@ namespace CedMod.Addons.QuerySystem
         public static ConcurrentQueue<Action> ThreadDispatchQueue = new ConcurrentQueue<Action>();
         public void Update()
         {
+            if (QuerySystem.UseWhitelist && !ServerConsole.WhiteListEnabled)
+                ServerConsole.WhiteListEnabled = true;
+            
             if (ThreadDispatchQueue.TryDequeue(out Action action))
             {
                 try
@@ -98,7 +101,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     lock (WebSocketSystem.reconnectLock)
                     {
-                        Task.Factory.StartNew(async () =>
+                        Task.Run(async () =>
                         {
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: WS Sendthread not alive, restarting WS");
@@ -113,7 +116,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     lock (WebSocketSystem.reconnectLock)
                     {
-                        Task.Factory.StartNew(async () =>
+                        Task.Run(async () =>
                         { 
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: WS inactive out of reconnect mode without activity for 1 minutes, restarting WS");
@@ -128,7 +131,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     lock (WebSocketSystem.reconnectLock)
                     {
-                        Task.Factory.StartNew(async () =>
+                        Task.Run(async () =>
                         { 
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: WS inactive in reconnect mode without activity for 2 minutes, restarting WS");
@@ -143,7 +146,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     lock (WebSocketSystem.reconnectLock)
                     {
-                        Task.Factory.StartNew(async () =>
+                        Task.Run(async () =>
                         { 
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: no activity for 3 minutes, restarting WS");
@@ -180,14 +183,14 @@ namespace CedMod.Addons.QuerySystem
                 {
                     events.Add(new EventModal()
                     {
-                        Active = EventManager.currentEvent != null &&
-                                 EventManager.currentEvent.EventPrefix == ev.EventPrefix,
+                        Active = EventManager.CurrentEvent != null &&
+                                 EventManager.CurrentEvent.EventPrefix == ev.EventPrefix,
                         Author = ev.EvenAuthor,
                         Description = ev.EventDescription,
                         Name = ev.EventName,
                         Prefix = ev.EventPrefix,
-                        QueuePos = EventManager.nextEvent.Any(ev1 => ev1.EventName == ev.EventName)
-                            ? EventManager.nextEvent.FindIndex(ev1 => ev1.EventName == ev.EventName) + 1
+                        QueuePos = EventManager.EventQueue.Any(ev1 => ev1.EventName == ev.EventName)
+                            ? EventManager.EventQueue.FindIndex(ev1 => ev1.EventName == ev.EventName) + 1
                             : -1
                     });
                 }
@@ -195,18 +198,34 @@ namespace CedMod.Addons.QuerySystem
 
             if (WebSocketSystem.HelloMessage.SendStats)
             {
-                foreach (var player in Player.GetPlayers<CedModPlayer>())
+                foreach (ReferenceHub player in ReferenceHub.AllHubs)
                 {
-                    if (player.ReferenceHub.isLocalPlayer)
+                    if (player.characterClassManager.InstanceMode != ClientInstanceMode.ReadyClient)
                         continue;
+                    
+                    if (player.isLocalPlayer)
+                        continue;
+                    bool staff = false;
+
+                    var data = ServerStatic.GetPermissionsHandler();
+                    if (player.characterClassManager.UserId != null && data._members.ContainsKey(player.characterClassManager.UserId))
+                    {
+                        var group = data.GetGroup(data._members[player.characterClassManager.UserId]);
+                        if (group != null)
+                        {
+                            staff = PermissionsHandler.IsPermitted(group.Permissions, new PlayerPermissions[3] { PlayerPermissions.KickingAndShortTermBanning, PlayerPermissions.BanningUpToDay, PlayerPermissions.LongTermBanning });
+                        }
+                    }
+                    
                     players.Add(new PlayerObject()
                     {
-                        DoNotTrack = player.DoNotTrack,
-                        Name = player.Nickname,
-                        Staff = PermissionsHandler.IsPermitted(player.ReferenceHub.serverRoles.Permissions, new PlayerPermissions[3] { PlayerPermissions.KickingAndShortTermBanning, PlayerPermissions.BanningUpToDay, PlayerPermissions.LongTermBanning}),
-                        UserId = player.UserId,
+                        DoNotTrack = player.serverRoles.DoNotTrack,
+                        Name = player.nicknameSync.Network_myNickSync,
+                        Staff = staff,
+                        UserId = player.characterClassManager.UserId,
                         PlayerId = player.PlayerId,
-                        RoleType = player.Role
+                        RoleType = player.roleManager.CurrentRole.RoleTypeId,
+                        HashedUserId = player.serverRoles.SyncHashed
                     });
                 }
             }
@@ -225,7 +244,7 @@ namespace CedMod.Addons.QuerySystem
                             PluginCommitHash = CedModMain.GitCommitHash,
                             PluginVersion = CedModMain.PluginVersion,
                             UpdateStats = updateStats,
-                            TrackingEnabled = LevelerStore.TrackingEnabled && EventManager.currentEvent == null,
+                            TrackingEnabled = LevelerStore.TrackingEnabled && EventManager.CurrentEvent == null,
                             CedModVersionIdentifier = CedModMain.VersionIdentifier,
 #if !EXILED
                             ExiledVersion = "NWAPI",
@@ -234,7 +253,8 @@ namespace CedMod.Addons.QuerySystem
 #endif
                             ScpSlVersion = $"{Version.Major}.{Version.Minor}.{Version.Revision}",
                             FileHash = CedModMain.FileHash,
-                            KeyHash = CedModMain.GetHashCode(CedModMain.Singleton.Config.CedMod.CedModApiKey, new MD5CryptoServiceProvider())
+                            KeyHash = CedModMain.GetHashCode(CedModMain.Singleton.Config.CedMod.CedModApiKey, new MD5CryptoServiceProvider()),
+                            IsVerified = CustomNetworkManager.IsVerified
                         })
                     }
                 }

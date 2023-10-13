@@ -53,10 +53,9 @@ namespace CedMod.Commands
             }
             
             Color lightColors = new Color(r, g, b);
-            foreach (FlickerableLightController flc in FlickerableLightController.Instances)
+            foreach (RoomLightController flc in RoomLightController.Instances)
             {
-                flc.WarheadLightColor = lightColors;
-                flc.WarheadLightOverride = true;
+                flc.NetworkOverrideColor = lightColors;
             }
 
             response = "Light intensity set to " + lightColors;

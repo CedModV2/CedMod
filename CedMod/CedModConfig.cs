@@ -23,6 +23,9 @@ namespace CedMod
         [Description("The ban reason of the ban a user gets if the autoban is triggered")]
         public string AutobanReason { get; set; } = "You have been automatically banned for teamkilling";
         
+        [Description("If the autoban will count pink candy teamkills")]
+        public bool AutobanPinkCandies { get; set; } = true;
+        
         [Description("If the autoban will count killing disarmed class D as teamkill")]
         public bool AutobanDisarmedClassDTk { get; set; } = true;
         
@@ -48,6 +51,8 @@ namespace CedMod
         public bool UseMuteDurationAndReason { get; set; } = false;
         [Description("If mutes will only be possible using the panel")]
         public bool OnlyAllowPanelMutes { get; set; } = false;
+        [Description("If Enabled mutes that dont have a duration specified will have this duration, Set to a low value if you wish for ingame mutes to only apply for a small amount of time, Mutes with a duration smaller or equal to 3 minutes (value of 3) will not be synced to the panel.")]
+        public long DefaultMuteDuration { get; set; } = 143998560;
         
         [Description("If debug logs are shown")]
         public bool ShowDebug { get; set; } = false;
@@ -60,5 +65,15 @@ namespace CedMod
         
         [Description("If an update is pending and the server has been empty for the past X time, the plugin will start the autoupdate process (All updates are tested before pushed live)")]
         public int AutoUpdateWait { get; set; } = 5;
+
+        [Description("If bullet holes should be spawned for a player that is globally muted.")]
+        public bool PreventBulletHolesWhenMuted { get; set; } = true;
+        
+        [Description("If true Ingame reports are enabled, if false the IngameReportDisabledMessage will be shown to the user.")]
+        public bool EnableIngameReports { get; set; } = true;
+        
+        [Description("If EnableIngameReports is set to false this message will be shown to the user.")]
+        public string IngameReportDisabledMessage { get; set; } = "Ingame reporting is disabled on this server.";
+        
     }
 }

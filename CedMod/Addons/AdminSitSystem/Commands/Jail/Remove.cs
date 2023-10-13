@@ -67,100 +67,22 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
                 return false;
             }
             
-            var loc = sit.Location;
             var sitPlr = sit.Players.First(s => s.UserId == plr.UserId);
+            JailParentCommand.RemovePlr(plr, sitPlr, sit);
 
-            plr.SetRole(sitPlr.Role, RoleChangeReason.RemoteAdmin);
-            Timing.CallDelayed(0.1f, () => {
+            if (!sit.Players.Any(s => s.PlayerType == AdminSitPlayerType.Staff || s.PlayerType == AdminSitPlayerType.Handler))
             {
-                if (!AlphaWarheadController.Detonated)
-                    plr.Position = sitPlr.Position;
-                else 
-                    plr.Position = new Vector3(132.714f, 995.456f, -38.340f);
-                plr.Health = sitPlr.Health;
-                plr.ClearInventory();
-                foreach (var item in sitPlr.Items)
+                foreach (var sitPlr2 in sit.Players)
                 {
-                    var a = plr.ReferenceHub.inventory.ServerAddItem(item.Value.ItemTypeId);
-                    
-                    if (a is Firearm newFirearm && item.Value is Firearm oldFirearm)
-                    {
-                        newFirearm.Status = new FirearmStatus(oldFirearm.Status.Ammo, oldFirearm.Status.Flags, oldFirearm.Status.Attachments);
-                    }
-
-                    if (a is MicroHIDItem microHidItem && item.Value is MicroHIDItem oldMicroHidItem)
-                    {
-                        microHidItem.RemainingEnergy = oldMicroHidItem.RemainingEnergy;
-                    }
-                    
-                    if (a is RadioItem radioItem && item.Value is RadioItem oldRadioItem)
-                    {
-                        radioItem._battery = oldRadioItem._battery;
-                    }
+                    var plr2 = CedModPlayer.Get(sitPlr2.UserId);
+                    JailParentCommand.RemovePlr(plr2, sitPlr2, sit);
                 }
 
-                foreach (var ammo in sitPlr.Ammo)
+                Timing.CallDelayed(0.5f, () =>
                 {
-                    plr.SetAmmo(ammo.Key, ammo.Value);
-                }
-
-                sit.Players.Remove(sitPlr);
-
-                if (!sit.Players.Any(s => s.PlayerType == AdminSitPlayerType.Staff || s.PlayerType == AdminSitPlayerType.Handler))
-                {
-                    foreach (var sitPlr2 in sit.Players)
-                    {
-                        var plr2 = CedModPlayer.Get(sitPlr2.UserId);
-                        plr2.SetRole(sitPlr2.Role, RoleChangeReason.RemoteAdmin);
-                        Timing.CallDelayed(0.1f, () =>
-                        {
-                            if (!AlphaWarheadController.Detonated)
-                                plr2.Position = sitPlr2.Position;
-                            else 
-                                plr2.Position = new Vector3(132.714f, 995.456f, -38.340f);
-                            plr2.Health = sitPlr2.Health;
-                            plr2.ClearInventory();
-                            foreach (var item in sitPlr2.Items)
-                            {
-                                var a = plr2.ReferenceHub.inventory.ServerAddItem(item.Value.ItemTypeId);
-                                if (a is Firearm newFirearm && item.Value is Firearm oldFirearm)
-                                {
-                                    newFirearm.Status = new FirearmStatus(oldFirearm.Status.Ammo, oldFirearm.Status.Flags, oldFirearm.Status.Attachments);
-                                }
-
-                                if (a is MicroHIDItem microHidItem && item.Value is MicroHIDItem oldMicroHidItem)
-                                {
-                                    microHidItem.RemainingEnergy = oldMicroHidItem.RemainingEnergy;
-                                }
-                    
-                                if (a is RadioItem radioItem && item.Value is RadioItem oldRadioItem)
-                                {
-                                    radioItem._battery = oldRadioItem._battery;
-                                }
-                            }
-
-                            foreach (var ammo in sitPlr2.Ammo)
-                            {
-                                plr.SetAmmo(ammo.Key, ammo.Value);
-                            }
-
-                            sit.Players.Remove(sitPlr2);
-                        });
-                    }
-
-                    Timing.CallDelayed(0.5f, () =>
-                    {
-                        foreach (var obj in sit.SpawnedObjects)
-                        {
-                            NetworkServer.Destroy(obj.gameObject);
-                        }
-                        
-                        sit.SpawnedObjects.Clear();
-                        AdminSitHandler.Singleton.Sits.Remove(sit);
-                        loc.InUse = false;
-                    });
-                }
-            } });
+                    JailParentCommand.RemoveJail(sit);
+                });
+            }
 
             response = "Player Removed";
             return false;

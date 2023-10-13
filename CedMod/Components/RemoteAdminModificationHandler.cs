@@ -18,6 +18,8 @@ namespace CedMod.Components
 {
     public class RemoteAdminModificationHandler: MonoBehaviour
     {
+        public ReferenceHub HostHub;
+        public ReferenceHub LocalHub;
         public float ReportGetTimer { get; set; }
         public float WatchlistGetTimer { get; set; }
         public float UiBlinkTimer { get; set; }
@@ -41,10 +43,11 @@ namespace CedMod.Components
         
         public static Task UpdateReport(string reportId, string user, HandleStatus status, string reason)
         {
-            return Task.Factory.StartNew(async () =>
+            return Task.Run(async () =>
             {
                 using (HttpClient client = new HttpClient())
                 {
+                    await VerificationChallenge.AwaitVerification();
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Updating Report.");
                     var response = await client.PutAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Reports/{QuerySystem.QuerySystemKey}?reportId={reportId}&status={status}&userid={user}", new StringContent(reason, Encoding.UTF8, "text/plain"));
@@ -72,19 +75,31 @@ namespace CedMod.Components
         
         public void Update()
         {
+            if (HostHub == null && ReferenceHub.TryGetHostHub(out ReferenceHub host))
+                HostHub = host;
+            if (LocalHub == null && ReferenceHub.TryGetLocalHub(out ReferenceHub local))
+                LocalHub = local;
+            
+            if (ReferenceHub._hostHub == null || ReferenceHub.HostHub == null || ReferenceHub.HostHub.characterClassManager == null || ReferenceHub.HostHub.netId != HostHub.netId)
+                ReferenceHub._hostHub = HostHub;
+            
+            if (ReferenceHub._localHub == null || ReferenceHub.LocalHub == null || ReferenceHub.LocalHub.characterClassManager == null || ReferenceHub.LocalHub.netId != LocalHub.netId)
+                ReferenceHub._localHub = HostHub;
+            
+            
             ReportGetTimer += Time.deltaTime;
             WatchlistGetTimer += Time.deltaTime;
 
             if (ReportGetTimer >= 30)
             {
                 ReportGetTimer = 0;
-                Task.Factory.StartNew(async () => await GetReports());
+                Task.Run(async () => await GetReports());
             }
             
             if (WatchlistGetTimer >= 30)
             {
                 WatchlistGetTimer = 0;
-                Task.Factory.StartNew(async () => await GetWatchlist());
+                Task.Run(async () => await GetWatchlist());
             }
 
             UiBlinkTimer += Time.deltaTime;
@@ -101,6 +116,7 @@ namespace CedMod.Components
             {
                 using (HttpClient client = new HttpClient())
                 {
+                    await VerificationChallenge.AwaitVerification();
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Getting Reports.");
                     var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Reports/{QuerySystem.QuerySystemKey}");
@@ -137,6 +153,7 @@ namespace CedMod.Components
             {
                 using (HttpClient client = new HttpClient())
                 {
+                    await VerificationChallenge.AwaitVerification();
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Getting Watchlist.");
                     var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Watchlist/{QuerySystem.QuerySystemKey}");
@@ -206,6 +223,7 @@ namespace CedMod.Components
             {
                 using (HttpClient client = new HttpClient())
                 {
+                    await VerificationChallenge.AwaitVerification();
                     var resp = await client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/GetUserPreferences/{QuerySystem.QuerySystemKey}?id={player.UserId}"));
                     var respString = await resp.Content.ReadAsStringAsync();
                     if (resp.StatusCode != HttpStatusCode.OK)

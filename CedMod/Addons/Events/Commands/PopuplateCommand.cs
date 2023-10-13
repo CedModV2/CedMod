@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using CedMod.Addons.Audio;
 using CedMod.Addons.QuerySystem;
@@ -45,7 +47,15 @@ namespace CedMod.Addons.Events.Commands
             }
             int amount = Convert.ToInt16(arguments.At(0));
 
-            int id = 0;
+            Timing.RunCoroutine(SpawnDummies(amount));
+            response = "Success";
+            return true;
+        }
+
+        public IEnumerator<float> SpawnDummies(int amount)
+        {
+            var first = AudioCommand.FakeConnectionsIds.OrderByDescending(s => s.Key);
+            var id = AudioCommand.FakeConnectionsIds.Count <= 0 ? 1 : first.FirstOrDefault().Key;
             while (id < amount)
             {
                 id++;
@@ -74,9 +84,9 @@ namespace CedMod.Addons.Events.Commands
                 catch (Exception e)
                 {
                 }
+
+                yield return Timing.WaitForSeconds(0.05f);
             }
-            response = "Success";
-            return true;
         }
     }
 }

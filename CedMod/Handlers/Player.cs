@@ -4,16 +4,17 @@ using MEC;
 using PlayerStatsSystem;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
+using PluginAPI.Events;
 
 namespace CedMod.Handlers
 {
     public class Player
     {
         [PluginEvent(ServerEventType.PlayerJoined)]
-        public void OnJoin(CedModPlayer player)
+        public void OnJoin(PlayerJoinedEvent ev)
         {
-            Task.Factory.StartNew(async () => { await BanSystem.HandleJoin(player); });
-            Timing.RunCoroutine(Name(player));
+            Task.Run(async () => { await BanSystem.HandleJoin(CedModPlayer.Get(ev.Player.ReferenceHub)); });
+            Timing.RunCoroutine(Name(CedModPlayer.Get(ev.Player.ReferenceHub)));
         }
         
         public IEnumerator<float> Name(CedModPlayer player)
@@ -41,11 +42,11 @@ namespace CedMod.Handlers
         }
         
         [PluginEvent(ServerEventType.PlayerDying)]
-        public void OnDying(CedModPlayer player, CedModPlayer attacker, DamageHandlerBase damageHandler)
+        public void OnDying(PlayerDyingEvent ev)
         {
-            if (player == null || attacker == null)
+            if (ev.Player == null || ev.Attacker == null)
                 return;
-            FriendlyFireAutoban.HandleKill(player, attacker, damageHandler);
+            FriendlyFireAutoban.HandleKill(CedModPlayer.Get(ev.Player.ReferenceHub), CedModPlayer.Get(ev.Attacker.ReferenceHub), ev.DamageHandler);
         }
     }
 }

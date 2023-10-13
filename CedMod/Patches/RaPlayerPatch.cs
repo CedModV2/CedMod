@@ -35,9 +35,14 @@ namespace CedMod.Patches
     [HarmonyPatch(typeof(RaPlayer), nameof(RaPlayer.ReceiveData), new Type[] { typeof(CommandSender), typeof(string) })]
     public static class RaPlayerPatch
     {
+        public static Dictionary<string, CoroutineHandle> Handles = new Dictionary<string, CoroutineHandle>();
+        
         public static bool Prefix(RaPlayer __instance, CommandSender sender, string data)
         {
-            Timing.RunCoroutine(RaPlayerCoRoutine(__instance, sender, data));
+            if (Handles.ContainsKey(sender.SenderId) && Handles[sender.SenderId].IsRunning)
+                return false;
+            
+            Handles[sender.SenderId] = Timing.RunCoroutine(RaPlayerCoRoutine(__instance, sender, data));
             return false;
         }
 
@@ -78,6 +83,7 @@ namespace CedMod.Patches
             if (referenceHubList.Count > 1)
             {
                 StringBuilder stringBuilder = StringBuilderPool.Shared.Rent("<color=white>");
+                stringBuilder.Clear();
                 stringBuilder.Append("Selecting multiple players:");
                 stringBuilder.Append("\nPlayer ID: <color=green><link=CP_ID>\uF0C5</link></color>");
                 stringBuilder.Append("\nIP Address: " +
@@ -124,6 +130,7 @@ namespace CedMod.Patches
                 if (sender is PlayerCommandSender playerCommandSender2)
                     playerCommandSender2.ReferenceHub.queryProcessor.GameplayData = flag3;
                 StringBuilder stringBuilder = StringBuilderPool.Shared.Rent("<color=white>");
+                stringBuilder.Clear();
                 stringBuilder.Append("Nickname: " + nicknameSync.CombinedName);
                 stringBuilder.Append(string.Format("\nPlayer ID: {0} <color=green><link=CP_ID>\uF0C5</link></color>",
                     (object)referenceHub.PlayerId));
@@ -195,16 +202,18 @@ namespace CedMod.Patches
                 if (flags != 0)
                 {
                     stringBuilder.Append("\nMUTE STATUS:");
-                    foreach (int num in Enum.GetValues(typeof(VcMuteFlags)))
+
+                    foreach (int flag in Enum.GetValues(typeof(VoiceChat.VcMuteFlags)).ToArray<VcMuteFlags>())
                     {
-                        if (num != 0 && (flags & num) == num)
-                        {
-                            stringBuilder.Append(" <color=#F70D1A>");
-                            stringBuilder.Append((object)(VcMuteFlags)num);
-                            stringBuilder.Append("</color>");
-                        }
+                        if (flag == 0 || (flags & flag) != flag)
+                            continue;
+
+                        stringBuilder.Append(" <color=#F70D1A>");
+                        stringBuilder.Append(flag);
+                        stringBuilder.Append("</color>");
                     }
                 }
+
 
                 stringBuilder.Append("\nActive flag(s):");
                 if (characterClassManager.GodMode)
@@ -249,8 +258,10 @@ namespace CedMod.Patches
                     var code = HttpStatusCode.OK;
                     using (HttpClient client = new HttpClient())
                     {
+                        var t = VerificationChallenge.AwaitVerification();
+                        yield return Timing.WaitUntilTrue(() => t.IsCompleted);
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
-                        var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + API.APIUrl + $"/Auth/{characterClassManager.UserId}&{connectionToClient.address}"));
+                        var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + API.APIUrl + $"/Auth/{characterClassManager.UserId}&{connectionToClient.address}?banLists={string.Join(",", ServerPreferences.Prefs.BanListWriteBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&banListWarns={string.Join(",", ServerPreferences.Prefs.BanListReadWarns.Select(s => s.Id))}"));
                         yield return Timing.WaitUntilTrue(() => respTask.IsCompleted);
                         var resp = respTask.Result;
                         var respStringTask = resp.Content.ReadAsStringAsync();
@@ -276,8 +287,7 @@ namespace CedMod.Patches
                             if (cmData["triggeredAvpnPast"] is bool ? (bool)cmData["triggeredAvpnPast"] : false)
                                 stringBuilder.Append("\nActive flag: <color=#red>AntiVpn Triggered</color>");
 
-                            stringBuilder.Append(
-                                $"\nModeration: {cmData["warns"]} Warnings, {cmData["banLogs"]} Banlogs");
+                            stringBuilder.Append($"\nModeration: {cmData["warns"]} Warnings, {cmData["banLogs"]} Banlogs");
                         }
                     }
                     catch (Exception e)
@@ -289,6 +299,8 @@ namespace CedMod.Patches
                     
                     using (HttpClient client = new HttpClient())
                     {
+                        var t = VerificationChallenge.AwaitVerification();
+                        yield return Timing.WaitUntilTrue(() => t.IsCompleted);
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                         var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/RequestData/{QuerySystem.QuerySystemKey}/{characterClassManager.UserId}"));
                         yield return Timing.WaitUntilTrue(() => respTask.IsCompleted);
@@ -449,7 +461,8 @@ namespace CedMod.Patches
                     }
 
                     index = open.IndexOf(report);
-                    Log.Debug($"Rept 8 {index} {targetIndex}");
+                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                        Log.Debug($"Rept 8 {index} {targetIndex}");
 
                     if (index == 0)
                     {
@@ -525,7 +538,7 @@ namespace CedMod.Patches
                 
                 stringBuilder.AppendLine(additional);
 
-                int count = report.IsCheatReport ? 8 : 9;
+                int count = report.IsCheatReport ? 6 : 7;
                 while (count >= 1)
                 {
                     count--;
@@ -646,7 +659,8 @@ namespace CedMod.Patches
 
                         index = inProgress.IndexOf(report);
 
-                        Log.Debug($"Rept 8 {index} {targetIndex}");
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug($"Rept 8 {index} {targetIndex}");
 
                         if (index == 0)
                         {
@@ -742,7 +756,7 @@ namespace CedMod.Patches
 
                     stringBuilder.AppendLine(additional);
                     
-                    int count = report.IsCheatReport ? 7 : 8;
+                    int count = report.IsCheatReport ? 5 : 6;
                     while (count >= 1)
                     {
                         count--;

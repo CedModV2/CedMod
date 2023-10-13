@@ -5,12 +5,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommandSystem;
 using CommandSystem.Commands.RemoteAdmin;
+using Exiled.Events.EventArgs.Player;
 using GameCore;
 using HarmonyLib;
 using PluginAPI.Core;
 using RemoteAdmin;
 using UnityEngine;
 using Utils;
+using Console = System.Console;
+using Player = Exiled.API.Features.Player;
 
 namespace CedMod.Patches
 {
@@ -131,7 +134,7 @@ namespace CedMod.Patches
 							(text == string.Empty) ? "(none)" : text,
 							"."
 						}), ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging);
-						if (ServerStatic.PermissionsHandler.IsVerified && referenceHub.serverRoles.BypassStaff)
+						if (CustomNetworkManager.IsVerified && referenceHub.serverRoles.BypassStaff)
 						{
 							BanPlayer.KickUser(referenceHub, text);
 						}
@@ -142,6 +145,30 @@ namespace CedMod.Patches
 							else if (num != 0L && ConfigFile.ServerConfig.GetBool("broadcast_bans", true))
 								Broadcast.Singleton.RpcAddElement(ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", combinedName), ConfigFile.ServerConfig.GetUShort("broadcast_ban_duration", (ushort) 5), Broadcast.BroadcastFlags.Normal);
 
+#if EXILED
+							try
+							{
+								if (sender is PlayerCommandSender csender)
+								{
+									var exiledEvent = new BannedEventArgs(Exiled.API.Features.Player.Get(referenceHub), Player.Get(csender.ReferenceHub), new BanDetails()
+									{
+										Expires = DateTime.Now.AddSeconds(num).Ticks,
+										IssuanceTime = DateTime.Now.Ticks,
+										Id = referenceHub.characterClassManager.UserId,
+										Issuer = csender.ReferenceHub.LoggedNameFromRefHub(),
+										OriginalName = referenceHub.nicknameSync.Network_myNickSync,
+										Reason = text
+									}, BanHandler.BanType.UserId, true);
+                
+									Exiled.Events.Handlers.Player.OnBanned(exiledEvent);
+								}
+							}
+							catch (Exception e)
+							{
+								Console.WriteLine(e);
+							}
+#endif
+							
 							new Thread(() =>
 							{
 								lock (BanSystem.Banlock)

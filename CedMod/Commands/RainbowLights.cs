@@ -41,7 +41,7 @@ namespace CedMod.Commands
             }
             
 
-            foreach(var light in FlickerableLightController.Instances)
+            foreach(var light in RoomLightController.Instances)
             {
                 if (state)
                 {
@@ -56,7 +56,6 @@ namespace CedMod.Commands
                 {
                     if (light.TryGetComponent(out RainbowLight rainbowLight))
                     {
-                        light.Network_warheadLightOverride = false;
                         Object.Destroy(rainbowLight);
                     }
                 }

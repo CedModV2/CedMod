@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
+using PluginAPI.Events;
 using Respawning;
 using UnityEngine.XR;
 using Server = CedMod.Handlers.Server;
@@ -26,6 +27,11 @@ namespace CedMod.Addons.QuerySystem
                 yield return Timing.WaitForSeconds(3);
             else
                 yield return Timing.WaitForSeconds(0.2f);
+
+            if (CedModMain.Singleton.Config.QuerySystem.RejectRemoteCommands)
+            {
+                Log.Warning("You have RejectRemoteCommands enabled in the CedMod QuerySystem config, features such as RemoteCommands, EventManager, and more will not function correctly");
+            }
             
             if (QuerySystem.QuerySystemKey != "None")
             {
@@ -42,7 +48,7 @@ namespace CedMod.Addons.QuerySystem
                         QuerySystem.QuerySystemKey;
                 }
 
-                Task.Factory.StartNew(async () =>
+                Task.Run(async () =>
                 {
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                         Log.Debug("Checking configs");
@@ -50,6 +56,7 @@ namespace CedMod.Addons.QuerySystem
                     {
                         using (HttpClient client = new HttpClient())
                         {
+                            await VerificationChallenge.AwaitVerification();
                             if (CedModMain.Singleton.Config.QuerySystem.EnableBanreasonSync)
                             {
                                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
@@ -113,11 +120,11 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.WaitingForPlayers)]
-        public void OnWaitingForPlayers()
+        public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
         {
             Timing.RunCoroutine(SyncStart());
 
-            Task.Factory.StartNew(async delegate
+            Task.Run(async delegate
             {
                 if (!WebSocketSystem.Socket.IsRunning)
                 {
@@ -138,7 +145,7 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.RoundStart)]
-        public void OnRoundStart()
+        public void OnRoundStart(RoundStartEvent ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -165,7 +172,7 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.RoundEnd)]
-        public void OnRoundEnd(RoundSummary.LeadingTeam team)
+        public void OnRoundEnd(RoundEndEvent ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -200,28 +207,29 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.PlayerCheaterReport)]
-        public void OnCheaterReport(CedModPlayer plr, CedModPlayer target, string reason)
+        public void OnCheaterReport(PlayerCheaterReportEvent ev)
         {
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug("sending report WR");
-            Task.Factory.StartNew(async () =>
+            Task.Run(async () =>
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug("Thread report send");
-                if (QuerySystem.QuerySystemKey == "None")
+                if (QuerySystem.QuerySystemKey == "None" || !CedModMain.Singleton.Config.CedMod.EnableIngameReports)
                     return;
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug("sending report WR");
                 using (HttpClient client = new HttpClient())
                 {
+                    await VerificationChallenge.AwaitVerification();
                     try
                     {
                         var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/Reports/{QuerySystem.QuerySystemKey}",
                                 new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
                                     {
-                                        {"reporter", plr.UserId},
-                                        {"reported", target.UserId},
-                                        {"reason", reason},
+                                        {"reporter", ev.Player.UserId},
+                                        {"reported", ev.Target.UserId},
+                                        {"reason", ev.Reason},
                                         {"cheating", "true"}
                                     }), Encoding.UTF8,
                                     "application/json"));
@@ -241,17 +249,17 @@ namespace CedMod.Addons.QuerySystem
                 Data = new Dictionary<string, string>()
                 {
                     {"Type", nameof(OnCheaterReport)},
-                    {"UserId", plr.UserId},
-                    {"UserName", plr.Nickname},
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
                     {
                         "Message", string.Concat(new string[]
                         {
                             "ingame: ",
-                            plr.UserId,
+                            ev.Player.UserId,
                             " report ",
-                            target.UserId,
+                            ev.Target.UserId,
                             " for ",
-                            reason,
+                            ev.Reason,
                             "."
                         })
                     }
@@ -260,7 +268,7 @@ namespace CedMod.Addons.QuerySystem
         }
 
         [PluginEvent(ServerEventType.TeamRespawn)]
-        public void OnRespawn(SpawnableTeamType team)
+        public void OnRespawn(TeamRespawnEvent ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -268,46 +276,59 @@ namespace CedMod.Addons.QuerySystem
                 Data = new Dictionary<string, string>()
                 {
                     {"Type", nameof(OnRespawn)},
-                    {"Message", string.Format("Respawn: {0} as {1}.", "undef", team)}
+                    {"Message", string.Format("Respawn: {0} as {1}.", "undef", ev.Team)}
                 }
             });
         }
 
         [PluginEvent(ServerEventType.PlayerReport)]
-        public bool OnReport(CedModPlayer plr, CedModPlayer target, string reason)
+        public bool OnReport(PlayerReportEvent ev)
         {
-            if (CedModMain.Singleton.Config.QuerySystem.ReportBlacklist.Contains(plr.UserId))
+            if (!CedModMain.Singleton.Config.CedMod.EnableIngameReports)
             {
-                plr.SendConsoleMessage($"[REPORTING] You are blacklisted from ingame reporting", "green");
+                if (string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.IngameReportDisabledMessage))
+                {
+                    ev.Player.SendConsoleMessage($"[REPORTING] Ingame reporting is disabled on this server.", "green");
+                    return false;
+                }
+                else
+                {
+                    ev.Player.SendConsoleMessage($"[REPORTING] {CedModMain.Singleton.Config.CedMod.IngameReportDisabledMessage}", "green");
+                    return false;
+                }
+            }
+            if (CedModMain.Singleton.Config.QuerySystem.ReportBlacklist.Contains(ev.Player.UserId))
+            {
+                ev.Player.SendConsoleMessage($"[REPORTING] You are blacklisted from ingame reporting", "green");
                 return false;
             }
-            if (plr.UserId == target.UserId)
+            if (ev.Player.UserId == ev.Target.UserId)
             {
-                plr.SendConsoleMessage($"[REPORTING] You can't report yourself", "green");
+                ev.Player.SendConsoleMessage($"[REPORTING] You can't report yourself", "green");
                 return false;
             }
-            if (Server.reported.ContainsKey(target.ReferenceHub))
+            if (Server.reported.ContainsKey(ev.Target.ReferenceHub))
             {
-                plr.SendConsoleMessage($"[REPORTING] {target.Nickname} ({(target.DoNotTrack ? "DNT" : target.UserId)}) has already been reported by {CedModPlayer.Get(Server.reported[target.ReferenceHub]).Nickname}", "green");
+                ev.Player.SendConsoleMessage($"[REPORTING] {ev.Target.Nickname} ({(ev.Target.DoNotTrack ? "DNT" : ev.Target.UserId)}) has already been reported by {CedModPlayer.Get(Server.reported[ev.Target.ReferenceHub]).Nickname}", "green");
                 return false;
             }
-            if (target.RemoteAdminAccess && !CedModMain.Singleton.Config.QuerySystem.StaffReportAllowed)
+            if (ev.Target.RemoteAdminAccess && !CedModMain.Singleton.Config.QuerySystem.StaffReportAllowed)
             {
-                plr.SendConsoleMessage($"[REPORTING] " + CedModMain.Singleton.Config.QuerySystem.StaffReportMessage, "green");
+                ev.Player.SendConsoleMessage($"[REPORTING] " + CedModMain.Singleton.Config.QuerySystem.StaffReportMessage, "green");
                 return false;
             }
-            if (reason.IsEmpty())
+            if (ev.Reason.IsEmpty())
             {
-                plr.SendConsoleMessage($"[REPORTING] You have to enter a reason", "green");
+                ev.Player.SendConsoleMessage($"[REPORTING] You have to enter a reason", "green");
                 return false;
             }
             
-            Server.reported.Add(target.ReferenceHub, plr.ReferenceHub);
-            Timing.RunCoroutine(RemoveFromReportList(target.ReferenceHub));
+            Server.reported.Add(ev.Target.ReferenceHub, ev.Player.ReferenceHub);
+            Timing.RunCoroutine(RemoveFromReportList(ev.Target.ReferenceHub));
             
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug("sending report WR");
-            Task.Factory.StartNew(async () =>
+            Task.Run(async () =>
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug("Thread report send");    
@@ -317,26 +338,27 @@ namespace CedMod.Addons.QuerySystem
                     Log.Debug("sending report WR");
                 using (HttpClient client = new HttpClient())
                 {
+                    await VerificationChallenge.AwaitVerification();
                     try
                     {
                         ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                         {
-                            plr.SendConsoleMessage($"[REPORTING] Sending report to server staff...", "green");
+                            ev.Player.SendConsoleMessage($"[REPORTING] Sending report to server staff...", "green");
                         });
                         var response = await client.PostAsync(
                                 $"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/Reports/{QuerySystem.QuerySystemKey}",
                                 new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
                                     {
-                                        { "reporter", plr.UserId },
-                                        { "reported", target.UserId },
-                                        { "reason", reason },
+                                        { "reporter", ev.Player.UserId },
+                                        { "reported", ev.Target.UserId },
+                                        { "reason", ev.Reason },
                                     }), Encoding.UTF8,
                                     "application/json"));
                         if (response.IsSuccessStatusCode)
                         {
                             ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                             {
-                                plr.SendConsoleMessage($"[REPORTING] {CedModMain.Singleton.Config.QuerySystem.ReportSuccessMessage}", "green");
+                                ev.Player.SendConsoleMessage($"[REPORTING] {CedModMain.Singleton.Config.QuerySystem.ReportSuccessMessage}", "green");
                             });
                         }
                         else
@@ -344,7 +366,7 @@ namespace CedMod.Addons.QuerySystem
                             string textResponse = await response.Content.ReadAsStringAsync();
                             ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                             {
-                                plr.SendConsoleMessage($"[REPORTING] Failed to send report, please let server staff know: {textResponse}", "green");
+                                ev.Player.SendConsoleMessage($"[REPORTING] Failed to send report, please let server staff know: {textResponse}", "green");
                             });
                             Log.Error($"Failed to send report: {textResponse}");
                         }
@@ -356,7 +378,7 @@ namespace CedMod.Addons.QuerySystem
                     {
                         ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                         {
-                            plr.SendConsoleMessage($"[REPORTING] Failed to send report, please let server staff know: {ex}", "green");
+                            ev.Player.SendConsoleMessage($"[REPORTING] Failed to send report, please let server staff know: {ex}", "green");
                         });
                         Log.Error(ex.ToString());
                     }
@@ -368,17 +390,17 @@ namespace CedMod.Addons.QuerySystem
                 Data = new Dictionary<string, string>()
                 {
                     {"Type", nameof(OnReport)},
-                    {"UserId", plr.UserId},
-                    {"UserName", plr.Nickname},
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
                     {
                         "Message", string.Concat(new string[]
                         {
                             "ingame: ",
-                            plr.UserId,
+                            ev.Player.UserId,
                             " report ",
-                            target.UserId,
+                            ev.Target.UserId,
                             " for ",
-                            reason,
+                            ev.Reason,
                             "."
                         })
                     }

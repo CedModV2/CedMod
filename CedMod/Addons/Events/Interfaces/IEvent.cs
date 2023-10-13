@@ -1,4 +1,4 @@
-﻿namespace CedMod.Addons.Events
+﻿namespace CedMod.Addons.Events.Interfaces
 {
     public interface IEvent
     {
@@ -6,7 +6,6 @@
         string EvenAuthor { get; }
         string EventDescription { get; set; }
         string EventPrefix { get; }
-        bool BulletHolesAllowed { get; set; }
         IEventConfig Config { get; }
         
         void PrepareEvent();

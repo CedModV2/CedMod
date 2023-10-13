@@ -22,7 +22,8 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
         public string Command { get; } = "create";
 
         public string[] Aliases { get; } = {
-            "cr"
+            "cr",
+            "c"
         };
 
         public string Description { get; } = "Assigns an available jail location to your player.";
@@ -66,8 +67,8 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
                     }
                 }
             }
-            
-            AdminSitHandler.Singleton.Sits.Add(new AdminSit()
+
+            var sit = new AdminSit()
             {
                 AssociatedReportId = 0,
                 InitialDuration = 0,
@@ -78,25 +79,19 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
                     adminToyBase,
                 },
                 Players = new List<AdminSitPlayer>()
-                {
-                    new AdminSitPlayer()
-                    {
-                        Player = plr,
-                        PlayerType = AdminSitPlayerType.Handler,
-                        UserId = plr.UserId,
-                        Ammo = new Dictionary<ItemType, ushort>(plr.ReferenceHub.inventory.UserInventory.ReserveAmmo),
-                        Health = plr.Health,
-                        Items = new Dictionary<ushort, ItemBase>(plr.ReferenceHub.inventory.UserInventory.Items),
-                        Position = plr.Position,
-                        Role = plr.Role,
-                    }
-                }
-            });
+            };
+            
+            AdminSitHandler.Singleton.Sits.Add(sit);
 
             loc.InUse = true;
             
-            plr.SetRole(RoleTypeId.Tutorial, RoleChangeReason.RemoteAdmin);
-            Timing.CallDelayed(0.1f, () => { plr.Position = loc.SpawnPosition; });
+            JailParentCommand.AddPlr(plr, sit);
+            
+            foreach (var plr1 in arguments)
+            {
+                CedModPlayer cmPlr = CedModPlayer.Get(plr1);
+                JailParentCommand.AddPlr(cmPlr, sit);
+            }
 
             response = "Jail assigned. Use jail add {playerId} to add someone and jail remove {playerId}";
             return false;

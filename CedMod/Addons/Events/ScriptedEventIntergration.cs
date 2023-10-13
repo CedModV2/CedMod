@@ -1,4 +1,6 @@
-﻿namespace CedMod.Addons.Events
+﻿using CedMod.Addons.Events.Interfaces;
+
+namespace CedMod.Addons.Events
 {
     public class ScriptedEventIntergration: IEvent
     {

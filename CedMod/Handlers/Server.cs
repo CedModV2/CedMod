@@ -11,6 +11,7 @@ using Mirror;
 using Newtonsoft.Json;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
+using PluginAPI.Events;
 
 namespace CedMod.Handlers
 {
@@ -19,7 +20,7 @@ namespace CedMod.Handlers
         public static Dictionary<ReferenceHub, ReferenceHub> reported = new Dictionary<ReferenceHub, ReferenceHub>();
 
         [PluginEvent(ServerEventType.RoundRestart)]
-        public void OnRoundRestart()
+        public void OnRoundRestart(RoundRestartEvent ev)
         {
             FriendlyFireAutoban.Teamkillers.Clear();
             foreach (var fake in AudioCommand.FakeConnections)
@@ -30,7 +31,7 @@ namespace CedMod.Handlers
             AudioCommand.FakeConnectionsIds.Clear();
             RemoteAdminModificationHandler.IngameUserPreferencesMap.Clear();
             RemoteAdminModificationHandler.Singleton.Requesting.Clear();
-            Task.Factory.StartNew(() =>
+            Task.Run(() =>
             {
                 lock (BanSystem.CachedStates)
                 {

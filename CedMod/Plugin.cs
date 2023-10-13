@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using CedMod.Addons.AdminSitSystem;
 using CedMod.Addons.Audio;
 using CedMod.Addons.Events;
+using CedMod.Addons.Events.Interfaces;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
 using CedMod.Components;
@@ -56,7 +57,7 @@ namespace CedMod
         public static PluginHandler Handler;
 #endif
 
-        public const string PluginVersion = "3.4.7";
+        public const string PluginVersion = "3.4.13";
 
 #if !EXILED
         [PluginConfig]
@@ -68,7 +69,7 @@ namespace CedMod
         public override string Prefix { get; } = "cm";
         public override string Author { get; } = "ced777ric#8321";
         public override Version Version { get; } = new Version(PluginVersion);
-        public override Version RequiredExiledVersion { get; } = new Version(6, 0, 0);
+        public override Version RequiredExiledVersion { get; } = new Version(8, 0, 0);
 
         public override void OnEnabled()
         {
@@ -84,6 +85,12 @@ namespace CedMod
         void LoadPlugin()
         {
 #if !EXILED
+            if (Config == null)
+            {
+                Timing.CallPeriodically(100000, 1, () => Log.Error("Failed to load CedMod, your CedMod config file is invalid. Please make sure the config.yml file is valid, the config.yml file is located in the CedMod folder inside the folder you installed the dll into, if the file does not contain valid yml, delete it, or resolve issues, and restart."));
+                return;
+            }
+            
             if (!Config.IsEnabled)
                 return;
             var loadProperty = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(s => s.GetName().Name == "CedModV3").GetType("CedMod.API").GetProperty("HasLoaded");
@@ -173,7 +180,7 @@ namespace CedMod
             catch (Exception e)
             {
                 PluginAPI.Core.Log.Error($"Failed to patch: {e.ToString()}");
-                _harmony.UnpatchAll();
+                _harmony.UnpatchAll(_harmony.Id);
                 PluginAPI.Events.EventManager.UnregisterAllEvents(this);
             }
 
@@ -244,10 +251,11 @@ namespace CedMod
             if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt")))
             {
                 // Start the HTTP server.
-                Task.Factory.StartNew(async () =>
+                Task.Run(async () =>
                 {
                     try
                     {
+                        await VerificationChallenge.AwaitVerification();
                         await WebSocketSystem.Start();
                     }
                     catch (Exception e)
@@ -426,6 +434,7 @@ namespace CedMod
             }
 
             Task.Run(Verification.ObtainId);
+            Task.Run(() => ServerPreferences.ResolvePreferences(true));
         }
 
         private void HandleInstanceModeChange(ReferenceHub arg1, ClientInstanceMode arg2)

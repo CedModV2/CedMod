@@ -10,13 +10,13 @@ namespace CedMod
         public float hueShiftSpeed = 0.2f;
         public float value = 1f;
 
-        private FlickerableLightController _light;
-        public FlickerableLightController Light
+        private RoomLightController _light;
+        public RoomLightController Light
         {
             get
             {
                 if (_light == null)
-                    _light = GetComponent<FlickerableLightController>();
+                    _light = GetComponent<RoomLightController>();
                 return _light;
             }
         }
@@ -24,19 +24,19 @@ namespace CedMod
         private void Awake()
         {
             Instances.Add(this);
-            Light.Network_warheadLightOverride = true;
         }
 
         private void OnDestroy()
         {
+            Light.NetworkOverrideColor = Color.clear;
             Instances.Remove(this);
         }
 
         private void Update()
         {
             float amountToShift = hueShiftSpeed * Time.deltaTime;
-            Color newColor = ShiftHueBy(Light.Network_warheadLightColor, amountToShift);
-            Light.Network_warheadLightColor = newColor;
+            Color newColor = ShiftHueBy(Light.NetworkOverrideColor, amountToShift);
+            Light.NetworkOverrideColor = newColor;
         }
 
         private Color ShiftHueBy(Color color, float amount)

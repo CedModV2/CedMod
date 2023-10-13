@@ -28,9 +28,14 @@ namespace CedMod.Patches
     [HarmonyPatch(typeof(RaPlayerAuth), nameof(RaPlayerAuth.ReceiveData), new Type[] { typeof(CommandSender), typeof(string) })]
     public static class RaPlayerAuthPatch
     {
+        public static Dictionary<string, CoroutineHandle> Handles = new Dictionary<string, CoroutineHandle>();
+        
         public static bool Prefix(RaPlayerAuth __instance, CommandSender sender, string data)
         {
-            Timing.RunCoroutine(RaPlayerCoRoutine(__instance, sender, data));
+            if (Handles.ContainsKey(sender.SenderId) && Handles[sender.SenderId].IsRunning)
+                return false;
+            
+            Handles[sender.SenderId] = Timing.RunCoroutine(RaPlayerCoRoutine(__instance, sender, data));
             return false;
         }
 

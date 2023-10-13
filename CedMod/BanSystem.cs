@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CedMod.Addons.QuerySystem;
 using MEC;
 using Newtonsoft.Json;
 using PluginAPI.Core;
@@ -36,7 +37,7 @@ namespace CedMod
                 }
                 
                 if (req)
-                    info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{player.UserId}&{player.IpAddress}");
+                    info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{player.UserId}&{player.IpAddress}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}");
 
                 if (info == null)
                 {
@@ -47,7 +48,8 @@ namespace CedMod
                             {"success", "true"},
                             {"vpn", "false"},
                             {"isbanned", "true"},
-                            {"preformattedmessage", "You are banned from this server, please check back later to see the ban reason."}
+                            {"preformattedmessage", "You are banned from this server, please check back later to see the ban reason."},
+                            {"iserror", "false"}
                         };
                     }
                     else if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempd-{player.UserId}")))
@@ -62,12 +64,13 @@ namespace CedMod
                             {"success", "true"},
                             {"vpn", "false"},
                             {"isbanned", "false"},
+                            {"iserror", "false"}
                         };
                     }
 
                     if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempm-{player.UserId}")) && !File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempum-{player.UserId}")))
                     {
-                        info.Add("mute", "1");
+                        info.Add("mute", "Global");
                         info.Add("mutereason", "Temporarily unavailable");
                         info.Add("muteduration", "Until revoked");
                     }
@@ -95,7 +98,7 @@ namespace CedMod
                     int count = 5;
                     while (count >= 0)
                     {
-                        await Task.Delay(100);
+                        await Task.Delay(500);
                         count--;
                         try
                         {
@@ -118,7 +121,7 @@ namespace CedMod
                         int count = 5;
                         while (count >= 0)
                         {
-                            await Task.Delay(100);
+                            await Task.Delay(500);
                             count--;
                             try
                             {
@@ -167,7 +170,8 @@ namespace CedMod
                         }
                     });
 
-                    player.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
+                    if (!string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.MuteCustomInfo))
+                        player.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
                 }
             }
             catch (Exception ex)

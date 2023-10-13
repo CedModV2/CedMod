@@ -1,5 +1,6 @@
 ﻿using System;
 using CedMod.Addons.Events;
+using CedMod.Addons.Events.Interfaces;
 using HarmonyLib;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
@@ -33,9 +34,6 @@ namespace CedMod.SampleEvent
         public string EvenAuthor { get; } = "ced777ric";
         public string EventDescription { get; set; } = "A testing event, you can use this to make your own events";
         public string EventPrefix { get; } = "Sample";
-        public bool OverrideWinConditions { get; }
-        public bool BulletHolesAllowed { get; set; } = false;
-        public PluginHandler PluginHandler { get; }
 
         public IEventConfig Config => EventConfig;
 

@@ -85,7 +85,7 @@ namespace CedMod.Patches
 				}
 			}
 			
-			long num = (long)TimeSpan.FromMinutes(143998560).TotalSeconds;
+			long num = (long)TimeSpan.FromMinutes(CedModMain.Singleton.Config.CedMod.DefaultMuteDuration).TotalSeconds;
 			if (CedModMain.Singleton.Config.CedMod.UseMuteDurationAndReason)
 			{
 				try
@@ -119,12 +119,13 @@ namespace CedMod.Patches
 					{
 						var plr = CedModPlayer.Get(referenceHub);
 						plr.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", MuteType.Global.ToString()).Replace("{duration}", num.ToString()).Replace("{reason}", text), "red");
-						Broadcast.Singleton.TargetAddElement(plr.Connection, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", MuteType.Global.ToString()).Replace("{duration}", num.ToString()).Replace("{reason}", text), 5, Broadcast.BroadcastFlags.Normal);
+						Broadcast.Singleton.TargetAddElement(plr.Connection, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", MuteType.Global.ToString()).Replace("{duration}", $"{num.ToString()} seconds").Replace("{reason}", text), 5, Broadcast.BroadcastFlags.Normal);
 						//plr.Mute(true);
 						VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.LocalRegular);
 						
-						plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", MuteType.Global.ToString());
-						Task.Factory.StartNew(async () =>
+						if (!string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.MuteCustomInfo))
+							plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", MuteType.Global.ToString());
+						Task.Run(async () =>
 						{
 							await API.Mute(plr, sender.LogName, num, text, MuteType.Global);
 						});

@@ -317,8 +317,9 @@ namespace CedMod.Addons.QuerySystem.Patches
 						return;
 					}
 
-					if (!CustomLiteNetLib4MirrorTransport.ProcessCancellationData(request, EventManager.ExecuteEvent<PreauthCancellationData>(ServerEventType.PlayerPreauth, null, request.RemoteEndPoint.Address.ToString(), 0, CentralAuthPreauthFlags.None, null, null, request, position)))
+					if (!CustomLiteNetLib4MirrorTransport.ProcessCancellationData(request, EventManager.ExecuteEvent<PreauthCancellationData>(new PlayerPreauthEvent(null, request.RemoteEndPoint.Address.ToString(), 0, CentralAuthPreauthFlags.None, null, null, request, position))))
 						return;
+
 
 					request.Accept();
 					CustomLiteNetLib4MirrorTransport.PreauthDisableIdleMode();
@@ -422,8 +423,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 						CustomLiteNetLib4MirrorTransport.UserRateLimit.Add(userId);
 					}
 
-					if (!flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreBans) ||
-					    !ServerStatic.GetPermissionsHandler().IsVerified)
+					if (!flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreBans) || !CustomNetworkManager.IsVerified)
 					{
 						var ban = BanHandler.QueryBan(userId, realIp ?? request.RemoteEndPoint.Address.ToString());
 						if (ban.Key != null || ban.Value != null)
@@ -468,8 +468,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 						return;
 					}
 
-					if (flags.HasFlagFast(CentralAuthPreauthFlags.GloballyBanned) &&
-					    (ServerStatic.PermissionsHandler.IsVerified || CustomLiteNetLib4MirrorTransport.UseGlobalBans))
+					if (flags.HasFlagFast(CentralAuthPreauthFlags.GloballyBanned) && (CustomNetworkManager.IsVerified || CustomLiteNetLib4MirrorTransport.UseGlobalBans))
 					{
 						if (CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
 							ServerConsole.AddLog($"Player {userId} ({ep}) kicked due to an active global ban.");
@@ -481,12 +480,22 @@ namespace CedMod.Addons.QuerySystem.Patches
 						return;
 					}
 
-					if (!(flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreWhitelist) &&
-					      ServerStatic.GetPermissionsHandler().IsVerified) && !WhiteList.IsWhitelisted(userId))
+					if (!(flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreWhitelist) && CustomNetworkManager.IsVerified) && !WhiteList.IsWhitelisted(userId) && !QuerySystem.Whitelist.Contains(userId))
 					{
 						if (CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
-							ServerConsole.AddLog(
-								$"Player {userId} tried joined from endpoint {ep}, but is not whitelisted.");
+							ServerConsole.AddLog($"Player {userId} tried joined from endpoint {ep}, but is not whitelisted.");
+
+						CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
+						CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.NotWhitelisted);
+						request.Reject(CustomLiteNetLib4MirrorTransport.RequestWriter);
+						CustomLiteNetLib4MirrorTransport.ResetIdleMode();
+						return;
+					}
+
+					if (!(flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreWhitelist) && CustomNetworkManager.IsVerified) && QuerySystem.UseWhitelist && !QuerySystem.Whitelist.Contains(userId) && !WhiteList.Users.Contains(userId))
+					{
+						if (CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
+							ServerConsole.AddLog($"Player {userId} tried joined from endpoint {ep}, but is not whitelisted.");
 
 						CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
 						CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.NotWhitelisted);
@@ -546,14 +555,15 @@ namespace CedMod.Addons.QuerySystem.Patches
 							CustomLiteNetLib4MirrorTransport.UserIds.Add(request.RemoteEndPoint,
 								new PreauthItem(userId));
 
-						if (!CustomLiteNetLib4MirrorTransport.ProcessCancellationData(request, EventManager.ExecuteEvent<PreauthCancellationData>(ServerEventType.PlayerPreauth, userId, request.RemoteEndPoint.Address.ToString(), expiration, flags, country, signature, request, position)))
+						if (!CustomLiteNetLib4MirrorTransport.ProcessCancellationData(request, EventManager.ExecuteEvent<PreauthCancellationData>(new PlayerPreauthEvent(userId, request.RemoteEndPoint.Address.ToString(), expiration, flags, country, signature, request, position))))
 							return;
 
-						Task.Factory.StartNew(async () =>
+
+						Task.Run(async () =>
 						{
 							string id = userId;
 							string ip = realIp ?? request.RemoteEndPoint.Address.ToString();
-							Dictionary<string, string> info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{id}&{ip}");
+							Dictionary<string, string> info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{id}&{ip}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}");
 							lock (BanSystem.CachedStates)
 							{
 								if (BanSystem.CachedStates.ContainsKey(id))

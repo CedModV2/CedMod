@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Security;
@@ -34,6 +35,11 @@ namespace CedMod
 
         public static async Task<object> APIRequest(string endpoint, string arguments, bool returnstring = false, string type = "GET")
         {
+            if (!VerificationChallenge.CompletedChallenge)
+            {
+                Log.Error($"API request failed: Challenge not complete");
+                return null;
+            }
             string response = "";  
             try
             {
@@ -42,6 +48,7 @@ namespace CedMod
                 {
                     using (HttpClient client = new HttpClient())
                     {
+                        await VerificationChallenge.AwaitVerification();
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                         resp = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint + arguments);
                         response = await resp.Content.ReadAsStringAsync();
@@ -52,6 +59,7 @@ namespace CedMod
                 {
                     using (HttpClient client = new HttpClient())
                     {
+                        await VerificationChallenge.AwaitVerification();
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                         resp = await client.DeleteAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint + arguments);
                         response = await resp.Content.ReadAsStringAsync();
@@ -62,6 +70,7 @@ namespace CedMod
                 {
                     using (HttpClient client = new HttpClient())
                     {
+                        await VerificationChallenge.AwaitVerification();
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                         resp = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json"));
                         response = await resp.Content.ReadAsStringAsync();
@@ -94,21 +103,28 @@ namespace CedMod
         public static async Task Mute(Player player, string adminname, double duration, string reason, MuteType Type)
         {
             long realduration = (long)TimeSpan.FromSeconds(duration).TotalMinutes;
-            string req = "{\"AdminName\": \"" + adminname + "\"," +
-                         "\"Muteduration\": " + realduration + "," +
-                         "\"Type\": " + (int)Type + "," +
-                         "\"Mutereason\": \"" + reason + "\"," +
-                         "\"UserId\": \"" + player.UserId + "\"}";
-            Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"api/Mute/{player.UserId}", req, false, "POST");
+            if (realduration <= 3)
+                return;
+            
+            Dictionary<string, object> data = new Dictionary<string, object>()
+            {
+                { "UserId", player.UserId },
+                { "Type", (int)Type },
+                { "AdminName", adminname },
+                { "Mutereason", reason },
+                { "Muteduration", (int)realduration }
+            };
+            
+            Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"api/Mute/{player.UserId}?banLists={string.Join(",", ServerPreferences.Prefs.BanListWriteMutes.Select(s => s.Id))}", JsonConvert.SerializeObject(data), false, "POST");
             if (result == null)
             {
-                await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempm-{player.UserId}"), req);
+                await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempm-{player.UserId}"), JsonConvert.SerializeObject(data));
             }
         }
         
         public static async Task UnMute(Player player)
         {
-            Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"api/Mute/{player.UserId}", "", false, "DELETE");
+            Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"api/Mute/{player.UserId}?banLists={string.Join(",", ServerPreferences.Prefs.BanListWriteMutes.Select(s => s.Id))}", "", false, "DELETE");
             if (result == null)
             {
                 await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempum-{player.UserId}"), player.UserId);
@@ -120,15 +136,19 @@ namespace CedMod
             long realduration = (long)TimeSpan.FromSeconds(duration).TotalMinutes;
             if (duration >= 1)
             {
-                string json = "{\"Userid\": \"" + player.UserId + "\"," +
-                              "\"Ip\": \"" + player.IpAddress+"\"," +
-                              "\"AdminName\": \"" + sender.Replace("\"", "'") + "\"," +
-                              "\"BanDuration\": "+realduration+"," +
-                              "\"BanReason\": \""+reason.Replace("\"", "'")+"\"}";
-                Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest("Auth/Ban", json, false, "POST");
+                Dictionary<string, object> data = new Dictionary<string, object>()
+                {
+                    { "Userid", player.UserId },
+                    { "Ip", player.IpAddress },
+                    { "AdminName", sender.Replace("\"", "'") },
+                    { "BanDuration", (int)realduration },
+                    { "BanReason", reason.Replace("\"", "'") }
+                };
+                
+                Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"Auth/Ban?banLists={string.Join(",", ServerPreferences.Prefs.BanListWriteBans.Select(s => s.Id))}", JsonConvert.SerializeObject(data), false, "POST");
                 if (result == null)
                 {
-                    await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempb-{player.UserId}"), json);
+                    await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempb-{player.UserId}"), JsonConvert.SerializeObject(data));
                     result = new Dictionary<string, string>()
                     {
                         { "preformattedmessage", $"You have been banned from this server: {reason}" }
@@ -161,15 +181,19 @@ namespace CedMod
             double realduration = TimeSpan.FromSeconds(duration).TotalMinutes;
             if (duration >= 1)
             {
-                string json = "{\"Userid\": \"" + UserId + "\"," +
-                              "\"Ip\": \"0.0.0.0\"," +
-                              "\"AdminName\": \"" + sender.Replace("\"", "'") + "\"," +
-                              "\"BanDuration\": "+realduration+"," +
-                              "\"BanReason\": \""+reason.Replace("\"", "'")+"\"}";
-                Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest("Auth/Ban", json, false, "POST");
+                Dictionary<string, object> data = new Dictionary<string, object>()
+                {
+                    { "Userid", UserId },
+                    { "Ip", "0.0.0.0" },
+                    { "AdminName", sender.Replace("\"", "'") },
+                    { "BanDuration", (int)realduration },
+                    { "BanReason", reason.Replace("\"", "'") }
+                };
+                
+                Dictionary<string, string> result = (Dictionary<string, string>) await APIRequest($"Auth/Ban?banLists={string.Join(",", ServerPreferences.Prefs.BanListWriteBans.Select(s => s.Id))}", JsonConvert.SerializeObject(data), false, "POST");
                 if (result == null)
                 {
-                    await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempb-{UserId}"), json);
+                    await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "Internal", $"tempb-{UserId}"), JsonConvert.SerializeObject(data));
                     result = new Dictionary<string, string>()
                     {
                         { "preformattedmessage", $"You have been banned from this server: {reason}" }
@@ -211,12 +235,19 @@ namespace CedMod
 
         public static IEnumerator<float> StrikeBad(CedModPlayer player, string reason)
         {
-            player.ReferenceHub.playerStats.KillPlayer(new DisruptorDamageHandler(new Footprint(player.ReferenceHub), -1));
+            try
+            {
+                player.ReferenceHub.playerStats.KillPlayer(new DisruptorDamageHandler(new Footprint(player.ReferenceHub), -1));
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Failed to kill for kick: {e}");
+            }
             yield return Timing.WaitForSeconds(0.1f);
             int count = 5;
             while (count >= 0)
             {
-                yield return Timing.WaitForSeconds(0.1f);
+                yield return Timing.WaitForSeconds(0.2f);
                 count--;
                 try
                 {

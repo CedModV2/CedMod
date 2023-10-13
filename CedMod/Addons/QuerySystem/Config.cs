@@ -7,6 +7,9 @@ namespace CedMod.Addons.QuerySystem
     {
         [Description("Commands in this list will not be allowed to run via the web API (must be uppercase)")]
         public List<string> DisallowedWebCommands { get; set; } = new List<string> { "REQUEST_DATA AUTH", "GBAN_KICK" };
+        
+        [Description("If true, the plugin will reject any remote command from the panel WARNING: THIS WILL BREAK FEATURES SUCH AS, Remote Commands, Event Manager, AND POSSIBLY MORE")]
+        public bool RejectRemoteCommands { get; set; } = false;
 
         [Description("If true, the plugin will sync predefined reasons with the panel")]
         public bool EnableBanreasonSync { get; set; } = true;

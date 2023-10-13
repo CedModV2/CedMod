@@ -15,5 +15,6 @@ namespace CedMod.ApiModals
         public string FileHash { get; set; }
         public string CedModVersionIdentifier { get; set; }
         public string KeyHash { get; set; }
+        public bool IsVerified { get; set; }
     }
 }

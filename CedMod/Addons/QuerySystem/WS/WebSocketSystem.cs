@@ -89,6 +89,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 Dictionary<string, string> data2 = new Dictionary<string, string>();
                 using (HttpClient client = new HttpClient())
                 {
+                    await VerificationChallenge.AwaitVerification();
                     var resp = await client.SendAsync(new HttpRequestMessage()
                     {
                         Method = HttpMethod.Options,
@@ -140,7 +141,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         await Task.Delay(2000);
                         lock (reconnectLock)
                         {
-                            Task.Factory.StartNew(async () =>
+                            Task.Run(async () =>
                             { 
                                 WebSocketSystem.Reconnect = false;
                                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
@@ -166,7 +167,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         await Task.Delay(5000);
                         lock (reconnectLock)
                         {
-                            Task.Factory.StartNew(async () =>
+                            Task.Run(async () =>
                             {
                                 try
                                 {
@@ -358,7 +359,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                             {
                                 var toRefresh = CedModPlayer.Get(jsonData["UserId"]);
-                                if (toRefresh == null && RemoteAdminModificationHandler.Singleton.Requesting.Contains(toRefresh.UserId))
+                                if (toRefresh == null || RemoteAdminModificationHandler.Singleton.Requesting.Contains(toRefresh.UserId))
                                     return;
                                 RemoteAdminModificationHandler.Singleton.ResolvePreferences(toRefresh, null);
                             });
@@ -366,7 +367,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         case "reportstateack":
                         case "reportack":
                             Log.Info("Updating Reports list from panel ack.");
-                            Task.Factory.StartNew(() =>
+                            Task.Run(() =>
                             {
                                 RemoteAdminModificationHandler.UpdateReportList();
                                 if (text2 == "reportack")
@@ -454,8 +455,8 @@ namespace CedMod.Addons.QuerySystem.WS
                                 {
                                     ' '
                                 });
-                                if (jsonData["command"].ToUpper().Contains("REQUEST_DATA AUTH") ||
-                                    jsonData["command"].ToUpper().Contains("SUDO QUIT"))
+                                
+                                if (jsonData["command"].ToUpper().Contains("REQUEST_DATA AUTH") || jsonData["command"].ToUpper().Contains("SUDO QUIT"))
                                 {
                                     Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                                     {
@@ -465,8 +466,10 @@ namespace CedMod.Addons.QuerySystem.WS
                                             { "Message", "This command is disabled" }
                                         }
                                     }));
+                                    return;
                                 }
-                                else if (CedModMain.Singleton.Config.QuerySystem.DisallowedWebCommands.Contains(array[0].ToUpper()))
+                                
+                                if (CedModMain.Singleton.Config.QuerySystem.DisallowedWebCommands.Contains(array[0].ToUpper()))
                                 {
                                     Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                                     {
@@ -476,6 +479,20 @@ namespace CedMod.Addons.QuerySystem.WS
                                             { "Message", "This command is disabled" }
                                         }
                                     }));
+                                    return;
+                                }
+
+                                if (CedModMain.Singleton.Config.QuerySystem.RejectRemoteCommands)
+                                {
+                                    Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                                    {
+                                        Recipient = cmd.Recipient,
+                                        Data = new Dictionary<string, string>()
+                                        {
+                                            { "Message", "Remote commands is disabled, features may not function as intended, to resolve, enabled RejectRemoteCommands in the QueryServer section of the CedMod plugin config" }
+                                        }
+                                    }));
+                                    return;
                                 }
 
                                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
@@ -552,7 +569,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             var plr = CedModPlayer.Get(jsonData["steamid"]);
                             if (plr != null)
                             {
-                                Log.Info($"user: {plr.UserId} muted trough panel, issuing mute...");
+                                Log.Info($"user: {plr.UserId} muted through panel, issuing mute...");
                                 Enum.TryParse(jsonData["type"], out MuteType muteType);
                                 plr.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), "red");
                                 Broadcast.Singleton.TargetAddElement(plr.Connection, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), 5, Broadcast.BroadcastFlags.Normal);
@@ -572,7 +589,8 @@ namespace CedMod.Addons.QuerySystem.WS
                                     VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.LocalIntercom);
                                 }
 
-                                plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
+                                if (!string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.MuteCustomInfo))
+                                    plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
                                 Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
                                 {
                                     Recipient = cmd.Recipient,
@@ -641,6 +659,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             Log.Info($"Panel requested refresh of api key: {jsonData["Reason"]}");
                             using (HttpClient client = new HttpClient())
                             {
+                                await VerificationChallenge.AwaitVerification();
                                 var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/FetchKey/{QuerySystem.QuerySystemKey}", new StringContent(JsonConvert.SerializeObject(new
                                 {
                                     Hash = jsonData["Hash"]
@@ -665,6 +684,68 @@ namespace CedMod.Addons.QuerySystem.WS
                                 }
                             }
                             break;
+                        case "VerificationCheck":
+                            try
+                            {
+                                if (!CustomNetworkManager.IsVerified || IsCheckingToken)
+                                    return;
+                                IsCheckingToken = true;
+
+                                var delay = !ServerConsole._serverName.Contains("CedModVerification");
+
+                                Verification.ServerId = Convert.ToInt32(jsonData["ServerId"]);
+                                ServerConsole.ReloadServerName();
+                                ServerConsole.Update = true;
+
+                                if (delay)
+                                    Task.Run(async () =>
+                                    {
+                                        try
+                                        {
+                                            await Task.Delay(90000);
+                                            await HandleVerification();
+                                            IsCheckingToken = false;
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            Log.Error($"Panel requested verification check however check failed, {e.ToString()}");
+                                            SendQueue.Enqueue(new QueryCommand()
+                                            {
+                                                Data = new Dictionary<string, string>()
+                                                {
+                                                    {"Message", "VERIFICATIONFEEDBACK"},
+                                                    {"Result", e.ToString()}
+                                                },
+                                                Identity = "",
+                                                Recipient = "PANEL",
+                                            });
+                                        }
+                                    });
+                                else
+                                {
+                                    await HandleVerification();
+                                    IsCheckingToken = false;
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error($"Panel requested verification check however check failed, {e.ToString()}");
+                                SendQueue.Enqueue(new QueryCommand()
+                                {
+                                    Data = new Dictionary<string, string>()
+                                    {
+                                        {"Message", "VERIFICATIONFEEDBACK"},
+                                        {"Result", e.ToString()}
+                                    },
+                                    Identity = "",
+                                    Recipient = "PANEL",
+                                });
+                                IsCheckingToken = false;
+                            }
+                            break;
+                        case "reloadsrvprefs":
+                            await ServerPreferences.ResolvePreferences(false);
+                            break;
                     }
                 }
             }
@@ -674,6 +755,24 @@ namespace CedMod.Addons.QuerySystem.WS
             }
         }
 
+        private static async Task HandleVerification()
+        {
+            string result = await Verification.ConfirmId(false);
+            if (result != string.Empty)
+                Log.Error($"Panel requested verification check however check failed, {result}");
+            SendQueue.Enqueue(new QueryCommand()
+            {
+                Data = new Dictionary<string, string>()
+                {
+                    {"Message", "VERIFICATIONFEEDBACK"},
+                    {"Result", $"{ServerConsole.Ip} {(ServerConsole.PortOverride == 0 ? ServerStatic.ServerPort : ServerConsole.PortOverride)} {result}"}
+                },
+                Identity = "",
+                Recipient = "PANEL",
+            });
+        }
+
+        public static bool IsCheckingToken = false;
         public static bool UseRa = true;
         public static object LockObj = new object();
 
@@ -686,6 +785,76 @@ namespace CedMod.Addons.QuerySystem.WS
                 {
                     using (HttpClient client = new HttpClient())
                     {
+                        VerificationChallenge.AwaitVerification().Wait();
+                        
+                        try
+                        {
+                            var responseWhitelist = client.SendAsync(new HttpRequestMessage()
+                            {
+                                Method = HttpMethod.Options,
+                                RequestUri = new Uri($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/GetWhitelist/{QuerySystem.QuerySystemKey}"),
+                            }).Result;
+
+                            if (responseWhitelist.IsSuccessStatusCode)
+                            {
+                                var data = responseWhitelist.Content.ReadAsStringAsync().Result;
+                                List<string> whitelist = JsonConvert.DeserializeObject<List<string>>(data);
+                                QuerySystem.Whitelist = whitelist;
+                                QuerySystem.UseWhitelist = true;
+                                ServerConsole.WhiteListEnabled = true;
+                                if (Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
+                                {
+                                    File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json"), data);
+                                }
+                                Log.Info("Loaded whitelist from Api");
+                                CheckWhitelist();
+                            }
+                            else if (responseWhitelist.StatusCode == HttpStatusCode.BadRequest)
+                            {
+                                QuerySystem.Whitelist = new List<string>();
+                                QuerySystem.UseWhitelist = false;
+                                ServerConsole.WhiteListEnabled = false;
+                                if (Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
+                                {
+                                    if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json")))
+                                    {
+                                        File.Delete(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json"));
+                                        Log.Info("Removed whitelist as whitelist is inactive.");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
+                                {
+                                    if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json")))
+                                    {
+                                        List<string> whitelist = JsonConvert.DeserializeObject<List<string>>(File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json")));
+                                        QuerySystem.Whitelist = whitelist;
+                                        QuerySystem.UseWhitelist = true;
+                                        ServerConsole.WhiteListEnabled = true;
+                                        Log.Info("Loaded whitelist from file");
+                                        CheckWhitelist();
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error($"Failed to check for whitelist {e}");
+                            if (Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
+                            {
+                                if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json")))
+                                {
+                                    List<string> whitelist = JsonConvert.DeserializeObject<List<string>>(File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json")));
+                                    QuerySystem.Whitelist = whitelist;
+                                    QuerySystem.UseWhitelist = true;
+                                    Log.Info("Loaded whitelist from file");
+                                    CheckWhitelist();
+                                }
+                            }
+                        }
+                        
                         var responsePerms = client.SendAsync(new HttpRequestMessage()
                         {
                             Method = HttpMethod.Options,
@@ -770,7 +939,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     {
                         handler._groups.Add(perm.Name, new UserGroup()
                         {
-                            BadgeColor = perm.BadgeColor,
+                            BadgeColor = string.IsNullOrEmpty(perm.BadgeColor) ? "none" : perm.BadgeColor,
                             BadgeText = perm.BadgeText,
                             Cover = perm.Cover,
                             HiddenByDefault = perm.Hidden,
@@ -815,13 +984,12 @@ namespace CedMod.Addons.QuerySystem.WS
                                     
                                     if (group == null || oldMembers[member.UserId] != member.Group || group.Permissions != (ulong)newGroup.Permissions || group.BadgeText != newGroup.BadgeText || group.BadgeColor != newGroup.BadgeColor || group.KickPower != newGroup.KickPower || group.RequiredKickPower != newGroup.RequiredKickPower || group.Cover != newGroup.Cover || group.HiddenByDefault != newGroup.Hidden)
                                     {
-                                        var hidden = player.PlayerInfo.IsBadgeHidden;
-                                        player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false);
-                                        Timing.CallDelayed(0.1f, () =>
+                                        ThreadDispatcher.ThreadDispatchQueue.Enqueue((() =>
                                         {
-                                            player.PlayerInfo.IsBadgeHidden = hidden;
-                                        });
-                                        Log.Info($"Refreshed Permissions from {member.UserId} as they were present and had changes in the AutoSlPerms response while ingame");
+                                            var hidden = !string.IsNullOrEmpty(player.ReferenceHub.serverRoles.HiddenBadge);
+                                            player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false, false, !hidden);
+                                            Log.Info($"Refreshed Permissions from {member.UserId} with hidden value: {hidden} as they were present and had changes in the AutoSlPerms response while ingame");
+                                        }));
                                     }
                                 }
                             }
@@ -843,9 +1011,12 @@ namespace CedMod.Addons.QuerySystem.WS
                         {
                             if (permsSlRequest.MembersList.All(s => s.UserId != member.Key))
                             {
-                                Log.Info(member.Key + " 3");
-                                CedModPlayer.Get(member.Key).ReferenceHub.serverRoles.SetGroup(null, false);
-                                Log.Info($"Removed Permissions from {member.Key} as they were no longer present in the AutoSlPerms response while ingame");
+                                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                                {
+                                    Log.Info(member.Key + " 3");
+                                    CedModPlayer.Get(member.Key).ReferenceHub.serverRoles.SetGroup(null, false);
+                                    Log.Info($"Removed Permissions from {member.Key} as they were no longer present in the AutoSlPerms response while ingame");
+                                });
                             }
                         }
                     }
@@ -857,6 +1028,41 @@ namespace CedMod.Addons.QuerySystem.WS
                     Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
                     ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
                 }
+            }
+        }
+
+        private static void CheckWhitelist()
+        {
+            try
+            {
+                if (QuerySystem.UseWhitelist)
+                {
+                    foreach (ReferenceHub plr in ReferenceHub.AllHubs)
+                    {
+                        if (plr.isLocalPlayer)
+                            continue;
+                    
+                        if (!plr.serverRoles.Staff && !plr.characterClassManager.UserId.EndsWith("@northwood") && !QuerySystem.Whitelist.Contains(plr.characterClassManager.UserId) && !WhiteList.Users.Contains(plr.characterClassManager.UserId))
+                        {
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(new Action(() =>
+                            {
+                                try
+                                {
+                                    Timing.RunCoroutine(API.StrikeBad(CedModPlayer.Get(plr),
+                                        "You are not whitelisted on this server."));
+                                }
+                                catch (Exception e)
+                                {
+                                    Log.Error($"Failed to kick user {e}");
+                                }
+                            }));
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Failed to check whitelist: {e}");
             }
         }
 

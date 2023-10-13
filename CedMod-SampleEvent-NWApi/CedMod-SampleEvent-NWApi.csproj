@@ -39,6 +39,9 @@
       <OutputPath>bin\Release EXILED\</OutputPath>
     </PropertyGroup>
     <ItemGroup>
+        <Reference Include="0Harmony">
+          <HintPath>..\References\0Harmony.dll</HintPath>
+        </Reference>
         <Reference Include="0Harmony, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\0Harmony.dll</HintPath>
         </Reference>
@@ -48,11 +51,8 @@
         <Reference Include="AmplifyBloom, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\AmplifyBloom.dll</HintPath>
         </Reference>
-        <Reference Include="Assembly-CSharp">
-          <HintPath>..\References\Assembly-CSharp-Publicized.dll</HintPath>
-        </Reference>
         <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\References\Assembly-CSharp_publicized.dll</HintPath>
+          <HintPath>..\References\Assembly-CSharp-publicized.dll</HintPath>
         </Reference>
         <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\Assembly-CSharp-firstpass.dll</HintPath>
@@ -136,8 +136,8 @@
         <Reference Include="OpusWrapper, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\0OpusWrapper.dll</HintPath>
         </Reference>
-        <Reference Include="PluginAPI, Version=12.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\References\PluginAPI.dll</HintPath>
+        <Reference Include="PluginAPI">
+          <HintPath>..\References\PluginAPI_Publicized.dll</HintPath>
         </Reference>
         <Reference Include="System" />
         <Reference Include="System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
