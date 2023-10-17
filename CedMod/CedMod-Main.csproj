@@ -66,6 +66,7 @@
     <Compile Include="Addons\AdminSitSystem\Commands\JailCommand.cs" />
     <Compile Include="Addons\AdminSitSystem\Commands\Jail\Add.cs" />
     <Compile Include="Addons\AdminSitSystem\Commands\Jail\Create.cs" />
+    <Compile Include="Addons\AdminSitSystem\Commands\Jail\Delete.cs" />
     <Compile Include="Addons\AdminSitSystem\Commands\Jail\Join.cs" />
     <Compile Include="Addons\AdminSitSystem\Commands\Jail\Remove.cs" />
     <Compile Include="Addons\Audio\CustomAudioPlayer.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="Addons\Events\EventManagerServerEvents.cs" />
     <Compile Include="Addons\Events\Patches\SeedGenerationPatch.cs" />
     <Compile Include="Addons\Events\ScriptedEventIntergration.cs" />
+    <Compile Include="Addons\QuerySystem\Commands\ImportRaCommand.cs" />
     <Compile Include="Addons\QuerySystem\Commands\CmSyncCommand.cs" />
     <Compile Include="Addons\QuerySystem\Commands\RestartQuery.cs" />
     <Compile Include="Addons\QuerySystem\Commands\ToggleExpTracking.cs" />

@@ -1044,14 +1044,18 @@ namespace CedMod.Addons.QuerySystem.WS
                     
                         if (!plr.authManager.NorthwoodStaff && !plr.authManager.UserId.EndsWith("@northwood") && !QuerySystem.Whitelist.Contains(plr.authManager.UserId) && !WhiteList.Users.Contains(plr.authManager.UserId))
                         {
-                            try
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(new Action(() =>
                             {
-                                Timing.RunCoroutine(API.StrikeBad(CedModPlayer.Get(plr), "You are not whitelisted on this server."));
-                            }
-                            catch (Exception e)
-                            {
-                                Log.Error($"Failed to kick user {e}");
-                            }
+                                try
+                                {
+                                    Timing.RunCoroutine(API.StrikeBad(CedModPlayer.Get(plr),
+                                        "You are not whitelisted on this server."));
+                                }
+                                catch (Exception e)
+                                {
+                                    Log.Error($"Failed to kick user {e}");
+                                }
+                            }));
                         }
                     }
                 }
