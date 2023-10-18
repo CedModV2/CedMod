@@ -46,7 +46,7 @@ namespace CedMod.Addons.QuerySystem
         [Description("The message show to staff in staff chat when a new report gets made")]
         public string StaffReportAdminChatMessage { get; set; } = "<align=center><color=red><u>REPORT RECEIVED</u></color></align>\n<color=yellow>Reporter: </color>{reporterName}\n<color=yellow>Reported: </color>{reportedName}\n<color=yellow>Reason: </color>{reason}";
         [Description("The message show to staff in staff chat when a new report state gets updated")]
-        public string StaffReportAdminChatUpdateMessage { get; set; } = "<align=center><color=red><u>REPORT UPDATED</u></color></align>\n<color=yellow>New State: </color>\n{state}<color=yellow>Handler: </color>{handler}<color=yellow>Reporter: </color>{reporterName}\n<color=yellow>Reported: </color>{reportedName}\n<color=yellow>Reason: </color>{reason}";
+        public string StaffReportAdminChatUpdateMessage { get; set; } = "<align=center><color=red><u>REPORT UPDATED</u></color></align>\n<color=yellow>New State: </color>{state}\n<color=yellow>Handler: </color>{handler}\n<color=yellow>Reporter: </color>{reporterName}\n<color=yellow>Reported: </color>{reportedName}\n<color=yellow>Reason: </color>{reason}";
         
         [Description("The message show to staff if they do not have the ingame report in RA enabled")]
         public string StaffReportNotificationIngameDisabled { get; set; } = "<size=25>To be able to view ingame reports in RemoteAdmin, open the CedMod website (External Lookup or navigating directly)\nClick on your user icon, and click Instance Preferences.\nenable RemoteAdminReports</size>";

@@ -422,7 +422,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                             if (staff.isLocalPlayer || !PermissionsHandler.IsPermitted(staff.serverRoles.Permissions, PlayerPermissions.PlayersManagement))
                                                 continue;
                                             
-                                            staff.encryptedChannelManager.TrySendMessageToClient($"0!{CedModMain.Singleton.Config.QuerySystem.StaffReportAdminChatUpdateMessage.Replace("{reporterName}", $"{jsonData["ReporterName"]} {jsonData["Reporter"]}").Replace("{reportedName}", $"{jsonData["ReportedName"]} {jsonData["Reported"]}").Replace("{state}", jsonData["NewStatus"]).Replace("{reason}", jsonData["Reason"]).Replace("{handler}", jsonData["Handler"])}", EncryptedChannelManager.EncryptedChannel.AdminChat);
+                                            staff.encryptedChannelManager.TrySendMessageToClient($"0!{CedModMain.Singleton.Config.QuerySystem.StaffReportAdminChatUpdateMessage.Replace("{reporterName}", $"{jsonData["ReporterName"]} {jsonData["ReporterId"]}").Replace("{reportedName}", $"{jsonData["ReportedName"]} {jsonData["ReportedId"]}").Replace("{state}", jsonData["NewStatus"]).Replace("{reason}", jsonData.TryGetValue("Reason", out var value) ? value : "Not found").Replace("{handler}", jsonData["Handler"])}", EncryptedChannelManager.EncryptedChannel.AdminChat);
                                         }
                                     });
                                 }
