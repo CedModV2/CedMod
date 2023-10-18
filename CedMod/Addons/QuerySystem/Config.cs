@@ -43,10 +43,14 @@ namespace CedMod.Addons.QuerySystem
         
         [Description("The message show to staff when a new report gets made")]
         public string StaffReportNotification { get; set; } = "<size=30><color=yellow>{reporterName} has reported {reportedName} check {checkType} for more info.</color></size>";
+        [Description("The message show to staff in staff chat when a new report gets made")]
+        public string StaffReportAdminChatMessage { get; set; } = "<align=center><color=red><u>REPORT RECEIVED</u></color></align>\n<color=yellow>Reporter: </color>{reporterName}\n<color=yellow>Reported: </color>{reportedName}\n<color=yellow>Reason: </color>{reason}";
+        [Description("The message show to staff in staff chat when a new report state gets updated")]
+        public string StaffReportAdminChatUpdateMessage { get; set; } = "<align=center><color=red><u>REPORT UPDATED</u></color></align>\n<color=yellow>New State: </color>\n{state}<color=yellow>Handler: </color>{handler}<color=yellow>Reporter: </color>{reporterName}\n<color=yellow>Reported: </color>{reportedName}\n<color=yellow>Reason: </color>{reason}";
         
         [Description("The message show to staff if they do not have the ingame report in RA enabled")]
         public string StaffReportNotificationIngameDisabled { get; set; } = "<size=25>To be able to view ingame reports in RemoteAdmin, open the CedMod website (External Lookup or navigating directly)\nClick on your user icon, and click Instance Preferences.\nenable RemoteAdminReports</size>";
-        
+
         [Description("The message show to a player when a the state of their report updates")]
         public string PlayerReportUpdateNotification { get; set; } = "<size=30><color=yellow>Your report regarding {reportedName} is now {reportState} by {handlerName}</size>";
         
@@ -55,8 +59,12 @@ namespace CedMod.Addons.QuerySystem
         
         [Description("The message show to staff when a player on the watchlist joins")]
         public string PlayerWatchlistJoin { get; set; } = "<size=25><color=yellow>{playerId} - {playerName} ({userId}) is on the watchlist for: {reason}</size></color>";
+        [Description("The message show to staff in staff chat when a player on the watchlist joins")]
+        public string PlayerWatchlistJoinStaffChat { get; set; } = "<align=center><color=red><u>WATCHLIST</u></color></align>\n<color=yellow>Player: </color>\n{playerId} - {playerName} ({userId})\n<color=yellow>Reason: </color>{reason}";
         
         [Description("The message show to staff when a player on the Group Watchlist joins")]
         public string PlayerGroupWatchlistJoin { get; set; } = "<size=25><color=yellow>{playerId} - {playerName} ({userId}) is on the Group watchlist:\nGroups: {groups}\nReason: {reason}</size></color>";
+        [Description("The message show to staff in staff chat when a player on the Group watchlist joins")]
+        public string PlayerWatchGrouplistJoinStaffChat { get; set; } = "<align=center><color=red><u>GROUP WATCHLIST</u></color></align>\n<color=yellow>Player: </color>\n{playerId} - {playerName} ({userId})\n<color=yellow>Groups: </color>{groups}\n<color=yellow>Reason: </color>{reason}";
     }
 }

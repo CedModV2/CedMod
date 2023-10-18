@@ -137,7 +137,6 @@ namespace CedMod.Addons.QuerySystem.Patches
                 var reader = new NetDataReader(request.Data.RawData);
                 reader._position = 34;
                 var preauthdata = PreAuthModel.ReadPreAuth(reader);
-                Log.Info(preauthdata.ToString());
                 if (CustomLiteNetLib4MirrorTransport.UseChallenge)
                 {
                     if (responseKey == 0 || response == null || response.Length == 0)
