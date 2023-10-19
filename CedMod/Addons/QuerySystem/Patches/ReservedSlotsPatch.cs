@@ -518,6 +518,20 @@ namespace CedMod.Addons.QuerySystem.Patches
                             CustomLiteNetLib4MirrorTransport.UserIds[request.RemoteEndPoint].SetUserId(userId);
                         else 
                             CustomLiteNetLib4MirrorTransport.UserIds.Add(request.RemoteEndPoint, new PreauthItem(userId));
+                        
+                        Task.Run(async () =>
+                        {
+                            string id = userId;
+                            string ip = realIp ?? request.RemoteEndPoint.Address.ToString();
+                            Dictionary<string, string> info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{id}&{ip}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}");
+                            lock (BanSystem.CachedStates)
+                            {
+                                if (BanSystem.CachedStates.ContainsKey(id))
+                                    BanSystem.CachedStates.Remove(id);
+                                BanSystem.CachedStates.Add(id, info);
+                            }
+							
+                        });
 
                         NetPeer netPeer = request.Accept();
 
