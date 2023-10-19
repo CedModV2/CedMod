@@ -461,7 +461,7 @@ namespace CedMod
             var loadProperty = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(s => s.GetName().Name == "CedModV3").GetType("CedMod.API").GetProperty("HasLoaded");
             loadProperty.SetValue(null, false);
             PlayerAuthenticationManager.OnInstanceModeChanged -= HandleInstanceModeChange;
-            _harmony.UnpatchAll();
+            _harmony.UnpatchAll(_harmony.Id);
             Singleton = null;
             
             ThreadDispatcher dispatcher = Object.FindObjectOfType<ThreadDispatcher>();
