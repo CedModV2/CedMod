@@ -70,19 +70,22 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
             var sitPlr = sit.Players.First(s => s.UserId == plr.UserId);
             JailParentCommand.RemovePlr(plr, sitPlr, sit);
 
-            if (!sit.Players.Any(s => s.PlayerType == AdminSitPlayerType.Staff || s.PlayerType == AdminSitPlayerType.Handler))
+            Timing.CallDelayed(0.3f, () =>
             {
-                foreach (var sitPlr2 in sit.Players)
+                if (!sit.Players.Any(s => s.PlayerType == AdminSitPlayerType.Staff || s.PlayerType == AdminSitPlayerType.Handler))
                 {
-                    var plr2 = CedModPlayer.Get(sitPlr2.UserId);
-                    JailParentCommand.RemovePlr(plr2, sitPlr2, sit);
-                }
+                    foreach (var sitPlr2 in sit.Players)
+                    {
+                        var plr2 = CedModPlayer.Get(sitPlr2.UserId);
+                        JailParentCommand.RemovePlr(plr2, sitPlr2, sit);
+                    }
 
-                Timing.CallDelayed(0.5f, () =>
-                {
-                    JailParentCommand.RemoveJail(sit);
-                });
-            }
+                    Timing.CallDelayed(0.5f, () =>
+                    {
+                        JailParentCommand.RemoveJail(sit);
+                    });
+                }
+            });
 
             response = "Player Removed";
             return false;
