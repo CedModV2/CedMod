@@ -141,8 +141,6 @@ namespace CedMod.Addons.QuerySystem.Patches
                 {
                     if (responseKey == 0 || response == null || response.Length == 0)
                     {
-                        Log.Info(Encoding.UTF8.GetString(response));
-                        
                         if (preauthdata == null)
                         {
                             if (CedModMain.Singleton.Config.CedMod.ShowDebug)
