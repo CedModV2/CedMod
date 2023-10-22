@@ -13,7 +13,8 @@ namespace CedMod.Handlers
         [PluginEvent(ServerEventType.PlayerJoined)]
         public void OnJoin(PlayerJoinedEvent ev)
         {
-            Task.Run(async () => { await BanSystem.HandleJoin(CedModPlayer.Get(ev.Player.ReferenceHub)); });
+            var plr = CedModPlayer.Get(ev.Player.ReferenceHub);
+            Task.Run(async () => { await BanSystem.HandleJoin(plr); });
             Timing.RunCoroutine(Name(CedModPlayer.Get(ev.Player.ReferenceHub)));
         }
         
