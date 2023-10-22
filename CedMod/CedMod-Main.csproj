@@ -157,6 +157,7 @@
     <Compile Include="Patches\IntercomUnMuteCommandPatch.cs" />
     <Compile Include="Patches\BanPatch.cs" />
     <Compile Include="Patches\MuteCommandPatch.cs" />
+    <Compile Include="Patches\NpcInstanceModePatch.cs" />
     <Compile Include="Patches\OBanCommandPatch.cs" />
     <Compile Include="Patches\RaPlayerAuthPatch.cs" />
     <Compile Include="Patches\RaPlayerListPatch.cs" />
