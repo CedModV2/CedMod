@@ -185,7 +185,7 @@ namespace CedMod.Addons.QuerySystem
                     {
                         Active = EventManager.CurrentEvent != null &&
                                  EventManager.CurrentEvent.EventPrefix == ev.EventPrefix,
-                        Author = ev.EvenAuthor,
+                        Author = ev.EventAuthor,
                         Description = ev.EventDescription,
                         Name = ev.EventName,
                         Prefix = ev.EventPrefix,

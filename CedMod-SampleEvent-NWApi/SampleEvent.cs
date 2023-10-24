@@ -31,7 +31,7 @@ namespace CedMod.SampleEvent
         public PluginHandler Handler;
 
         public string EventName { get; } = "Example Event";
-        public string EvenAuthor { get; } = "ced777ric";
+        public string EventAuthor { get; } = "ced777ric";
         public string EventDescription { get; set; } = "A testing event, you can use this to make your own events";
         public string EventPrefix { get; } = "Sample";
 

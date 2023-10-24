@@ -379,7 +379,7 @@ namespace CedMod
                         }
 
                         EventManager.AvailableEvents.Add(@event);
-                        Log.Info($"[ExiledGameMode] Successfully registered {@event.EventName} By {@event.EvenAuthor} ({@event.EventPrefix})");
+                        Log.Info($"[ExiledGameMode] Successfully registered {@event.EventName} By {@event.EventAuthor} ({@event.EventPrefix})");
                     }
                 }
             }
@@ -428,7 +428,7 @@ namespace CedMod
                         }
                       
                         EventManager.AvailableEvents.Add(@event);
-                        Log.Info($"[NWAPIGamemode] Successfully registered {@event.EventName} By {@event.EvenAuthor} ({@event.EventPrefix})");
+                        Log.Info($"[NWAPIGamemode] Successfully registered {@event.EventName} By {@event.EventAuthor} ({@event.EventPrefix})");
                     }
                 }
             }

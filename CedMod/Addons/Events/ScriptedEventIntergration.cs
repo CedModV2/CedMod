@@ -10,7 +10,7 @@ namespace CedMod.Addons.Events
             get => eventName;
         }
         public string eventName;
-        public string EvenAuthor
+        public string EventAuthor
         {
             get => eventAuthor;
         }

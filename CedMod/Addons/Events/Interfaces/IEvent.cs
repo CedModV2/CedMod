@@ -3,7 +3,7 @@
     public interface IEvent
     {
         string EventName { get; }
-        string EvenAuthor { get; }
+        string EventAuthor { get; }
         string EventDescription { get; set; }
         string EventPrefix { get; }
         IEventConfig Config { get; }

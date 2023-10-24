@@ -34,7 +34,7 @@ namespace CedMod.Addons.Events.Commands
             }
             foreach (var ev in EventManager.AvailableEvents)
             {
-                response += $"{ev.EventName} (Prefix: {ev.EventPrefix}) Author: {ev.EvenAuthor} - {ev.EventDescription}";
+                response += $"{ev.EventName} (Prefix: {ev.EventPrefix}) Author: {ev.EventAuthor} - {ev.EventDescription}";
             }
             
             return true;

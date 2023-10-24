@@ -20,7 +20,7 @@ namespace CedMod.Addons.Events
             Log.Info($"Initialized HintManager for {player.Nickname}");
             currentHint = "\n\n<size=25><color=yellow>" +
                           "This server is currently running an event:" +
-                          $"\n{EventManager.CurrentEvent.EventName} By {EventManager.CurrentEvent.EvenAuthor}" +
+                          $"\n{EventManager.CurrentEvent.EventName} By {EventManager.CurrentEvent.EventAuthor}" +
                           $"\n" +
                           $"\n{EventManager.CurrentEvent.EventDescription}" +
                           $"</color></size>";
