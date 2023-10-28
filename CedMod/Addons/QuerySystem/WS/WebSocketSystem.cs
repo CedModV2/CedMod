@@ -1049,7 +1049,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         if (plr.isLocalPlayer)
                             continue;
                     
-                        if (!plr.authManager.NorthwoodStaff && !plr.authManager.UserId.EndsWith("@northwood") && !QuerySystem.Whitelist.Contains(plr.authManager.UserId) && !WhiteList.Users.Contains(plr.authManager.UserId))
+                        if (!plr.authManager.NorthwoodStaff && plr.authManager.UserId != null && !plr.authManager.UserId.EndsWith("@northwood") && !QuerySystem.Whitelist.Contains(plr.authManager.UserId) && !WhiteList.Users.Contains(plr.authManager.UserId))
                         {
                             ThreadDispatcher.ThreadDispatchQueue.Enqueue(new Action(() =>
                             {
