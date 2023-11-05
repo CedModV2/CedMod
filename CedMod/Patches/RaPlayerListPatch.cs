@@ -110,9 +110,9 @@ namespace CedMod.Patches
                         RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, null);
                     }
                     
-                    bool flag2 = false;
+                    
                     stringBuilder.Append(RaPlayerList.GetPrefix(hub, viewHiddenBadges, viewHiddenGlobalBadges));
-                    stringBuilder.Append(flag2 ? "<link=RA_OverwatchEnabled><color=white>[</color><color=#03f8fc>\uF06E</color><color=white>]</color></link> " : string.Empty);
+                    stringBuilder.Append(hub.serverRoles.IsInOverwatch ? "<link=RA_OverwatchEnabled><color=white>[</color><color=#03f8fc>\uF06E</color><color=white>]</color></link> " : string.Empty);
                     stringBuilder.Append("<color={RA_ClassColor}>(").Append(hub.PlayerId).Append(") ");
                     if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin)
                     {
