@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CedMod.Addons.Events.Commands;
 using CedMod.Addons.QuerySystem.Commands;
+using CedMod.Addons.StaffInfo;
 using CedMod.ApiModals;
 using CedMod.Components;
 using CentralAuth;
@@ -32,6 +33,7 @@ using Serialization;
 using Websocket.Client;
 using UnityEngine.Networking;
 using Utils;
+using Utils.NonAllocLINQ;
 using VoiceChat;
 
 namespace CedMod.Addons.QuerySystem.WS
@@ -369,7 +371,14 @@ namespace CedMod.Addons.QuerySystem.WS
                                 var toRefresh = CedModPlayer.Get(jsonData["UserId"]);
                                 if (toRefresh == null || RemoteAdminModificationHandler.Singleton.Requesting.Contains(toRefresh.UserId))
                                     return;
-                                RemoteAdminModificationHandler.Singleton.ResolvePreferences(toRefresh, null);
+                                RemoteAdminModificationHandler.Singleton.ResolvePreferences(toRefresh, () =>
+                                {
+                                    ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                                    {
+                                        StaffInfoHandler.StaffData.ForEach(s => s.Value.Remove(toRefresh.UserId));
+                                        StaffInfoHandler.Requested.ForEach(s => s.Value.Remove(toRefresh.UserId));
+                                    });
+                                });
                             });
                             break;
                         case "reportstateack":
@@ -1012,14 +1021,14 @@ namespace CedMod.Addons.QuerySystem.WS
 
                     foreach (var member in oldMembers)
                     {
-                        if (permsSlRequest.MembersList.All(s => s.UserId != member.Key) && QuerySystem.ReservedSlotUserids.Contains(member.Key))
+                        if (Enumerable.All(permsSlRequest.MembersList, s => s.UserId != member.Key) && QuerySystem.ReservedSlotUserids.Contains(member.Key))
                         {
                             QuerySystem.ReservedSlotUserids.Remove(member.Key);
                         }
                         
                         if (CedModPlayer.Get(member.Key) != null)
                         {
-                            if (permsSlRequest.MembersList.All(s => s.UserId != member.Key))
+                            if (Enumerable.All(permsSlRequest.MembersList, s => s.UserId != member.Key))
                             {
                                 ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                                 {
