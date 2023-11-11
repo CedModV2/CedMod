@@ -13,7 +13,7 @@ namespace CedMod.Addons.StaffInfo.Patches
                     continue;
                 
                 var player = CedModPlayer.Get(__instance._hub);
-                player.SendFakeCustomInfo(staff, StaffInfoHandler.StaffData[staff.UserId][player.UserId].Item1);
+                player.SendFakeCustomInfo(staff, value + "\n" + StaffInfoHandler.StaffData[staff.UserId][player.UserId].Item1);
             }
         }
     }

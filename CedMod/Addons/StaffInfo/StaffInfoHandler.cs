@@ -145,8 +145,8 @@ namespace CedMod.Addons.StaffInfo
                 
                 switch (staff.Role)
                 {
-                    case RoleTypeId.Spectator when prefs.ShowModerationInfoOverwatch && currentlySpectating != null && StaffData[staff.UserId].ContainsKey(currentlySpectating.UserId) && StaffData[staff.UserId][currentlySpectating.UserId].Item1 != "":
-                    case RoleTypeId.Overwatch when prefs.ShowModerationInfoSpectator && currentlySpectating != null && StaffData[staff.UserId].ContainsKey(currentlySpectating.UserId) && StaffData[staff.UserId][currentlySpectating.UserId].Item1 != "":
+                    case RoleTypeId.Overwatch when prefs.ShowModerationInfoOverwatch && currentlySpectating != null && StaffData[staff.UserId].ContainsKey(currentlySpectating.UserId) && StaffData[staff.UserId][currentlySpectating.UserId].Item1 != "":
+                    case RoleTypeId.Spectator when prefs.ShowModerationInfoSpectator && currentlySpectating != null && StaffData[staff.UserId].ContainsKey(currentlySpectating.UserId) && StaffData[staff.UserId][currentlySpectating.UserId].Item1 != "":
                         staff.ReceiveHint(StaffData[staff.UserId][currentlySpectating.UserId].Item1, 1.2f);
                         break;
                 }
