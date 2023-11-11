@@ -375,8 +375,8 @@ namespace CedMod.Addons.QuerySystem.WS
                                 {
                                     ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                                     {
-                                        StaffInfoHandler.StaffData.ForEach(s => s.Value.Remove(toRefresh.UserId));
-                                        StaffInfoHandler.Requested.ForEach(s => s.Value.Remove(toRefresh.UserId));
+                                        StaffInfoHandler.StaffData.Remove(toRefresh.UserId);
+                                        StaffInfoHandler.Requested.Remove(toRefresh.UserId);
                                     });
                                 });
                             });
