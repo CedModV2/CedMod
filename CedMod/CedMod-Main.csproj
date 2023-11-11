@@ -117,7 +117,6 @@
     <Compile Include="Addons\QuerySystem\Verification.cs" />
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
     <Compile Include="Addons\StaffInfo\MirrorExtensions.cs" />
-    <Compile Include="Addons\StaffInfo\Patches\CustomInfoSetPatch.cs" />
     <Compile Include="Addons\StaffInfo\StaffInfoHandler.cs" />
     <Compile Include="API.cs" />
     <Compile Include="ApiModals\AudioHeartBeat.cs" />

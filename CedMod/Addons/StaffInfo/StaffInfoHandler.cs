@@ -129,6 +129,15 @@ namespace CedMod.Addons.StaffInfo
                         Log.Debug($"Staffinfo for {staff.Nickname} getting {player.Nickname}", CedModMain.Singleton.Config.QuerySystem.Debug);
                     if (player.ReferenceHub.authManager.InstanceMode != ClientInstanceMode.ReadyClient)
                         continue;
+
+                    if (staff.Role == RoleTypeId.Tutorial)
+                    {
+                        player.SendFakeCustomInfo(staff, StaffInfoHandler.StaffData[staff.UserId][player.UserId].Item1);
+                    }
+                    else
+                    {
+                        player.SendFakeCustomInfo(staff, "");
+                    }
                     
                     if (Requested[staff.UserId].ContainsKey(player.UserId) && Requested[staff.UserId][player.UserId] > DateTime.UtcNow.AddSeconds(-5))
                         continue;
