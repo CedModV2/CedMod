@@ -14,6 +14,7 @@ using CedMod.Addons.Events;
 using CedMod.Addons.Events.Interfaces;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
+using CedMod.Addons.StaffInfo;
 using CedMod.Components;
 using CentralAuth;
 using Exiled.API.Features;
@@ -158,8 +159,8 @@ namespace CedMod
 
             PluginAPI.Events.EventManager.RegisterEvents<AutoUpdater>(this);
             PluginAPI.Events.EventManager.RegisterEvents<AdminSitHandler>(this);
+            PluginAPI.Events.EventManager.RegisterEvents<StaffInfoHandler>(this);
             FactoryManager.RegisterPlayerFactory(this, new CedModPlayerFactory());
-
 
             try
             {
@@ -248,6 +249,10 @@ namespace CedMod
             RemoteAdminModificationHandler remoteAdminModificationHandler = Object.FindObjectOfType<RemoteAdminModificationHandler>();
             if (remoteAdminModificationHandler == null)
                 remoteAdminModificationHandler = CustomNetworkManager.singleton.gameObject.AddComponent<RemoteAdminModificationHandler>();
+            
+            StaffInfoHandler staffInfoHandler = Object.FindObjectOfType<StaffInfoHandler>();
+            if (staffInfoHandler == null)
+                staffInfoHandler = CustomNetworkManager.singleton.gameObject.AddComponent<StaffInfoHandler>();
 
             if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt")))
             {
@@ -462,8 +467,23 @@ namespace CedMod
             loadProperty.SetValue(null, false);
             PlayerAuthenticationManager.OnInstanceModeChanged -= HandleInstanceModeChange;
             _harmony.UnpatchAll(_harmony.Id);
-            Singleton = null;
             
+            PluginAPI.Events.EventManager.UnregisterEvents<Handlers.Player>(this);
+            PluginAPI.Events.EventManager.UnregisterEvents<Handlers.Server>(this);
+
+            PluginAPI.Events.EventManager.UnregisterEvents<QueryMapEvents>(this);
+            PluginAPI.Events.EventManager.UnregisterEvents<QueryServerEvents>(this);
+            PluginAPI.Events.EventManager.UnregisterEvents<QueryPlayerEvents>(this);
+
+            PluginAPI.Events.EventManager.UnregisterEvents<EventManagerServerEvents>(this);
+            PluginAPI.Events.EventManager.UnregisterEvents<EventManagerPlayerEvents>(this);
+
+            PluginAPI.Events.EventManager.UnregisterEvents<AutoUpdater>(this);
+            PluginAPI.Events.EventManager.UnregisterEvents<AdminSitHandler>(this);
+            PluginAPI.Events.EventManager.UnregisterEvents<StaffInfoHandler>(this);
+            
+            Singleton = null;
+
             ThreadDispatcher dispatcher = Object.FindObjectOfType<ThreadDispatcher>();
             if (dispatcher != null)
                 Object.Destroy(dispatcher);
@@ -479,6 +499,10 @@ namespace CedMod
             RemoteAdminModificationHandler remoteAdminModificationHandler = Object.FindObjectOfType<RemoteAdminModificationHandler>();
             if (remoteAdminModificationHandler != null)
                 Object.Destroy(remoteAdminModificationHandler);
+            
+            StaffInfoHandler staffInfoHandler = Object.FindObjectOfType<StaffInfoHandler>();
+            if (staffInfoHandler != null)
+                Object.Destroy(staffInfoHandler);
             
             WebSocketSystem.Stop();
             CacheHandler.Interrupt();

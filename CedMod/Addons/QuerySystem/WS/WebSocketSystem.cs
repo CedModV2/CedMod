@@ -45,6 +45,8 @@ namespace CedMod.Addons.QuerySystem.WS
 
     public class WebSocketSystem
     {
+        public static event MessageReceived OnMessageReceived;
+        public delegate void MessageReceived(QueryCommand cmd);
         public static WebsocketClient Socket;
         internal static object reconnectLock = new object();
         internal static Thread SendThread;
@@ -268,6 +270,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug(ev);
                 QueryCommand cmd = JsonConvert.DeserializeObject<QueryCommand>(ev);
+                OnMessageReceived?.Invoke(cmd);
 
                 var jsonData = cmd.Data;
                 string text2 = jsonData["action"];
