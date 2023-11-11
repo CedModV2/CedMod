@@ -69,8 +69,13 @@ namespace CedMod.Addons.StaffInfo
                 }
                 
                 var prefs = RemoteAdminModificationHandler.IngameUserPreferencesMap[staffPlayer];
-                
                 StaffData[staffPlayer.UserId][player.UserId] = new Tuple<string, DateTime>(prefs.StreamerMode ? "" : combined, DateTime.UtcNow);
+
+                if (prefs.StreamerMode)
+                {
+                    player.SendFakeCustomInfo(staffPlayer, "");
+                    return;
+                }
                 
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug($"recived staffinfo 2 {staffPlayer.Nickname} {player.Nickname}", CedModMain.Singleton.Config.QuerySystem.Debug);
@@ -140,6 +145,8 @@ namespace CedMod.Addons.StaffInfo
                 }
 
                 var prefs = RemoteAdminModificationHandler.IngameUserPreferencesMap[staff];
+                if (prefs.StreamerMode)
+                    continue;
 
                 var currentlySpectating = CedModPlayer.GetPlayers().FirstOrDefault(s => s.ReferenceHub.IsSpectatedBy(staff.ReferenceHub));
                 
@@ -147,7 +154,7 @@ namespace CedMod.Addons.StaffInfo
                 {
                     case RoleTypeId.Overwatch when prefs.ShowModerationInfoOverwatch && currentlySpectating != null && StaffData[staff.UserId].ContainsKey(currentlySpectating.UserId) && StaffData[staff.UserId][currentlySpectating.UserId].Item1 != "":
                     case RoleTypeId.Spectator when prefs.ShowModerationInfoSpectator && currentlySpectating != null && StaffData[staff.UserId].ContainsKey(currentlySpectating.UserId) && StaffData[staff.UserId][currentlySpectating.UserId].Item1 != "":
-                        staff.ReceiveHint(StaffData[staff.UserId][currentlySpectating.UserId].Item1, 1.2f);
+                        staff.ReceiveHint("<align=right><size=25>" + StaffData[staff.UserId][currentlySpectating.UserId].Item1 + "</size>", 1.2f);
                         break;
                 }
             }
