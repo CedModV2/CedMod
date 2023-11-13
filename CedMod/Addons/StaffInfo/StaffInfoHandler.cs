@@ -110,6 +110,8 @@ namespace CedMod.Addons.StaffInfo
                 
                 if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(staff))
                     continue;
+                
+                var prefs = RemoteAdminModificationHandler.IngameUserPreferencesMap[staff];
 
                 foreach (var player in CedModPlayer.GetPlayers())
                 {
@@ -118,7 +120,7 @@ namespace CedMod.Addons.StaffInfo
                     if (player.ReferenceHub.authManager.InstanceMode != ClientInstanceMode.ReadyClient)
                         continue;
 
-                    if (staff.Role == RoleTypeId.Tutorial)
+                    if (staff.Role == RoleTypeId.Tutorial && !prefs.StreamerMode)
                     {
                         player.SendFakeCustomInfo(staff, StaffInfoHandler.StaffData[staff.UserId][player.UserId].Item1);
                     }
@@ -140,8 +142,7 @@ namespace CedMod.Addons.StaffInfo
 
                     RequestInfo(staff, player);
                 }
-
-                var prefs = RemoteAdminModificationHandler.IngameUserPreferencesMap[staff];
+                
                 if (prefs.StreamerMode)
                     continue;
 
