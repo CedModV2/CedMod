@@ -70,18 +70,6 @@ namespace CedMod.Addons.StaffInfo
                 
                 var prefs = RemoteAdminModificationHandler.IngameUserPreferencesMap[staffPlayer];
                 StaffData[staffPlayer.UserId][player.UserId] = new Tuple<string, DateTime>(prefs.StreamerMode ? "" : combined, DateTime.UtcNow);
-
-                if (prefs.StreamerMode)
-                {
-                    player.SendFakeCustomInfo(staffPlayer, "");
-                    return;
-                }
-                
-                if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Log.Debug($"recived staffinfo 2 {staffPlayer.Nickname} {player.Nickname}", CedModMain.Singleton.Config.QuerySystem.Debug);
-                
-                if (combined != "")
-                    player.SendFakeCustomInfo(staffPlayer, combined);
             }
         }
 
