@@ -66,5 +66,8 @@ namespace CedMod.Addons.QuerySystem
         public string PlayerGroupWatchlistJoin { get; set; } = "<size=25><color=yellow>{playerId} - {playerName} ({userId}) is on the Group watchlist:\nGroups: {groups}\nReason: {reason}</size></color>";
         [Description("The message show to staff in staff chat when a player on the Group watchlist joins")]
         public string PlayerWatchGrouplistJoinStaffChat { get; set; } = "<align=center><color=red><u>GROUP WATCHLIST</u></color></align>\n<color=yellow>Player: </color>\n{playerId} - {playerName} ({userId})\n<color=yellow>Groups: </color>{groups}\n<color=yellow>Reason: </color>{reason}";
+
+        [Description("If the StaffInfo system is enabled, this will show the ban, warn and mute info to staff when they are Tutorial, or when they are spectacting the player in overwatch or spectator depending on their UserPreferences.")]
+        public bool StaffInfoSystem { get; set; }
     }
 }

@@ -159,7 +159,8 @@ namespace CedMod
 
             PluginAPI.Events.EventManager.RegisterEvents<AutoUpdater>(this);
             PluginAPI.Events.EventManager.RegisterEvents<AdminSitHandler>(this);
-            PluginAPI.Events.EventManager.RegisterEvents<StaffInfoHandler>(this);
+            if (Config.QuerySystem.StaffInfoSystem)
+                PluginAPI.Events.EventManager.RegisterEvents<StaffInfoHandler>(this);
             FactoryManager.RegisterPlayerFactory(this, new CedModPlayerFactory());
 
             try
@@ -249,10 +250,14 @@ namespace CedMod
             RemoteAdminModificationHandler remoteAdminModificationHandler = Object.FindObjectOfType<RemoteAdminModificationHandler>();
             if (remoteAdminModificationHandler == null)
                 remoteAdminModificationHandler = CustomNetworkManager.singleton.gameObject.AddComponent<RemoteAdminModificationHandler>();
+
+            if (Config.QuerySystem.StaffInfoSystem)
+            {
+                StaffInfoHandler staffInfoHandler = Object.FindObjectOfType<StaffInfoHandler>();
+                if (staffInfoHandler == null)
+                    staffInfoHandler = CustomNetworkManager.singleton.gameObject.AddComponent<StaffInfoHandler>();
+            }
             
-            StaffInfoHandler staffInfoHandler = Object.FindObjectOfType<StaffInfoHandler>();
-            if (staffInfoHandler == null)
-                staffInfoHandler = CustomNetworkManager.singleton.gameObject.AddComponent<StaffInfoHandler>();
 
             if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt")))
             {
@@ -480,7 +485,8 @@ namespace CedMod
 
             PluginAPI.Events.EventManager.UnregisterEvents<AutoUpdater>(this);
             PluginAPI.Events.EventManager.UnregisterEvents<AdminSitHandler>(this);
-            PluginAPI.Events.EventManager.UnregisterEvents<StaffInfoHandler>(this);
+            if (Config.QuerySystem.StaffInfoSystem)
+                PluginAPI.Events.EventManager.UnregisterEvents<StaffInfoHandler>(this);
             
             Singleton = null;
 
@@ -499,11 +505,14 @@ namespace CedMod
             RemoteAdminModificationHandler remoteAdminModificationHandler = Object.FindObjectOfType<RemoteAdminModificationHandler>();
             if (remoteAdminModificationHandler != null)
                 Object.Destroy(remoteAdminModificationHandler);
-            
-            StaffInfoHandler staffInfoHandler = Object.FindObjectOfType<StaffInfoHandler>();
-            if (staffInfoHandler != null)
-                Object.Destroy(staffInfoHandler);
-            
+
+            if (Config.QuerySystem.StaffInfoSystem)
+            {
+                StaffInfoHandler staffInfoHandler = Object.FindObjectOfType<StaffInfoHandler>();
+                if (staffInfoHandler != null)
+                    Object.Destroy(staffInfoHandler);
+            }
+
             WebSocketSystem.Stop();
             CacheHandler.Interrupt();
             
