@@ -76,7 +76,6 @@ namespace CedMod.Addons.QuerySystem.WS
 
             await Task.Delay(300);
             Socket = null;
-            SendThread?.Abort();
             SendThread = null;
         }
 
@@ -231,7 +230,7 @@ namespace CedMod.Addons.QuerySystem.WS
         {
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug("Started SendQueueHandler");
-            while (SendThread != null && Socket != null && SendThread.IsAlive && Socket.IsRunning)
+            while (SendThread != null && Socket != null && SendThread.IsAlive && Socket.IsRunning && !Shutdown._quitting)
             {
                 while (SendQueue.TryDequeue(out QueryCommand cmd))
                 {

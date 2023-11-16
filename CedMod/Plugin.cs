@@ -463,7 +463,6 @@ namespace CedMod
 
             try
             {
-                CedModMain.Singleton.CacheHandler?.Abort();
                 CedModMain.Singleton.CacheHandler = null;
             }
             catch (Exception e)
