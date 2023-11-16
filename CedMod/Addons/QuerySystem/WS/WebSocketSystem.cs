@@ -72,7 +72,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 
             }
 
-            await Task.Delay(1000);
+            await Task.Delay(300);
             Socket = null;
             SendThread?.Abort();
             SendThread = null;

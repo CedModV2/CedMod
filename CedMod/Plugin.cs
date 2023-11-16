@@ -549,7 +549,7 @@ namespace CedMod
             }
 #endif
         }
-        
+
         internal static string GetHashCode(Stream stream, HashAlgorithm cryptoService)
         {
             using (cryptoService)

@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
+using CedMod.Addons.QuerySystem.WS;
 using CedMod.ApiModals;
 using Exiled.Loader;
 using Newtonsoft.Json;
@@ -298,6 +299,30 @@ namespace CedMod.Components
             {
                 Log.Error(e.ToString());
             }
+        }
+
+        public void OnApplicationQuit()
+        {
+            Log.Info("Server shutting down, stopping threads...");
+            try
+            {
+                WebSocketSystem.Stop().Wait();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            try
+            {
+                CedModMain.Singleton.CacheHandler?.Abort();
+                CedModMain.Singleton.CacheHandler = null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            Log.Info("CedMod Threads stopped.");
         }
     }
 }
