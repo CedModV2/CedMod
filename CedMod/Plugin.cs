@@ -460,7 +460,9 @@ namespace CedMod
             {
                 Console.WriteLine(e);
             }
-
+            
+            Log.Info("Shutdown WebsocketSystem");
+            
             try
             {
                 CedModMain.Singleton.CacheHandler = null;
