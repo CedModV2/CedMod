@@ -12,7 +12,7 @@ namespace CedMod
     {
         public static void Loop()
         {
-            while (!Shutdown._quitting || CedModMain.Singleton.CacheHandler == null)
+            while (!Shutdown._quitting && CedModMain.Singleton.CacheHandler != null)
             {
                 try
                 {
