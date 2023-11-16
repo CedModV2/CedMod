@@ -300,29 +300,5 @@ namespace CedMod.Components
                 Log.Error(e.ToString());
             }
         }
-
-        public void OnApplicationQuit()
-        {
-            Log.Info("Server shutting down, stopping threads...");
-            try
-            {
-                WebSocketSystem.Stop().Wait();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-
-            try
-            {
-                CedModMain.Singleton.CacheHandler?.Abort();
-                CedModMain.Singleton.CacheHandler = null;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            Log.Info("CedMod Threads stopped.");
-        }
     }
 }

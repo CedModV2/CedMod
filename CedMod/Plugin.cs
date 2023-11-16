@@ -278,6 +278,7 @@ namespace CedMod
             else
                 Log.Warning("Plugin is not setup properly, please use refer to the cedmod setup guide"); //todo link guide
 
+            Shutdown.OnQuit += OnQuit;
             CacheHandler = new Thread(CedMod.CacheHandler.Loop);
             CacheHandler.Start();
 
@@ -448,6 +449,30 @@ namespace CedMod
             Task.Run(() => ServerPreferences.ResolvePreferences(true));
         }
 
+        private void OnQuit()
+        {
+            Log.Info("Server shutting down, stopping threads...");
+            try
+            {
+                WebSocketSystem.Stop().Wait();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            try
+            {
+                CedModMain.Singleton.CacheHandler?.Abort();
+                CedModMain.Singleton.CacheHandler = null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            Log.Info("CedMod Threads stopped.");
+        }
+
         private void HandleInstanceModeChange(ReferenceHub arg1, ClientInstanceMode arg2)
         {
             if ((arg2 != ClientInstanceMode.Unverified || arg2 != ClientInstanceMode.Host) && AudioCommand.FakeConnectionsIds.ContainsValue(arg1))
@@ -487,6 +512,8 @@ namespace CedMod
             PluginAPI.Events.EventManager.UnregisterEvents<AdminSitHandler>(this);
             if (Config.QuerySystem.StaffInfoSystem)
                 PluginAPI.Events.EventManager.UnregisterEvents<StaffInfoHandler>(this);
+            
+            Shutdown.OnQuit -= OnQuit;
             
             Singleton = null;
 
