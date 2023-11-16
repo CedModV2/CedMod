@@ -55,7 +55,7 @@ namespace CedMod.Addons.QuerySystem
         public static async Task<string> ConfirmId(bool loop = true)
         {
             bool first = true;
-            while (true)
+            while (!Shutdown._quitting)
             {
                 if (loop)
                     await Task.Delay(first ? 45000 : 15000);

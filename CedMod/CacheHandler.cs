@@ -12,7 +12,7 @@ namespace CedMod
     {
         public static void Loop()
         {
-            while (true)
+            while (!Shutdown._quitting)
             {
                 try
                 {
@@ -97,13 +97,24 @@ namespace CedMod
                             }
                         }
                     }
-                    Thread.Sleep(10000);
+
+                    WaitForSecond(10);
                 }
                 catch (Exception e)
                 {
                     Log.Error($"Failed to process cache: {e}");
-                    Thread.Sleep(10000);
+                    WaitForSecond(10);
                 }
+            }
+        }
+
+        private static void WaitForSecond(int i)
+        {
+            int wait = 10;
+            while (wait <= 0)
+            {
+                Thread.Sleep(1000);
+                wait--;
             }
         }
 
