@@ -111,7 +111,7 @@ namespace CedMod
         private static void WaitForSecond(int i)
         {
             int wait = 10;
-            while (wait <= 0)
+            while (wait >= 0)
             {
                 Thread.Sleep(1000);
                 wait--;
