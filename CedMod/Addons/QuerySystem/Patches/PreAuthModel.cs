@@ -58,7 +58,7 @@ namespace SlProxy
             }
             catch (Exception e)
             {
-                Log.Error(e.ToString());
+                //Log.Error(e.ToString());
             }
 
             return null;

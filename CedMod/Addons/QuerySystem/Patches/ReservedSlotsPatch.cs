@@ -149,6 +149,13 @@ namespace CedMod.Addons.QuerySystem.Patches
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Custom);
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Put(
                                 $"[CedModAntiPreAuthSpam]\nYour connection has been rejected as the 'PreAuth' data sent from your client appears to be invalid, please restart your game or run 'ar' in your client console, You can usually open the client console by pressing ` or ~");
+                            
+                            CustomLiteNetLib4MirrorTransport.Rejected++;
+                            if (CustomLiteNetLib4MirrorTransport.Rejected > CustomLiteNetLib4MirrorTransport.RejectionThreshold)
+                                CustomLiteNetLib4MirrorTransport.SuppressRejections = true;
+
+                            if (!CustomLiteNetLib4MirrorTransport.SuppressRejections && CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
+                                ServerConsole.AddLog($"Security challenge response of incoming connection from endpoint {request.RemoteEndPoint} has been CustomLiteNetLib4MirrorTransport.Rejected (Failed extra CedMod verification 1).");
                             return;
                         }
 
@@ -161,6 +168,13 @@ namespace CedMod.Addons.QuerySystem.Patches
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Put(
                                 $"[CedModAntiPreAuthSpam]\nYour connection has been rejected as the 'PreAuth' data sent from your client appears to be invalid, please restart your game or run 'ar' in your client console, You can usually open the client console by pressing ` or ~");
                             request.RejectForce(CustomLiteNetLib4MirrorTransport.RequestWriter);
+                            
+                            CustomLiteNetLib4MirrorTransport.Rejected++;
+                            if (CustomLiteNetLib4MirrorTransport.Rejected > CustomLiteNetLib4MirrorTransport.RejectionThreshold)
+                                CustomLiteNetLib4MirrorTransport.SuppressRejections = true;
+
+                            if (!CustomLiteNetLib4MirrorTransport.SuppressRejections && CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
+                                ServerConsole.AddLog($"Security challenge response of incoming connection from endpoint {request.RemoteEndPoint} has been CustomLiteNetLib4MirrorTransport.Rejected (Failed extra CedMod verification 2).");
                             return;
                         }
                         
