@@ -473,8 +473,8 @@ namespace CedMod
             }
 
             ServerShutdown.Shutdown();
-            Application.Quit();
             Log.Info("CedMod Threads stopped.");
+            Application.Quit();
         }
 
         private void HandleInstanceModeChange(ReferenceHub arg1, ClientInstanceMode arg2)
