@@ -41,6 +41,8 @@ namespace CedMod
             }
             catch (Exception e)
             {
+                if (e is TaskCanceledException)
+                    return;
                 Log.Error($"Failed to await verification process {e}");
             }
         }

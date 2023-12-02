@@ -721,7 +721,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                     {
                                         try
                                         {
-                                            await Task.Delay(90000, CedModMain.CancellationToken);
+                                            await ServerPreferences.WaitForSecond(90000, CedModMain.CancellationToken, (o) => !Shutdown._quitting && CedModMain.Singleton.CacheHandler != null);
                                             await HandleVerification();
                                             IsCheckingToken = false;
                                         }

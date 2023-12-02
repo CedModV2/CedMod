@@ -110,7 +110,7 @@ namespace CedMod
 
         private static void WaitForSecond(int i, Predicate<object> predicate)
         {
-            int wait = 10;
+            int wait = i;
             while (wait >= 0 && predicate.Invoke(i))
             {
                 Thread.Sleep(1000);

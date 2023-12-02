@@ -162,7 +162,6 @@
     <Compile Include="Patches\MuteCommandPatch.cs" />
     <Compile Include="Patches\NpcInstanceModePatch.cs" />
     <Compile Include="Patches\OBanCommandPatch.cs" />
-    <Compile Include="Patches\QuickPanicFixPatch.cs" />
     <Compile Include="Patches\RaPlayerAuthPatch.cs" />
     <Compile Include="Patches\RaPlayerListPatch.cs" />
     <Compile Include="Patches\RaPlayerPatch.cs" />

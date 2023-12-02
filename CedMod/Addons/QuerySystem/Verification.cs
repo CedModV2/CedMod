@@ -60,7 +60,7 @@ namespace CedMod.Addons.QuerySystem
             while (!Shutdown._quitting)
             {
                 if (loop)
-                    await Task.Delay(first ? 45000 : 15000, CedModMain.CancellationToken);
+                    await ServerPreferences.WaitForSecond(first ? 45000 : 15000, CedModMain.CancellationToken, (o) => !Shutdown._quitting && CedModMain.Singleton.CacheHandler != null);
                 first = false;
                 using (HttpClient client = new HttpClient())
                 {

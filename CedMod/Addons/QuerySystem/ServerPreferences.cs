@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using CedMod.ApiModals;
 using Newtonsoft.Json;
@@ -62,8 +63,18 @@ namespace CedMod.Addons.QuerySystem
 
             if (loop)
             {
-                await Task.Delay(60000, CedModMain.CancellationToken);
+                await WaitForSecond(60, CedModMain.CancellationToken, (o) => !Shutdown._quitting && CedModMain.Singleton.CacheHandler != null);
                 await ResolvePreferences();
+            }
+        }
+        
+        public static async Task WaitForSecond(int i, CancellationToken token, Predicate<object> predicate)
+        {
+            int wait = i;
+            while (wait >= 0 && predicate.Invoke(i))
+            {
+                await Task.Delay(1000, token);
+                wait--;
             }
         }
     }
