@@ -20,7 +20,9 @@ namespace CedMod.Addons.QuerySystem
             {
                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                     Log.Debug($"Verification paused as server is not verified.");
-                await Task.Delay(2000);
+                if (CedModMain.CancellationToken.IsCancellationRequested)
+                    break;
+                await Task.Delay(2000, CedModMain.CancellationToken);
             }
             
             using (HttpClient client = new HttpClient())
@@ -46,7 +48,7 @@ namespace CedMod.Addons.QuerySystem
                         Log.Error($"Failed to obtain CedMod verification token: {responseString}");
                     }
 
-                    await Task.Delay(1000);
+                    await Task.Delay(1000, CedModMain.CancellationToken);
                     await ObtainId();
                 }
             }

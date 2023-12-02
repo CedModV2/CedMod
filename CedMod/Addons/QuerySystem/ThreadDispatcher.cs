@@ -122,7 +122,7 @@ namespace CedMod.Addons.QuerySystem
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: WS inactive out of reconnect mode without activity for 1 minutes, restarting WS");
                             await WebSocketSystem.Stop();
-                            await Task.Delay(1000);
+                            await Task.Delay(1000, CedModMain.CancellationToken);
                             await WebSocketSystem.Start();
                         });
                     }
