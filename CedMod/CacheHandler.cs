@@ -98,20 +98,20 @@ namespace CedMod
                         }
                     }
 
-                    WaitForSecond(10);
+                    WaitForSecond(10, (o) => !Shutdown._quitting && CedModMain.Singleton.CacheHandler != null);
                 }
                 catch (Exception e)
                 {
                     Log.Error($"Failed to process cache: {e}");
-                    WaitForSecond(10);
+                    WaitForSecond(10, (o) => !Shutdown._quitting && CedModMain.Singleton.CacheHandler != null);
                 }
             }
         }
 
-        private static void WaitForSecond(int i)
+        private static void WaitForSecond(int i, Predicate<object> predicate)
         {
             int wait = 10;
-            while (wait >= 0)
+            while (wait >= 0 && predicate.Invoke(i))
             {
                 Thread.Sleep(1000);
                 wait--;
