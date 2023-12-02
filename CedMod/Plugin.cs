@@ -471,6 +471,9 @@ namespace CedMod
             {
                 Console.WriteLine(e);
             }
+
+            ServerShutdown.Shutdown();
+            Application.Quit();
             Log.Info("CedMod Threads stopped.");
         }
 
