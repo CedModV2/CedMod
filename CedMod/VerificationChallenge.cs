@@ -32,9 +32,9 @@ namespace CedMod
                 if (!ChallengeStarted)
                     await PerformVerification();
                 
-                while (!CompletedChallenge)
+                while (!CompletedChallenge && !CedModMain.CancellationToken.IsCancellationRequested)
                 {
-                    await Task.Delay(100);
+                    await Task.Delay(100, CedModMain.CancellationToken);
                     //Log.Info("Waiting");
                 }
                 //Log.Info("Exit waiting");

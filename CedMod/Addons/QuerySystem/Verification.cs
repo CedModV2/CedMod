@@ -58,7 +58,7 @@ namespace CedMod.Addons.QuerySystem
             while (!Shutdown._quitting)
             {
                 if (loop)
-                    await Task.Delay(first ? 45000 : 15000);
+                    await Task.Delay(first ? 45000 : 15000, CedModMain.CancellationToken);
                 first = false;
                 using (HttpClient client = new HttpClient())
                 {

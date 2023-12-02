@@ -55,6 +55,8 @@ namespace CedMod
         public static PluginDirectory GameModeDirectory;
         public static Assembly Assembly;
         public Thread CacheHandler;
+        public static CancellationToken CancellationToken;
+        public CancellationTokenSource CancellationTokenSource;
 #if !EXILED
         public static PluginHandler Handler;
 #endif
@@ -126,7 +128,8 @@ namespace CedMod
             PluginConfigFolder = Path.Combine(Paths.Configs, "CedMod");
             Log.Info($"Using {PluginConfigFolder} as CedMod data folder.");
 #endif
-            
+            CancellationTokenSource = new CancellationTokenSource();
+            CancellationToken = CancellationTokenSource.Token;
             if (!Directory.Exists(PluginConfigFolder))
             {
                 Directory.CreateDirectory(PluginConfigFolder);
@@ -454,6 +457,7 @@ namespace CedMod
             Log.Info("Server shutting down, stopping threads...");
             try
             {
+                WebSocketSystem.Reconnect = false;
                 WebSocketSystem.Stop().Wait();
             }
             catch (Exception e)
@@ -472,9 +476,10 @@ namespace CedMod
                 Console.WriteLine(e);
             }
 
-            ServerShutdown.Shutdown();
+            //ServerShutdown.Shutdown();
+            CancellationTokenSource.Cancel();
             Log.Info("CedMod Threads stopped.");
-            Application.Quit();
+            //Application.Quit();
         }
 
         private void HandleInstanceModeChange(ReferenceHub arg1, ClientInstanceMode arg2)

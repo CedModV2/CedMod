@@ -107,7 +107,7 @@ namespace CedMod.Addons.QuerySystem
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: WS Sendthread not alive, restarting WS");
                             WebSocketSystem.Stop();
-                            await Task.Delay(1000);
+                            await Task.Delay(1000, CedModMain.CancellationToken);
                             await WebSocketSystem.Start();
                         });
                     }
@@ -137,7 +137,7 @@ namespace CedMod.Addons.QuerySystem
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: WS inactive in reconnect mode without activity for 2 minutes, restarting WS");
                             await WebSocketSystem.Stop();
-                            await Task.Delay(1000);
+                            await Task.Delay(1000, CedModMain.CancellationToken);
                             await WebSocketSystem.Start();
                         });
                     }
@@ -152,7 +152,7 @@ namespace CedMod.Addons.QuerySystem
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: no activity for 3 minutes, restarting WS");
                             await WebSocketSystem.Stop();
-                            await Task.Delay(1000);
+                            await Task.Delay(1000, CedModMain.CancellationToken);
                             await WebSocketSystem.Start();
                         });
                     }

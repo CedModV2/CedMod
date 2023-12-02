@@ -14,7 +14,7 @@ namespace CedMod.Addons.QuerySystem
 
         public static async Task ResolvePreferences(bool loop = true)
         {
-            if (string.IsNullOrEmpty(QuerySystem.QuerySystemKey))
+            if (string.IsNullOrEmpty(QuerySystem.QuerySystemKey) || CedModMain.CancellationToken.IsCancellationRequested)
                 return;
 
             try
@@ -42,7 +42,7 @@ namespace CedMod.Addons.QuerySystem
                                 $"ServerPrefs.json")));
                         if (loop)
                         {
-                            await Task.Delay(1000);
+                            await Task.Delay(1000, CedModMain.CancellationToken);
                             await ResolvePreferences();
                         }
                         return;
@@ -54,7 +54,7 @@ namespace CedMod.Addons.QuerySystem
                 Log.Error($"Failed to resolve server preferences, using file: {e}");
                 if (loop)
                 {
-                    await Task.Delay(1000);
+                    await Task.Delay(1000, CedModMain.CancellationToken);
                     await ResolvePreferences();
                 }
                 return;
@@ -62,7 +62,7 @@ namespace CedMod.Addons.QuerySystem
 
             if (loop)
             {
-                await Task.Delay(60000);
+                await Task.Delay(60000, CedModMain.CancellationToken);
                 await ResolvePreferences();
             }
         }

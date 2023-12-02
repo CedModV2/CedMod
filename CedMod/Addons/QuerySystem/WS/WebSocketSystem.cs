@@ -105,7 +105,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     {
                         Reconnect = false;
                         Log.Error($"Failed to retrieve panel location, API rejected request: {data1}, Retrying");
-                        await Task.Delay(2000);
+                        await Task.Delay(2000, CedModMain.CancellationToken);
                         await Start(); //retry until we succeed or the thread gets aborted.
                         return;
                     }
@@ -121,7 +121,7 @@ namespace CedMod.Addons.QuerySystem.WS
             {
                 Reconnect = false;
                 Log.Error($"Failed to retrieve server location\n{e}");
-                await Task.Delay(1000);
+                await Task.Delay(1000, CedModMain.CancellationToken);
                 await Start(); //retry until we succeed or the thread gets aborted.
                 return;
             }
@@ -143,7 +143,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     if (i.CloseStatusDescription != null && i.CloseStatusDescription == "LOCATION SWITCH")
                     {
                         Log.Error($"Lost connection to CedMod Panel Instance location switched");
-                        await Task.Delay(2000);
+                        await Task.Delay(2000, CedModMain.CancellationToken);
                         lock (reconnectLock)
                         {
                             Task.Run(async () =>
@@ -152,7 +152,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                     Log.Debug($"ST2");
                                 Stop();
-                                await Task.Delay(1000);
+                                await Task.Delay(1000, CedModMain.CancellationToken);
                                 await Start();
                             });
                         }
@@ -169,7 +169,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     else
                     {
                         Log.Error($"Lost connection to CedMod Panel {i.CloseStatus} {i.CloseStatusDescription} {i.Type}, reconnecting in 5000ms\n{(i.Exception == null || !CedModMain.Singleton.Config.QuerySystem.Debug ? "" : i.Exception)}");
-                        await Task.Delay(5000);
+                        await Task.Delay(5000, CedModMain.CancellationToken);
                         lock (reconnectLock)
                         {
                             Task.Run(async () =>
@@ -180,7 +180,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                         Log.Debug($"ST1");
                                     Stop();
-                                    await Task.Delay(1000);
+                                    await Task.Delay(1000, CedModMain.CancellationToken);
                                     await Start();
                                 }
                                 catch (Exception e)
@@ -218,7 +218,7 @@ namespace CedMod.Addons.QuerySystem.WS
             {
                 WebSocketSystem.Reconnect = false;
                 Log.Error(e.ToString());
-                await Task.Delay(1000);
+                await Task.Delay(1000, CedModMain.CancellationToken);
                 await Start(); //retry until we succeed or the thread gets aborted.
             }
 
@@ -721,7 +721,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                     {
                                         try
                                         {
-                                            await Task.Delay(90000);
+                                            await Task.Delay(90000, CedModMain.CancellationToken);
                                             await HandleVerification();
                                             IsCheckingToken = false;
                                         }
