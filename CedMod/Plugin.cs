@@ -476,10 +476,10 @@ namespace CedMod
                 Console.WriteLine(e);
             }
 
-            //ServerShutdown.Shutdown();
+            ServerShutdown.Shutdown();
             CancellationTokenSource.Cancel();
             Log.Info("CedMod Threads stopped.");
-            //Application.Quit();
+            Application.Quit();
         }
 
         private void HandleInstanceModeChange(ReferenceHub arg1, ClientInstanceMode arg2)
