@@ -455,6 +455,7 @@ namespace CedMod
         private void OnQuit()
         {
             Log.Info("Server shutting down, stopping threads...");
+            CancellationTokenSource.Cancel();
             try
             {
                 WebSocketSystem.Reconnect = false;
@@ -475,11 +476,8 @@ namespace CedMod
             {
                 Console.WriteLine(e);
             }
-
-            ServerShutdown.Shutdown();
-            CancellationTokenSource.Cancel();
+            
             Log.Info("CedMod Threads stopped.");
-            Application.Quit();
         }
 
         private void HandleInstanceModeChange(ReferenceHub arg1, ClientInstanceMode arg2)
