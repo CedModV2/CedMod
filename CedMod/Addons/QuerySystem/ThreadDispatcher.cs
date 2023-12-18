@@ -204,6 +204,9 @@ namespace CedMod.Addons.QuerySystem
                     if (player.authManager.InstanceMode != ClientInstanceMode.ReadyClient)
                         continue;
                     
+                    if (player.authManager.AuthenticationResponse.AuthToken == null)
+                        continue;
+                    
                     if (player.isLocalPlayer)
                         continue;
                     bool staff = false;
