@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AdminToys;
+using GameCore;
 using InventorySystem.Items;
 using MEC;
 using PlayerRoles;
@@ -138,7 +139,7 @@ namespace CedMod.Addons.AdminSitSystem
                     if (plr.Player == null)
                         plr.Player = CedModPlayer.Get(plr.UserId);
 
-                    if (RoundSummary.RoundInProgress() && !RoundSummary.singleton._roundEnded && RoundSummary.roundTime >= 10 && plr.Player == null && plr.PlayerType == AdminSitPlayerType.Offender && sit.Type == AdminSitType.BanOffenderOnLeave)
+                    if (RoundSummary.RoundInProgress() && !RoundSummary.singleton._roundEnded && RoundStart.RoundLength.TotalSeconds >= 10 && plr.Player == null && plr.PlayerType == AdminSitPlayerType.Offender && sit.Type == AdminSitType.BanOffenderOnLeave)
                     {
                         if (!BannedUserIds.Contains(plr.UserId))
                         {
