@@ -108,7 +108,7 @@ namespace CedMod
             }
         }
 
-        private static void WaitForSecond(int i, Predicate<object> predicate)
+        public static void WaitForSecond(int i, Predicate<object> predicate)
         {
             int wait = i;
             while (wait >= 0 && predicate.Invoke(i))

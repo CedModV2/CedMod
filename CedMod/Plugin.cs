@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -454,6 +455,27 @@ namespace CedMod
 
         private void OnQuit()
         {
+            new Thread(s =>
+            {
+                try
+                {
+                    Log.Info("Exit watcher enabled.");
+                    //CedMod.CacheHandler.WaitForSecond(5, o => true);
+                    for (int i = 0; i < 30 && ServerShutdown.ShutdownState != ServerShutdown.ServerShutdownState.Complete || i < 6; ++i)
+                    {
+                        Thread.Sleep(120);
+                    }
+                    var process = Process.GetCurrentProcess();
+                    Log.Info($"Exit taking too long, killing {process.Id} {process.ProcessName} {process.StartInfo.Arguments}");
+                    process.Kill();
+                    Log.Info("Killed");
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e.ToString());
+                }
+            }).Start();
+            
             Log.Info("Server shutting down, stopping threads...");
             CancellationTokenSource.Cancel();
             try
@@ -476,7 +498,6 @@ namespace CedMod
             {
                 Console.WriteLine(e);
             }
-            
             Log.Info("CedMod Threads stopped.");
         }
 
