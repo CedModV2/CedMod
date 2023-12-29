@@ -58,7 +58,7 @@ namespace CedMod.Patches
             StringBuilder stringBuilder = StringBuilderPool.Shared.Rent("\n");
             stringBuilder.Clear();
 
-            if (CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
+            if (CommandProcessor.CheckPermissions(sender, PlayerPermissions.AdminChat))
             {
                 var plr = CedModPlayer.Get(sender.SenderId);
                 if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && !RemoteAdminModificationHandler.Singleton.Requesting.Contains(plr.UserId))

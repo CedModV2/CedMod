@@ -282,7 +282,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             {
                                 foreach (var staff in ReferenceHub.AllHubs)
                                 {
-                                    if (staff.isLocalPlayer || !PermissionsHandler.IsPermitted(staff.serverRoles.Permissions, PlayerPermissions.PlayersManagement))
+                                    if (staff.isLocalPlayer || !PermissionsHandler.IsPermitted(staff.serverRoles.Permissions, PlayerPermissions.AdminChat))
                                         continue;
 
                                     var plr = CedModPlayer.Get(staff);
@@ -322,7 +322,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             {
                                 foreach (var staff in ReferenceHub.AllHubs)
                                 {
-                                    if (staff.isLocalPlayer || !PermissionsHandler.IsPermitted(staff.serverRoles.Permissions, PlayerPermissions.PlayersManagement))
+                                    if (staff.isLocalPlayer || !PermissionsHandler.IsPermitted(staff.serverRoles.Permissions, PlayerPermissions.AdminChat))
                                         continue;
 
                                     var plr = CedModPlayer.Get(staff);
@@ -376,7 +376,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                     {
                                         foreach (var staff in ReferenceHub.AllHubs)
                                         {
-                                            if (staff.isLocalPlayer || !PermissionsHandler.IsPermitted(staff.serverRoles.Permissions, PlayerPermissions.PlayersManagement))
+                                            if (staff.isLocalPlayer || !PermissionsHandler.IsPermitted(staff.serverRoles.Permissions, PlayerPermissions.AdminChat))
                                                 continue;
 
                                             var plr = CedModPlayer.Get(staff);

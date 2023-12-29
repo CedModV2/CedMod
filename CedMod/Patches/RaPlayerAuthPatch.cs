@@ -42,7 +42,7 @@ namespace CedMod.Patches
         public static IEnumerator<float> RaPlayerCoRoutine(RaPlayerAuth __instance, CommandSender sender, string data)
         {
             string[] source = data.Split(' ');
-            if (source[0].StartsWith("-1") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
+            if (source[0].StartsWith("-1") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.AdminChat))
             {
                 var player = CedModPlayer.Get(sender.SenderId);
                 var open = RemoteAdminModificationHandler.ReportsList.Where(s => s.Status == HandleStatus.NoResponse).ToList();
