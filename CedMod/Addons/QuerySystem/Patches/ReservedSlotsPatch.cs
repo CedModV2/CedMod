@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CedMod.Addons.QuerySystem.WS;
 using CentralAuth;
 using Cryptography;
 using Exiled.API.Enums;
@@ -535,7 +536,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                         {
                             string id = userId;
                             string ip = realIp ?? request.RemoteEndPoint.Address.ToString();
-                            Dictionary<string, string> info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{id}&{ip}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}");
+                            Dictionary<string, string> info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{id}&{ip}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&server={Uri.EscapeDataString(WebSocketSystem.HelloMessage == null ? "Unknown" : WebSocketSystem.HelloMessage.Identity)}&r=1");
                             lock (BanSystem.CachedStates)
                             {
                                 if (BanSystem.CachedStates.ContainsKey(id))
