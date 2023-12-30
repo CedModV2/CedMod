@@ -66,7 +66,7 @@ namespace CedMod.Patches
         public static IEnumerator<float> RaPlayerCoRoutine(ExternalLookupCommand __instance, CommandSender sender, ArraySegment<string>  data)
         {
             string[] source = data.ToArray();
-            if (source[0].StartsWith("-1") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.AdminChat))
+            if (source[0].StartsWith("-1") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.BanningUpToDay))
             {
                 var player = CedModPlayer.Get(sender.SenderId);
                 var open = RemoteAdminModificationHandler.ReportsList.Where(s => s.Status == HandleStatus.NoResponse).ToList();
@@ -88,7 +88,7 @@ namespace CedMod.Patches
                 Timing.RunCoroutine(RaPlayerPatch.HandleReportType1(sender, player, source = new string[] { "0", "-1" }, $"<color=green>Report {report.Id} Ignored</color>"));
             }
             
-            if (source[0].StartsWith("-2") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.AdminChat))
+            if (source[0].StartsWith("-2") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.BanningUpToDay))
             {
                 var player = CedModPlayer.Get(sender.SenderId);
                 var open = RemoteAdminModificationHandler.ReportsList.Where(s => s.Status == HandleStatus.InProgress).ToList();
