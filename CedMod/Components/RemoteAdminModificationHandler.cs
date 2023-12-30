@@ -75,6 +75,11 @@ namespace CedMod.Components
         
         public void Update()
         {
+            if (VerificationChallenge.CompletedChallenge && VerificationChallenge.verificationTime.Elapsed.Hours >= 1)
+            {
+                VerificationChallenge.CompletedChallenge = false;
+                VerificationChallenge.ChallengeStarted = false;
+            }
             if (HostHub == null && ReferenceHub.TryGetHostHub(out ReferenceHub host))
                 HostHub = host;
             if (LocalHub == null && ReferenceHub.TryGetLocalHub(out ReferenceHub local))

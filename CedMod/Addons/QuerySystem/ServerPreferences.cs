@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,12 +36,14 @@ namespace CedMod.Addons.QuerySystem
                     }
                     else
                     {
-                        Log.Error(
-                            $"Failed to resolve server preferences, using file: {response.StatusCode} {await response.Content.ReadAsStringAsync()}");
+                        if (response.StatusCode == HttpStatusCode.PreconditionRequired)
+                        {
+                            VerificationChallenge.CompletedChallenge = false;
+                            VerificationChallenge.ChallengeStarted = false;
+                        }
+                        Log.Error($"Failed to resolve server preferences, using file: {response.StatusCode} {await response.Content.ReadAsStringAsync()}");
                         if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs.json"))) ;
-                        Prefs = JsonConvert.DeserializeObject<ServerPreferenceModel>(
-                            File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod",
-                                $"ServerPrefs.json")));
+                        Prefs = JsonConvert.DeserializeObject<ServerPreferenceModel>(File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs.json")));
                         if (loop)
                         {
                             await Task.Delay(1000, CedModMain.CancellationToken);

@@ -80,6 +80,11 @@ namespace CedMod
 
                 if (!resp.IsSuccessStatusCode)
                 {
+                    if (resp.StatusCode == HttpStatusCode.PreconditionRequired)
+                    {
+                        VerificationChallenge.CompletedChallenge = false;
+                        VerificationChallenge.ChallengeStarted = false;
+                    }
                     Log.Error($"API request failed: {resp.StatusCode} | {response}");
                     return null;
                 }

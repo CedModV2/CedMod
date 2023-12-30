@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -18,6 +19,7 @@ namespace CedMod
         public static bool CompletedChallenge = false;
         public static bool ChallengeStarted = false;
         public static int Time = 0;
+        public static Stopwatch verificationTime = new Stopwatch();
 
         public static async Task AwaitVerification()
         {
@@ -57,6 +59,8 @@ namespace CedMod
             if (ChallengeStarted && !ignore)
                 return;
 
+            verificationTime.Stop();
+            verificationTime.Reset();
             ChallengeStarted = true;
 
             ThreadPool.QueueUserWorkItem((s) =>
@@ -72,6 +76,7 @@ namespace CedMod
                         if (response.StatusCode == HttpStatusCode.OK)
                         {
                             CompletedChallenge = true;
+                            verificationTime.Start();
                             return;
                         }
 
