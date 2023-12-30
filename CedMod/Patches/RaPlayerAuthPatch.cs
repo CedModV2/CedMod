@@ -65,7 +65,7 @@ namespace CedMod.Patches
                 yield break;
             }
             
-            if (source[0].StartsWith("-2") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
+            if (source[0].StartsWith("-2") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.BanningUpToDay))
             {
                 var player = CedModPlayer.Get(sender.SenderId);
                 var open = RemoteAdminModificationHandler.ReportsList.Where(s => s.Status == HandleStatus.InProgress).ToList();
