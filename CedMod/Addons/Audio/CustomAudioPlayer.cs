@@ -50,6 +50,7 @@ namespace CedMod.Addons.Audio
             HttpStatusCode code = HttpStatusCode.OK;
             using (HttpClient client = new HttpClient())
             {
+                client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                 var t = VerificationChallenge.AwaitVerification();
                 yield return Timing.WaitUntilTrue(() => t.IsCompleted);
                 

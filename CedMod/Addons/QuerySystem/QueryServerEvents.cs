@@ -56,6 +56,7 @@ namespace CedMod.Addons.QuerySystem
                     {
                         using (HttpClient client = new HttpClient())
                         {
+                            client.DefaultRequestHeaders.Add("X-ServerIp", PluginAPI.Core.Server.ServerIpAddress);
                             await VerificationChallenge.AwaitVerification();
                             if (CedModMain.Singleton.Config.QuerySystem.EnableBanreasonSync)
                             {
@@ -221,6 +222,7 @@ namespace CedMod.Addons.QuerySystem
                     Log.Debug("sending report WR");
                 using (HttpClient client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("X-ServerIp", PluginAPI.Core.Server.ServerIpAddress);
                     await VerificationChallenge.AwaitVerification();
                     try
                     {
@@ -338,6 +340,7 @@ namespace CedMod.Addons.QuerySystem
                     Log.Debug("sending report WR");
                 using (HttpClient client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("X-ServerIp", PluginAPI.Core.Server.ServerIpAddress);
                     await VerificationChallenge.AwaitVerification();
                     try
                     {

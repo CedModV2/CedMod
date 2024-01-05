@@ -9,6 +9,7 @@ using CommandSystem;
 using Exiled.Loader;
 using MEC;
 using Newtonsoft.Json;
+using PluginAPI.Core;
 using RoundRestarting;
 using Serialization;
 using UnityEngine;
@@ -34,6 +35,7 @@ namespace CedMod.Commands
 
             using (HttpClient client = new HttpClient())
             {
+                client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                 HttpResponseMessage panelResponse = null;
                 if (arguments.Count >= 2)
                 {

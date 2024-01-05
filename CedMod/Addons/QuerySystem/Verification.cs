@@ -27,6 +27,7 @@ namespace CedMod.Addons.QuerySystem
             
             using (HttpClient client = new HttpClient())
             {
+                client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                 await VerificationChallenge.AwaitVerification();
                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                     Log.Debug($"Getting Id.");
@@ -64,6 +65,7 @@ namespace CedMod.Addons.QuerySystem
                 first = false;
                 using (HttpClient client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                     await VerificationChallenge.AwaitVerification();
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"verifying Id.");

@@ -72,6 +72,7 @@ namespace CedMod
                     
                     using (HttpClient client = new HttpClient())
                     {
+                        client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                         var response = client.GetAsync("https://challenge.cedmod.nl/Check/ShouldChallenge").Result;
                         if (response.StatusCode == HttpStatusCode.OK)
                         {

@@ -23,6 +23,7 @@ namespace CedMod.Addons.QuerySystem
             {
                 using (HttpClient client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                     await VerificationChallenge.AwaitVerification();
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Getting Prefs.");

@@ -338,6 +338,7 @@ namespace CedMod.Addons.QuerySystem
                         Log.Debug("sending WR");
                     using (HttpClient client = new HttpClient())
                     {
+                        client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                         await VerificationChallenge.AwaitVerification();
                         try
                         {

@@ -47,6 +47,7 @@ namespace CedMod.Components
             {
                 using (HttpClient client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                     await VerificationChallenge.AwaitVerification();
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Updating Report.");
@@ -121,6 +122,7 @@ namespace CedMod.Components
             {
                 using (HttpClient client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                     await VerificationChallenge.AwaitVerification();
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Getting Reports.");
@@ -158,6 +160,7 @@ namespace CedMod.Components
             {
                 using (HttpClient client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                     await VerificationChallenge.AwaitVerification();
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"Getting Watchlist.");
@@ -228,6 +231,7 @@ namespace CedMod.Components
             {
                 using (HttpClient client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                     await VerificationChallenge.AwaitVerification();
                     var resp = await client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/GetUserPreferences/{QuerySystem.QuerySystemKey}?id={player.UserId}"));
                     var respString = await resp.Content.ReadAsStringAsync();

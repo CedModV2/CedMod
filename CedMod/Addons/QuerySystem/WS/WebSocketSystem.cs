@@ -94,6 +94,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 Dictionary<string, string> data2 = new Dictionary<string, string>();
                 using (HttpClient client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                     await VerificationChallenge.AwaitVerification();
                     var resp = await client.SendAsync(new HttpRequestMessage()
                     {
@@ -678,6 +679,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             Log.Info($"Panel requested refresh of api key: {jsonData["Reason"]}");
                             using (HttpClient client = new HttpClient())
                             {
+                                client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                                 await VerificationChallenge.AwaitVerification();
                                 var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/FetchKey/{QuerySystem.QuerySystemKey}", new StringContent(JsonConvert.SerializeObject(new
                                 {
@@ -804,6 +806,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 {
                     using (HttpClient client = new HttpClient())
                     {
+                        client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                         VerificationChallenge.AwaitVerification().Wait();
                         
                         try

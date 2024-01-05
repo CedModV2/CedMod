@@ -56,6 +56,7 @@ namespace CedMod.Commands
             {
                 using (HttpClient client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                     await VerificationChallenge.AwaitVerification();
                     var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Punishment/IssueWarn/{QuerySystem.QuerySystemKey}?userId={plr.UserId}&issuer={send.UserId}", new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string> { { "Reason", reason } })));
                     var responseString = await response.Content.ReadAsStringAsync();

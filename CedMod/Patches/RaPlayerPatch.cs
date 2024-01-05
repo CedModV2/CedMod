@@ -256,6 +256,7 @@ namespace CedMod.Patches
                     var code = HttpStatusCode.OK;
                     using (HttpClient client = new HttpClient())
                     {
+                        client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                         var t = VerificationChallenge.AwaitVerification();
                         yield return Timing.WaitUntilTrue(() => t.IsCompleted);
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
@@ -297,6 +298,7 @@ namespace CedMod.Patches
                     
                     using (HttpClient client = new HttpClient())
                     {
+                        client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                         var t = VerificationChallenge.AwaitVerification();
                         yield return Timing.WaitUntilTrue(() => t.IsCompleted);
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
