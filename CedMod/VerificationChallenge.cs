@@ -110,7 +110,7 @@ namespace CedMod
                         byte[] encrypted = cipher.ProcessBlock(bytesArray, 0, bytesArray.Length);
                         string solution = Convert.ToBase64String(encrypted);
                         
-                        response = client.PostAsync($"https://challenge.cedmod.nl/ChallengeResponse/ProcessResponse?key={(string.IsNullOrEmpty(key) ? QuerySystem.QuerySystemKey : key)}&i={Time}", new StringContent(solution, Encoding.UTF8)).Result;
+                        response = client.PostAsync($"https://challenge.cedmod.nl/ChallengeResponse/ProcessResponse?key={(string.IsNullOrEmpty(key) ? QuerySystem.QuerySystemKey : key)}&i={Time}&ip={Server.ServerIpAddress}", new StringContent(solution, Encoding.UTF8)).Result;
                         if (response.StatusCode == HttpStatusCode.OK)
                         {
                             client.DefaultRequestHeaders.Remove("X-Challenge-Id");
