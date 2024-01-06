@@ -87,20 +87,20 @@ namespace CedMod.Patches
                 yield break;
             }
             
-            if (sender is PlayerCommandSender playerCommandSender && !playerCommandSender.ServerRoles.Staff && !CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayerSensitiveDataAccess))
+            if (sender is PlayerCommandSender playerCommandSender && !playerCommandSender.ReferenceHub.authManager.NorthwoodStaff && !CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayerSensitiveDataAccess))
                 yield break;
             List<ReferenceHub> referenceHubList = RAUtils.ProcessPlayerIdOrNamesList(new ArraySegment<string>(data.Split(' ')), 0, out string[] _);
             if (referenceHubList.Count == 0 || referenceHubList.Count > 1)
                 yield break;
-            if (string.IsNullOrEmpty(referenceHubList[0].characterClassManager.AuthToken))
+            if (string.IsNullOrEmpty(referenceHubList[0].authManager.GetAuthToken()))
             {
                 sender.RaReply("PlayerInfo#Can't obtain auth token. Is server using offline mode or you selected the host?", false, true, "PlayerInfo");
             }
             else
             {
                 ServerLogs.AddLog(ServerLogs.Modules.DataAccess, string.Format("{0} accessed authentication token of player {1} ({2}).", (object) sender.LogName, (object) referenceHubList[0].PlayerId, (object) referenceHubList[0].nicknameSync.MyNick), ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging);
-                sender.RaReply(string.Format("PlayerInfo#<color=white>Authentication token of player {0} ({1}):\n{2}</color>", (object) referenceHubList[0].nicknameSync.MyNick, (object) referenceHubList[0].PlayerId, (object) referenceHubList[0].characterClassManager.AuthToken), true, true, "null");
-                RaPlayerQR.Send(sender, true, referenceHubList[0].characterClassManager.AuthToken);
+                sender.RaReply(string.Format("PlayerInfo#<color=white>Authentication token of player {0} ({1}):\n{2}</color>", (object) referenceHubList[0].nicknameSync.MyNick, (object) referenceHubList[0].PlayerId, (object) referenceHubList[0].authManager.GetAuthToken()), true, true, "null");
+                RaPlayerQR.Send(sender, true, referenceHubList[0].authManager.GetAuthToken());
             }
         }
     }

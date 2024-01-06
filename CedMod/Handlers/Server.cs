@@ -23,6 +23,7 @@ namespace CedMod.Handlers
         public void OnRoundRestart(RoundRestartEvent ev)
         {
             FriendlyFireAutoban.Teamkillers.Clear();
+            FriendlyFireAutoban.AdminDisabled = false;
             foreach (var fake in AudioCommand.FakeConnections)
             {
                 NetworkServer.Destroy(fake.Value.gameObject);

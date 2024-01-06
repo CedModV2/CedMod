@@ -21,7 +21,7 @@ namespace CedMod
             {
                 foreach (var hub in ReferenceHub.AllHubs)
                 {
-                    if (hub.characterClassManager.UserId == userid)
+                    if (hub.authManager.UserId == userid)
                         return Get<CedModPlayer>(hub);
                 }
             }

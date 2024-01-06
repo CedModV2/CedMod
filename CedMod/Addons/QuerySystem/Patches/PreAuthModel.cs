@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using LiteNetLib.Utils;
+using PluginAPI.Core;
 
 namespace SlProxy
 {
@@ -10,46 +11,57 @@ namespace SlProxy
         public bool IsChallenge { get; set; }
         public static PreAuthModel ReadPreAuth(NetDataReader reader)
         {
-            PreAuthModel model = new PreAuthModel();
-            model.RawPreAuth = NetDataWriter.FromBytes(reader.RawData, reader.UserDataOffset, reader.UserDataSize);
-
-            if (reader.TryGetByte(out byte b))
-                model.b = b;
-            byte cBackwardRevision = 0;
-            byte cMajor;
-            byte cMinor;
-            byte cRevision;
-            bool cflag;
-            if (!reader.TryGetByte(out cMajor) || !reader.TryGetByte(out cMinor) || !reader.TryGetByte(out cRevision) || !reader.TryGetBool(out cflag) || (cflag && !reader.TryGetByte(out cBackwardRevision)))
+            try
             {
-                return null;
+                PreAuthModel model = new PreAuthModel();
+                model.RawPreAuth = NetDataWriter.FromBytes(reader.RawData, reader.UserDataOffset, reader.UserDataSize);
+
+                if (reader.TryGetByte(out byte b))
+                    model.b = b;
+                byte cBackwardRevision = 0;
+                byte cMajor;
+                byte cMinor;
+                byte cRevision;
+                bool cflag;
+                if (!reader.TryGetByte(out cMajor) || !reader.TryGetByte(out cMinor) || !reader.TryGetByte(out cRevision) || !reader.TryGetBool(out cflag) || (cflag && !reader.TryGetByte(out cBackwardRevision)))
+                {
+                    return null;
+                }
+
+                model.Major = cMajor;
+                model.Minor = cMinor;
+                model.Revision = cRevision;
+                model.BackwardRevision = cBackwardRevision;
+                model.flag = cflag;
+
+                if (reader.TryGetInt(out int challengeid))
+                {
+                    model.IsChallenge = challengeid != 0;
+                    model.ChallengeID = challengeid;
+                }
+                if (model.IsChallenge && reader.TryGetBytesWithLength(out byte[] challenge))
+                    model.Challenge = challenge;
+                else
+                    model.Challenge = new byte[0];
+                if (reader.TryGetString(out string userid))
+                    model.UserID = userid;
+                if (reader.TryGetLong(out long expiration))
+                    model.Expiration = expiration;
+                if (reader.TryGetByte(out byte flags))
+                    model.Flags = flags;
+                if (reader.TryGetString(out string region))
+                    model.Region = region;
+                if (reader.TryGetBytesWithLength(out byte[] signature))
+                    model.Signature = signature;
+                Console.WriteLine(model);
+                return model;
+            }
+            catch (Exception e)
+            {
+                //Log.Error(e.ToString());
             }
 
-            model.Major = cMajor;
-            model.Minor = cMinor;
-            model.Revision = cRevision;
-            model.BackwardRevision = cBackwardRevision;
-            model.flag = cflag;
-
-            if (reader.TryGetInt(out int challengeid))
-            {
-                model.IsChallenge = true;
-                model.ChallengeID = challengeid;
-            }
-            if (reader.TryGetBytesWithLength(out byte[] challenge))
-                model.Challenge = challenge;
-            if (reader.TryGetString(out string userid))
-                model.UserID = userid;
-            if (reader.TryGetLong(out long expiration))
-                model.Expiration = expiration;
-            if (reader.TryGetByte(out byte flags))
-                model.Flags = flags;
-            if (reader.TryGetString(out string region))
-                model.Region = region;
-            if (reader.TryGetBytesWithLength(out byte[] signature))
-                model.Signature = signature;
-            Console.WriteLine(model);
-            return model;
+            return null;
         }
 
         public byte b { get; set; }
@@ -84,7 +96,9 @@ namespace SlProxy
                 Environment.NewLine,
                 $"Signature length: {Signature.Length}",
                 Environment.NewLine,
-                $"Signature: {Encoding.Default.GetString(Signature)}");
+                $"Signature: {Encoding.Default.GetString(Signature)}",
+                Environment.NewLine,
+                $"IsChallenge: {IsChallenge}");
         }
     }
 }

@@ -134,7 +134,7 @@ namespace CedMod.Patches
 							(text == string.Empty) ? "(none)" : text,
 							"."
 						}), ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging);
-						if (CustomNetworkManager.IsVerified && referenceHub.serverRoles.BypassStaff)
+						if (CustomNetworkManager.IsVerified && referenceHub.authManager.AuthenticationResponse.AuthToken.BypassBans)
 						{
 							BanPlayer.KickUser(referenceHub, text);
 						}
@@ -154,7 +154,7 @@ namespace CedMod.Patches
 									{
 										Expires = DateTime.Now.AddSeconds(num).Ticks,
 										IssuanceTime = DateTime.Now.Ticks,
-										Id = referenceHub.characterClassManager.UserId,
+										Id = referenceHub.authManager.UserId,
 										Issuer = csender.ReferenceHub.LoggedNameFromRefHub(),
 										OriginalName = referenceHub.nicknameSync.Network_myNickSync,
 										Reason = text

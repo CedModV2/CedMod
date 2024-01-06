@@ -21,6 +21,8 @@ namespace CedMod.Addons.QuerySystem
 {
     public class QueryServerEvents
     {
+        private bool _first = false;
+        
         public IEnumerator<float> SyncStart(bool wait = true)
         {
             if (wait)
@@ -56,6 +58,7 @@ namespace CedMod.Addons.QuerySystem
                     {
                         using (HttpClient client = new HttpClient())
                         {
+                            client.DefaultRequestHeaders.Add("X-ServerIp", PluginAPI.Core.Server.ServerIpAddress);
                             await VerificationChallenge.AwaitVerification();
                             if (CedModMain.Singleton.Config.QuerySystem.EnableBanreasonSync)
                             {
@@ -114,7 +117,15 @@ namespace CedMod.Addons.QuerySystem
                     {
                         Log.Error(e.ToString());
                     }
-                    new Thread(WebSocketSystem.ApplyRa).Start();
+                    new Thread((o =>
+                    {
+                        if (!_first)
+                        {
+                            WebSocketSystem.ApplyRa(false);
+                            _first = true;
+                        }
+                        WebSocketSystem.ApplyRa(true);
+                    })).Start(true);
                 });
             }
         }
@@ -221,6 +232,7 @@ namespace CedMod.Addons.QuerySystem
                     Log.Debug("sending report WR");
                 using (HttpClient client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("X-ServerIp", PluginAPI.Core.Server.ServerIpAddress);
                     await VerificationChallenge.AwaitVerification();
                     try
                     {
@@ -338,6 +350,7 @@ namespace CedMod.Addons.QuerySystem
                     Log.Debug("sending report WR");
                 using (HttpClient client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("X-ServerIp", PluginAPI.Core.Server.ServerIpAddress);
                     await VerificationChallenge.AwaitVerification();
                     try
                     {

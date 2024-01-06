@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
+using CedMod.Addons.QuerySystem.WS;
 using MEC;
 using Newtonsoft.Json;
 using PluginAPI.Core;
@@ -23,7 +24,7 @@ namespace CedMod
                 Log.Debug("Join");
             try
             {
-                if (player.ReferenceHub.serverRoles.BypassStaff || player.ReferenceHub.isLocalPlayer)
+                if (player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.BypassBans || player.ReferenceHub.isLocalPlayer)
                     return;
 
                 Dictionary<string, string> info = new Dictionary<string, string>();
@@ -37,7 +38,15 @@ namespace CedMod
                 }
                 
                 if (req)
-                    info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{player.UserId}&{player.IpAddress}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}");
+                    info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{player.UserId}&{player.IpAddress}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&server={Uri.EscapeDataString(WebSocketSystem.HelloMessage == null ? "Unknown" : WebSocketSystem.HelloMessage.Identity)}&r=1");
+
+                if (player.IpAddress != player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.RequestIp && info != null && info.ContainsKey("success") && info["success"] == "true" && info["vpn"] == "false" && info["isbanned"] == "false")
+                {
+                    Log.Debug("Ip address mismatch, performing request again", CedModMain.Singleton.Config.CedMod.ShowDebug);
+                    var info2 = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{player.UserId}&{player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.RequestIp}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&server={Uri.EscapeDataString(WebSocketSystem.HelloMessage == null ? "Unknown" : WebSocketSystem.HelloMessage.Identity)}&r=2");
+                    if (info2 != null && info2.ContainsKey("success") && info2["success"] == "true" && (info2["vpn"] == "true" || info2["isbanned"] == "true"))
+                        info = info2;
+                }
 
                 if (info == null)
                 {

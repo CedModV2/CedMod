@@ -1,7 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CedMod.Addons.AdminSitSystem.Commands.Jail;
 using CommandSystem;
+using CommandSystem.Commands.RemoteAdmin;
+using CommandSystem.Commands.RemoteAdmin.Doors;
+using CustomPlayerEffects;
+using Interactables.Interobjects;
+using Interactables.Interobjects.DoorUtils;
 using InventorySystem;
 using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
@@ -10,6 +16,7 @@ using InventorySystem.Items.Radio;
 using MEC;
 using Mirror;
 using PlayerRoles;
+using PluginAPI.Core;
 using UnityEngine;
 
 namespace CedMod.Addons.AdminSitSystem.Commands
@@ -48,7 +55,22 @@ namespace CedMod.Addons.AdminSitSystem.Commands
 
         public static void AddPlr(CedModPlayer plr, AdminSit sit)
         {
-            sit.Players.Add( new AdminSitPlayer()
+            Vector3 playerPos = plr.Position;
+            foreach (var lift in ElevatorManager.SpawnedChambers)
+            {
+                if (lift.Value.WorldspaceBounds.Contains(plr.Position))
+                {
+                    Log.Info($"Player in lift {lift.Key}");
+                    var door = DoorVariant.AllDoors.Where(s => s is not ElevatorDoor).OrderBy(s => Vector3.Distance(s.transform.position, lift.Value.transform.position)).FirstOrDefault();
+                    if (door != null)
+                    {
+                        var pos = DoorTPCommand.EnsurePositionSafety(door.transform);
+                        playerPos = pos;
+                    }
+                }
+            }
+
+            var sitPlr = new AdminSitPlayer()
             {
                 Player = plr,
                 PlayerType = plr.RemoteAdminAccess ? AdminSitPlayerType.Staff : AdminSitPlayerType.User,
@@ -56,10 +78,18 @@ namespace CedMod.Addons.AdminSitSystem.Commands
                 Ammo = new Dictionary<ItemType, ushort>(plr.ReferenceHub.inventory.UserInventory.ReserveAmmo),
                 Health = plr.Health,
                 Items = new Dictionary<ushort, ItemBase>(plr.ReferenceHub.inventory.UserInventory.Items),
-                Position = plr.Position,
-                Role = plr.Role
-            });
+                Position = playerPos,
+                Role = plr.Role,
+            };
+
+            foreach (var effect in plr.ReferenceHub.playerEffectsController.AllEffects)
+            {
+                Log.Info($"Saving effect {effect.ToString()} {effect.IsEnabled} {effect.Intensity} {effect.Duration} {effect.TimeLeft}");
+                sitPlr.Effects.Add(effect.ToString(), new Tuple<bool, byte, float>(effect.IsEnabled, effect.Intensity, effect.Duration != 0.0f ? effect.TimeLeft : 0.0f));
+            }
             
+            sit.Players.Add(sitPlr);
+
             plr.SetRole(RoleTypeId.Tutorial, RoleChangeReason.RemoteAdmin);
             Timing.CallDelayed(0.1f, () => {
             {
@@ -114,6 +144,20 @@ namespace CedMod.Addons.AdminSitSystem.Commands
                 foreach (var ammo in sitPlr.Ammo)
                 {
                     plr.SetAmmo(ammo.Key, ammo.Value);
+                }
+
+                foreach (var effect in sitPlr.Effects)
+                {
+                    if (!effect.Value.Item1)
+                        continue;
+                    
+                    Log.Info($"Enabling effect {effect.Key} {effect.Value.Item1} {effect.Value.Item2} {effect.Value.Item3}");
+
+                    if (plr.EffectsManager.TryGetEffect(effect.Key, out var effectData))
+                    {
+                        Log.Info($"Found effect");
+                        effectData.ServerSetState(effect.Value.Item2, effect.Value.Item3);
+                    }
                 }
 
                 sit.Players.Remove(sitPlr);

@@ -8,7 +8,7 @@
         <OutputType>Library</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
         <RootNamespace>CedMod.SampleEvent</RootNamespace>
-        <AssemblyName>CedMod-SampleEvent-NWApi</AssemblyName>
+        <AssemblyName>CedMod.SampleEvent</AssemblyName>
         <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
         <LangVersion>9</LangVersion>

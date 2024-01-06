@@ -12,7 +12,7 @@ namespace CedMod
     {
         public static void Loop()
         {
-            while (true)
+            while (!Shutdown._quitting && CedModMain.Singleton.CacheHandler != null)
             {
                 try
                 {
@@ -97,13 +97,24 @@ namespace CedMod
                             }
                         }
                     }
-                    Thread.Sleep(10000);
+
+                    WaitForSecond(10, (o) => !Shutdown._quitting && CedModMain.Singleton.CacheHandler != null);
                 }
                 catch (Exception e)
                 {
                     Log.Error($"Failed to process cache: {e}");
-                    Thread.Sleep(10000);
+                    WaitForSecond(10, (o) => !Shutdown._quitting && CedModMain.Singleton.CacheHandler != null);
                 }
+            }
+        }
+
+        public static void WaitForSecond(int i, Predicate<object> predicate)
+        {
+            int wait = i;
+            while (wait >= 0 && predicate.Invoke(i))
+            {
+                Thread.Sleep(1000);
+                wait--;
             }
         }
 

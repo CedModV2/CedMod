@@ -11,9 +11,11 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
+using CedMod.Addons.StaffInfo;
 using CommandSystem;
 using Newtonsoft.Json;
 using PluginAPI.Core;
+using Utils.NonAllocLINQ;
 
 namespace CedMod.Commands
 {
@@ -54,6 +56,7 @@ namespace CedMod.Commands
             {
                 using (HttpClient client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                     await VerificationChallenge.AwaitVerification();
                     var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Punishment/IssueWarn/{QuerySystem.QuerySystemKey}?userId={plr.UserId}&issuer={send.UserId}", new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string> { { "Reason", reason } })));
                     var responseString = await response.Content.ReadAsStringAsync();
@@ -62,6 +65,9 @@ namespace CedMod.Commands
                         ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                         {
                             sender.Respond(responseString, true);
+                            StaffInfoHandler.StaffData.ForEach(s => s.Value.Remove(plr.UserId));
+                            StaffInfoHandler.Requested.ForEach(s => s.Value.Remove(plr.UserId));
+                            StaffInfoHandler.Singleton.RequestInfo(send, plr);
                         });
                     }
                     else

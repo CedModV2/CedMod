@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -18,6 +19,7 @@ namespace CedMod
         public static bool CompletedChallenge = false;
         public static bool ChallengeStarted = false;
         public static int Time = 0;
+        public static Stopwatch verificationTime = new Stopwatch();
 
         public static async Task AwaitVerification()
         {
@@ -32,15 +34,17 @@ namespace CedMod
                 if (!ChallengeStarted)
                     await PerformVerification();
                 
-                while (!CompletedChallenge)
+                while (!CompletedChallenge && !CedModMain.CancellationToken.IsCancellationRequested)
                 {
-                    await Task.Delay(100);
+                    await Task.Delay(100, CedModMain.CancellationToken);
                     //Log.Info("Waiting");
                 }
                 //Log.Info("Exit waiting");
             }
             catch (Exception e)
             {
+                if (e is TaskCanceledException)
+                    return;
                 Log.Error($"Failed to await verification process {e}");
             }
         }
@@ -55,6 +59,8 @@ namespace CedMod
             if (ChallengeStarted && !ignore)
                 return;
 
+            verificationTime.Stop();
+            verificationTime.Reset();
             ChallengeStarted = true;
 
             ThreadPool.QueueUserWorkItem((s) =>
@@ -66,10 +72,12 @@ namespace CedMod
                     
                     using (HttpClient client = new HttpClient())
                     {
+                        client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                         var response = client.GetAsync("https://challenge.cedmod.nl/Check/ShouldChallenge").Result;
                         if (response.StatusCode == HttpStatusCode.OK)
                         {
                             CompletedChallenge = true;
+                            verificationTime.Start();
                             return;
                         }
 
@@ -102,7 +110,7 @@ namespace CedMod
                         byte[] encrypted = cipher.ProcessBlock(bytesArray, 0, bytesArray.Length);
                         string solution = Convert.ToBase64String(encrypted);
                         
-                        response = client.PostAsync($"https://challenge.cedmod.nl/ChallengeResponse/ProcessResponse?key={(string.IsNullOrEmpty(key) ? QuerySystem.QuerySystemKey : key)}&i={Time}", new StringContent(solution, Encoding.UTF8)).Result;
+                        response = client.PostAsync($"https://challenge.cedmod.nl/ChallengeResponse/ProcessResponse?key={(string.IsNullOrEmpty(key) ? QuerySystem.QuerySystemKey : key)}&i={Time}&ip={Server.ServerIpAddress}", new StringContent(solution, Encoding.UTF8)).Result;
                         if (response.StatusCode == HttpStatusCode.OK)
                         {
                             client.DefaultRequestHeaders.Remove("X-Challenge-Id");

@@ -17,6 +17,7 @@ using MEC;
 using Newtonsoft.Json;
 using PlayerStatsSystem;
 using PluginAPI.Core;
+using Console = System.Console;
 using Log = PluginAPI.Core.Log;
 
 namespace CedMod
@@ -48,6 +49,7 @@ namespace CedMod
                 {
                     using (HttpClient client = new HttpClient())
                     {
+                        client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                         await VerificationChallenge.AwaitVerification();
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                         resp = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint + arguments);
@@ -59,6 +61,7 @@ namespace CedMod
                 {
                     using (HttpClient client = new HttpClient())
                     {
+                        client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                         await VerificationChallenge.AwaitVerification();
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                         resp = await client.DeleteAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint + arguments);
@@ -70,6 +73,7 @@ namespace CedMod
                 {
                     using (HttpClient client = new HttpClient())
                     {
+                        client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                         await VerificationChallenge.AwaitVerification();
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                         resp = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json"));
@@ -79,6 +83,11 @@ namespace CedMod
 
                 if (!resp.IsSuccessStatusCode)
                 {
+                    if (resp.StatusCode == HttpStatusCode.PreconditionRequired)
+                    {
+                        VerificationChallenge.CompletedChallenge = false;
+                        VerificationChallenge.ChallengeStarted = false;
+                    }
                     Log.Error($"API request failed: {resp.StatusCode} | {response}");
                     return null;
                 }

@@ -22,86 +22,73 @@ namespace CedMod.Patches
     {
         public static bool Prefix(ref List<ReferenceHub> __result, ArraySegment<string> args, int startindex, out string[] newargs, bool keepEmptyEntries = false)
         {
-            List<ReferenceHub> result;
+            List<ReferenceHub> result1;
             try
             {
-                if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Log.Debug("Starting RAUtil");
-                string text = RAUtils.FormatArguments(args, startindex);
-                List<ReferenceHub> list = ListPool<ReferenceHub>.Shared.Rent();
-                if (text.StartsWith("@", StringComparison.Ordinal))
+                string str1 = RAUtils.FormatArguments(args, startindex);
+                List<ReferenceHub> referenceHubList = ListPool<ReferenceHub>.Shared.Rent();
+                if (str1.StartsWith("@", StringComparison.Ordinal))
                 {
-                    foreach (object obj in new Regex("@\"(.*?)\".|@[^\\s.]+\\.").Matches(text))
+                    foreach (Match match in new Regex("@\"(.*?)\".|@[^\\s.]+\\.").Matches(str1))
                     {
-                        Match match = (Match)obj;
-                        text = RAUtils.ReplaceFirst(text, match.Value, "");
+                        str1 = RAUtils.ReplaceFirst(str1, match.Value, "");
                         string name = match.Value.Substring(1).Replace("\"", "").Replace(".", "");
-                        List<ReferenceHub> list2 = (from ply in ReferenceHub.AllHubs
-                            where ply.nicknameSync.MyNick.Equals(name)
-                            select ply).ToList<ReferenceHub>();
-                        if (list2.Count == 1 && !list.Contains(list2[0]))
+                        List<ReferenceHub> list = Enumerable.Where<ReferenceHub>((IEnumerable<ReferenceHub>)ReferenceHub.AllHubs, (Func<ReferenceHub, bool>)(ply => ply.nicknameSync.MyNick.Equals(name))).ToList<ReferenceHub>();
+                        if (list.Count == 1 && !referenceHubList.Contains(list[0]))
+                            referenceHubList.Add(list[0]);
+                    }
+
+                    newargs = str1.Split(new char[1] { ' ' }, (StringSplitOptions)(keepEmptyEntries ? 0 : 1));
+                }
+                else if (args.At<string>(startindex).Length > 0)
+                {
+                    if (char.IsDigit(args.At<string>(startindex)[0]))
+                    {
+                        foreach (string s in args.At<string>(startindex).Split('.', StringSplitOptions.None))
                         {
-                            list.Add(list2[0]);
+                            if (s == "-1" || s == "-2")
+                                continue;
+                            int result;
+                            ReferenceHub hub;
+                            if (int.TryParse(s, out result) && ReferenceHub.TryGetHub(result, out hub) && !referenceHubList.Contains(hub))
+                                referenceHubList.Add(hub);
                         }
                     }
-                    newargs = text.Split(new char[]
+                    else if (char.IsLetter(args.At<string>(startindex)[0]))
                     {
-                        ' '
-                    }, keepEmptyEntries ? StringSplitOptions.None : StringSplitOptions.RemoveEmptyEntries);
-                    result = list;
-                }
-                else
-                {
-                    var tmpargs = new List<string>(args);
-                    foreach (var tmp in args)
-                    {
-                        if (!tmp.Contains("-"))
-                            continue;
-                        var index = tmpargs.IndexOf(tmp);
-                        tmpargs[index] = tmp.Replace("-", "");
-                    }
-                    if (tmpargs[startindex].Length > 0 && char.IsDigit(tmpargs[startindex][0]))
-                    {
-                        string[] array = args.At(startindex).Split(new char[]
+                        foreach (string str2 in args.At<string>(startindex).Split('.', StringSplitOptions.None))
                         {
-                            '.'
-                        });
-                        for (int i = 0; i < array.Length; i++)
-                        {
-                            if (array[i] == "-1" || array[i] == "-2")
+                            if (str2 == "-1" || str2 == "-2")
                                 continue;
-                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                Log.Debug($"RAUtil {array[i]}");
-                            int playerId;
-                            ReferenceHub item;
-                            if (int.TryParse(array[i], out playerId) && ReferenceHub.TryGetHub(playerId, out item) && !list.Contains(item))
+                            
+                            foreach (ReferenceHub allHub in ReferenceHub.AllHubs)
                             {
-                                if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                    Log.Debug($"RAUtil {array[i]} {item.nicknameSync.name}");
-                                list.Add(item);
+                                if (allHub.nicknameSync.MyNick.Equals(str2) && !referenceHubList.Contains(allHub))
+                                    referenceHubList.Add(allHub);
                             }
                         }
                     }
-                    else
-                    {
-                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Log.Debug($"RAUtil skip");
-                    }
-                    newargs = ((args.Count > 1) ? RAUtils.FormatArguments(args, startindex + 1).Split(new char[]
+                }
+                
+                string[] strArray;
+                if (args.Count <= 1)
+                    strArray = (string[])null;
+                else
+                    strArray = RAUtils.FormatArguments(args, startindex + 1).Split(new char[1]
                     {
                         ' '
-                    }, keepEmptyEntries ? StringSplitOptions.None : StringSplitOptions.RemoveEmptyEntries) : null);
-                    result = list;
-                }
+                    }, (StringSplitOptions)(keepEmptyEntries ? 0 : 1));
+                newargs = strArray;
+                result1 = referenceHubList;
             }
             catch (Exception exception)
             {
                 Debug.LogException(exception);
                 newargs = null;
-                result = null;
+                result1 = null;
             }
 
-            __result = result;
+            __result = result1;
             return false;
         }
     }

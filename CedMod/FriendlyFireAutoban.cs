@@ -25,14 +25,13 @@ namespace CedMod
             {
                 behaviour = fireAutoBanBehaviour;
             }
-
             bool attackerHasFFImmunity = new PlayerCommandSender(attacker.ReferenceHub).CheckPermission(new PlayerPermissions[] 
             {
                 PlayerPermissions.FriendlyFireDetectorImmunity
             });
 
             string resultOfTK = attackerHasFFImmunity ? "<color=#49E1E9><b> You have Friendly Fire Ban Immunity.</b></color>" : "<color=yellow><b> If you continue teamkilling it will result in a ban</b></color>";
-            string ffaTextKiller = $"<size=25><b><color=yellow>You teamkilled: </color></b><color=red> {player.Nickname} </color><br>{resultOfTK}</size>";
+            string ffaTextKiller = $"<size=25><b><color=yellow>You teamkilled: </color></b><color=red> {player.Nickname} </color>\n{resultOfTK}</size>";
             if (behaviour != null)
             {
                 var msg = behaviour.KillerMessage(player, attacker, damageHandler);
@@ -103,12 +102,17 @@ namespace CedMod
             if (attacker == player)
                 return false;
 
+            var attackerRole = attacker.Role.GetTeam();
+
+            if (damageHandler is AttackerDamageHandler attackerDamageHandler)
+                attackerRole = attackerDamageHandler.Attacker.Role.GetTeam();
+
             if (attacker.CurrentItem is not null && attacker.CurrentItem.name == "Scp330(Clone)" && !CedModMain.Singleton.Config.CedMod.AutobanPinkCandies)
             {
                 return false;
             }
             
-            switch (attacker.Role.GetTeam())
+            switch (attackerRole)
             {
                 case Team.ClassD when player.Role.GetTeam() == Team.ChaosInsurgency:
                 case Team.ChaosInsurgency when player.Role.GetTeam() == Team.ClassD:

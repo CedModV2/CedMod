@@ -24,7 +24,7 @@ namespace CedMod.Patches
                 {
                     Expires = DateTime.Now.AddSeconds(duration).Ticks,
                     IssuanceTime = DateTime.Now.Ticks,
-                    Id = target.characterClassManager.UserId,
+                    Id = target.authManager.UserId,
                     Issuer = issuer.LoggedNameFromRefHub(),
                     OriginalName = target.nicknameSync.Network_myNickSync,
                     Reason = reason

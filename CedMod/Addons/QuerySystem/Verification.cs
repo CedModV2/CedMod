@@ -20,11 +20,14 @@ namespace CedMod.Addons.QuerySystem
             {
                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                     Log.Debug($"Verification paused as server is not verified.");
-                await Task.Delay(2000);
+                if (CedModMain.CancellationToken.IsCancellationRequested)
+                    break;
+                await Task.Delay(2000, CedModMain.CancellationToken);
             }
             
             using (HttpClient client = new HttpClient())
             {
+                client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                 await VerificationChallenge.AwaitVerification();
                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                     Log.Debug($"Getting Id.");
@@ -46,7 +49,7 @@ namespace CedMod.Addons.QuerySystem
                         Log.Error($"Failed to obtain CedMod verification token: {responseString}");
                     }
 
-                    await Task.Delay(1000);
+                    await Task.Delay(1000, CedModMain.CancellationToken);
                     await ObtainId();
                 }
             }
@@ -55,13 +58,14 @@ namespace CedMod.Addons.QuerySystem
         public static async Task<string> ConfirmId(bool loop = true)
         {
             bool first = true;
-            while (true)
+            while (!Shutdown._quitting)
             {
                 if (loop)
-                    await Task.Delay(first ? 45000 : 15000);
+                    await ServerPreferences.WaitForSecond(first ? 45000 : 15000, CedModMain.CancellationToken, (o) => !Shutdown._quitting && CedModMain.Singleton.CacheHandler != null);
                 first = false;
                 using (HttpClient client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                     await VerificationChallenge.AwaitVerification();
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Log.Debug($"verifying Id.");

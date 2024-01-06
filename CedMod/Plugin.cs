@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -14,7 +15,9 @@ using CedMod.Addons.Events;
 using CedMod.Addons.Events.Interfaces;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
+using CedMod.Addons.StaffInfo;
 using CedMod.Components;
+using CentralAuth;
 using Exiled.API.Features;
 using Exiled.Loader;
 using HarmonyLib;
@@ -53,11 +56,13 @@ namespace CedMod
         public static PluginDirectory GameModeDirectory;
         public static Assembly Assembly;
         public Thread CacheHandler;
+        public static CancellationToken CancellationToken;
+        public CancellationTokenSource CancellationTokenSource;
 #if !EXILED
         public static PluginHandler Handler;
 #endif
 
-        public const string PluginVersion = "3.4.14";
+        public const string PluginVersion = "3.4.15";
 
 #if !EXILED
         [PluginConfig]
@@ -124,7 +129,8 @@ namespace CedMod
             PluginConfigFolder = Path.Combine(Paths.Configs, "CedMod");
             Log.Info($"Using {PluginConfigFolder} as CedMod data folder.");
 #endif
-            
+            CancellationTokenSource = new CancellationTokenSource();
+            CancellationToken = CancellationTokenSource.Token;
             if (!Directory.Exists(PluginConfigFolder))
             {
                 Directory.CreateDirectory(PluginConfigFolder);
@@ -141,7 +147,7 @@ namespace CedMod
             }
             
             
-            CharacterClassManager.OnInstanceModeChanged += HandleInstanceModeChange; 
+            PlayerAuthenticationManager.OnInstanceModeChanged += HandleInstanceModeChange; 
             Assembly = Assembly.GetExecutingAssembly();
             CosturaUtility.Initialize();
 
@@ -157,8 +163,9 @@ namespace CedMod
 
             PluginAPI.Events.EventManager.RegisterEvents<AutoUpdater>(this);
             PluginAPI.Events.EventManager.RegisterEvents<AdminSitHandler>(this);
+            if (Config.QuerySystem.StaffInfoSystem)
+                PluginAPI.Events.EventManager.RegisterEvents<StaffInfoHandler>(this);
             FactoryManager.RegisterPlayerFactory(this, new CedModPlayerFactory());
-
 
             try
             {
@@ -248,6 +255,14 @@ namespace CedMod
             if (remoteAdminModificationHandler == null)
                 remoteAdminModificationHandler = CustomNetworkManager.singleton.gameObject.AddComponent<RemoteAdminModificationHandler>();
 
+            if (Config.QuerySystem.StaffInfoSystem)
+            {
+                StaffInfoHandler staffInfoHandler = Object.FindObjectOfType<StaffInfoHandler>();
+                if (staffInfoHandler == null)
+                    staffInfoHandler = CustomNetworkManager.singleton.gameObject.AddComponent<StaffInfoHandler>();
+            }
+            
+
             if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt")))
             {
                 // Start the HTTP server.
@@ -267,6 +282,7 @@ namespace CedMod
             else
                 Log.Warning("Plugin is not setup properly, please use refer to the cedmod setup guide"); //todo link guide
 
+            Shutdown.OnQuit += OnQuit;
             CacheHandler = new Thread(CedMod.CacheHandler.Loop);
             CacheHandler.Start();
 
@@ -437,12 +453,60 @@ namespace CedMod
             Task.Run(() => ServerPreferences.ResolvePreferences(true));
         }
 
+        private void OnQuit()
+        {
+            new Thread(s =>
+            {
+                try
+                {
+                    Log.Info("Exit watcher enabled.");
+                    //CedMod.CacheHandler.WaitForSecond(5, o => true);
+                    for (int i = 0; i < 30 && ServerShutdown.ShutdownState != ServerShutdown.ServerShutdownState.Complete || i < 6; ++i)
+                    {
+                        Thread.Sleep(120);
+                    }
+                    var process = Process.GetCurrentProcess();
+                    Log.Info($"Exit taking too long, killing {process.Id} {process.ProcessName} {process.StartInfo.Arguments}");
+                    process.Kill();
+                    Log.Info("Killed");
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e.ToString());
+                }
+            }).Start();
+            
+            Log.Info("Server shutting down, stopping threads...");
+            CancellationTokenSource.Cancel();
+            try
+            {
+                WebSocketSystem.Reconnect = false;
+                WebSocketSystem.Stop().Wait();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            
+            Log.Info("Shutdown WebsocketSystem");
+            
+            try
+            {
+                CedModMain.Singleton.CacheHandler = null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            Log.Info("CedMod Threads stopped.");
+        }
+
         private void HandleInstanceModeChange(ReferenceHub arg1, ClientInstanceMode arg2)
         {
             if ((arg2 != ClientInstanceMode.Unverified || arg2 != ClientInstanceMode.Host) && AudioCommand.FakeConnectionsIds.ContainsValue(arg1))
             {
                 Log.Info($"Replaced instancemode for dummy to host.");
-                arg1.characterClassManager.InstanceMode = ClientInstanceMode.Host;
+                arg1.authManager.InstanceMode = ClientInstanceMode.Host;
             }
         }
 
@@ -459,10 +523,28 @@ namespace CedMod
         {
             var loadProperty = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(s => s.GetName().Name == "CedModV3").GetType("CedMod.API").GetProperty("HasLoaded");
             loadProperty.SetValue(null, false);
-            CharacterClassManager.OnInstanceModeChanged -= HandleInstanceModeChange;
-            _harmony.UnpatchAll();
-            Singleton = null;
+            PlayerAuthenticationManager.OnInstanceModeChanged -= HandleInstanceModeChange;
+            _harmony.UnpatchAll(_harmony.Id);
             
+            PluginAPI.Events.EventManager.UnregisterEvents<Handlers.Player>(this);
+            PluginAPI.Events.EventManager.UnregisterEvents<Handlers.Server>(this);
+
+            PluginAPI.Events.EventManager.UnregisterEvents<QueryMapEvents>(this);
+            PluginAPI.Events.EventManager.UnregisterEvents<QueryServerEvents>(this);
+            PluginAPI.Events.EventManager.UnregisterEvents<QueryPlayerEvents>(this);
+
+            PluginAPI.Events.EventManager.UnregisterEvents<EventManagerServerEvents>(this);
+            PluginAPI.Events.EventManager.UnregisterEvents<EventManagerPlayerEvents>(this);
+
+            PluginAPI.Events.EventManager.UnregisterEvents<AutoUpdater>(this);
+            PluginAPI.Events.EventManager.UnregisterEvents<AdminSitHandler>(this);
+            if (Config.QuerySystem.StaffInfoSystem)
+                PluginAPI.Events.EventManager.UnregisterEvents<StaffInfoHandler>(this);
+            
+            Shutdown.OnQuit -= OnQuit;
+            
+            Singleton = null;
+
             ThreadDispatcher dispatcher = Object.FindObjectOfType<ThreadDispatcher>();
             if (dispatcher != null)
                 Object.Destroy(dispatcher);
@@ -478,7 +560,14 @@ namespace CedMod
             RemoteAdminModificationHandler remoteAdminModificationHandler = Object.FindObjectOfType<RemoteAdminModificationHandler>();
             if (remoteAdminModificationHandler != null)
                 Object.Destroy(remoteAdminModificationHandler);
-            
+
+            if (Config.QuerySystem.StaffInfoSystem)
+            {
+                StaffInfoHandler staffInfoHandler = Object.FindObjectOfType<StaffInfoHandler>();
+                if (staffInfoHandler != null)
+                    Object.Destroy(staffInfoHandler);
+            }
+
             WebSocketSystem.Stop();
             CacheHandler.Interrupt();
             
@@ -515,7 +604,7 @@ namespace CedMod
             }
 #endif
         }
-        
+
         internal static string GetHashCode(Stream stream, HashAlgorithm cryptoService)
         {
             using (cryptoService)

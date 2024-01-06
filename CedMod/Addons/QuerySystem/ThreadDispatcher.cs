@@ -11,6 +11,7 @@ using CedMod.Addons.Audio;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem.WS;
 using CedMod.ApiModals;
+using CentralAuth;
 using Exiled.Loader;
 using Newtonsoft.Json;
 using PluginAPI.Core;
@@ -106,7 +107,7 @@ namespace CedMod.Addons.QuerySystem
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: WS Sendthread not alive, restarting WS");
                             WebSocketSystem.Stop();
-                            await Task.Delay(1000);
+                            await Task.Delay(1000, CedModMain.CancellationToken);
                             await WebSocketSystem.Start();
                         });
                     }
@@ -121,7 +122,7 @@ namespace CedMod.Addons.QuerySystem
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: WS inactive out of reconnect mode without activity for 1 minutes, restarting WS");
                             await WebSocketSystem.Stop();
-                            await Task.Delay(1000);
+                            await Task.Delay(1000, CedModMain.CancellationToken);
                             await WebSocketSystem.Start();
                         });
                     }
@@ -136,7 +137,7 @@ namespace CedMod.Addons.QuerySystem
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: WS inactive in reconnect mode without activity for 2 minutes, restarting WS");
                             await WebSocketSystem.Stop();
-                            await Task.Delay(1000);
+                            await Task.Delay(1000, CedModMain.CancellationToken);
                             await WebSocketSystem.Start();
                         });
                     }
@@ -151,7 +152,7 @@ namespace CedMod.Addons.QuerySystem
                             WebSocketSystem.Reconnect = false;
                             Log.Error($"WS Watchdog: no activity for 3 minutes, restarting WS");
                             await WebSocketSystem.Stop();
-                            await Task.Delay(1000);
+                            await Task.Delay(1000, CedModMain.CancellationToken);
                             await WebSocketSystem.Start();
                         });
                     }
@@ -200,7 +201,10 @@ namespace CedMod.Addons.QuerySystem
             {
                 foreach (ReferenceHub player in ReferenceHub.AllHubs)
                 {
-                    if (player.characterClassManager.InstanceMode != ClientInstanceMode.ReadyClient)
+                    if (player.authManager.InstanceMode != ClientInstanceMode.ReadyClient)
+                        continue;
+                    
+                    if (player.authManager.AuthenticationResponse.AuthToken == null)
                         continue;
                     
                     if (player.isLocalPlayer)
@@ -208,9 +212,9 @@ namespace CedMod.Addons.QuerySystem
                     bool staff = false;
 
                     var data = ServerStatic.GetPermissionsHandler();
-                    if (player.characterClassManager.UserId != null && data._members.ContainsKey(player.characterClassManager.UserId))
+                    if (player.authManager.UserId != null && data._members.ContainsKey(player.authManager.UserId))
                     {
-                        var group = data.GetGroup(data._members[player.characterClassManager.UserId]);
+                        var group = data.GetGroup(data._members[player.authManager.UserId]);
                         if (group != null)
                         {
                             staff = PermissionsHandler.IsPermitted(group.Permissions, new PlayerPermissions[3] { PlayerPermissions.KickingAndShortTermBanning, PlayerPermissions.BanningUpToDay, PlayerPermissions.LongTermBanning });
@@ -219,13 +223,13 @@ namespace CedMod.Addons.QuerySystem
                     
                     players.Add(new PlayerObject()
                     {
-                        DoNotTrack = player.serverRoles.DoNotTrack,
+                        DoNotTrack = player.authManager.DoNotTrack,
                         Name = player.nicknameSync.Network_myNickSync,
                         Staff = staff,
-                        UserId = player.characterClassManager.UserId,
+                        UserId = player.authManager.UserId,
                         PlayerId = player.PlayerId,
                         RoleType = player.roleManager.CurrentRole.RoleTypeId,
-                        HashedUserId = player.serverRoles.SyncHashed
+                        HashedUserId = player.authManager.AuthenticationResponse.AuthToken.SyncHashed
                     });
                 }
             }

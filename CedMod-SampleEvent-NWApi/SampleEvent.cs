@@ -22,7 +22,7 @@ namespace CedMod.SampleEvent
         [PluginConfig] 
         public Config EventConfig;
         
-        [PluginEntryPoint("CedMod-ExampleGameMode", "0.0.1", "Example gamemode for the cedmod gamemode manager", "ced777ric#0001")]
+        [PluginEntryPoint("CedMod-ExampleGameMode", "0.0.1", "Example gamemode for the cedmod gamemode manager", "ced777ric")]
         public void OnEnabled()
         {
             Handler = PluginHandler.Get(this);
