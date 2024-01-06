@@ -673,7 +673,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             break;
                         case "ApplyRA":
                             Log.Info($"Panel requested AutoSlPerms reload: {jsonData["reason"]}");
-                            new Thread(ApplyRa).Start();
+                            new Thread(ApplyRa).Start(true);
                             break;
                         case "FetchApiKey":
                             Log.Info($"Panel requested refresh of api key: {jsonData["Reason"]}");
@@ -797,8 +797,13 @@ namespace CedMod.Addons.QuerySystem.WS
         public static bool UseRa = true;
         public static object LockObj = new object();
 
-        public static void ApplyRa()
+        public static void ApplyRa(object state)
         {
+            if (state == null)
+                state = true;
+
+            bool request = (bool)state;
+            
             lock (LockObj)
             {
                 AutoSlPermsSlRequest permsSlRequest = null;
@@ -806,11 +811,14 @@ namespace CedMod.Addons.QuerySystem.WS
                 {
                     using (HttpClient client = new HttpClient())
                     {
+                        client.Timeout = TimeSpan.FromSeconds(10);
                         client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                         VerificationChallenge.AwaitVerification().Wait();
                         
                         try
                         {
+                            if (!request)
+                                throw new Exception("Request is false");
                             var responseWhitelist = client.SendAsync(new HttpRequestMessage()
                             {
                                 Method = HttpMethod.Options,
@@ -863,7 +871,9 @@ namespace CedMod.Addons.QuerySystem.WS
                         }
                         catch (Exception e)
                         {
-                            Log.Error($"Failed to check for whitelist {e}");
+                            if (request)
+                                Log.Error($"Failed to check for whitelist {e}");
+                            
                             if (Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
                             {
                                 if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json")))
@@ -876,6 +886,9 @@ namespace CedMod.Addons.QuerySystem.WS
                                 }
                             }
                         }
+                        
+                        if (!request)
+                            throw new Exception("Request is false");
                         
                         var responsePerms = client.SendAsync(new HttpRequestMessage()
                         {
@@ -925,7 +938,8 @@ namespace CedMod.Addons.QuerySystem.WS
                     if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "autoSlPermCache.json")))
                     {
                         UseRa = false;
-                        Log.Error($"Failed to fetch RA from panel, using cache...\n{e}");
+                        if (request)
+                            Log.Error($"Failed to fetch RA from panel, using cache...\n{e}");
                         permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "autoSlPermCache.json")));
                     }
                     else

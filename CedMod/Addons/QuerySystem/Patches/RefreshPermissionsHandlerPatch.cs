@@ -17,7 +17,7 @@ namespace CedMod.Addons.QuerySystem.Patches
         {
             if (!WebSocketSystem.UseRa)
             {
-                new Thread(() => { WebSocketSystem.ApplyRa(); }).Start();
+                new Thread(() => { WebSocketSystem.ApplyRa(true); }).Start();
                 return false;
             }
 

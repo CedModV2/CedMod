@@ -21,6 +21,8 @@ namespace CedMod.Addons.QuerySystem
 {
     public class QueryServerEvents
     {
+        private bool _first = false;
+        
         public IEnumerator<float> SyncStart(bool wait = true)
         {
             if (wait)
@@ -115,7 +117,15 @@ namespace CedMod.Addons.QuerySystem
                     {
                         Log.Error(e.ToString());
                     }
-                    new Thread(WebSocketSystem.ApplyRa).Start();
+                    new Thread((o =>
+                    {
+                        if (!_first)
+                        {
+                            WebSocketSystem.ApplyRa(false);
+                            _first = true;
+                        }
+                        WebSocketSystem.ApplyRa(true);
+                    })).Start(true);
                 });
             }
         }
