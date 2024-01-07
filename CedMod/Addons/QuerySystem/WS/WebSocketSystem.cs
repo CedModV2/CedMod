@@ -25,7 +25,6 @@ using Mirror;
 using Newtonsoft.Json;
 using NWAPIPermissionSystem;
 using Exiled.Permissions.Extensions;
-using JetBrains.Annotations;
 using NWAPIPermissionSystem.Commands;
 using NWAPIPermissionSystem.Models;
 using PluginAPI.Core;
@@ -798,7 +797,7 @@ namespace CedMod.Addons.QuerySystem.WS
         public static bool UseRa = true;
         public static object LockObj = new object();
 
-        public static void ApplyRa([CanBeNull] object state)
+        public static void ApplyRa(object? state)
         {
             if (state == null)
                 state = true;
