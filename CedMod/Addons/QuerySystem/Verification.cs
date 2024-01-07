@@ -85,6 +85,10 @@ namespace CedMod.Addons.QuerySystem
                             AmountErrored++;
                             Log.Error($"Failed to verify CedMod verification token: {responseString}");
                         }
+                        else if (AmountErrored >= 10)
+                        {
+                            responseString = "";
+                        }
 
                         if (!loop)
                             return responseString;
