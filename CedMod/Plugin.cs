@@ -15,6 +15,7 @@ using CedMod.Addons.Events;
 using CedMod.Addons.Events.Interfaces;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
+using CedMod.Addons.Sentinal.Patches;
 using CedMod.Addons.StaffInfo;
 using CedMod.Components;
 using CentralAuth;
@@ -261,6 +262,10 @@ namespace CedMod
                 if (staffInfoHandler == null)
                     staffInfoHandler = CustomNetworkManager.singleton.gameObject.AddComponent<StaffInfoHandler>();
             }
+            
+            SentinalBehaviour sentinalBehaviour = Object.FindObjectOfType<SentinalBehaviour>();
+            if (sentinalBehaviour == null)
+                sentinalBehaviour = CustomNetworkManager.singleton.gameObject.AddComponent<SentinalBehaviour>();
             
 
             if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt")))
@@ -560,6 +565,10 @@ namespace CedMod
             RemoteAdminModificationHandler remoteAdminModificationHandler = Object.FindObjectOfType<RemoteAdminModificationHandler>();
             if (remoteAdminModificationHandler != null)
                 Object.Destroy(remoteAdminModificationHandler);
+            
+            SentinalBehaviour sentinalBehaviour = Object.FindObjectOfType<SentinalBehaviour>();
+            if (sentinalBehaviour != null)
+                Object.Destroy(sentinalBehaviour);
 
             if (Config.QuerySystem.StaffInfoSystem)
             {

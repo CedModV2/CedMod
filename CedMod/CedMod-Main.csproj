@@ -116,6 +116,8 @@
     <Compile Include="Addons\QuerySystem\ThreadDispatcher.cs" />
     <Compile Include="Addons\QuerySystem\Verification.cs" />
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
+    <Compile Include="Addons\Sentinal\Patches\SentinalBehaviour.cs" />
+    <Compile Include="Addons\Sentinal\Patches\VoicePacketPacket.cs" />
     <Compile Include="Addons\StaffInfo\MirrorExtensions.cs" />
     <Compile Include="Addons\StaffInfo\StaffInfoHandler.cs" />
     <Compile Include="API.cs" />
