@@ -1,4 +1,5 @@
-﻿using PluginAPI.Core;
+﻿using CentralAuth;
+using PluginAPI.Core;
 using PluginAPI.Core.Interfaces;
 using UnityEngine;
 
@@ -17,7 +18,7 @@ namespace CedMod
                 return Get<CedModPlayer>(id);
 
             // Check Userid
-            if (userid.EndsWith("@steam") || userid.EndsWith("@discord") || userid.EndsWith("@northwood") || userid.EndsWith("@patreon"))
+            if (userid.EndsWith("@steam") || userid.EndsWith("@discord") || userid.EndsWith("@northwood") || userid.EndsWith("@patreon") || (userid.StartsWith("ID_Offline") && !PlayerAuthenticationManager.OnlineMode))
             {
                 foreach (var hub in ReferenceHub.AllHubs)
                 {

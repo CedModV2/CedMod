@@ -160,7 +160,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                             return;
                         }
 
-                        if (!ECDSA.VerifyBytes($"{preauthdata.UserID};{preauthdata.Flags};{preauthdata.Region};{preauthdata.Expiration}", preauthdata.Signature, ServerConsole.PublicKey))
+                        if (PlayerAuthenticationManager.OnlineMode && !ECDSA.VerifyBytes($"{preauthdata.UserID};{preauthdata.Flags};{preauthdata.Region};{preauthdata.Expiration}", preauthdata.Signature, ServerConsole.PublicKey))
                         {
                             if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                                 Log.Debug($"Rejected preauth due to invalidity\n{preauthdata}");

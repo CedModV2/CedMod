@@ -15,6 +15,7 @@ using CedMod.Addons.Events;
 using CedMod.Addons.Events.Interfaces;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
+using CedMod.Addons.Sentinal;
 using CedMod.Addons.Sentinal.Patches;
 using CedMod.Addons.StaffInfo;
 using CedMod.Components;

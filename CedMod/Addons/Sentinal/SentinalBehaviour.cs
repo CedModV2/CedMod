@@ -3,21 +3,22 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using CedMod.Addons.Sentinal.Patches;
 using Newtonsoft.Json;
 using PluginAPI.Core;
 using UnityEngine;
 using Utils.NonAllocLINQ;
 
-namespace CedMod.Addons.Sentinal.Patches
+namespace CedMod.Addons.Sentinal
 {
     public class SentinalBehaviour: MonoBehaviour
     {
         public List<string> Ids = new List<string>();
         public float Time = 30;
 
-        public void Update()
+        public void FixedUpdate()
         {
-            Time -= UnityEngine.Time.deltaTime;
+            Time -= UnityEngine.Time.fixedDeltaTime;
 
             if (Time <= 0)
             {

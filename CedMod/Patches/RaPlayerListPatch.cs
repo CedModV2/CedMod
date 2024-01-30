@@ -58,15 +58,16 @@ namespace CedMod.Patches
             
             StringBuilder stringBuilder = StringBuilderPool.Shared.Rent("\n");
             stringBuilder.Clear();
+            
+            var plr = CedModPlayer.Get(sender.SenderId);
+
+            if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && !RemoteAdminModificationHandler.Singleton.Requesting.Contains(plr.UserId))
+            {
+                RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, null);
+            }
 
             if (CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
             {
-                var plr = CedModPlayer.Get(sender.SenderId);
-                if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && !RemoteAdminModificationHandler.Singleton.Requesting.Contains(plr.UserId))
-                {
-                    RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, null);
-                }
-
                 if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin)
                 {
                     var openCount = RemoteAdminModificationHandler.ReportsList.Count(s => s.Status == HandleStatus.NoResponse);
@@ -102,15 +103,8 @@ namespace CedMod.Patches
 
             foreach (ReferenceHub hub in num != 0 ? __instance.SortPlayersDescending(sortingType) : __instance.SortPlayers(sortingType))
             {
-                if (hub.Mode != ClientInstanceMode.DedicatedServer && hub.Mode != ClientInstanceMode.Unverified)
+                if (!PlayerAuthenticationManager.OnlineMode || (hub.Mode != ClientInstanceMode.DedicatedServer && hub.Mode != ClientInstanceMode.Unverified))
                 {
-                    var plr = CedModPlayer.Get(sender.SenderId);
-                    if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && !RemoteAdminModificationHandler.Singleton.Requesting.Contains(plr.UserId))
-                    {
-                        RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, null);
-                    }
-                    
-                    
                     stringBuilder.Append(RaPlayerList.GetPrefix(hub, viewHiddenBadges, viewHiddenGlobalBadges));
                     stringBuilder.Append(hub.serverRoles.IsInOverwatch ? "<link=RA_OverwatchEnabled><color=white>[</color><color=#03f8fc>\uF06E</color><color=white>]</color></link> " : string.Empty);
                     stringBuilder.Append("<color={RA_ClassColor}>(").Append(hub.PlayerId).Append(") ");
