@@ -28,7 +28,8 @@ namespace CedMod.Addons.Sentinal
             
             foreach (var pack in VoicePacketPacket.PacketsSent)
             {
-                Log.Info($"{pack.Key} val {pack.Value}");
+                if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                    Log.Info($"Audioguard {pack.Key} val {pack.Value}");
                 if (pack.Value >= 30)
                 {
                     var plr = ReferenceHub.AllHubs.FirstOrDefault(s => s.netId == pack.Key, null);
@@ -44,7 +45,7 @@ namespace CedMod.Addons.Sentinal
                                 await VerificationChallenge.AwaitVerification();
                                 try
                                 {
-                                    var response = await client.GetAsync($"http{(QuerySystem.QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.QuerySystem.CurrentMaster}/Api/Sentinal/ReportVC?token={QuerySystem.QuerySystem.QuerySystemKey}&userid={plr.authManager.UserId}");
+                                    var response = await client.GetAsync($"http{(QuerySystem.QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.QuerySystem.CurrentMaster}/Api/Sentinal/ReportVC?key={QuerySystem.QuerySystem.QuerySystemKey}&userid={plr.authManager.UserId}");
                                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                         Log.Debug(await response.Content.ReadAsStringAsync());
                                 }
