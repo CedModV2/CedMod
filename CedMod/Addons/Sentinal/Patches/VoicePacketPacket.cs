@@ -10,16 +10,16 @@ namespace CedMod.Addons.Sentinal.Patches
     [HarmonyPatch(typeof(VoiceTransceiver), nameof(VoiceTransceiver.ServerReceiveMessage))]
     public static class VoicePacketPacket
     {
-        public static Dictionary<int, int> PacketsSent = new Dictionary<int, int>();
+        public static Dictionary<uint, int> PacketsSent = new Dictionary<uint, int>();
         
         public static void Postfix(NetworkConnection conn, VoiceMessage msg)
         {
             try
             {
-                if (!PacketsSent.ContainsKey(conn.connectionId))
-                    PacketsSent.Add(conn.connectionId, 0);
+                if (!PacketsSent.ContainsKey(conn.identity.netId))
+                    PacketsSent.Add(conn.identity.netId, 0);
 
-                PacketsSent[conn.connectionId]++;
+                PacketsSent[conn.identity.netId]++;
             }
             catch (Exception e)
             {

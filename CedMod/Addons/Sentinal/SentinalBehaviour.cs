@@ -28,12 +28,14 @@ namespace CedMod.Addons.Sentinal
             
             foreach (var pack in VoicePacketPacket.PacketsSent)
             {
-                if (pack.Value >= 7)
+                Log.Info($"{pack.Key} val {pack.Value}");
+                if (pack.Value >= 30)
                 {
-                    var plr = ReferenceHub.AllHubs.FirstOrDefault(s => s.connectionToClient.connectionId == pack.Key, null);
+                    var plr = ReferenceHub.AllHubs.FirstOrDefault(s => s.netId == pack.Key, null);
                     if (plr != null && !Ids.Contains(plr.authManager.UserId))
                     {
                         Ids.Add(plr.authManager.UserId);
+                        Log.Info($"CedMod Reporting {plr.nicknameSync.MyNick} {plr.authManager.UserId}");
                         Task.Run(async () =>
                         {
                             using (HttpClient client = new HttpClient())
