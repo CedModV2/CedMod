@@ -15,6 +15,7 @@ namespace CedMod.Addons.Sentinal
     {
         public List<string> Ids = new List<string>();
         public float Time = 120;
+        public Dictionary<uint, int> FrameCount = new Dictionary<uint, int>();
 
         public void FixedUpdate()
         {
@@ -33,8 +34,11 @@ namespace CedMod.Addons.Sentinal
                 int amount = pack.Value;
                 if (amount >= 30)
                 {
+                    FrameCount.TryAdd(pack.Key, 0);
+                    FrameCount[pack.Key]++;
+                    
                     var plr = ReferenceHub.AllHubs.FirstOrDefault(s => s.netId == pack.Key, null);
-                    if (plr != null && !Ids.Contains(plr.authManager.UserId))
+                    if (FrameCount[pack.Key] >= 10 && plr != null && !Ids.Contains(plr.authManager.UserId))
                     {
                         Ids.Add(plr.authManager.UserId);
                         Log.Info($"CedMod Reporting {plr.nicknameSync.MyNick} {plr.authManager.UserId}");
@@ -58,6 +62,8 @@ namespace CedMod.Addons.Sentinal
                         });
                     }
                 }
+                else if (FrameCount.ContainsKey(pack.Key))
+                    FrameCount.Remove(pack.Key);
             }
             
             VoicePacketPacket.PacketsSent.Clear();
