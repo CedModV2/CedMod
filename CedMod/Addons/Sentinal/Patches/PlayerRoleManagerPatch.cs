@@ -42,7 +42,7 @@ namespace CedMod.Addons.Sentinal.Patches
                     visCtrl = null;
                 }
                 
-                bool invisible = hasVisCtrl && !visCtrl.ValidateVisibility(__instance._hub) && !PermissionsHandler.IsPermitted(receiver.serverRoles.Permissions, PlayerPermissions.GameplayData);
+                bool invisible = hasVisCtrl && !visCtrl.ValidateVisibility(__instance._hub) && !PermissionsHandler.IsPermitted(receiver.serverRoles.Permissions, PlayerPermissions.GameplayData) && receiver.roleManager.CurrentRole.Team != Team.SCPs;
                 if (invisible)
                     toSend = RoleTypeId.Filmmaker;
                 
