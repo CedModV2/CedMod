@@ -14,7 +14,7 @@ namespace CedMod.Addons.Sentinal
     public class SentinalBehaviour: MonoBehaviour
     {
         public List<string> Ids = new List<string>();
-        public float Time = 30;
+        public float Time = 120;
 
         public void FixedUpdate()
         {
@@ -23,14 +23,15 @@ namespace CedMod.Addons.Sentinal
             if (Time <= 0)
             {
                 Ids.Clear();
-                Time = 30;
+                Time = 120;
             }
             
             foreach (var pack in VoicePacketPacket.PacketsSent)
             {
                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                     Log.Info($"Audioguard {pack.Key} val {pack.Value}");
-                if (pack.Value >= 30)
+                int amount = pack.Value;
+                if (amount >= 30)
                 {
                     var plr = ReferenceHub.AllHubs.FirstOrDefault(s => s.netId == pack.Key, null);
                     if (plr != null && !Ids.Contains(plr.authManager.UserId))
@@ -45,7 +46,7 @@ namespace CedMod.Addons.Sentinal
                                 await VerificationChallenge.AwaitVerification();
                                 try
                                 {
-                                    var response = await client.GetAsync($"http{(QuerySystem.QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.QuerySystem.CurrentMaster}/Api/Sentinal/ReportVC?key={QuerySystem.QuerySystem.QuerySystemKey}&userid={plr.authManager.UserId}");
+                                    var response = await client.GetAsync($"http{(QuerySystem.QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.QuerySystem.CurrentMaster}/Api/Sentinal/ReportVC?key={QuerySystem.QuerySystem.QuerySystemKey}&userid={plr.authManager.UserId}&amount={amount}");
                                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                         Log.Debug(await response.Content.ReadAsStringAsync());
                                 }
