@@ -42,12 +42,13 @@ namespace CedMod.Patches
                 }
                 else if (args.At<string>(startindex).Length > 0)
                 {
-                    if (char.IsDigit(args.At<string>(startindex)[0]))
+                    if (char.IsDigit(args.At<string>(startindex)[0]) || args.At(startindex) == "-1" || args.At(startindex) == "-2")
                     {
                         foreach (string s in args.At<string>(startindex).Split('.', StringSplitOptions.None))
                         {
                             if (s == "-1" || s == "-2")
                                 continue;
+                            
                             int result;
                             ReferenceHub hub;
                             if (int.TryParse(s, out result) && ReferenceHub.TryGetHub(result, out hub) && !referenceHubList.Contains(hub))

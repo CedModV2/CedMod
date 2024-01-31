@@ -36,12 +36,12 @@ namespace CedMod.Patches
     public static class RaPlayerPatch
     {
         public static Dictionary<string, CoroutineHandle> Handles = new Dictionary<string, CoroutineHandle>();
-        
+
         public static bool Prefix(RaPlayer __instance, CommandSender sender, string data)
         {
             if (Handles.ContainsKey(sender.SenderId) && Handles[sender.SenderId].IsRunning)
                 return false;
-            
+
             Handles[sender.SenderId] = Timing.RunCoroutine(RaPlayerCoRoutine(__instance, sender, data));
             return false;
         }
@@ -52,521 +52,552 @@ namespace CedMod.Patches
             int result;
             if (source.Length != 2 || !int.TryParse(source[0], out result))
                 yield break;
-            bool flag1 = result == 1;
-            PlayerCommandSender playerCommandSender1 = sender as PlayerCommandSender;
-            
+            bool isShort = result == 1;
+            PlayerCommandSender playerSender = sender as PlayerCommandSender;
+
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug($"Received: {data} : {source[1]}");
-            var player = CedModPlayer.Get(sender.SenderId);
+            var cplayer = CedModPlayer.Get(sender.SenderId);
 
             if (source[1].StartsWith("-1") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
             {
-                Timing.RunCoroutine(HandleReportType1(sender, player, source));
+                Timing.RunCoroutine(HandleReportType1(sender, cplayer, source));
                 yield break;
             }
-            
+
             if (source[1].StartsWith("-2") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
             {
-                Timing.RunCoroutine(HandleReportType2(sender, player, source));
+                Timing.RunCoroutine(HandleReportType2(sender, cplayer, source));
                 yield break;
             }
-            
-            if (!flag1 && playerCommandSender1 != null && !playerCommandSender1.ReferenceHub.authManager.NorthwoodStaff && !CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayerSensitiveDataAccess))
+
+            if (!isShort && playerSender != null && !playerSender.ReferenceHub.authManager.RemoteAdminGlobalAccess && !playerSender.ReferenceHub.authManager.BypassBansFlagSet && !CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayerSensitiveDataAccess))
                 yield break;
-            List<ReferenceHub> referenceHubList = RAUtils.ProcessPlayerIdOrNamesList(new ArraySegment<string>(((IEnumerable<string>)source).Skip<string>(1).ToArray<string>()), 0, out string[] _);
-            if (referenceHubList.Count == 0)
+
+            List<ReferenceHub> players = RAUtils.ProcessPlayerIdOrNamesList(new ArraySegment<string>(((IEnumerable<string>)source).Skip<string>(1).ToArray<string>()), 0, out string[] _);
+            if (players.Count == 0)
                 yield break;
-            bool flag2 = PermissionsHandler.IsPermitted(sender.Permissions, 18007046UL);
-            if (playerCommandSender1 != null &&
-                (playerCommandSender1.ReferenceHub.authManager.NorthwoodStaff || playerCommandSender1.ReferenceHub.authManager.RemoteAdminGlobalAccess))
-                flag2 = true;
-            if (referenceHubList.Count > 1)
+
+            bool userIdPerms;
+
+            if (playerSender != null && playerSender.ReferenceHub.authManager.NorthwoodStaff)
+                userIdPerms = true;
+            else
+                userIdPerms = PermissionsHandler.IsPermitted(sender.Permissions, ServerRoles.UserIdPerms);
+
+            if (players.Count > 1)
             {
-                StringBuilder stringBuilder = StringBuilderPool.Shared.Rent("<color=white>");
-                stringBuilder.Clear();
-                stringBuilder.Append("Selecting multiple players:");
-                stringBuilder.Append("\nPlayer ID: <color=green><link=CP_ID>\uF0C5</link></color>");
-                stringBuilder.Append("\nIP Address: " +
-                                     (!flag1 ? "<color=green><link=CP_IP>\uF0C5</link></color>" : "[REDACTED]"));
-                stringBuilder.Append("\nUser ID: " +
-                                     (flag2 ? "<color=green><link=CP_USERID>\uF0C5</link></color>" : "[REDACTED]"));
-                stringBuilder.Append("</color>");
-                string data1 = string.Empty;
-                string data2 = string.Empty;
-                string data3 = string.Empty;
-                foreach (ReferenceHub referenceHub in referenceHubList)
+                var info2 = StringBuilderPool.Shared.Rent();
+                info2.AppendFormat("${0} ", __instance.DataId);
+                info2.Append("<color=white>Multiple players selected:");
+                info2.Append("\nPlayer ID: <color=green><link=CP_ID>\uf0c5</link></color>");
+                info2.AppendFormat("\nIP Address: {0}", !isShort ? "<color=green><link=CP_IP>\uf0c5</link></color>" : "[REDACTED]");
+                info2.AppendFormat("\nUser ID: {0}", userIdPerms ? "<color=green><link=CP_USERID>\uf0c5</link></color>" : "[REDACTED]");
+                info2.Append("</color>");
+
+                StringBuilder ids = StringBuilderPool.Shared.Rent();
+                StringBuilder ips = !isShort ? StringBuilderPool.Shared.Rent() : null;
+                StringBuilder userids = userIdPerms ? StringBuilderPool.Shared.Rent() : null;
+
+                foreach (ReferenceHub item in players)
                 {
-                    data1 = data1 + (object)referenceHub.PlayerId + ".";
-                    if (!flag1)
-                        data2 = data2 + (referenceHub.networkIdentity.connectionToClient.IpOverride != null
-                            ? referenceHub.networkIdentity.connectionToClient.OriginalIpAddress
-                            : referenceHub.networkIdentity.connectionToClient.address) + ",";
-                    if (flag2)
-                        data3 = data3 + referenceHub.authManager.UserId + ".";
+                    ids.Append(item.PlayerId);
+                    ids.Append(", ");
+
+                    if (!isShort)
+                    {
+                        ServerLogs.AddLog(ServerLogs.Modules.DataAccess, $"{sender.LogName} accessed IP address of player {item.PlayerId} ({item.nicknameSync.MyNick}).", ServerLogs.ServerLogType.RemoteAdminActivity_Misc);
+
+                        ips.Append(item.networkIdentity.connectionToClient.address);
+                        ips.Append(", ");
+                    }
+
+                    if (userIdPerms)
+                    {
+                        userids.Append(item.authManager.UserId);
+                        userids.Append(", ");
+                    }
                 }
 
-                if (data1.Length > 0)
-                    RaClipboard.Send(sender, RaClipboard.RaClipBoardType.PlayerId, data1);
-                if (data2.Length > 0)
-                    RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, data2);
-                if (data3.Length > 0)
-                    RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, data3);
-                sender.RaReply(string.Format("${0} {1}", (object)__instance.DataId, (object)stringBuilder), true, true,
-                    string.Empty);
-                StringBuilderPool.Shared.Return(stringBuilder);
+                RaClipboard.Send(sender, RaClipboard.RaClipBoardType.PlayerId, StringBuilderPool.Shared.ToStringReturn(ids));
+                RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, ips == null ? string.Empty : StringBuilderPool.Shared.ToStringReturn(ips));
+                RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, userids == null ? string.Empty : StringBuilderPool.Shared.ToStringReturn(userids));
+
+                sender.RaReply(StringBuilderPool.Shared.ToStringReturn(info2), true, true, string.Empty);
+                yield break;
+            }
+
+            var player = players[0];
+
+            var gameplayData = PermissionsHandler.IsPermitted(sender.Permissions, PlayerPermissions.GameplayData);
+
+            var ccm = player.characterClassManager;
+            var pam = player.authManager;
+            var nms = player.nicknameSync;
+            var con = player.networkIdentity.connectionToClient;
+            var sr = player.serverRoles;
+
+            if (sender is PlayerCommandSender commandSender)
+                commandSender.ReferenceHub.queryProcessor.GameplayData = gameplayData;
+
+            var info = StringBuilderPool.Shared.Rent();
+            info.AppendFormat("${0} ", __instance.DataId);
+            info.AppendFormat("<color=white>Nickname: {0}", nms.CombinedName);
+            info.AppendFormat("\nPlayer ID: {0} <color=green><link=CP_ID>\uf0c5</link></color>", player.PlayerId);
+            RaClipboard.Send(sender, RaClipboard.RaClipBoardType.PlayerId, $"{player.PlayerId}");
+            if (con == null)
+            {
+                RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, string.Empty);
+                info.Append("\nIP Address: null");
+            }
+            else if (!isShort)
+            {
+                ServerLogs.AddLog(ServerLogs.Modules.DataAccess, $"{sender.LogName} accessed IP address of player {player.PlayerId} ({player.nicknameSync.MyNick}).", ServerLogs.ServerLogType.RemoteAdminActivity_Misc);
+
+                string address = con.address;
+
+                info.AppendFormat("\nIP Address: {0} ", address);
+                RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, address);
+
+                if (con.IpOverride != null)
+                    info.AppendFormat(" [routed via {0}]", con.OriginalIpAddress);
+
+                info.Append(" <color=green><link=CP_IP>\uf0c5</link></color>");
             }
             else
             {
-                ReferenceHub referenceHub = referenceHubList[0];
-                ServerLogs.AddLog(ServerLogs.Modules.DataAccess,
-                    string.Format("{0} accessed IP address of player {1} ({2}).", (object)sender.LogName,
-                        (object)referenceHub.PlayerId, (object)referenceHub.nicknameSync.MyNick),
-                    ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging);
-                bool flag3 = PermissionsHandler.IsPermitted(sender.Permissions, PlayerPermissions.GameplayData);
-                CharacterClassManager characterClassManager = referenceHub.characterClassManager;
-                NicknameSync nicknameSync = referenceHub.nicknameSync;
-                NetworkConnectionToClient connectionToClient = referenceHub.networkIdentity.connectionToClient;
-                ServerRoles serverRoles = referenceHub.serverRoles;
-                if (sender is PlayerCommandSender playerCommandSender2)
-                    playerCommandSender2.ReferenceHub.queryProcessor.GameplayData = flag3;
-                StringBuilder stringBuilder = StringBuilderPool.Shared.Rent("<color=white>");
-                stringBuilder.Clear();
-                stringBuilder.Append("Nickname: " + nicknameSync.CombinedName);
-                stringBuilder.Append(string.Format("\nPlayer ID: {0} <color=green><link=CP_ID>\uF0C5</link></color>",
-                    (object)referenceHub.PlayerId));
-                RaClipboard.Send(sender, RaClipboard.RaClipBoardType.PlayerId,
-                    string.Format("{0}", (object)referenceHub.PlayerId));
-                if (connectionToClient == null)
-                    stringBuilder.Append("\nIP Address: null");
-                else if (!flag1)
+                RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, string.Empty);
+                info.Append("\nIP Address: [REDACTED]");
+            }
+
+            info.Append("\nUser ID: ");
+            if (userIdPerms)
+            {
+                if (string.IsNullOrEmpty(pam.UserId))
+                    info.Append("(none)");
+                else
+                    info.AppendFormat("{0} <color=green><link=CP_USERID>\uf0c5</link></color>", pam.UserId);
+
+                RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, pam.UserId ?? string.Empty);
+                if (pam.SaltedUserId != null && pam.SaltedUserId.Contains("$", StringComparison.Ordinal))
+                    info.AppendFormat("\nSalted User ID: {0}", pam.SaltedUserId);
+            }
+            else
+            {
+                info.Append("<color=#D4AF37>INSUFFICIENT PERMISSIONS</color>");
+                RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, string.Empty);
+            }
+
+            info.Append("Server role: ");
+            info.Append(sr.GetColoredRoleString());
+
+            bool vhb = CommandProcessor.CheckPermissions(sender, PlayerPermissions.ViewHiddenBadges);
+            bool ghb = CommandProcessor.CheckPermissions(sender, PlayerPermissions.ViewHiddenGlobalBadges);
+
+            if (playerSender != null)
+            {
+                vhb = true;
+                ghb = true;
+            }
+
+            bool hidden = !string.IsNullOrEmpty(sr.HiddenBadge);
+            bool show = !hidden || sr.GlobalHidden && ghb || !sr.GlobalHidden && vhb;
+
+            if (show)
+            {
+                if (hidden)
                 {
-                    stringBuilder.Append("\nIP Address: " + connectionToClient.address + " ");
-                    if (connectionToClient.IpOverride != null)
+                    info.AppendFormat("\n<color=#DC143C>Hidden role: </color>{0}", sr.HiddenBadge);
+                    info.AppendFormat("\n<color=#DC143C>Hidden role type: </color>{0}",
+                        (sr.GlobalHidden ? "GLOBAL" : "LOCAL"));
+                }
+
+                if (player.authManager.RemoteAdminGlobalAccess)
+                    info.Append(
+                        "\nStudio Status: <color=#BCC6CC>Studio GLOBAL Staff (management or global moderation)</color>");
+                else if (player.authManager.NorthwoodStaff)
+                    info.Append("\nStudio Status: <color=#94B9CF>Studio Staff</color>");
+            }
+
+            VcMuteFlags muteFlags = VoiceChatMutes.GetFlags(players[0]);
+
+            if (muteFlags != 0)
+            {
+                info.Append("\nMUTE STATUS:");
+
+                foreach (VcMuteFlags flag in EnumUtils<VcMuteFlags>.Values)
+                {
+                    if (flag == 0 || (muteFlags & flag) != flag)
+                        continue;
+
+                    info.Append(" <color=#F70D1A>");
+                    info.Append(flag);
+                    info.Append("</color>");
+                }
+            }
+
+            info.Append("\nActive flag(s):");
+
+            if (ccm.GodMode)
+                info.Append(" <color=#659EC7>[GOD MODE]</color>");
+
+            if (player.playerStats.GetModule<AdminFlagsStat>().HasFlag(AdminFlags.Noclip))
+                info.Append(" <color=#DC143C>[NOCLIP ENABLED]</color>");
+            else if (FpcNoclip.IsPermitted(player))
+                info.Append(" <color=#E52B50>[NOCLIP UNLOCKED]</color>");
+
+            if (pam.DoNotTrack)
+                info.Append(" <color=#BFFF00>[DO NOT TRACK]</color>");
+
+            if (sr.BypassMode)
+                info.Append(" <color=#BFFF00>[BYPASS MODE]</color>");
+
+            if (show && sr.RemoteAdmin)
+                info.Append(" <color=#43C6DB>[RA AUTHENTICATED]</color>");
+
+            if (sr.IsInOverwatch)
+                info.Append(" <color=#008080>[OVERWATCH MODE]</color>");
+            else if (gameplayData)
+            {
+                info.Append("\nClass: ")
+                    .Append(PlayerRoleLoader.AllRoles.TryGetValue(player.GetRoleId(), out PlayerRoleBase cl)
+                        ? cl.RoleTypeId
+                        : "None");
+                info.Append(" <color=#fcff99>[HP: ").Append(CommandProcessor.GetRoundedStat<HealthStat>(player))
+                    .Append("]</color>");
+                info.Append(" <color=green>[AHP: ").Append(CommandProcessor.GetRoundedStat<AhpStat>(player))
+                    .Append("]</color>");
+                info.Append(" <color=#977dff>[HS: ").Append(CommandProcessor.GetRoundedStat<HumeShieldStat>(player))
+                    .Append("]</color>");
+                info.Append("\nPosition: ").Append(player.transform.position.ToPreciseString());
+            }
+            else
+                info.Append("\n<color=#D4AF37>Some fields were hidden. GameplayData permission required.</color>");
+            
+            Log.Debug($"Has permissions: {sender.CheckPermission("cedmod.requestdata")}",
+                CedModMain.Singleton.Config.QuerySystem.Debug);
+            if (sender.CheckPermission("cedmod.requestdata"))
+            {
+                sender.RaReply(string.Format("${0} {1}", __instance.DataId, "Loading from CedMod API, please wait..."), true, true, string.Empty);
+                string respString = "";
+                var code = HttpStatusCode.OK;
+                using (HttpClient client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                    var t = VerificationChallenge.AwaitVerification();
+                    yield return Timing.WaitUntilTrue(() => t.IsCompleted);
+                    client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
+                    var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + API.APIUrl + $"/Auth/{pam.UserId}&{con.address}?banLists={string.Join(",", ServerPreferences.Prefs.BanListWriteBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&banListWarns={string.Join(",", ServerPreferences.Prefs.BanListReadWarns.Select(s => s.Id))}"));
+                    yield return Timing.WaitUntilTrue(() => respTask.IsCompleted);
+                    var resp = respTask.Result;
+                    var respStringTask = resp.Content.ReadAsStringAsync();
+                    yield return Timing.WaitUntilTrue(() => respStringTask.IsCompleted);
+                    respString = respStringTask.Result;
+                    code = resp.StatusCode;
+                }
+
+                try
+                {
+                    if (code != HttpStatusCode.OK)
                     {
-                        RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip,
-                            connectionToClient.OriginalIpAddress ?? "");
-                        stringBuilder.Append(" [routed via " + connectionToClient.OriginalIpAddress + "]");
+                        Log.Error($"Failed to RequestData CMAPI: {code} | {respString}");
                     }
                     else
-                        RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, connectionToClient.address ?? "");
-
-                    stringBuilder.Append(" <color=green><link=CP_IP>\uF0C5</link></color>");
-                }
-                else
-                    stringBuilder.Append("\nIP Address: [REDACTED]");
-
-                stringBuilder.Append("\nUser ID: " +
-                                     (flag2
-                                         ? (string.IsNullOrEmpty(referenceHub.authManager.UserId)
-                                             ? "(none)"
-                                             : referenceHub.authManager.UserId +
-                                               " <color=green><link=CP_USERID>\uF0C5</link></color>")
-                                         : "<color=#D4AF37>INSUFFICIENT PERMISSIONS</color>"));
-                if (flag2)
-                {
-                    RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, referenceHub.authManager.UserId ?? "");
-                    if (referenceHub.authManager.SaltedUserId != null && referenceHub.authManager.SaltedUserId.Contains("$"))
-                        stringBuilder.Append("\nSalted User ID: " + referenceHub.authManager.SaltedUserId);
-                }
-
-                stringBuilder.Append("\nServer role: " + serverRoles.GetColoredRoleString());
-                bool flag4 = CommandProcessor.CheckPermissions(sender, PlayerPermissions.ViewHiddenBadges);
-                bool flag5 = CommandProcessor.CheckPermissions(sender, PlayerPermissions.ViewHiddenGlobalBadges);
-                if (playerCommandSender1 != null && playerCommandSender1.ReferenceHub.authManager.NorthwoodStaff)
-                {
-                    flag4 = true;
-                    flag5 = true;
-                }
-
-                bool flag6 = !string.IsNullOrEmpty(serverRoles.HiddenBadge);
-                bool flag7 = !flag6 || serverRoles.GlobalHidden & flag5 || !serverRoles.GlobalHidden & flag4;
-                if (flag7)
-                {
-                    if (flag6)
                     {
-                        stringBuilder.Append("\n<color=#DC143C>Hidden role: </color>" + serverRoles.HiddenBadge);
-                        stringBuilder.Append("\n<color=#DC143C>Hidden role type: </color>" +
-                                             (serverRoles.GlobalHidden ? "GLOBAL" : "LOCAL"));
-                    }
+                        Dictionary<string, object> cmData =
+                            JsonConvert.DeserializeObject<Dictionary<string, object>>(respString);
+                        info.Append("\n<color=#D4AF37>CedMod Added Fields:</color>");
+                        if (cmData["antiVpnWhitelist"] is bool ? (bool)cmData["antiVpnWhitelist"] : false)
+                            info.Append("\nActive flag: <color=#008080>AntiVpn Whitelisted</color>");
 
-                    if (referenceHub.authManager.RemoteAdminGlobalAccess)
-                        stringBuilder.Append(
-                            "\nStudio Status: <color=#BCC6CC>Studio GLOBAL Staff (management or global moderation)</color>");
-                    else if (referenceHub.authManager.NorthwoodStaff)
-                        stringBuilder.Append("\nStudio Status: <color=#94B9CF>Studio Staff</color>");
-                }
+                        if (cmData["triggeredAvpnPast"] is bool ? (bool)cmData["triggeredAvpnPast"] : false)
+                            info.Append("\nActive flag: <color=#red>AntiVpn Triggered</color>");
 
-                int flags = (int)VoiceChatMutes.GetFlags(referenceHubList[0]);
-                if (flags != 0)
-                {
-                    stringBuilder.Append("\nMUTE STATUS:");
-
-                    foreach (int flag in Enum.GetValues(typeof(VoiceChat.VcMuteFlags)).ToArray<VcMuteFlags>())
-                    {
-                        if (flag == 0 || (flags & flag) != flag)
-                            continue;
-
-                        stringBuilder.Append(" <color=#F70D1A>");
-                        stringBuilder.Append(flag);
-                        stringBuilder.Append("</color>");
+                        info.Append($"\nModeration: {cmData["warns"]} Warnings, {cmData["banLogs"]} Banlogs");
                     }
                 }
-
-
-                stringBuilder.Append("\nActive flag(s):");
-                if (characterClassManager.GodMode)
-                    stringBuilder.Append(" <color=#659EC7>[GOD MODE]</color>");
-                if (referenceHub.playerStats.GetModule<AdminFlagsStat>().HasFlag(AdminFlags.Noclip))
-                    stringBuilder.Append(" <color=#DC143C>[NOCLIP ENABLED]</color>");
-                else if (FpcNoclip.IsPermitted(referenceHub))
-                    stringBuilder.Append(" <color=#E52B50>[NOCLIP UNLOCKED]</color>");
-                if (referenceHub.authManager.DoNotTrack)
-                    stringBuilder.Append(" <color=#BFFF00>[DO NOT TRACK]</color>");
-                if (serverRoles.BypassMode)
-                    stringBuilder.Append(" <color=#BFFF00>[BYPASS MODE]</color>");
-                if (flag7 && serverRoles.RemoteAdmin)
-                    stringBuilder.Append(" <color=#43C6DB>[RA AUTHENTICATED]</color>");
-                if (serverRoles.IsInOverwatch)
-                    stringBuilder.Append(" <color=#008080>[OVERWATCH MODE]</color>");
-                else if (flag3)
+                catch (Exception e)
                 {
-                    PlayerRoleBase playerRoleBase;
-                    stringBuilder.Append("\nClass: ")
-                        .Append(PlayerRoleLoader.AllRoles.TryGetValue(referenceHub.GetRoleId(), out playerRoleBase)
-                            ? playerRoleBase.RoleName
-                            : "None");
-                    stringBuilder.Append(" <color=#fcff99>[HP: ")
-                        .Append(CommandProcessor.GetRoundedStat<HealthStat>(referenceHub)).Append("]</color>");
-                    stringBuilder.Append(" <color=green>[AHP: ")
-                        .Append(CommandProcessor.GetRoundedStat<AhpStat>(referenceHub))
-                        .Append("]</color>");
-                    stringBuilder.Append(" <color=#977dff>[HS: ")
-                        .Append(CommandProcessor.GetRoundedStat<HumeShieldStat>(referenceHub)).Append("]</color>");
-                    stringBuilder.Append("\nPosition: ").Append(referenceHub.transform.position.ToPreciseString());
+                    Console.WriteLine(e);
                 }
-                else
-                    stringBuilder.Append(
-                        "\n<color=#D4AF37>Some fields were hidden. GameplayData permission required.</color>");
 
-                Log.Debug($"Has permissions: {sender.CheckPermission("cedmod.requestdata")}", CedModMain.Singleton.Config.QuerySystem.Debug);
-                if (sender.CheckPermission("cedmod.requestdata"))
+                sender.RaReply(string.Format("${0} {1}", __instance.DataId, "Loading from Panel API, please wait..."), true, true, string.Empty);
+
+                using (HttpClient client = new HttpClient())
                 {
-                    sender.RaReply(string.Format("${0} {1}", __instance.DataId, "Loading from CedMod API, please wait..."), true, true, string.Empty);
-                    string respString = "";
-                    var code = HttpStatusCode.OK;
-                    using (HttpClient client = new HttpClient())
+                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                    var t = VerificationChallenge.AwaitVerification();
+                    yield return Timing.WaitUntilTrue(() => t.IsCompleted);
+                    client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
+                    var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/RequestData/{QuerySystem.QuerySystemKey}/{pam.UserId}"));
+                    yield return Timing.WaitUntilTrue(() => respTask.IsCompleted);
+                    var resp = respTask.Result;
+                    var respStringTask = resp.Content.ReadAsStringAsync();
+                    yield return Timing.WaitUntilTrue(() => respStringTask.IsCompleted);
+                    respString = respStringTask.Result;
+                    code = resp.StatusCode;
+                }
+
+                try
+                {
+                    if (code != HttpStatusCode.OK)
                     {
-                        client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
-                        var t = VerificationChallenge.AwaitVerification();
-                        yield return Timing.WaitUntilTrue(() => t.IsCompleted);
-                        client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
-                        var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + API.APIUrl + $"/Auth/{referenceHub.authManager.UserId}&{connectionToClient.address}?banLists={string.Join(",", ServerPreferences.Prefs.BanListWriteBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&banListWarns={string.Join(",", ServerPreferences.Prefs.BanListReadWarns.Select(s => s.Id))}"));
-                        yield return Timing.WaitUntilTrue(() => respTask.IsCompleted);
-                        var resp = respTask.Result;
-                        var respStringTask = resp.Content.ReadAsStringAsync();
-                        yield return Timing.WaitUntilTrue(() => respStringTask.IsCompleted);
-                        respString = respStringTask.Result;
-                        code = resp.StatusCode;
+                        Log.Error(
+                            $"Failed to RequestData PanelAPI: {code} | {respString}");
                     }
-                    
-                    try
+                    else
                     {
-                        if (code != HttpStatusCode.OK)
+                        Dictionary<string, object> cmData = JsonConvert.DeserializeObject<Dictionary<string, object>>(respString);
+
+                        if (!player.authManager.DoNotTrack)
                         {
-                            Log.Error($"Failed to RequestData CMAPI: {code} | {respString}");
+                            info.Append($"\nActivity in the last 14 days: {TimeSpan.FromMinutes(cmData["activityLast14"] is double ? (double)cmData["activityLast14"] : 0).TotalHours}. Level {cmData["level"]} ({cmData["experience"]} Exp)");
                         }
-                        else
-                        {
-                            Dictionary<string, object> cmData =
-                                JsonConvert.DeserializeObject<Dictionary<string, object>>(respString);
-                            stringBuilder.Append("\n<color=#D4AF37>CedMod Added Fields:</color>");
-                            if (cmData["antiVpnWhitelist"] is bool ? (bool)cmData["antiVpnWhitelist"] : false)
-                                stringBuilder.Append("\nActive flag: <color=#008080>AntiVpn Whitelisted</color>");
 
-                            if (cmData["triggeredAvpnPast"] is bool ? (bool)cmData["triggeredAvpnPast"] : false)
-                                stringBuilder.Append("\nActive flag: <color=#red>AntiVpn Triggered</color>");
+                        if (cmData["panelUser"].ToString() != "")
+                            info.Append($"\nPanelUser: {cmData["panelUser"]}");
 
-                            stringBuilder.Append($"\nModeration: {cmData["warns"]} Warnings, {cmData["banLogs"]} Banlogs");
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
-                    
-                    sender.RaReply(string.Format("${0} {1}", __instance.DataId, "Loading from Panel API, please wait..."), true, true, string.Empty);
-                    
-                    using (HttpClient client = new HttpClient())
-                    {
-                        client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
-                        var t = VerificationChallenge.AwaitVerification();
-                        yield return Timing.WaitUntilTrue(() => t.IsCompleted);
-                        client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
-                        var respTask = client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/RequestData/{QuerySystem.QuerySystemKey}/{referenceHub.authManager.UserId}"));
-                        yield return Timing.WaitUntilTrue(() => respTask.IsCompleted);
-                        var resp = respTask.Result;
-                        var respStringTask = resp.Content.ReadAsStringAsync();
-                        yield return Timing.WaitUntilTrue(() => respStringTask.IsCompleted);
-                        respString = respStringTask.Result;
-                        code = resp.StatusCode;
-                    }
-                    
-                    try
-                    {
-                        if (code != HttpStatusCode.OK)
+                        info.Append($"\nPossible Alt Accounts: {cmData["usersFound"]}");
+                        if (RemoteAdminModificationHandler.GroupWatchlist.Any(s => s.UserIds.Contains(pam.UserId)))
                         {
-                            Log.Error(
-                                $"Failed to RequestData PanelAPI: {code} | {respString}");
-                        }
-                        else
-                        {
-                            Dictionary<string, object> cmData =
-                                JsonConvert.DeserializeObject<Dictionary<string, object>>(respString);
-
-                            if (!referenceHub.authManager.DoNotTrack)
+                            if (RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(pam.UserId)) >= 2)
                             {
-                                stringBuilder.Append(
-                                    $"\nActivity in the last 14 days: {TimeSpan.FromMinutes(cmData["activityLast14"] is double ? (double)cmData["activityLast14"] : 0).TotalHours}. Level {cmData["level"]} ({cmData["experience"]} Exp)");
+                                info.Append($"\n<color=#00FFF6>User is in {RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(pam.UserId))} Watchlist groups.\nUse ExternalLookup to view details</color>");
                             }
-
-                            if (cmData["panelUser"].ToString() != "")
-                                stringBuilder.Append($"\nPanelUser: {cmData["panelUser"]}");
-
-                            stringBuilder.Append($"\nPossible Alt Accounts: {cmData["usersFound"]}");
-                            if (RemoteAdminModificationHandler.GroupWatchlist.Any(s => s.UserIds.Contains(referenceHub.authManager.UserId)))
+                            else
                             {
-                                if (RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(referenceHub.authManager.UserId)) >= 2)
+                                var group = RemoteAdminModificationHandler.GroupWatchlist.FirstOrDefault(s => s.UserIds.Contains(pam.UserId));
+                                info.Append($"\n<color=#00FFF6>User is in Group Watchlist: {group.GroupName} ({group.Id}) \n{group.Reason} Members:</color>");
+                                foreach (var member in group.UserIds.Take(4))
                                 {
-                                    stringBuilder.Append($"\n<color=#00FFF6>User is in {RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(referenceHub.authManager.UserId))} Watchlist groups.\nUse ExternalLookup to view details</color>");
+                                    var plr = CedModPlayer.Get(member);
+                                    info.Append($"\n<color=#00FFF6>{(plr == null ? "Not Ingame" : $"{plr.PlayerId} - {plr.UserId}")}</color>");
                                 }
-                                else
-                                {
-                                    var group = RemoteAdminModificationHandler.GroupWatchlist.FirstOrDefault(s => s.UserIds.Contains(referenceHub.authManager.UserId));
-                                    stringBuilder.Append($"\n<color=#00FFF6>User is in Group Watchlist: {group.GroupName} ({group.Id}) \n{group.Reason} Members:</color>");
-                                    foreach (var member in group.UserIds.Take(4))
-                                    {
-                                        var plr = CedModPlayer.Get(member);
-                                        stringBuilder.Append($"\n<color=#00FFF6>{(plr == null ? "Not Ingame" : $"{plr.PlayerId} - {plr.UserId}")}</color>");
-                                    }
-                                    stringBuilder.Append($"\n<color=#00FFF6>Use ExternalLookup for more info</color>");
-                                }
-                            }
-                            else if (RemoteAdminModificationHandler.Watchlist.Any(s => s.Userid == referenceHub.authManager.UserId))
-                            {
-                                stringBuilder.Append($"\n<color=#00FFF6>User is on watchlist:\n{RemoteAdminModificationHandler.Watchlist.FirstOrDefault(s => s.Userid == referenceHub.authManager.UserId).Reason}\nUse ExternalLookup for more info</color>");
+
+                                info.Append($"\n<color=#00FFF6>Use ExternalLookup for more info</color>");
                             }
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
+                        else if (RemoteAdminModificationHandler.Watchlist.Any(s => s.Userid == pam.UserId))
+                        {
+                            info.Append($"\n<color=#00FFF6>User is on watchlist:\n{RemoteAdminModificationHandler.Watchlist.FirstOrDefault(s => s.Userid == pam.UserId).Reason}\nUse ExternalLookup for more info</color>");
+                        }
                     }
                 }
-
-                stringBuilder.Append("</color>");
-                sender.RaReply(string.Format("${0} {1}", (object)__instance.DataId, (object)StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, true, string.Empty);
-                RaPlayerQR.Send(sender, false,
-                    string.IsNullOrEmpty(referenceHub.authManager.UserId) ? "(no User ID)" : referenceHub.authManager.UserId);
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
+
+            info.Append("</color>");
+            sender.RaReply(string.Format("${0} {1}", (object)__instance.DataId, (object)StringBuilderPool.Shared.ToStringReturn(info)), true, true, string.Empty);
+            RaPlayerQR.Send(sender, false, string.IsNullOrEmpty(pam.UserId) ? "(no User ID)" : pam.UserId);
         }
 
-        public static IEnumerator<float> HandleReportType1(CommandSender sender, CedModPlayer player, string[] source, string additional = "")
+        public static IEnumerator<float> HandleReportType1(CommandSender sender, CedModPlayer player, string[] source,
+            string additional = "")
         {
             try
             {
-                    var open = RemoteAdminModificationHandler.ReportsList.Where(s => s.Status == HandleStatus.NoResponse).ToList();
-            //report handling
-            if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                Log.Debug($"Report handle");
-            if (open.Count == 0)
-            {
-                StringBuilder stringBuilder = StringBuilderPool.Shared.Rent($"<color=white>");
-                stringBuilder.AppendLine("<color=green>There are currently no Unhandled Reports</color>");
-                int count = 16;
-                while (count >= 1)
+                var open = RemoteAdminModificationHandler.ReportsList.Where(s => s.Status == HandleStatus.NoResponse)
+                    .ToList();
+                //report handling
+                if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                    Log.Debug($"Report handle");
+                if (open.Count == 0)
                 {
-                    count--;
-                    stringBuilder.AppendLine($"");
-                }
-
-                stringBuilder.AppendLine(
-                    $"The text below serve as an indicator to what the buttons below the text do.");
-                stringBuilder.AppendLine(
-                    $"<color=red>Next Report</color>            <color=red>Previous Report</color>            <color=red>Claim Report</color>              <color=red>Ignore Report</color>");
-
-                stringBuilder.Append("</color>");
-                sender.RaReply(string.Format("${0} {1}", (object)1, (object)StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, true, string.Empty);
-            }
-            else
-            {
-                StringBuilder stringBuilder = StringBuilderPool.Shared.Rent($"<color=white>");
-                bool canForward = true;
-                bool canBackward = true;
-                bool first = false;
-
-                if (!RemoteAdminModificationHandler.ReportUnHandledState.ContainsKey(player))
-                {
-                    first = true;
-                    RemoteAdminModificationHandler.ReportUnHandledState.Add(player,
-                        new Tuple<int, DateTime>(open.FirstOrDefault().Id, DateTime.UtcNow));
-                }
-
-                var currently = RemoteAdminModificationHandler.ReportUnHandledState[player];
-                var report = open.FirstOrDefault(s => s.Id == currently.Item1);
-                if (report == null)
-                    report = open.FirstOrDefault();
-                if (report != null)
-                {
-                    int index = open.IndexOf(report);
-                    int targetIndex = index;
-                    if (source[0] == "1")
-                        targetIndex++;
-                    else if (source[0] == "0")
-                        targetIndex--;
-
-                    if (first)
-                        targetIndex = index;
-
-                    if (open.Count == 1)
+                    StringBuilder stringBuilder = StringBuilderPool.Shared.Rent($"<color=white>");
+                    stringBuilder.AppendLine("<color=green>There are currently no Unhandled Reports</color>");
+                    int count = 16;
+                    while (count >= 1)
                     {
-                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Log.Debug($"Rept 1");
-                        canBackward = false;
-                        canForward = false;
+                        count--;
+                        stringBuilder.AppendLine($"");
                     }
 
-                    if (index == 0)
-                    {
-                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Log.Debug($"Rept 2");
-                        canBackward = false;
-                    }
-
-                    if (index + 1 == open.Count)
-                    {
-                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Log.Debug($"Rept 3");
-                        canForward = false;
-                    }
-
-                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug($"Rept 4 {index} {targetIndex}");
-
-                    if (open.Count > targetIndex)
-                    {
-                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Log.Debug($"Rept 5 {index} {targetIndex}");
-                        if ((source[0] == "1" && canForward) || (source[0] == "0" && canBackward))
-                            report = open[targetIndex];
-                    }
-
-                    index = open.IndexOf(report);
-                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug($"Rept 8 {index} {targetIndex}");
-
-                    if (index == 0)
-                    {
-                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Log.Debug($"Rept 6");
-                        canBackward = false;
-                    }
-                    else
-                    {
-                        canBackward = true;
-                    }
-
-                    if (index + 1 == open.Count)
-                    {
-                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Log.Debug($"Rept 7");
-                        canForward = false;
-                    }
-                    else
-                    {
-                        canForward = true;
-                    }
-
-                    stringBuilder.AppendLine($"Report {index + 1} out of {open.Count}");
-                }
-
-                RemoteAdminModificationHandler.ReportUnHandledState[player] =
-                    new Tuple<int, DateTime>(report.Id, DateTime.UtcNow);
-
-
-                stringBuilder.AppendLine($"Report: {report.Id}");
-
-                if (report.IsCheatReport)
-                {
                     stringBuilder.AppendLine(
-                        $"<color=yellow>Warning: This report is marked as Cheater report, this means that NorthWood was notified of this report.\nIf this report is an actual cheating report please do not interfere with NorthWood global moderators so they can effectively ban cheaters.</color>");
-                }
-
-                var reporter = CedModPlayer.Get(report.ReporterId);
-                if (reporter != null)
-                {
+                        $"The text below serve as an indicator to what the buttons below the text do.");
                     stringBuilder.AppendLine(
-                        $"Reporter: (<color=#43C6DB>{reporter.PlayerId}</color>) {reporter.Nickname} - {reporter.UserId} <color=green><link=CP_IP>\uF0C5</link></color>");
-                    RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, reporter.UserId);
+                        $"<color=red>Next Report</color>            <color=red>Previous Report</color>            <color=red>Claim Report</color>              <color=red>Ignore Report</color>");
+
+                    stringBuilder.Append("</color>");
+                    sender.RaReply(
+                        string.Format("${0} {1}", (object)1,
+                            (object)StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, true, string.Empty);
                 }
                 else
                 {
+                    StringBuilder stringBuilder = StringBuilderPool.Shared.Rent($"<color=white>");
+                    bool canForward = true;
+                    bool canBackward = true;
+                    bool first = false;
+
+                    if (!RemoteAdminModificationHandler.ReportUnHandledState.ContainsKey(player))
+                    {
+                        first = true;
+                        RemoteAdminModificationHandler.ReportUnHandledState.Add(player,
+                            new Tuple<int, DateTime>(open.FirstOrDefault().Id, DateTime.UtcNow));
+                    }
+
+                    var currently = RemoteAdminModificationHandler.ReportUnHandledState[player];
+                    var report = open.FirstOrDefault(s => s.Id == currently.Item1);
+                    if (report == null)
+                        report = open.FirstOrDefault();
+                    if (report != null)
+                    {
+                        int index = open.IndexOf(report);
+                        int targetIndex = index;
+                        if (source[0] == "1")
+                            targetIndex++;
+                        else if (source[0] == "0")
+                            targetIndex--;
+
+                        if (first)
+                            targetIndex = index;
+
+                        if (open.Count == 1)
+                        {
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Log.Debug($"Rept 1");
+                            canBackward = false;
+                            canForward = false;
+                        }
+
+                        if (index == 0)
+                        {
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Log.Debug($"Rept 2");
+                            canBackward = false;
+                        }
+
+                        if (index + 1 == open.Count)
+                        {
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Log.Debug($"Rept 3");
+                            canForward = false;
+                        }
+
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug($"Rept 4 {index} {targetIndex}");
+
+                        if (open.Count > targetIndex)
+                        {
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Log.Debug($"Rept 5 {index} {targetIndex}");
+                            if ((source[0] == "1" && canForward) || (source[0] == "0" && canBackward))
+                                report = open[targetIndex];
+                        }
+
+                        index = open.IndexOf(report);
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug($"Rept 8 {index} {targetIndex}");
+
+                        if (index == 0)
+                        {
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Log.Debug($"Rept 6");
+                            canBackward = false;
+                        }
+                        else
+                        {
+                            canBackward = true;
+                        }
+
+                        if (index + 1 == open.Count)
+                        {
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Log.Debug($"Rept 7");
+                            canForward = false;
+                        }
+                        else
+                        {
+                            canForward = true;
+                        }
+
+                        stringBuilder.AppendLine($"Report {index + 1} out of {open.Count}");
+                    }
+
+                    RemoteAdminModificationHandler.ReportUnHandledState[player] =
+                        new Tuple<int, DateTime>(report.Id, DateTime.UtcNow);
+
+
+                    stringBuilder.AppendLine($"Report: {report.Id}");
+
+                    if (report.IsCheatReport)
+                    {
+                        stringBuilder.AppendLine(
+                            $"<color=yellow>Warning: This report is marked as Cheater report, this means that NorthWood was notified of this report.\nIf this report is an actual cheating report please do not interfere with NorthWood global moderators so they can effectively ban cheaters.</color>");
+                    }
+
+                    var reporter = CedModPlayer.Get(report.ReporterId);
+                    if (reporter != null)
+                    {
+                        stringBuilder.AppendLine(
+                            $"Reporter: (<color=#43C6DB>{reporter.PlayerId}</color>) {reporter.Nickname} - {reporter.UserId} <color=green><link=CP_IP>\uF0C5</link></color>");
+                        RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, reporter.UserId);
+                    }
+                    else
+                    {
+                        stringBuilder.AppendLine(
+                            $"Reporter: <color=red>(Not Ingame)</color> - {report.ReporterId} <color=green><link=CP_IP>\uF0C5</link></color>");
+                        RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, report.ReporterId);
+                    }
+
+                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                        Log.Debug($"Checking list {string.Join(", ", Player.PlayersUserIds.Select(s => s.Key))}");
+
+                    var reported = CedModPlayer.Get(report.ReportedId);
+                    if (reported != null)
+                    {
+                        stringBuilder.AppendLine(
+                            $"Reported: (<color=#43C6DB>{reported.PlayerId} <color=green><link=CP_ID>\uF0C5</link></color></color>) {reported.Nickname} - {reported.UserId} <color=green><link=CP_USERID>\uF0C5</link></color>");
+                        RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, reported.UserId);
+                        RaClipboard.Send(sender, RaClipboard.RaClipBoardType.PlayerId, reported.PlayerId.ToString());
+                    }
+                    else
+                    {
+                        stringBuilder.AppendLine(
+                            $"Reported: <color=red>(Not Ingame)</color> - {report.ReportedId} <color=green><link=CP_USERID>\uF0C5</link></color>");
+                        RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, report.ReportedId);
+                    }
+
+                    stringBuilder.AppendLine($"Reason: {report.Reason}");
+                    stringBuilder.AppendLine($"Ingame Report: {!report.IsDiscordReport}");
+
+                    stringBuilder.AppendLine(additional);
+
+                    int count = report.IsCheatReport ? 6 : 7;
+                    while (count >= 1)
+                    {
+                        count--;
+                        stringBuilder.AppendLine($"");
+                    }
+
                     stringBuilder.AppendLine(
-                        $"Reporter: <color=red>(Not Ingame)</color> - {report.ReporterId} <color=green><link=CP_IP>\uF0C5</link></color>");
-                    RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, report.ReporterId);
-                }
-
-                if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Log.Debug($"Checking list {string.Join(", ", Player.PlayersUserIds.Select(s => s.Key))}");
-
-                var reported = CedModPlayer.Get(report.ReportedId);
-                if (reported != null)
-                {
+                        $"The text below serve as an indicator to what the buttons below the text do.");
                     stringBuilder.AppendLine(
-                        $"Reported: (<color=#43C6DB>{reported.PlayerId} <color=green><link=CP_ID>\uF0C5</link></color></color>) {reported.Nickname} - {reported.UserId} <color=green><link=CP_USERID>\uF0C5</link></color>");
-                    RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, reported.UserId);
-                    RaClipboard.Send(sender, RaClipboard.RaClipBoardType.PlayerId, reported.PlayerId.ToString());
+                        $"<color={(canForward ? "blue" : "red")}>Next Report</color>            <color={(canBackward ? "blue" : "red")}>Previous Report</color>            <color=blue>Claim Report</color>              <color=blue>Ignore Report</color>");
+
+                    stringBuilder.Append("</color>");
+                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                        Log.Debug($"Report handle complete send");
+                    sender.RaReply(
+                        string.Format("${0} {1}", (object)1,
+                            (object)StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, true, string.Empty);
+                    yield break;
                 }
-                else
-                {
-                    stringBuilder.AppendLine(
-                        $"Reported: <color=red>(Not Ingame)</color> - {report.ReportedId} <color=green><link=CP_USERID>\uF0C5</link></color>");
-                    RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, report.ReportedId);
-                }
-
-                stringBuilder.AppendLine($"Reason: {report.Reason}");
-                stringBuilder.AppendLine($"Ingame Report: {!report.IsDiscordReport}");
-                
-                stringBuilder.AppendLine(additional);
-
-                int count = report.IsCheatReport ? 6 : 7;
-                while (count >= 1)
-                {
-                    count--;
-                    stringBuilder.AppendLine($"");
-                }
-
-                stringBuilder.AppendLine(
-                    $"The text below serve as an indicator to what the buttons below the text do.");
-                stringBuilder.AppendLine(
-                    $"<color={(canForward ? "blue" : "red")}>Next Report</color>            <color={(canBackward ? "blue" : "red")}>Previous Report</color>            <color=blue>Claim Report</color>              <color=blue>Ignore Report</color>");
-
-                stringBuilder.Append("</color>");
-                if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Log.Debug($"Report handle complete send");
-                sender.RaReply(
-                    string.Format("${0} {1}", (object)1,
-                        (object)StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, true, string.Empty);
-                yield break;
-            }
             }
             catch (Exception e)
             {
                 Log.Error(e.ToString());
-                sender.RaReply(string.Format("${0} {1}", (object)1, (object)"An Exception occured while trying to display reports"), true, true, string.Empty);
+                sender.RaReply(
+                    string.Format("${0} {1}", (object)1,
+                        (object)"An Exception occured while trying to display reports"), true, true, string.Empty);
             }
         }
-        
-        public static IEnumerator<float> HandleReportType2(CommandSender sender, CedModPlayer player, string[] source, string additional = "")
+
+        public static IEnumerator<float> HandleReportType2(CommandSender sender, CedModPlayer player, string[] source,
+            string additional = "")
         {
             try
             {
@@ -592,7 +623,9 @@ namespace CedMod.Patches
                         $"<color=red>Next Report</color>            <color=red>Previous Report</color>          <color=red>Complete Report</color>         <color=red>Ignore Report</color>");
 
                     stringBuilder.Append("</color>");
-                    sender.RaReply(string.Format("${0} {1}", (object)1, (object)StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, true, string.Empty);
+                    sender.RaReply(
+                        string.Format("${0} {1}", (object)1,
+                            (object)StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, true, string.Empty);
                 }
                 else
                 {
@@ -739,11 +772,13 @@ namespace CedMod.Patches
                             CedModPlayer.Get(report.AssignedHandler.AdditionalId);
                         if (handler != null)
                         {
-                            stringBuilder.AppendLine($"Handler: (<color=#43C6DB>{handler.PlayerId}</color>) {handler.Nickname} - {handler.UserId}</color>");
+                            stringBuilder.AppendLine(
+                                $"Handler: (<color=#43C6DB>{handler.PlayerId}</color>) {handler.Nickname} - {handler.UserId}</color>");
                         }
                         else
                         {
-                            stringBuilder.AppendLine($"Handler: <color=red>(Not Ingame)</color> - {report.AssignedHandler.UserName}");
+                            stringBuilder.AppendLine(
+                                $"Handler: <color=red>(Not Ingame)</color> - {report.AssignedHandler.UserName}");
                         }
                     }
                     else
@@ -755,7 +790,7 @@ namespace CedMod.Patches
                     stringBuilder.AppendLine($"Ingame Report: {!report.IsDiscordReport}");
 
                     stringBuilder.AppendLine(additional);
-                    
+
                     int count = report.IsCheatReport ? 5 : 6;
                     while (count >= 1)
                     {
