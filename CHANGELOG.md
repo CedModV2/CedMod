@@ -1,9 +1,7 @@
 
-V: 3.4.15
- - Updated for 13.3.0
- - The jail command will now place you at the nearest door if you were jailed in an elevator.
- - The jail command will preserve your status effect status, intensity, and timeleft.
- - Added a staffchat message for Reports
- - Added a staffchat message for Watchlist joins
- - Added a staffchat message for Group watchlist joins
- - Added a staffchat message for Report status updates
+V: 3.4.16
+ - Updated for 13.4.1.
+ - Updated patches to the latest version.
+ - Fixed player selection breaking when selecting report entries (i think).
+ - Added some patches that will hide information a client doesnt need to inconvenience cheaters.
+ - Added some detectors for exploits.
