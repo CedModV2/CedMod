@@ -106,7 +106,7 @@ namespace CedMod.Patches
 
             foreach (ReferenceHub hub in isDescending ? __instance.SortPlayersDescending(sorter) : __instance.SortPlayers(sorter))
             {
-                if (!PlayerAuthenticationManager.OnlineMode && (hub.Mode == ClientInstanceMode.DedicatedServer || hub.Mode == ClientInstanceMode.Unverified))
+                if (PlayerAuthenticationManager.OnlineMode && (hub.Mode == ClientInstanceMode.DedicatedServer || hub.Mode == ClientInstanceMode.Unverified))
                     continue;
 
                 bool inOverwatch = hub.serverRoles.IsInOverwatch;
