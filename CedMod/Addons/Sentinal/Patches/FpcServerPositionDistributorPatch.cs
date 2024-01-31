@@ -37,7 +37,7 @@ namespace CedMod.Addons.Sentinal.Patches
                 if (!(hub.roleManager.CurrentRole is IFpcRole fpc))
                     continue;
 
-                bool invisible = hasVisCtrl && !visCtrl.ValidateVisibility(hub) && receiver.roleManager.CurrentRole.Team != Team.SCPs;
+                bool invisible = hasVisCtrl && !visCtrl.ValidateVisibility(hub);
                 FpcSyncData data = FpcServerPositionDistributor.GetNewSyncData(receiver, hub, fpc.FpcModule, invisible);
 
                 if (!invisible)
@@ -56,7 +56,7 @@ namespace CedMod.Addons.Sentinal.Patches
                 else
                 { 
                     var toSend = RoleTypeId.Filmmaker;
-                    if (PermissionsHandler.IsPermitted(receiver.serverRoles.Permissions, PlayerPermissions.GameplayData))
+                    if (PermissionsHandler.IsPermitted(receiver.serverRoles.Permissions, PlayerPermissions.GameplayData) || receiver.roleManager.CurrentRole.Team == Team.SCPs)
                         toSend = hub.roleManager.CurrentRole.RoleTypeId;
 
                     if (!hub.roleManager.PreviouslySentRole.TryGetValue(receiver.netId, out RoleTypeId prev) || prev != toSend)
