@@ -20,10 +20,11 @@ namespace CedMod
         public static readonly object Banlock = new object();
         public static async Task HandleJoin(CedModPlayer player)
         {
-            if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                Log.Debug("Join");
             try
             {
+                if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                    Log.Debug("Join");
+                
                 if (player.ReferenceHub.authManager.AuthenticationResponse.AuthToken != null && player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.BypassBans || player.ReferenceHub.isLocalPlayer)
                     return;
 
