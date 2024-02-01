@@ -15,6 +15,7 @@ namespace CedMod.Addons.Sentinal
     {
         public List<string> Ids = new List<string>();
         public float Time = 120;
+        public float AuthTimer = 1;
         public Dictionary<uint, int> FrameCount = new Dictionary<uint, int>();
 
         public void FixedUpdate()
@@ -25,6 +26,14 @@ namespace CedMod.Addons.Sentinal
             {
                 Ids.Clear();
                 Time = 120;
+            }
+            
+            AuthTimer -= UnityEngine.Time.fixedDeltaTime;
+
+            if (AuthTimer <= 0)
+            {
+                VoicePacketPacket.Tracker.Clear();
+                AuthTimer = 1;
             }
             
             foreach (var pack in VoicePacketPacket.PacketsSent)
@@ -38,7 +47,7 @@ namespace CedMod.Addons.Sentinal
                     FrameCount[pack.Key]++;
                     
                     var plr = ReferenceHub.AllHubs.FirstOrDefault(s => s.netId == pack.Key, null);
-                    if (FrameCount[pack.Key] >= 10 && plr != null && !Ids.Contains(plr.authManager.UserId))
+                    if (FrameCount[pack.Key] >= 120 && plr != null && !Ids.Contains(plr.authManager.UserId))
                     {
                         Ids.Add(plr.authManager.UserId);
                         Log.Info($"CedMod Reporting {plr.nicknameSync.MyNick} {plr.authManager.UserId}");

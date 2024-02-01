@@ -182,9 +182,13 @@ namespace CedMod
                     if (!string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.MuteCustomInfo))
                         player.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
                 }
+                player.ReceiveHint("", 1); //clear authenticator hint
+                player.CedModAuthenticated = true;
             }
             catch (Exception ex)
             {
+                player.CedModAuthenticated = true;
+                player.ReceiveHint("", 1); //clear authenticator hint
                 Log.Error(ex.ToString());
             }
         }
