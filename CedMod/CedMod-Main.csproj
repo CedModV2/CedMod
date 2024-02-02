@@ -116,7 +116,6 @@
     <Compile Include="Addons\QuerySystem\ThreadDispatcher.cs" />
     <Compile Include="Addons\QuerySystem\Verification.cs" />
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
-    <Compile Include="Addons\Sentinal\Patches\AutomaticFirearmPatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\FpcServerPositionDistributorPatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\PlayerRoleManagerPatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\VoicePacketPacket.cs" />
