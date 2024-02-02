@@ -7,8 +7,6 @@ namespace CedMod
 {
     public class CedModPlayer: Player
     {
-        public bool CedModAuthenticated = false;
-        
         public CedModPlayer(IGameComponent component) : base(component)
         {
         }

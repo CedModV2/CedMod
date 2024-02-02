@@ -16,6 +16,7 @@ namespace CedMod
     public class BanSystem
     {
         public static Dictionary<string, Dictionary<string, string>> CachedStates = new Dictionary<string, Dictionary<string, string>>();
+        public static List<ReferenceHub> Authenticating { get; set; } = new List<ReferenceHub>();
 
         public static readonly object Banlock = new object();
         public static async Task HandleJoin(CedModPlayer player)
@@ -24,9 +25,11 @@ namespace CedMod
             {
                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                     Log.Debug("Join");
-                
+
                 if (player.ReferenceHub.authManager.AuthenticationResponse.AuthToken != null && player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.BypassBans || player.ReferenceHub.isLocalPlayer)
                     return;
+                
+                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Authenticating.Add(player.ReferenceHub));
 
                 Dictionary<string, string> info = new Dictionary<string, string>();
                 bool req = false;
@@ -184,11 +187,11 @@ namespace CedMod
                         player.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
                 }
                 player.ReceiveHint("", 1); //clear authenticator hint
-                player.CedModAuthenticated = true;
+                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Authenticating.Remove(player.ReferenceHub));
             }
             catch (Exception ex)
             {
-                player.CedModAuthenticated = true;
+                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Authenticating.Remove(player.ReferenceHub));
                 player.ReceiveHint("", 1); //clear authenticator hint
                 Log.Error(ex.ToString());
             }
