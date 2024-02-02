@@ -8,7 +8,7 @@ using PlayerRoles.Visibility;
 namespace CedMod.Addons.Sentinal.Patches
 {
     //patch responsible for hiding and showing users when in and out of range
-    [HarmonyPatch(typeof(FpcServerPositionDistributor), nameof(FpcServerPositionDistributor.WriteAll))]
+    //[HarmonyPatch(typeof(FpcServerPositionDistributor), nameof(FpcServerPositionDistributor.WriteAll))]
     public static class FpcServerPositionDistributorPatch
     {
         public static bool Prefix(ReferenceHub receiver, NetworkWriter writer)

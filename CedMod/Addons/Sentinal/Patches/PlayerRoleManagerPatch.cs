@@ -7,7 +7,7 @@ using RemoteAdmin;
 namespace CedMod.Addons.Sentinal.Patches
 {
     //patch responsible for hiding and showing users without leaking info on initialjoin, any missed syncs are caught by the position distributor
-    [HarmonyPatch(typeof(PlayerRoleManager), nameof(PlayerRoleManager.Update))]
+    //[HarmonyPatch(typeof(PlayerRoleManager), nameof(PlayerRoleManager.Update))]
     public static class PlayerRoleManagerPatch
     {
         public static bool Prefix(PlayerRoleManager __instance)
