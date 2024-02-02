@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.Sentinal.Patches;
+using InventorySystem.Items.Firearms.Modules;
 using Newtonsoft.Json;
 using PluginAPI.Core;
 using UnityEngine;
@@ -13,10 +14,15 @@ namespace CedMod.Addons.Sentinal
 {
     public class SentinalBehaviour: MonoBehaviour
     {
-        public List<string> Ids = new List<string>();
-        public float Time = 120;
+        public static List<string> Ids = new List<string>();
+        public float Time = 10;
         public float AuthTimer = 1;
         public Dictionary<uint, int> FrameCount = new Dictionary<uint, int>();
+
+        public void Update()
+        {
+            AutomaticFirearmPatch.FiredSerials.Clear();
+        }
 
         public void FixedUpdate()
         {
@@ -59,7 +65,7 @@ namespace CedMod.Addons.Sentinal
                                 await VerificationChallenge.AwaitVerification();
                                 try
                                 {
-                                    var response = await client.GetAsync($"http{(QuerySystem.QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.QuerySystem.CurrentMaster}/Api/Sentinal/ReportVC?key={QuerySystem.QuerySystem.QuerySystemKey}&userid={plr.authManager.UserId}&amount={amount}");
+                                    var response = await client.GetAsync($"http{(QuerySystem.QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.QuerySystem.CurrentMaster}/Api/Sentinal/Report?key={QuerySystem.QuerySystem.QuerySystemKey}&userid={plr.authManager.UserId}&data={amount}&type=VCExploit");
                                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                         Log.Debug(await response.Content.ReadAsStringAsync());
                                 }
