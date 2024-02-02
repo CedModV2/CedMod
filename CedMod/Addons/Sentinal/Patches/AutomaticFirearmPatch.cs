@@ -43,7 +43,6 @@ namespace CedMod.Addons.Sentinal.Patches
                         }
                     });
                 }
-                return false;
             }
             
             FiredSerials.Add(__instance._firearm.ItemSerial);
