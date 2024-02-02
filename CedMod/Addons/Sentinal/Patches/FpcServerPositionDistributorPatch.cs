@@ -58,6 +58,9 @@ namespace CedMod.Addons.Sentinal.Patches
                     var toSend = RoleTypeId.Filmmaker;
                     if (PermissionsHandler.IsPermitted(receiver.serverRoles.Permissions, PlayerPermissions.GameplayData) || receiver.roleManager.CurrentRole.Team == Team.SCPs)
                         toSend = hub.roleManager.CurrentRole.RoleTypeId;
+                    
+                    if (hub.roleManager.CurrentRole is IObfuscatedRole ior)
+                        toSend = ior.GetRoleForUser(receiver);
 
                     if (!hub.roleManager.PreviouslySentRole.TryGetValue(receiver.netId, out RoleTypeId prev) || prev != toSend)
                     {
