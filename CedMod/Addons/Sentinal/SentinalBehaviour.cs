@@ -18,12 +18,7 @@ namespace CedMod.Addons.Sentinal
         public float Time = 10;
         public float AuthTimer = 1;
         public Dictionary<uint, int> FrameCount = new Dictionary<uint, int>();
-
-        public void Update()
-        {
-            AutomaticFirearmPatch.FiredSerials.Clear();
-        }
-
+        
         public void FixedUpdate()
         {
             Time -= UnityEngine.Time.fixedDeltaTime;
