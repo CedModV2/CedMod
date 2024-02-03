@@ -18,11 +18,29 @@ namespace CedMod.Addons.Sentinal
         public float AuthTimer = 1;
         public Dictionary<int, Dictionary<uint, int>> FrameCount = new Dictionary<int, Dictionary<uint, int>>();
         Dictionary<uint, Dictionary<int, int>> UserFrames = new Dictionary<uint, Dictionary<int, int>>();
+        public static int Frames = 0;
         
         public void FixedUpdate()
         {
+            if (Frames == int.MaxValue) //precaution
+                Frames = 0;
+            
+            Frames++;
+            
+            foreach (var pack in VoicePacketPacket.PacketsSent)
+            {
+                //Log.Info($"{Frames} | {pack.Value}");
+                if (pack.Value >= 30) //keep track of all exceeding packets per frame
+                {
+                    FrameCount.TryAdd(Frames, new Dictionary<uint, int>());
+                    FrameCount[Frames].TryAdd(pack.Key, pack.Value);
+                }
+            }
+            
+            
             AuthTimer -= UnityEngine.Time.fixedDeltaTime;
 
+            //process detections after the check
             if (AuthTimer <= 0)
             {
                 VoicePacketPacket.Tracker.Clear();
@@ -51,7 +69,7 @@ namespace CedMod.Addons.Sentinal
                                 await VerificationChallenge.AwaitVerification();
                                 try
                                 {
-                                    var response = await client.PostAsync($"http{(QuerySystem.QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.QuerySystem.CurrentMaster}/Api/Sentinal/ReportV2?key={QuerySystem.QuerySystem.QuerySystemKey}&userid={plr.authManager.UserId}&type=VCExploit", new StringContent(JsonConvert.SerializeObject(userFrames), Encoding.Default, "application/json"));
+                                    var response = await client.PostAsync($"http{(QuerySystem.QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.QuerySystem.CurrentMaster}/Api/Sentinal/ReportV2?key={QuerySystem.QuerySystem.QuerySystemKey}&userid={plr.authManager.UserId}&type=VCExploit", new StringContent(JsonConvert.SerializeObject(userFrames.Value), Encoding.Default, "application/json"));
                                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                         Log.Debug(await response.Content.ReadAsStringAsync());
                                 }
@@ -66,15 +84,6 @@ namespace CedMod.Addons.Sentinal
                 
                 UserFrames.Clear();
                 FrameCount.Clear(); //clear array as we have reported.
-            }
-            
-            foreach (var pack in VoicePacketPacket.PacketsSent)
-            {
-                if (pack.Value >= 30) //keep track of all exceeding packets per frame
-                {
-                    FrameCount.TryAdd(UnityEngine.Time.frameCount, new Dictionary<uint, int>());
-                    FrameCount[UnityEngine.Time.frameCount].TryAdd(pack.Key, pack.Value);
-                }
             }
             
             //clear the current list for the next frame
