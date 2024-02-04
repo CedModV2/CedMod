@@ -57,6 +57,7 @@ namespace CedMod.Addons.QuerySystem
         public void OnPlayerLeave(PlayerLeftEvent ev)
         {
             BanSystem.Authenticating.Remove(ev.Player.ReferenceHub);
+            BanSystem.CedModAuthTokens.Remove(ev.Player.ReferenceHub);
             ThreadDispatcher.SendHeartbeatMessage(true);
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {

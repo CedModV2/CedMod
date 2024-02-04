@@ -17,6 +17,7 @@ namespace CedMod
     {
         public static Dictionary<string, Dictionary<string, string>> CachedStates = new Dictionary<string, Dictionary<string, string>>();
         public static List<ReferenceHub> Authenticating { get; set; } = new List<ReferenceHub>();
+        public static Dictionary<ReferenceHub, Tuple<string, string>> CedModAuthTokens = new Dictionary<ReferenceHub, Tuple<string, string>>();
 
         public static readonly object Banlock = new object();
         public static async Task HandleJoin(CedModPlayer player)
@@ -40,16 +41,33 @@ namespace CedMod
                     else
                         req = true;
                 }
+
+                //Sensitive information of the authentication token concerns information that is already handled by the CedMod Api Player IP
+                //Therefore we have concluded in discussion with NW's Security Advisor that it is of no issue to use the authentication token to validate API calls to ensure one cannot cause altprevention bans by performing malicious activities
+                Dictionary<string, string> authToken = new Dictionary<string, string>()
+                {
+                    { "Type", "Auth" },
+                    { "Token", player.ReferenceHub.authManager.AuthenticationResponse.SignedAuthToken.token },
+                    { "Signature", player.ReferenceHub.authManager.AuthenticationResponse.SignedAuthToken.signature },
+                };
                 
                 if (req)
-                    info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{player.UserId}&{player.IpAddress}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&server={Uri.EscapeDataString(WebSocketSystem.HelloMessage == null ? "Unknown" : WebSocketSystem.HelloMessage.Identity)}&r=1");
+                    info = (Dictionary<string, string>) await API.APIRequest($"Auth/{player.UserId}&{player.IpAddress}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&server={Uri.EscapeDataString(WebSocketSystem.HelloMessage == null ? "Unknown" : WebSocketSystem.HelloMessage.Identity)}&r=1", JsonConvert.SerializeObject(authToken), false, "POST");
 
                 if (player.ReferenceHub.authManager.AuthenticationResponse.AuthToken != null && player.IpAddress != player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.RequestIp && info != null && info.ContainsKey("success") && info["success"] == "true" && info["vpn"] == "false" && info["isbanned"] == "false")
                 {
                     Log.Debug("Ip address mismatch, performing request again", CedModMain.Singleton.Config.CedMod.ShowDebug);
-                    var info2 = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{player.UserId}&{player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.RequestIp}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&server={Uri.EscapeDataString(WebSocketSystem.HelloMessage == null ? "Unknown" : WebSocketSystem.HelloMessage.Identity)}&r=2");
+                    var info2 = (Dictionary<string, string>) await API.APIRequest($"Auth/{player.UserId}&{player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.RequestIp}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&server={Uri.EscapeDataString(WebSocketSystem.HelloMessage == null ? "Unknown" : WebSocketSystem.HelloMessage.Identity)}&r=2", JsonConvert.SerializeObject(authToken), false, "POST");
                     if (info2 != null && info2.ContainsKey("success") && info2["success"] == "true" && (info2["vpn"] == "true" || info2["isbanned"] == "true"))
                         info = info2;
+                }
+
+                if (info != null)
+                {
+                    if (info.ContainsKey("token") && info.ContainsKey("signature"))
+                    {
+                        CedModAuthTokens[player.ReferenceHub] = new Tuple<string, string>(info["token"], info["signature"]);
+                    }
                 }
 
                 if (info == null)

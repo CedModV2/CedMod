@@ -40,6 +40,7 @@ namespace CedMod.Handlers
                     BanSystem.CachedStates.Clear();
                 }
             });
+            BanSystem.Authenticating.Clear();
         }
     }
 }
