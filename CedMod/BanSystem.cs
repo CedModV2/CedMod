@@ -214,7 +214,7 @@ namespace CedMod
                 player.ReceiveHint("", 1); //clear authenticator hint
                 Log.Error(ex.ToString());
 
-                if (attempt <= 4) //we will retry 4 times
+                if (attempt <= 4) //we will retry 5 times
                 {
                     await Task.Delay(100);
                     await HandleJoin(player, attempt + 1);
