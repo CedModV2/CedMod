@@ -20,7 +20,7 @@ namespace CedMod
         public static Dictionary<ReferenceHub, Tuple<string, string>> CedModAuthTokens = new Dictionary<ReferenceHub, Tuple<string, string>>();
 
         public static readonly object Banlock = new object();
-        public static async Task HandleJoin(CedModPlayer player)
+        public static async Task HandleJoin(CedModPlayer player, int attempt = 0)
         {
             try
             {
@@ -30,7 +30,8 @@ namespace CedMod
                 if (player.ReferenceHub.authManager.AuthenticationResponse.AuthToken != null && player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.BypassBans || player.ReferenceHub.isLocalPlayer)
                     return;
                 
-                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Authenticating.Add(player.ReferenceHub));
+                if (attempt <= 0)
+                    ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Authenticating.Add(player.ReferenceHub));
 
                 Dictionary<string, string> info = new Dictionary<string, string>();
                 bool req = false;
@@ -212,6 +213,12 @@ namespace CedMod
                 ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Authenticating.Remove(player.ReferenceHub));
                 player.ReceiveHint("", 1); //clear authenticator hint
                 Log.Error(ex.ToString());
+
+                if (attempt <= 4) //we will retry 4 times
+                {
+                    await Task.Delay(100);
+                    await HandleJoin(player, attempt + 1);
+                }
             }
         }
     }
