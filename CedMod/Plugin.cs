@@ -521,7 +521,7 @@ namespace CedMod
         
         private bool IsDerivedFromExiledPlugin(Type type)
         {
-            while (type != null)
+            while (type is not null)
             {
                 type = type.BaseType;
 
