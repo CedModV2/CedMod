@@ -322,14 +322,10 @@ namespace CedMod
                 foreach (var entryType in types)
                 {
 #if EXILED
-                    if ((object) entryType != null && entryType.IsGenericType)
+                    if (IsDerivedFromExiledPlugin(entryType))
                     {
-                        Type genericTypeDefinition = entryType.GetGenericTypeDefinition();
-                        if (genericTypeDefinition == typeof (Plugin<>) || genericTypeDefinition == typeof (Plugin<,>))
-                        {
-                            ExiledPlugin.Add(entryType.Assembly);
-                            continue;
-                        }
+                        ExiledPlugin.Add(entryType.Assembly);
+                        continue;
                     }
 #endif
                     if (!entryType.IsValidEntrypoint()) 
@@ -521,6 +517,23 @@ namespace CedMod
         {
             Disabled();
             base.OnDisabled();
+        }
+        
+        private bool IsDerivedFromExiledPlugin(Type type)
+        {
+            while (type != null)
+            {
+                type = type.BaseType;
+
+                if (type?.IsGenericType ?? false)
+                {
+                    Type genericDef = type.GetGenericTypeDefinition();
+                    if (genericDef == typeof(Plugin<>) || genericDef == typeof(Plugin<,>))
+                        return true;
+                }
+            }
+
+            return false;
         }
 #else
         [PluginUnload]
