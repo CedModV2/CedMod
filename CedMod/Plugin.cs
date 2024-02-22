@@ -385,8 +385,7 @@ namespace CedMod
                     }
                     else
                     {
-                        IEvent @event = constructor.Invoke(null) as IEvent;
-                        if (@event == null)
+                        if (plugin is not IEvent @event)
                             continue;
 
                         if (!@event.Config.IsEnabled)
