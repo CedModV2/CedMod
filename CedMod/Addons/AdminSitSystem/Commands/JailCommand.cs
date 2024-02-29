@@ -89,7 +89,7 @@ namespace CedMod.Addons.AdminSitSystem.Commands
             }
             
             sit.Players.Add(sitPlr);
-
+            plr.ReferenceHub.inventory.UserInventory.ReserveAmmo.Clear();
             plr.SetRole(RoleTypeId.Tutorial, RoleChangeReason.RemoteAdmin);
             Timing.CallDelayed(0.1f, () => {
             {
@@ -141,10 +141,13 @@ namespace CedMod.Addons.AdminSitSystem.Commands
                     }
                 }
 
-                foreach (var ammo in sitPlr.Ammo)
+                Timing.CallDelayed(0.1f, () =>
                 {
-                    plr.SetAmmo(ammo.Key, ammo.Value);
-                }
+                    foreach (var ammo in sitPlr.Ammo)
+                    {
+                        plr.SetAmmo(ammo.Key, ammo.Value);
+                    }
+                });
 
                 foreach (var effect in sitPlr.Effects)
                 {

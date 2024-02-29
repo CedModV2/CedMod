@@ -40,33 +40,37 @@ namespace CedMod.Patches
 
         public static IEnumerator<float> RaPlayerCoRoutine(RaPlayerList __instance, CommandSender sender, string data)
         {
-            string[] strArray = data.Split(' ');
-            int result1;
-            int result2;
-            if (strArray.Length != 3 || !int.TryParse(strArray[0], out result1) || !int.TryParse(strArray[1], out result2) || !Enum.IsDefined(typeof (RaPlayerList.PlayerSorting), (object) result2))
+            string[] spData = data.Split(' ');
+            if (spData.Length != 3) 
                 yield break;
-            bool flag1 = result1 == 1;
-            int num = strArray[2].Equals("1") ? 1 : 0;
-            RaPlayerList.PlayerSorting sortingType = (RaPlayerList.PlayerSorting) result2;
+
+            // Check if the message is valid
+            if (!int.TryParse(spData[0], out int value1) || !int.TryParse(spData[1], out int sortingId))
+                yield break;
+
+            // Check whether the sorting type is defined.
+            if (!Enum.IsDefined(typeof(RaPlayerList.PlayerSorting), sortingId))
+                yield break;
+
+            bool isSilent = value1 == 1;
+            bool isDescending = spData[2].Equals("1");
+            RaPlayerList.PlayerSorting sorter = (RaPlayerList.PlayerSorting) sortingId;
+
             bool viewHiddenBadges = CommandProcessor.CheckPermissions(sender, PlayerPermissions.ViewHiddenBadges);
             bool viewHiddenGlobalBadges = CommandProcessor.CheckPermissions(sender, PlayerPermissions.ViewHiddenGlobalBadges);
-            if (sender is PlayerCommandSender playerCommandSender && playerCommandSender.ReferenceHub.authManager.NorthwoodStaff)
-            {
-                viewHiddenBadges = true;
-                viewHiddenGlobalBadges = true;
-            }
-            
+
             StringBuilder stringBuilder = StringBuilderPool.Shared.Rent("\n");
             stringBuilder.Clear();
+            
+            var plr = CedModPlayer.Get(sender.SenderId);
+
+            if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && !RemoteAdminModificationHandler.Singleton.Requesting.Contains(plr.UserId))
+            {
+                RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, null);
+            }
 
             if (CommandProcessor.CheckPermissions(sender, PlayerPermissions.AdminChat))
             {
-                var plr = CedModPlayer.Get(sender.SenderId);
-                if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && !RemoteAdminModificationHandler.Singleton.Requesting.Contains(plr.UserId))
-                {
-                    RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, null);
-                }
-
                 if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin)
                 {
                     var openCount = RemoteAdminModificationHandler.ReportsList.Count(s => s.Status == HandleStatus.NoResponse);
@@ -100,43 +104,46 @@ namespace CedMod.Patches
                 }
             }
 
-            foreach (ReferenceHub hub in num != 0 ? __instance.SortPlayersDescending(sortingType) : __instance.SortPlayers(sortingType))
+            foreach (ReferenceHub hub in isDescending ? __instance.SortPlayersDescending(sorter) : __instance.SortPlayers(sorter))
             {
-                if (hub.Mode != ClientInstanceMode.DedicatedServer && hub.Mode != ClientInstanceMode.Unverified)
+                if (PlayerAuthenticationManager.OnlineMode && (hub.Mode == ClientInstanceMode.DedicatedServer || hub.Mode == ClientInstanceMode.Unverified))
+                    continue;
+
+                bool inOverwatch = hub.serverRoles.IsInOverwatch;
+                bool isMuted = VoiceChatMutes.IsMuted(hub, false);
+
+                stringBuilder.Append(RaPlayerList.GetPrefix(hub, viewHiddenBadges, viewHiddenGlobalBadges));
+
+                if (inOverwatch)
+                    stringBuilder.Append(RaPlayerList.OverwatchBadge);
+                if (isMuted)
+                    stringBuilder.Append(RaPlayerList.MutedBadge);
+
+                stringBuilder.Append("<color={RA_ClassColor}>(").Append(hub.PlayerId).Append(") ");
+
+                if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin)
                 {
-                    var plr = CedModPlayer.Get(sender.SenderId);
-                    if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && !RemoteAdminModificationHandler.Singleton.Requesting.Contains(plr.UserId))
+                    if (RemoteAdminModificationHandler.GroupWatchlist.Any(s => s.UserIds.Contains(hub.authManager.UserId)))
                     {
-                        RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, null);
-                    }
-                    
-                    
-                    stringBuilder.Append(RaPlayerList.GetPrefix(hub, viewHiddenBadges, viewHiddenGlobalBadges));
-                    stringBuilder.Append(hub.serverRoles.IsInOverwatch ? "<link=RA_OverwatchEnabled><color=white>[</color><color=#03f8fc>\uF06E</color><color=white>]</color></link> " : string.Empty);
-                    stringBuilder.Append("<color={RA_ClassColor}>(").Append(hub.PlayerId).Append(") ");
-                    if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin)
-                    {
-                        if (RemoteAdminModificationHandler.GroupWatchlist.Any(s => s.UserIds.Contains(hub.authManager.UserId)))
+                        if (RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(hub.authManager.UserId)) >= 2)
                         {
-                            if (RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(hub.authManager.UserId)) >= 2)
-                            {
-                                stringBuilder.Append($"<size=15><color=#00FFF6>[WMG{RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(hub.authManager.UserId))}]</color></size> ");
-                            }
-                            else
-                            {
-                                stringBuilder.Append($"<size=15><color=#00FFF6>[WG{RemoteAdminModificationHandler.GroupWatchlist.FirstOrDefault(s => s.UserIds.Contains(hub.authManager.UserId)).Id}]</color></size> ");
-                            }
+                            stringBuilder.Append($"<size=15><color=#00FFF6>[WMG{RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(hub.authManager.UserId))}]</color></size> ");
                         }
-                        else if (RemoteAdminModificationHandler.Watchlist.Any(s => s.Userid == hub.authManager.UserId))
+                        else
                         {
-                            stringBuilder.Append($"<size=15><color=#00FFF6>[WL]</color></size> ");
+                            stringBuilder.Append($"<size=15><color=#00FFF6>[WG{RemoteAdminModificationHandler.GroupWatchlist.FirstOrDefault(s => s.UserIds.Contains(hub.authManager.UserId)).Id}]</color></size> ");
                         }
                     }
-                    stringBuilder.Append(hub.nicknameSync.CombinedName.Replace("\n", string.Empty).Replace("RA_", string.Empty)).Append("</color>");
-                    stringBuilder.AppendLine();
+                    else if (RemoteAdminModificationHandler.Watchlist.Any(s => s.Userid == hub.authManager.UserId))
+                    {
+                        stringBuilder.Append($"<size=15><color=#00FFF6>[WL]</color></size> ");
+                    }
                 }
+
+                stringBuilder.Append(hub.nicknameSync.CombinedName.Replace("\n", string.Empty).Replace("RA_", string.Empty)).Append("</color>");
+                stringBuilder.AppendLine();
             }
-            sender.RaReply(string.Format("${0} {1}", (object) __instance.DataId, (object) StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, !flag1, string.Empty);
+            sender.RaReply(string.Format("${0} {1}", (object) __instance.DataId, (object) StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, !isSilent, string.Empty);
         }
     }
 }

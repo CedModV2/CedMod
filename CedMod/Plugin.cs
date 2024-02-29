@@ -15,6 +15,8 @@ using CedMod.Addons.Events;
 using CedMod.Addons.Events.Interfaces;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
+using CedMod.Addons.Sentinal;
+using CedMod.Addons.Sentinal.Patches;
 using CedMod.Addons.StaffInfo;
 using CedMod.Components;
 using CentralAuth;
@@ -62,7 +64,7 @@ namespace CedMod
         public static PluginHandler Handler;
 #endif
 
-        public const string PluginVersion = "3.4.15";
+        public const string PluginVersion = "3.4.17";
 
 #if !EXILED
         [PluginConfig]
@@ -262,6 +264,10 @@ namespace CedMod
                     staffInfoHandler = CustomNetworkManager.singleton.gameObject.AddComponent<StaffInfoHandler>();
             }
             
+            SentinalBehaviour sentinalBehaviour = Object.FindObjectOfType<SentinalBehaviour>();
+            if (sentinalBehaviour == null)
+                sentinalBehaviour = CustomNetworkManager.singleton.gameObject.AddComponent<SentinalBehaviour>();
+            
 
             if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt")))
             {
@@ -316,14 +322,10 @@ namespace CedMod
                 foreach (var entryType in types)
                 {
 #if EXILED
-                    if ((object) entryType != null && entryType.IsGenericType)
+                    if (IsDerivedFromExiledPlugin(entryType))
                     {
-                        Type genericTypeDefinition = entryType.GetGenericTypeDefinition();
-                        if (genericTypeDefinition == typeof (Plugin<>) || genericTypeDefinition == typeof (Plugin<,>))
-                        {
-                            ExiledPlugin.Add(entryType.Assembly);
-                            continue;
-                        }
+                        ExiledPlugin.Add(entryType.Assembly);
+                        continue;
                     }
 #endif
                     if (!entryType.IsValidEntrypoint()) 
@@ -383,8 +385,7 @@ namespace CedMod
                     }
                     else
                     {
-                        IEvent @event = constructor.Invoke(null) as IEvent;
-                        if (@event == null)
+                        if (plugin is not IEvent @event)
                             continue;
 
                         if (!@event.Config.IsEnabled)
@@ -516,6 +517,23 @@ namespace CedMod
             Disabled();
             base.OnDisabled();
         }
+        
+        private bool IsDerivedFromExiledPlugin(Type type)
+        {
+            while (type is not null)
+            {
+                type = type.BaseType;
+
+                if (type?.IsGenericType ?? false)
+                {
+                    Type genericDef = type.GetGenericTypeDefinition();
+                    if (genericDef == typeof(Plugin<>) || genericDef == typeof(Plugin<,>))
+                        return true;
+                }
+            }
+
+            return false;
+        }
 #else
         [PluginUnload]
 #endif
@@ -560,6 +578,10 @@ namespace CedMod
             RemoteAdminModificationHandler remoteAdminModificationHandler = Object.FindObjectOfType<RemoteAdminModificationHandler>();
             if (remoteAdminModificationHandler != null)
                 Object.Destroy(remoteAdminModificationHandler);
+            
+            SentinalBehaviour sentinalBehaviour = Object.FindObjectOfType<SentinalBehaviour>();
+            if (sentinalBehaviour != null)
+                Object.Destroy(sentinalBehaviour);
 
             if (Config.QuerySystem.StaffInfoSystem)
             {

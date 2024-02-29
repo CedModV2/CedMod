@@ -116,6 +116,10 @@
     <Compile Include="Addons\QuerySystem\ThreadDispatcher.cs" />
     <Compile Include="Addons\QuerySystem\Verification.cs" />
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
+    <Compile Include="Addons\Sentinal\Patches\FpcServerPositionDistributorPatch.cs" />
+    <Compile Include="Addons\Sentinal\Patches\PlayerRoleManagerPatch.cs" />
+    <Compile Include="Addons\Sentinal\Patches\VoicePacketPacket.cs" />
+    <Compile Include="Addons\Sentinal\SentinalBehaviour.cs" />
     <Compile Include="Addons\StaffInfo\MirrorExtensions.cs" />
     <Compile Include="Addons\StaffInfo\StaffInfoHandler.cs" />
     <Compile Include="API.cs" />
@@ -160,6 +164,7 @@
     <Compile Include="Patches\BanPatch.cs" />
     <Compile Include="Patches\MirrorPatch.cs" />
     <Compile Include="Patches\MuteCommandPatch.cs" />
+    <Compile Include="Patches\NicknamePatch.cs" />
     <Compile Include="Patches\NpcInstanceModePatch.cs" />
     <Compile Include="Patches\OBanCommandPatch.cs" />
     <Compile Include="Patches\RaPlayerAuthPatch.cs" />
@@ -309,6 +314,9 @@
     </Reference>
     <Reference Include="PluginAPI">
       <HintPath>..\References\PluginAPI_Publicized.dll</HintPath>
+    </Reference>
+    <Reference Include="Pooling">
+      <HintPath>..\References\Pooling.dll</HintPath>
     </Reference>
     <Reference Include="SCPSLAudioApi, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\SCPSLAudioApi.dll</HintPath>

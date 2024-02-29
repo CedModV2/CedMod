@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.Audio;
+using CedMod.Addons.Sentinal;
 using CedMod.Commands;
 using CedMod.Components;
 using MEC;
@@ -39,6 +40,7 @@ namespace CedMod.Handlers
                     BanSystem.CachedStates.Clear();
                 }
             });
+            BanSystem.Authenticating.Clear();
         }
     }
 }

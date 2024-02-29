@@ -16,16 +16,22 @@ namespace CedMod
     public class BanSystem
     {
         public static Dictionary<string, Dictionary<string, string>> CachedStates = new Dictionary<string, Dictionary<string, string>>();
+        public static List<ReferenceHub> Authenticating { get; set; } = new List<ReferenceHub>();
+        public static Dictionary<ReferenceHub, Tuple<string, string>> CedModAuthTokens = new Dictionary<ReferenceHub, Tuple<string, string>>();
 
         public static readonly object Banlock = new object();
-        public static async Task HandleJoin(CedModPlayer player)
+        public static async Task HandleJoin(CedModPlayer player, int attempt = 0)
         {
-            if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                Log.Debug("Join");
             try
             {
-                if (player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.BypassBans || player.ReferenceHub.isLocalPlayer)
+                if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                    Log.Debug("Join");
+
+                if (player.ReferenceHub.authManager.AuthenticationResponse.AuthToken != null && player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.BypassBans || player.ReferenceHub.isLocalPlayer)
                     return;
+                
+                if (attempt <= 0)
+                    ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Authenticating.Add(player.ReferenceHub));
 
                 Dictionary<string, string> info = new Dictionary<string, string>();
                 bool req = false;
@@ -36,16 +42,33 @@ namespace CedMod
                     else
                         req = true;
                 }
+
+                //Sensitive information of the authentication token concerns information that is already handled by the CedMod Api Player IP
+                //Therefore we have concluded in discussion with NW's Security Advisor that it is of no issue to use the authentication token to validate API calls to ensure one cannot cause altprevention bans by performing malicious activities
+                Dictionary<string, string> authToken = new Dictionary<string, string>()
+                {
+                    { "Type", "Auth" },
+                    { "Token", player.ReferenceHub.authManager.AuthenticationResponse.SignedAuthToken.token },
+                    { "Signature", player.ReferenceHub.authManager.AuthenticationResponse.SignedAuthToken.signature },
+                };
                 
                 if (req)
-                    info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{player.UserId}&{player.IpAddress}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&server={Uri.EscapeDataString(WebSocketSystem.HelloMessage == null ? "Unknown" : WebSocketSystem.HelloMessage.Identity)}&r=1");
+                    info = (Dictionary<string, string>) await API.APIRequest($"Auth/{player.UserId}&{player.IpAddress}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&server={Uri.EscapeDataString(WebSocketSystem.HelloMessage == null ? "Unknown" : WebSocketSystem.HelloMessage.Identity)}&r=1", JsonConvert.SerializeObject(authToken), false, "POST");
 
-                if (player.IpAddress != player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.RequestIp && info != null && info.ContainsKey("success") && info["success"] == "true" && info["vpn"] == "false" && info["isbanned"] == "false")
+                if (player.ReferenceHub.authManager.AuthenticationResponse.AuthToken != null && player.IpAddress != player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.RequestIp && info != null && info.ContainsKey("success") && info["success"] == "true" && info["vpn"] == "false" && info["isbanned"] == "false")
                 {
                     Log.Debug("Ip address mismatch, performing request again", CedModMain.Singleton.Config.CedMod.ShowDebug);
-                    var info2 = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{player.UserId}&{player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.RequestIp}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&server={Uri.EscapeDataString(WebSocketSystem.HelloMessage == null ? "Unknown" : WebSocketSystem.HelloMessage.Identity)}&r=2");
+                    var info2 = (Dictionary<string, string>) await API.APIRequest($"Auth/{player.UserId}&{player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.RequestIp}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&server={Uri.EscapeDataString(WebSocketSystem.HelloMessage == null ? "Unknown" : WebSocketSystem.HelloMessage.Identity)}&r=2", JsonConvert.SerializeObject(authToken), false, "POST");
                     if (info2 != null && info2.ContainsKey("success") && info2["success"] == "true" && (info2["vpn"] == "true" || info2["isbanned"] == "true"))
                         info = info2;
+                }
+
+                if (info != null)
+                {
+                    if (info.ContainsKey("token") && info.ContainsKey("signature"))
+                    {
+                        CedModAuthTokens[player.ReferenceHub] = new Tuple<string, string>(info["token"], info["signature"]);
+                    }
                 }
 
                 if (info == null)
@@ -182,10 +205,20 @@ namespace CedMod
                     if (!string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.MuteCustomInfo))
                         player.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
                 }
+                player.ReceiveHint("", 1); //clear authenticator hint
+                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Authenticating.Remove(player.ReferenceHub));
             }
             catch (Exception ex)
             {
+                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Authenticating.Remove(player.ReferenceHub));
+                player.ReceiveHint("", 1); //clear authenticator hint
                 Log.Error(ex.ToString());
+
+                if (attempt <= 4) //we will retry 5 times
+                {
+                    await Task.Delay(100);
+                    await HandleJoin(player, attempt + 1);
+                }
             }
         }
     }

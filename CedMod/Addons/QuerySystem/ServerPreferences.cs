@@ -56,6 +56,8 @@ namespace CedMod.Addons.QuerySystem
             }
             catch (Exception e)
             {
+                if (e is TaskCanceledException)
+                    return;
                 Log.Error($"Failed to resolve server preferences, using file: {e}");
                 if (loop)
                 {

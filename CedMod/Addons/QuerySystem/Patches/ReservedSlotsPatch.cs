@@ -13,6 +13,7 @@ using HarmonyLib;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using Mirror.LiteNetLib4Mirror;
+using Newtonsoft.Json;
 using PluginAPI.Core;
 using PluginAPI.Enums;
 using PluginAPI.Events;
@@ -160,7 +161,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                             return;
                         }
 
-                        if (!ECDSA.VerifyBytes($"{preauthdata.UserID};{preauthdata.Flags};{preauthdata.Region};{preauthdata.Expiration}", preauthdata.Signature, ServerConsole.PublicKey))
+                        if (PlayerAuthenticationManager.OnlineMode && !ECDSA.VerifyBytes($"{preauthdata.UserID};{preauthdata.Flags};{preauthdata.Region};{preauthdata.Expiration}", preauthdata.Signature, ServerConsole.PublicKey))
                         {
                             if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                                 Log.Debug($"Rejected preauth due to invalidity\n{preauthdata}");
@@ -536,7 +537,15 @@ namespace CedMod.Addons.QuerySystem.Patches
                         {
                             string id = userId;
                             string ip = realIp ?? request.RemoteEndPoint.Address.ToString();
-                            Dictionary<string, string> info = (Dictionary<string, string>) await API.APIRequest("Auth/", $"{id}&{ip}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&server={Uri.EscapeDataString(WebSocketSystem.HelloMessage == null ? "Unknown" : WebSocketSystem.HelloMessage.Identity)}&r=1");
+                            
+                            Dictionary<string, string> authToken = new Dictionary<string, string>()
+                            {
+                                { "Type", "Preauth" },
+                                { "Token", $"{userId};{flagsRaw};{country};{expiration}" },
+                                { "Signature", Convert.ToBase64String(signature) },
+                            };
+                            
+                            Dictionary<string, string> info = (Dictionary<string, string>) await API.APIRequest($"Auth/{id}&{ip}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&server={Uri.EscapeDataString(WebSocketSystem.HelloMessage == null ? "Unknown" : WebSocketSystem.HelloMessage.Identity)}&r=1", JsonConvert.SerializeObject(authToken), false, "POST");
                             lock (BanSystem.CachedStates)
                             {
                                 if (BanSystem.CachedStates.ContainsKey(id))

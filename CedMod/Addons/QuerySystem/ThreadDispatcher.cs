@@ -220,7 +220,9 @@ namespace CedMod.Addons.QuerySystem
                             staff = PermissionsHandler.IsPermitted(group.Permissions, new PlayerPermissions[3] { PlayerPermissions.KickingAndShortTermBanning, PlayerPermissions.BanningUpToDay, PlayerPermissions.LongTermBanning });
                         }
                     }
-                    
+
+                    Tuple<string, string> tokenSet = null;
+                    BanSystem.CedModAuthTokens.TryGetValue(player, out tokenSet);
                     players.Add(new PlayerObject()
                     {
                         DoNotTrack = player.authManager.DoNotTrack,
@@ -229,7 +231,9 @@ namespace CedMod.Addons.QuerySystem
                         UserId = player.authManager.UserId,
                         PlayerId = player.PlayerId,
                         RoleType = player.roleManager.CurrentRole.RoleTypeId,
-                        HashedUserId = player.authManager.AuthenticationResponse.AuthToken.SyncHashed
+                        HashedUserId = player.authManager.AuthenticationResponse.AuthToken.SyncHashed,
+                        CedModToken = tokenSet != null ? tokenSet.Item1 : "",
+                        CedModSignature = tokenSet != null ? tokenSet.Item2 : "",
                     });
                 }
             }

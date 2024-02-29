@@ -797,7 +797,7 @@ namespace CedMod.Addons.QuerySystem.WS
         public static bool UseRa = true;
         public static object LockObj = new object();
 
-        public static void ApplyRa(object state)
+        public static void ApplyRa(object? state)
         {
             if (state == null)
                 state = true;
@@ -811,7 +811,6 @@ namespace CedMod.Addons.QuerySystem.WS
                 {
                     using (HttpClient client = new HttpClient())
                     {
-                        client.Timeout = TimeSpan.FromSeconds(10);
                         client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                         VerificationChallenge.AwaitVerification().Wait();
                         
