@@ -55,6 +55,8 @@ namespace CedMod.Addons.AdminSitSystem.Commands
 
         public static void AddPlr(CedModPlayer plr, AdminSit sit)
         {
+            if (plr == null)
+                return;
             Vector3 playerPos = plr.Position;
             foreach (var lift in ElevatorManager.SpawnedChambers)
             {
@@ -111,6 +113,13 @@ namespace CedMod.Addons.AdminSitSystem.Commands
 
         public static void RemovePlr(CedModPlayer plr, AdminSitPlayer sitPlr, AdminSit sit)
         {
+            if (plr == null)
+            {
+                sit.Players.Remove(sitPlr);
+                AdminSitHandler.Singleton.LeftPlayers.Remove(sitPlr.UserId);
+                return;
+            }
+            
             plr.SetRole(sitPlr.Role, RoleChangeReason.RemoteAdmin);
             Timing.CallDelayed(0.1f, () =>
             {
