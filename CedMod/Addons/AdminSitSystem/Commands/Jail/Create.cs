@@ -45,6 +45,11 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
 
             var loc = AdminSitHandler.Singleton.AdminSitLocations.FirstOrDefault(s => !s.InUse);
             var plr = CedModPlayer.Get((sender as CommandSender).SenderId);
+            if (plr == null)
+            {
+                response = $"Invoker could not be found.";
+                return false;
+            }
             
             if (AdminSitHandler.Singleton.Sits.Any(s => s.Players.Any(s => s.UserId == plr.UserId)))
             {
@@ -65,7 +70,6 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
                         adminToyBase = UnityEngine.Object.Instantiate<AdminToyBase>(component);
                         adminToyBase.transform.position = loc.SpawnPosition;
                         NetworkServer.Spawn(adminToyBase.gameObject);
-                        response = string.Format("Toy \"{0}\" placed! You can remove it by using \"DESTROYTOY {1}\" command.", (object) adminToyBase.CommandName, (object) adminToyBase.netId);
                     }
                 }
             }
@@ -88,14 +92,20 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
             loc.InUse = true;
             
             JailParentCommand.AddPlr(plr, sit);
-            
+
+            response = "";
             foreach (var plr1 in arguments)
             {
                 CedModPlayer cmPlr = CedModPlayer.Get(plr1);
+                if (cmPlr == null)
+                {
+                    response += $"{plr1} Could not be found!\n";
+                }
+                
                 JailParentCommand.AddPlr(cmPlr, sit);
             }
 
-            response = "Jail assigned. Use jail add {playerId} to add someone and jail remove {playerId}";
+            response += "Jail assigned. Use jail add {playerId} to add someone and jail remove {playerId}";
             return false;
         }
     }

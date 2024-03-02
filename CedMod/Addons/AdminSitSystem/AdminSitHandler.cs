@@ -70,6 +70,12 @@ namespace CedMod.Addons.AdminSitSystem
                 Timing.CallDelayed(0.1f, () =>
                 {
                     ev.Player.SetRole(RoleTypeId.Tutorial, RoleChangeReason.RemoteAdmin);
+                    var plrInstance = sit.Players.FirstOrDefault(s => s.UserId == ev.Player.UserId);
+                    if (plrInstance != null)
+                    {
+                        plrInstance.Player = CedModPlayer.Get(ev.Player.ReferenceHub);
+                    }
+                    
                     Timing.CallDelayed(0.1f, () => {
                     {
                         ev.Player.Position = sit.Location.SpawnPosition;

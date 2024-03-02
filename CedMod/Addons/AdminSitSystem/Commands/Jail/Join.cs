@@ -45,6 +45,13 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
                 response = $"Player '{arguments.At(0)}' could not be found.";
                 return false;
             }
+            
+            if (invoker == null)
+            {
+                response = $"Invoker could not be found.";
+                return false;
+            }
+            
             if (!AdminSitHandler.Singleton.Sits.Any(s => s.Players.Any(s => s.UserId == plr.UserId)))
             {
                 response = "The specified player is not part of any jail.";
