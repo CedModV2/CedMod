@@ -944,7 +944,8 @@ namespace CedMod.Addons.QuerySystem.WS
                     else
                     {
                         UseRa = true;
-                        Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
+                        if (request && File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "autoSlPermCache.json")))
+                            Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
                         return;
                     }
                 }
