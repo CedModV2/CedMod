@@ -767,6 +767,12 @@ namespace CedMod.Addons.QuerySystem.WS
                         case "reloadsrvprefs":
                             await ServerPreferences.ResolvePreferences(false);
                             break;
+                        case "requestHeartbeat":
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                            {
+                                ThreadDispatcher.SendHeartbeatMessage(true);
+                            });
+                            break;
                     }
                 }
             }
