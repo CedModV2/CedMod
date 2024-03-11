@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Threading;
@@ -113,7 +114,7 @@ namespace CedMod.Addons.QuerySystem
                     }
                 }
                 
-                if (!WebSocketSystem.Reconnect && !WebSocketSystem.Socket.IsRunning && WebSocketSystem.LastConnection < DateTime.UtcNow.AddMinutes(-1))
+                if (!WebSocketSystem.Reconnect && WebSocketSystem.Socket.State != WebSocketState.Open && WebSocketSystem.Socket.State != WebSocketState.Connecting && WebSocketSystem.LastConnection < DateTime.UtcNow.AddMinutes(-1))
                 {
                     lock (WebSocketSystem.reconnectLock)
                     {
@@ -128,7 +129,7 @@ namespace CedMod.Addons.QuerySystem
                     }
                 }
                 
-                if (WebSocketSystem.Reconnect && !WebSocketSystem.Socket.IsRunning && WebSocketSystem.LastConnection < DateTime.UtcNow.AddMinutes(-2))
+                if (WebSocketSystem.Reconnect && WebSocketSystem.Socket.State != WebSocketState.Open && WebSocketSystem.Socket.State != WebSocketState.Connecting && WebSocketSystem.LastConnection < DateTime.UtcNow.AddMinutes(-2))
                 {
                     lock (WebSocketSystem.reconnectLock)
                     {

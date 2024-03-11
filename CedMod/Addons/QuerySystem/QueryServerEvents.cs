@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -137,7 +138,7 @@ namespace CedMod.Addons.QuerySystem
 
             Task.Run(async delegate
             {
-                if (!WebSocketSystem.Socket.IsRunning)
+                if (WebSocketSystem.Socket.State != WebSocketState.Open && WebSocketSystem.Socket.State != WebSocketState.Connecting)
                 {
                     WebSocketSystem.Stop();
                     await WebSocketSystem.Start();
