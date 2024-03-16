@@ -258,8 +258,18 @@ namespace CedMod.Addons.QuerySystem.WS
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                 Log.Debug($"Handling send {Socket.State} {JsonConvert.SerializeObject(cmd)}");
                             var encoded = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(cmd));
-                            var buffer = new ArraySegment<Byte>(encoded, 0, encoded.Length);
-                            Socket.SendAsync(buffer, WebSocketMessageType.Text, true, CedModMain.CancellationToken).Wait();
+                            int bytesSent = 0;
+                            
+                            while (bytesSent < encoded.Length)
+                            {
+                                int bytesToSend = Math.Min(1024, encoded.Length - bytesSent);
+                                byte[] buffer = new byte[bytesToSend];
+                                Array.Copy(encoded, bytesSent, buffer, 0, bytesToSend);
+                                Socket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, bytesSent + bytesToSend >= encoded.Length, CancellationToken.None).Wait();
+        
+                                bytesSent += bytesToSend;
+                            }
+                            
                             LastConnection = DateTime.UtcNow;
                         }
                         else 
@@ -1179,7 +1189,7 @@ namespace CedMod.Addons.QuerySystem.WS
 
         public void SendText(string text)
         {
-            if (text.Length >= chunksize)
+            /*if (text.Length >= chunksize)
             {
                 IEnumerable<string> chunks = Enumerable.Range(0, text.Length / chunksize).Select(i => text.Substring(i * chunksize, chunksize));
                 foreach (var str in chunks) //WS becomes unstable if we send a large chunk of text
@@ -1194,7 +1204,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     });
                 }
             }
-            else
+            else*/
             {
                 WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
                 {
