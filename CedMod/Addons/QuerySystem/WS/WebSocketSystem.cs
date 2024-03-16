@@ -142,6 +142,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     SendThread.Start();
                 }
 
+                var messageBuffer = WebSocket.CreateClientBuffer(4096, 1024);
                 using (MemoryStream stream = new MemoryStream())
                 {
                     while (Socket.State == WebSocketState.Open)
@@ -149,7 +150,6 @@ namespace CedMod.Addons.QuerySystem.WS
                         WebSocketReceiveResult result = null;
                         while (result == null || !result.EndOfMessage)
                         {
-                            var messageBuffer = WebSocket.CreateClientBuffer(65535, 65535);
                             result = await Socket.ReceiveAsync(messageBuffer, CancellationToken.None);
                             await stream.WriteAsync(messageBuffer.Array, messageBuffer.Offset, result.Count);
                         }
