@@ -132,6 +132,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 Socket = new ClientWebSocket();
                 await Socket.ConnectAsync(new Uri($"ws{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMasterQuery}/QuerySystem?key={QuerySystem.QuerySystemKey}&identity=SCPSL&version=3"), CedModMain.CancellationToken);
                 Log.Info($"Connected to cedmod panel");
+                Reconnect = false;
                 
                 LastConnection = DateTime.UtcNow;
                 if (SendThread == null || !SendThread.IsAlive)
@@ -240,8 +241,6 @@ namespace CedMod.Addons.QuerySystem.WS
                 await Task.Delay(1000, CedModMain.CancellationToken);
                 await Start(); //retry until we succeed or the thread gets aborted.
             }
-
-            Reconnect = false;
         }
 
         public static void HandleSendQueue()
