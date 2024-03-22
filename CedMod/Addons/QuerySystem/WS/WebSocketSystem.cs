@@ -56,6 +56,8 @@ namespace CedMod.Addons.QuerySystem.WS
         internal static bool Reconnect = false;
         public static HelloMessage HelloMessage = null;
         public static DateTime LastConnection = DateTime.UtcNow;
+        public static bool SuppressLog { get; set; } = false;
+        public static DateTime LastServerConnection { get; set; }
 
         public static async Task Stop()
         {
@@ -65,9 +67,11 @@ namespace CedMod.Addons.QuerySystem.WS
                 Log.Debug($"ST3");
             try
             {
-                Log.Info("Attempting to stop socket");
+                if (!SuppressLog)
+                    Log.Info("Attempting to stop socket");
                 await Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Stopping", CedModMain.CancellationToken);
-                Log.Info("Stopped socket");
+                if (!SuppressLog)
+                    Log.Info("Stopped socket");
             }
             catch (Exception e)
             {
@@ -111,7 +115,8 @@ namespace CedMod.Addons.QuerySystem.WS
                         return;
                     }
                     data2 = JsonConvert.DeserializeObject<Dictionary<string, string>>(data1);
-                    Log.Info($"Retrieved panel location from API, Connecting to {data1}");
+                    if (!SuppressLog)
+                        Log.Info($"Retrieved panel location from API, Connecting to {data1}");
                 }
 
                 QuerySystem.CurrentMaster = data2["Api"];
@@ -130,17 +135,21 @@ namespace CedMod.Addons.QuerySystem.WS
             try
             {
                 Socket = new ClientWebSocket();
-                await Socket.ConnectAsync(new Uri($"ws{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMasterQuery}/QuerySystem?key={QuerySystem.QuerySystemKey}&identity=SCPSL&version=3"), CedModMain.CancellationToken);
-                Log.Info($"Connected to cedmod panel");
+                await Socket.ConnectAsync(new Uri($"ws{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMasterQuery}/QuerySystem?key={QuerySystem.QuerySystemKey}&identity=SCPSL&version=4"), CedModMain.CancellationToken);
+                if (!SuppressLog)
+                    Log.Info($"Connected to cedmod panel");
                 Reconnect = false;
                 
                 LastConnection = DateTime.UtcNow;
+                LastServerConnection = DateTime.UtcNow;
                 if (SendThread == null || !SendThread.IsAlive)
                 {
                     SendThread?.Abort();
                     SendThread = new Thread(HandleSendQueue);
                     SendThread.Start();
                 }
+
+                SuppressLog = false;
 
                 var messageBuffer = WebSocket.CreateClientBuffer(4096, 1024);
                 using (MemoryStream stream = new MemoryStream())
@@ -153,7 +162,8 @@ namespace CedMod.Addons.QuerySystem.WS
                             result = await Socket.ReceiveAsync(messageBuffer, CancellationToken.None);
                             await stream.WriteAsync(messageBuffer.Array, messageBuffer.Offset, result.Count);
                         }
-
+                        
+                        LastServerConnection = DateTime.UtcNow;
                         if (result.MessageType == WebSocketMessageType.Close)
                         {
                             if (result.CloseStatusDescription != null && result.CloseStatusDescription == "LOCATION SWITCH")
@@ -228,17 +238,27 @@ namespace CedMod.Addons.QuerySystem.WS
             }
             catch (Exception e)
             {
-                if (e is WebSocketException e2)
+                int delay = 1000;
+                if (e is WebSocketException e3 && e3.WebSocketErrorCode != WebSocketError.ConnectionClosedPrematurely)
                 {
-                    Log.Error($"Lost connection to CedMod Panel {e2.WebSocketErrorCode} {e2.Message}, reconnecting in 1000ms");
+                    Reconnect = false;
+                    if (e is WebSocketException e2)
+                    {
+                        if (e2.WebSocketErrorCode == WebSocketError.Success && e2.Message == "Unable to connect to the remote server")
+                            delay = 15000;
+                        
+                        Log.Error($"Lost connection to CedMod Panel {e2.WebSocketErrorCode} {e2.Message}, reconnecting in {delay}");
+                    }
+                    else
+                    {
+                        Log.Error(e.ToString());
+                    }
                 }
-                else
-                {
-                    Log.Error(e.ToString());
-                }
+                else if (e is WebSocketException e4 && e4.WebSocketErrorCode == WebSocketError.ConnectionClosedPrematurely)
+                    SuppressLog = true;
                 
                 WebSocketSystem.Reconnect = false;
-                await Task.Delay(1000, CedModMain.CancellationToken);
+                await Task.Delay(delay, CedModMain.CancellationToken);
                 await Start(); //retry until we succeed or the thread gets aborted.
             }
         }
@@ -701,7 +721,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             });
                             break;
                         case "ApplyRA":
-                            Log.Info($"Panel requested AutoSlPerms reload: {jsonData["reason"]}");
+                            //Log.Info($"Panel requested AutoSlPerms reload: {jsonData["reason"]}");
                             new Thread(ApplyRa).Start(true);
                             break;
                         case "FetchApiKey":
