@@ -1115,7 +1115,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             }
                         }
                     }
-                    Log.Info($"Successfully applied {permsSlRequest.PermissionEntries.Count} Groups and {permsSlRequest.MembersList.Count} members for AutoSlPerms");
+                    //Log.Info($"Successfully applied {permsSlRequest.PermissionEntries.Count} Groups and {permsSlRequest.MembersList.Count} members for AutoSlPerms");
                 }
                 catch (Exception e)
                 {
