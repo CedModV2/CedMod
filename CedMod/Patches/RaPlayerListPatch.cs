@@ -69,7 +69,7 @@ namespace CedMod.Patches
                 RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, null);
             }
 
-            if (CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
+            if (CommandProcessor.CheckPermissions(sender, PlayerPermissions.AdminChat))
             {
                 if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr) && RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin)
                 {
