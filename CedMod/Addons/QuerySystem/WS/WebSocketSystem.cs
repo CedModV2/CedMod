@@ -273,7 +273,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 {
                     try
                     {
-                        if (Socket.State == WebSocketState.Open)
+                        if (Socket != null && Socket.State == WebSocketState.Open)
                         {
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                 Log.Debug($"Handling send {Socket.State} {JsonConvert.SerializeObject(cmd)}");
@@ -292,8 +292,11 @@ namespace CedMod.Addons.QuerySystem.WS
                             
                             LastConnection = DateTime.UtcNow;
                         }
-                        else 
+                        else
+                        {
                             SendQueue.Enqueue(cmd);
+                            break;
+                        }
                     }
                     catch (Exception e)
                     {
