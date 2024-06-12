@@ -31,7 +31,7 @@ namespace CedMod.Addons.QuerySystem
                 Data = new Dictionary<string, string>()
                 {
                     {"Type", nameof(OnDecon)},
-                    {"Message", "Light containment zone has been decontaminated."}
+                    {"Message", $"Light containment decontamination stage {ev.Id}."}
                 }
             });
         }
@@ -47,8 +47,7 @@ namespace CedMod.Addons.QuerySystem
                     {"Type", nameof(OnWarheadStart)},
                     {
                         "Message",
-                        string.Format("warhead has been started: {0} seconds",
-                            Warhead.DetonationTime)
+                        string.Format("warhead has been started: {0} seconds", Warhead.DetonationTime)
                     }
                 }
             });
