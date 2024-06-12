@@ -7,12 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem.WS;
+using CustomPlayerEffects;
 using Interactables.Interobjects;
+using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Disarming;
 using InventorySystem.Items;
 using InventorySystem.Items.ThrowableProjectiles;
 using InventorySystem.Items.Usables;
 using MapGeneration;
+using MEC;
 using Newtonsoft.Json;
 using PlayerRoles;
 using PlayerStatsSystem;
@@ -53,12 +56,16 @@ namespace CedMod.Addons.QuerySystem
 
     public class QueryPlayerEvents
     {
-        [PluginEvent(ServerEventType.PlayerLeft)]
-        public void OnPlayerLeave(PlayerLeftEvent ev)
+        public QueryPlayerEvents()
         {
-            BanSystem.Authenticating.Remove(ev.Player.ReferenceHub);
-            BanSystem.CedModAuthTokens.Remove(ev.Player.ReferenceHub);
-            ThreadDispatcher.SendHeartbeatMessage(true);
+            StatusEffectBase.OnDisabled += OnPlayerDisableEffect;
+            StatusEffectBase.OnEnabled += OnPlayerReceiveEffect;
+            StatusEffectBase.OnIntensityChanged += OnPlayerReceiveEffectIntensity;
+        }
+        
+        [PluginEvent(ServerEventType.PlayerActivateGenerator)]
+        public void OnActivateGenerator(PlayerActivateGeneratorEvent ev)
+        {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
@@ -66,11 +73,205 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnPlayerLeave)},
-                    {"Message", ev.Player.Nickname + " - " + ev.Player.UserId + " has left the server."}
+                    {"Type", nameof(OnActivateGenerator)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has activated generator {4}", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Generator.netId
+                            })
+                    }
                 }
             });
         }
+        
+        [PluginEvent(ServerEventType.PlayerCancelUsingItem)]
+        public void OnCancelItem(PlayerCancelUsingItemEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnCancelItem)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has cancelled Item Usage {4}", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Item.ItemTypeId
+                            })
+                    }
+                }
+            });
+        }
+        
+        [PluginEvent(ServerEventType.PlayerChangeItem)]
+        public void OnChangeItem(PlayerChangeItemEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnChangeItem)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has changed held item to {4}", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Player.ReferenceHub.inventory.UserInventory.Items.ContainsKey(ev.NewItem) ? ev.Player.ReferenceHub.inventory.UserInventory.Items[ev.NewItem].ItemTypeId : ItemType.None
+                            })
+                    }
+                }
+            });
+        }
+        
+        [PluginEvent(ServerEventType.PlayerEnterPocketDimension)]
+        public void OnPocketEnter(PlayerEnterPocketDimensionEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnPocketEnter)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has entered the pocket dimension.", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role
+                            })
+                    }
+                }
+            });
+        }
+
+        [PluginEvent(ServerEventType.PlayerExitPocketDimension)]
+        public void OnPocketEscape(PlayerExitPocketDimensionEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Success", ev.IsSuccessful.ToString()},
+                    {"Type", nameof(OnPocketEscape)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has escaped the pocket dimension {4}.", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.IsSuccessful ? "Successfully" : "Unsuccessfully"
+                            })
+                    }
+                }
+            });
+        }
+        
+        [PluginEvent(ServerEventType.PlayerInteractDoor)]
+        public void OnInteractDoor(PlayerInteractDoorEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnInteractDoor)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has interacted with door {4}", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Door.netId + (DoorNametagExtension.NamedDoors.Any(s => s.Value.TargetDoor == ev.Door) ? $" {DoorNametagExtension.NamedDoors.FirstOrDefault(s => s.Value.TargetDoor == ev.Door).Key}" : "") 
+                            })
+                    }
+                }
+            });
+        }
+        
+        [PluginEvent(ServerEventType.PlayerInteractGenerator)]
+        public void OnInteractGenerator(PlayerInteractGeneratorEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnInteractGenerator)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has interacted with generator {4}.", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Generator.netId
+                            })
+                    }
+                }
+            });
+        }
+        
+        [PluginEvent(ServerEventType.PlayerInteractLocker)]
+        public void OnInteractLocker(PlayerInteractLockerEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnInteractLocker)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has interacted with locker {4}, Chamber {5}.", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Locker.netId,
+                                ev.Locker.Chambers.IndexOf(ev.Chamber),
+                            })
+                    }
+                }
+            });
+        }
+        
 
         [PluginEvent(ServerEventType.PlayerInteractElevator)]
         public void OnElevatorInteraction(PlayerInteractElevatorEvent ev)
@@ -87,61 +288,11 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
         }
-
-        //todo implement when event present
-        public void OnPocketEnter()
-        {
-            /*WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
-            {
-                Recipient = "ALL",
-                Data = new Dictionary<string, string>()
-                {
-                    {"UserId", ev.Player.UserId},
-                    {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnPocketEnter)},
-                    {
-                        "Message", string.Format(
-                            "{0} - {1} (<color={2}>{3}</color>) has entered the pocket dimension.", new object[]
-                            {
-                                ev.Player.Nickname,
-                                ev.Player.Role.Type,
-                                Misc.ToHex(ev.Player.Role.Color),
-                                ev.Player.Role
-                            })
-                    }
-                }
-            });*/
-        }
-
-        //todo implement when event present
-        public void OnPocketEscape()
-        {
-            /*WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
-            {
-                Recipient = "ALL",
-                Data = new Dictionary<string, string>()
-                {
-                    {"UserId", ev.Player.UserId},
-                    {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnPocketEscape)},
-                    {
-                        "Message", string.Format(
-                            "{0} - {1} (<color={2}>{3}</color>) has escaped the pocket dimension.", new object[]
-                            {
-                                ev.Player.Nickname,
-                                ev.Player.Role.Type,
-                                Misc.ToHex(ev.Player.Role.Color),
-                                ev.Player.Role
-                            })
-                    }
-                }
-            });*/
-        }
         
-        //todo implement when event present
-        public void On079Tesla()
+        [PluginEvent(ServerEventType.Scp079UseTesla)]
+        public void On079Tesla(Scp079UseTeslaEvent ev)
         {
-            /*WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -155,12 +306,105 @@ namespace CedMod.Addons.QuerySystem
                             {
                                 ev.Player.Nickname,
                                 ev.Player.UserId,
-                                Misc.ToHex(ev.Player.Role.Color),
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role
                             })
                     }
                 }
-            });*/
+            });
+        }
+
+        [PluginEvent(ServerEventType.PlayerShotWeapon)]
+        public void OnPlayerShoot(PlayerShotWeaponEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnPlayerShoot)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has activated the tesla as 079.", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role
+                            })
+                    }
+                }
+            });
+        }
+        
+        [PluginEvent(ServerEventType.PlayerChangeRole)]
+        public void OnSetClass(PlayerChangeRoleEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Reason", ev.ChangeReason.ToString()},
+                    {"Type", nameof(OnSetClass)},
+                    {
+                        "Message", string.Format("{0} - {1}'s role has been changed to {2}",
+                            new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                ev.NewRole
+                            })
+                    }
+                }
+            });
+
+            var plr = CedModPlayer.Get(ev.Player.ReferenceHub);
+            if (LevelerStore.TrackingEnabled && LevelerStore.InitialPlayerRoles.ContainsKey(plr))
+            {
+                if (ev.ChangeReason != RoleChangeReason.Escaped)
+                    LevelerStore.InitialPlayerRoles.Remove(plr);
+                else
+                    LevelerStore.InitialPlayerRoles[plr] = ev.NewRole;
+            }
+        }
+        
+        
+        public IEnumerator<float> RemoveFromReportList(ReferenceHub target)
+        {
+            yield return Timing.WaitForSeconds(60f);
+            CedMod.Handlers.Server.reported.Remove(target);
+        }
+        
+        
+        [PluginEvent(ServerEventType.PlayerCloseGenerator)]
+        public void OnCloseGenerator(PlayerCloseGeneratorEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnCloseGenerator)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has closed generator {4}.", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Generator.netId
+                            })
+                    }
+                }
+            });
         }
         
         [PluginEvent(ServerEventType.PlayerDamage)]
@@ -233,6 +477,32 @@ namespace CedMod.Addons.QuerySystem
                     }
                 });
             }
+        }
+        
+        [PluginEvent(ServerEventType.PlayerDeactivatedGenerator)]
+        public void OnDeactivateGenerator(PlayerDeactivatedGeneratorEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnDeactivateGenerator)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has deactivated generator {4}.", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Generator.netId
+                            })
+                    }
+                }
+            });
         }
 
         [PluginEvent(ServerEventType.PlayerDying)]
@@ -425,9 +695,9 @@ namespace CedMod.Addons.QuerySystem
                 });
             }
         }
-
-        [PluginEvent(ServerEventType.PlayerThrowItem)]
-        public void OnGrenadeThrown(PlayerThrowItemEvent ev)
+        
+        [PluginEvent(ServerEventType.PlayerDroppedAmmo)]
+        public void OnPlayerDropAmmo(PlayerDroppedAmmoEvent ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -436,7 +706,564 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnGrenadeThrown)},
+                    {"Type", nameof(OnPlayerDropAmmo)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has dropped {4} {5}.", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Amount,
+                                ev.Item.NetworkInfo.ItemId
+                            })
+                    }
+                }
+            });
+        }
+        
+        [PluginEvent(ServerEventType.PlayerDropedpItem)]
+        public void OnPlayerDropItem(PlayerDroppedItemEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnPlayerDropItem)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has dropped {4}.", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Item.NetworkInfo.ItemId
+                            })
+                    }
+                }
+            });
+        }
+        
+        [PluginEvent(ServerEventType.PlayerJoined)]
+        public void OnPlayerJoin(PlayerJoinedEvent ev)
+        {
+            ThreadDispatcher.SendHeartbeatMessage(true);
+            if (CommandHandler.Synced.ContainsKey(ev.Player.UserId))
+            {
+                if (ServerStatic.GetPermissionsHandler()._members.ContainsKey(ev.Player.UserId) && CommandHandler.Synced[ev.Player.UserId] == ServerStatic.GetPermissionsHandler()._members[ev.Player.UserId])
+                    ServerStatic.GetPermissionsHandler()._members.Remove(ev.Player.UserId);
+                ev.Player.ReferenceHub.serverRoles.RefreshPermissions();
+                CommandHandler.Synced.Remove(ev.Player.UserId);
+            }
+
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"PlayerId", ev.Player.PlayerId.ToString()},
+                    {"Type", nameof(OnPlayerJoin)},
+                    {
+                        "Message", string.Format("({0}) {1} - {2} joined the game.",
+                            ev.Player.PlayerId, ev.Player.Nickname, ev.Player.UserId)
+                    }
+                }
+            });
+        }
+        
+        [PluginEvent(ServerEventType.PlayerLeft)]
+        public void OnPlayerLeave(PlayerLeftEvent ev)
+        {
+            BanSystem.Authenticating.Remove(ev.Player.ReferenceHub);
+            BanSystem.CedModAuthTokens.Remove(ev.Player.ReferenceHub);
+            ThreadDispatcher.SendHeartbeatMessage(true);
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnPlayerLeave)},
+                    {"Message", ev.Player.Nickname + " - " + ev.Player.UserId + " has left the server."}
+                }
+            });
+        }
+        
+        [PluginEvent(ServerEventType.PlayerPickupAmmo)]
+        public void OnPlayerPickupAmmo(PlayerPickupAmmoEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnPlayerPickupAmmo)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has picked up {4}", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Item.NetworkInfo.ItemId
+                            })
+                    }
+                }
+            });
+        }
+        
+        [PluginEvent(ServerEventType.PlayerPickupArmor)]
+        public void OnPlayerPickupArmor(PlayerPickupArmorEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnPlayerPickupArmor)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has picked up {4}", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Item.NetworkInfo.ItemId
+                            })
+                    }
+                }
+            });
+        }
+        
+        [PluginEvent(ServerEventType.PlayerSearchedPickup)]
+        public void OnPlayerPickupItem(PlayerSearchedPickupEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnPlayerPickupItem)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has picked up {4}", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Item.NetworkInfo.ItemId
+                            })
+                    }
+                }
+            });
+        }
+        
+        public void OnPlayerReceiveEffect(StatusEffectBase statusEffectBase)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", statusEffectBase.Hub.authManager.UserId},
+                    {"UserName", statusEffectBase.Hub.nicknameSync.MyNick},
+                    {"Type", nameof(OnPlayerReceiveEffect)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has received effect {4} with intensity {5}, duration {6}", new object[]
+                            {
+                                statusEffectBase.Hub.nicknameSync.MyNick,
+                                statusEffectBase.Hub.authManager.UserId,
+                                Misc.ToHex(statusEffectBase.Hub.roleManager.CurrentRole.RoleColor),
+                                statusEffectBase.Hub.roleManager.CurrentRole.RoleTypeId,
+                                statusEffectBase.GetType().Name,
+                                statusEffectBase.Intensity,
+                                statusEffectBase.Duration
+                            })
+                    }
+                }
+            });
+        }
+        
+        public void OnPlayerDisableEffect(StatusEffectBase statusEffectBase)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", statusEffectBase.Hub.authManager.UserId},
+                    {"UserName", statusEffectBase.Hub.nicknameSync.MyNick},
+                    {"Type", nameof(OnPlayerDisableEffect)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) stopped effect {4}.", new object[]
+                            {
+                                statusEffectBase.Hub.nicknameSync.MyNick,
+                                statusEffectBase.Hub.authManager.UserId,
+                                Misc.ToHex(statusEffectBase.Hub.roleManager.CurrentRole.RoleColor),
+                                statusEffectBase.Hub.roleManager.CurrentRole.RoleTypeId,
+                                statusEffectBase.GetType().Name
+                            })
+                    }
+                }
+            });
+        }
+        
+        public void OnPlayerReceiveEffectIntensity(StatusEffectBase statusEffectBase, byte b, byte arg3)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", statusEffectBase.Hub.authManager.UserId},
+                    {"UserName", statusEffectBase.Hub.nicknameSync.MyNick},
+                    {"Type", nameof(OnPlayerReceiveEffectIntensity)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has received effect intensity change {4} with intensity {5}, duration {6}", new object[]
+                            {
+                                statusEffectBase.Hub.nicknameSync.MyNick,
+                                statusEffectBase.Hub.authManager.UserId,
+                                Misc.ToHex(statusEffectBase.Hub.roleManager.CurrentRole.RoleColor),
+                                statusEffectBase.Hub.roleManager.CurrentRole.RoleTypeId,
+                                statusEffectBase.GetType().Name,
+                                statusEffectBase.Intensity,
+                                statusEffectBase.Duration
+                            })
+                    }
+                }
+            });
+        }
+        
+        [PluginEvent(ServerEventType.PlayerReloadWeapon)]
+        public void OnPlayerReloadWeapon(PlayerReloadWeaponEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnPlayerReloadWeapon)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has reloaded {4}", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Firearm.ItemTypeId
+                            })
+                    }
+                }
+            });
+        }
+        
+        [PluginEvent(ServerEventType.PlayerUnlockGenerator)]
+        public void OnPlayerUnlockGenerator(PlayerUnlockGeneratorEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnPlayerUnlockGenerator)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has unlocked generator {4}", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Generator.netId
+                            })
+                    }
+                }
+            });
+        }
+        
+        [PluginEvent(ServerEventType.RagdollSpawn)]
+        public void OnPlayerRagdollSpawn(RagdollSpawnEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnPlayerRagdollSpawn)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has spawned ragdoll.", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                            })
+                    }
+                }
+            });
+        }
+        
+        [PluginEvent(ServerEventType.PlayerRemoveHandcuffs)]
+        public void OnPlayerFreed(PlayerRemoveHandcuffsEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Target.UserId},
+                    {"UserName", ev.Target.Nickname},
+                    {"Type", nameof(OnPlayerFreed)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) has been freed by {4} - {5} (<color={6}>{7}</color>).",
+                            new object[]
+                            {
+                                ev.Target.Nickname,
+                                ev.Target.UserId,
+                                Misc.ToHex(ev.Target.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Target.Role,
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role
+                            })
+                    }
+                }
+            });
+        }
+        
+        [PluginEvent(ServerEventType.PlayerCheaterReport)]
+        public void OnCheaterReport(PlayerCheaterReportEvent ev)
+        {
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Log.Debug("sending report WR");
+            Task.Run(async () =>
+            {
+                if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                    Log.Debug("Thread report send");
+                if (QuerySystem.QuerySystemKey == "None" || !CedModMain.Singleton.Config.CedMod.EnableIngameReports)
+                    return;
+                if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                    Log.Debug("sending report WR");
+                using (HttpClient client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Add("X-ServerIp", PluginAPI.Core.Server.ServerIpAddress);
+                    await VerificationChallenge.AwaitVerification();
+                    try
+                    {
+                        var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/Reports/{QuerySystem.QuerySystemKey}",
+                                new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
+                                    {
+                                        {"reporter", ev.Player.UserId},
+                                        {"reported", ev.Target.UserId},
+                                        {"reason", ev.Reason},
+                                        {"cheating", "true"}
+                                    }), Encoding.UTF8,
+                                    "application/json"));
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug(await response.Content.ReadAsStringAsync());
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex.ToString());
+                    }
+                }
+                
+            });
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"Type", nameof(OnCheaterReport)},
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {
+                        "Message", string.Concat(new string[]
+                        {
+                            "ingame: ",
+                            ev.Player.UserId,
+                            " report ",
+                            ev.Target.UserId,
+                            " for ",
+                            ev.Reason,
+                            "."
+                        })
+                    }
+                }
+            });
+        }
+
+        [PluginEvent(ServerEventType.PlayerReport)]
+        public bool OnReport(PlayerReportEvent ev)
+        {
+            if (!CedModMain.Singleton.Config.CedMod.EnableIngameReports)
+            {
+                if (string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.IngameReportDisabledMessage))
+                {
+                    ev.Player.SendConsoleMessage($"[REPORTING] Ingame reporting is disabled on this server.", "green");
+                    return false;
+                }
+                else
+                {
+                    ev.Player.SendConsoleMessage($"[REPORTING] {CedModMain.Singleton.Config.CedMod.IngameReportDisabledMessage}", "green");
+                    return false;
+                }
+            }
+            if (CedModMain.Singleton.Config.QuerySystem.ReportBlacklist.Contains(ev.Player.UserId))
+            {
+                ev.Player.SendConsoleMessage($"[REPORTING] You are blacklisted from ingame reporting", "green");
+                return false;
+            }
+            if (ev.Player.UserId == ev.Target.UserId)
+            {
+                ev.Player.SendConsoleMessage($"[REPORTING] You can't report yourself", "green");
+                return false;
+            }
+            if (CedMod.Handlers.Server.reported.ContainsKey(ev.Target.ReferenceHub))
+            {
+                ev.Player.SendConsoleMessage($"[REPORTING] {ev.Target.Nickname} ({(ev.Target.DoNotTrack ? "DNT" : ev.Target.UserId)}) has already been reported by {CedModPlayer.Get(CedMod.Handlers.Server.reported[ev.Target.ReferenceHub]).Nickname}", "green");
+                return false;
+            }
+            if (ev.Target.RemoteAdminAccess && !CedModMain.Singleton.Config.QuerySystem.StaffReportAllowed)
+            {
+                ev.Player.SendConsoleMessage($"[REPORTING] " + CedModMain.Singleton.Config.QuerySystem.StaffReportMessage, "green");
+                return false;
+            }
+            if (ev.Reason.IsEmpty())
+            {
+                ev.Player.SendConsoleMessage($"[REPORTING] You have to enter a reason", "green");
+                return false;
+            }
+            
+            CedMod.Handlers.Server.reported.Add(ev.Target.ReferenceHub, ev.Player.ReferenceHub);
+            Timing.RunCoroutine(RemoveFromReportList(ev.Target.ReferenceHub));
+            
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Log.Debug("sending report WR");
+            Task.Run(async () =>
+            {
+                if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                    Log.Debug("Thread report send");    
+                if (QuerySystem.QuerySystemKey == "None")
+                    return;
+                if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                    Log.Debug("sending report WR");
+                using (HttpClient client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Add("X-ServerIp", PluginAPI.Core.Server.ServerIpAddress);
+                    await VerificationChallenge.AwaitVerification();
+                    try
+                    {
+                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                        {
+                            ev.Player.SendConsoleMessage($"[REPORTING] Sending report to server staff...", "green");
+                        });
+                        var response = await client.PostAsync(
+                                $"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/Reports/{QuerySystem.QuerySystemKey}",
+                                new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string>()
+                                    {
+                                        { "reporter", ev.Player.UserId },
+                                        { "reported", ev.Target.UserId },
+                                        { "reason", ev.Reason },
+                                    }), Encoding.UTF8,
+                                    "application/json"));
+                        if (response.IsSuccessStatusCode)
+                        {
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                            {
+                                ev.Player.SendConsoleMessage($"[REPORTING] {CedModMain.Singleton.Config.QuerySystem.ReportSuccessMessage}", "green");
+                            });
+                        }
+                        else
+                        {
+                            string textResponse = await response.Content.ReadAsStringAsync();
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                            {
+                                ev.Player.SendConsoleMessage($"[REPORTING] Failed to send report, please let server staff know: {textResponse}", "green");
+                            });
+                            Log.Error($"Failed to send report: {textResponse}");
+                        }
+
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug(await response.Content.ReadAsStringAsync());
+                    }
+                    catch (Exception ex)
+                    {
+                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                        {
+                            ev.Player.SendConsoleMessage($"[REPORTING] Failed to send report, please let server staff know: {ex}", "green");
+                        });
+                        Log.Error(ex.ToString());
+                    }
+                }
+            });
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"Type", nameof(OnReport)},
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {
+                        "Message", string.Concat(new string[]
+                        {
+                            "ingame: ",
+                            ev.Player.UserId,
+                            " report ",
+                            ev.Target.UserId,
+                            " for ",
+                            ev.Reason,
+                            "."
+                        })
+                    }
+                }
+            });
+            
+            return false;
+        }
+
+        [PluginEvent(ServerEventType.PlayerThrowItem)]
+        public void OnItemThrown(PlayerThrowItemEvent ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"Type", nameof(OnItemThrown)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) threw an item {4}.", new object[]
@@ -504,100 +1331,7 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
         }
-
-        [PluginEvent(ServerEventType.PlayerChangeRole)]
-        public void OnSetClass(PlayerChangeRoleEvent ev)
-        {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
-            {
-                Recipient = "ALL",
-                Data = new Dictionary<string, string>()
-                {
-                    {"UserId", ev.Player.UserId},
-                    {"UserName", ev.Player.Nickname},
-                    {"Reason", ev.ChangeReason.ToString()},
-                    {"Type", nameof(OnSetClass)},
-                    {
-                        "Message", string.Format("{0} - {1}'s role has been changed to {2}",
-                            new object[]
-                            {
-                                ev.Player.Nickname,
-                                ev.Player.UserId,
-                                ev.NewRole
-                            })
-                    }
-                }
-            });
-
-            var plr = CedModPlayer.Get(ev.Player.ReferenceHub);
-            if (LevelerStore.TrackingEnabled && LevelerStore.InitialPlayerRoles.ContainsKey(plr))
-            {
-                if (ev.ChangeReason != RoleChangeReason.Escaped)
-                    LevelerStore.InitialPlayerRoles.Remove(plr);
-                else
-                    LevelerStore.InitialPlayerRoles[plr] = ev.NewRole;
-            }
-        }
-
-        [PluginEvent(ServerEventType.PlayerJoined)]
-        public void OnPlayerJoin(PlayerJoinedEvent ev)
-        {
-            ThreadDispatcher.SendHeartbeatMessage(true);
-            if (CommandHandler.Synced.ContainsKey(ev.Player.UserId))
-            {
-                if (ServerStatic.GetPermissionsHandler()._members.ContainsKey(ev.Player.UserId) && CommandHandler.Synced[ev.Player.UserId] == ServerStatic.GetPermissionsHandler()._members[ev.Player.UserId])
-                    ServerStatic.GetPermissionsHandler()._members.Remove(ev.Player.UserId);
-                ev.Player.ReferenceHub.serverRoles.RefreshPermissions();
-                CommandHandler.Synced.Remove(ev.Player.UserId);
-            }
-
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
-            {
-                Recipient = "ALL",
-                Data = new Dictionary<string, string>()
-                {
-                    {"UserId", ev.Player.UserId},
-                    {"UserName", ev.Player.Nickname},
-                    {"PlayerId", ev.Player.PlayerId.ToString()},
-                    {"Type", nameof(OnPlayerJoin)},
-                    {
-                        "Message", string.Format("({0}) {1} - {2} joined the game.",
-                            ev.Player.PlayerId, ev.Player.Nickname, ev.Player.UserId)
-                    }
-                }
-            });
-        }
-
-        [PluginEvent(ServerEventType.PlayerRemoveHandcuffs)]
-        public void OnPlayerFreed(PlayerRemoveHandcuffsEvent ev)
-        {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
-            {
-                Recipient = "ALL",
-                Data = new Dictionary<string, string>()
-                {
-                    {"UserId", ev.Target.UserId},
-                    {"UserName", ev.Target.Nickname},
-                    {"Type", nameof(OnPlayerFreed)},
-                    {
-                        "Message", string.Format(
-                            "{0} - {1} (<color={2}>{3}</color>) has been freed by {4} - {5} (<color={6}>{7}</color>).",
-                            new object[]
-                            {
-                                ev.Target.Nickname,
-                                ev.Target.UserId,
-                                Misc.ToHex(ev.Target.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                ev.Target.Role,
-                                ev.Player.Nickname,
-                                ev.Player.UserId,
-                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                ev.Player.Role
-                            })
-                    }
-                }
-            });
-        }
-
+        
         [PluginEvent(ServerEventType.PlayerHandcuff)]
         public void OnPlayerHandcuffed(PlayerHandcuffEvent ev)
         {
@@ -670,21 +1404,27 @@ namespace CedMod.Addons.QuerySystem
                     }
                 });
 
-                //todo
-                /*if (player.Cuffer != null)
+                foreach (DisarmedPlayers.DisarmedEntry entry in DisarmedPlayers.Entries)
                 {
-                    WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                    if ((int)entry.DisarmedPlayer == (int)ev.Player.NetworkId)
                     {
-                        Recipient = "PANEL",
-                        Data = new Dictionary<string, string>()
+                        var disarmer = Player.GetPlayers().FirstOrDefault(s => s.NetworkId == entry.Disarmer);
+                        if (disarmer != null)
                         {
-                            {"Message", "GRANTEXP"},
-                            {"GrantType", "AssistEscapeCuff"},
-                            {"UserId", ev.Player.Cuffer.UserId},
-                            {"RoleType", ev.Player.Cuffer.Role.Type.ToString()},
+                            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                            {
+                                Recipient = "PANEL",
+                                Data = new Dictionary<string, string>()
+                                {
+                                    {"Message", "GRANTEXP"},
+                                    {"GrantType", "AssistEscapeCuff"},
+                                    {"UserId", disarmer.UserId},
+                                    {"RoleType", disarmer.Role.ToString()},
+                                }
+                            });
                         }
-                    });
-                }*/
+                    }
+                }
             }
         }
     }
