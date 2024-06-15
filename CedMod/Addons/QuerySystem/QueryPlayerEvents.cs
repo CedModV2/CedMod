@@ -327,12 +327,13 @@ namespace CedMod.Addons.QuerySystem
                     {"Type", nameof(OnPlayerShoot)},
                     {
                         "Message", string.Format(
-                            "{0} - {1} (<color={2}>{3}</color>) has activated the tesla as 079.", new object[]
+                            "{0} - {1} (<color={2}>{3}</color>) has shot a {4}.", new object[]
                             {
                                 ev.Player.Nickname,
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                ev.Player.Role
+                                ev.Player.Role,
+                                ev.Player.CurrentItem.ItemTypeId
                             })
                     }
                 }
