@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem.WS;
+using CentralAuth;
 using CustomPlayerEffects;
 using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
@@ -878,6 +879,9 @@ namespace CedMod.Addons.QuerySystem
         
         public void OnPlayerReceiveEffect(StatusEffectBase statusEffectBase)
         {
+            if (statusEffectBase.Hub.authManager.InstanceMode != ClientInstanceMode.ReadyClient)
+                return;
+            
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
@@ -905,6 +909,9 @@ namespace CedMod.Addons.QuerySystem
         
         public void OnPlayerDisableEffect(StatusEffectBase statusEffectBase)
         {
+            if (statusEffectBase.Hub.authManager.InstanceMode != ClientInstanceMode.ReadyClient)
+                return;
+            
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
@@ -930,6 +937,9 @@ namespace CedMod.Addons.QuerySystem
         
         public void OnPlayerReceiveEffectIntensity(StatusEffectBase statusEffectBase, byte b, byte arg3)
         {
+            if (statusEffectBase.Hub.authManager.InstanceMode != ClientInstanceMode.ReadyClient)
+                return;
+            
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
