@@ -117,10 +117,11 @@ namespace CedMod.Addons.StaffInfo
                 {
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                         Log.Debug($"Staffinfo for {staff.Nickname} getting {player.Nickname}", CedModMain.Singleton.Config.QuerySystem.Debug);
+                    
                     if (player.ReferenceHub.authManager.InstanceMode != ClientInstanceMode.ReadyClient)
                         continue;
 
-                    if (staff.Role == RoleTypeId.Tutorial && !prefs.StreamerMode)
+                    if (staff.Role == RoleTypeId.Tutorial && !prefs.StreamerMode && StaffData[staff.UserId].ContainsKey(player.UserId))
                     {
                         player.SendFakeCustomInfo(staff, StaffInfoHandler.StaffData[staff.UserId][player.UserId].Item1);
                     }

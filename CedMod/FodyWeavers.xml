@@ -2,7 +2,6 @@
 <Weavers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FodyWeavers.xsd">
     <Costura>
         <IncludeAssemblies>
-            Websocket.Client
             System.Reactive
             System.Threading.Channels
             Newtonsoft.Json

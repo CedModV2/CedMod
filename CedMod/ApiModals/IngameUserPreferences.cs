@@ -2,6 +2,7 @@
 {
     public class IngameUserPreferences
     {
+        public bool ShowUserIdsInBroadcasts { get; set; } = false;
         public bool ShowReportsInRemoteAdmin { get; set; }
         public bool ShowWatchListUsersInRemoteAdmin { get; set; } = true;
         public bool ShowModerationInfoSpectator { get; set; }

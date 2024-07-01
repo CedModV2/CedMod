@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -30,7 +31,6 @@ using NWAPIPermissionSystem.Models;
 using PluginAPI.Core;
 using RemoteAdmin;
 using Serialization;
-using Websocket.Client;
 using UnityEngine.Networking;
 using Utils;
 using Utils.NonAllocLINQ;
@@ -49,13 +49,15 @@ namespace CedMod.Addons.QuerySystem.WS
     {
         public static event MessageReceived OnMessageReceived;
         public delegate void MessageReceived(QueryCommand cmd);
-        public static WebsocketClient Socket;
+        public static ClientWebSocket Socket;
         internal static object reconnectLock = new object();
         internal static Thread SendThread;
         public static ConcurrentQueue<QueryCommand> SendQueue = new ConcurrentQueue<QueryCommand>();
         internal static bool Reconnect = false;
         public static HelloMessage HelloMessage = null;
         public static DateTime LastConnection = DateTime.UtcNow;
+        public static bool SuppressLog { get; set; } = false;
+        public static DateTime LastServerConnection { get; set; }
 
         public static async Task Stop()
         {
@@ -65,9 +67,11 @@ namespace CedMod.Addons.QuerySystem.WS
                 Log.Debug($"ST3");
             try
             {
-                Log.Info("Attempting to stop socket");
-                Socket.Stop(WebSocketCloseStatus.NormalClosure, "Stopping");
-                Log.Info("Stopped socket");
+                if (!SuppressLog)
+                    Log.Info("Attempting to stop socket");
+                await Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Stopping", CedModMain.CancellationToken);
+                if (!SuppressLog)
+                    Log.Info("Stopped socket");
             }
             catch (Exception e)
             {
@@ -111,7 +115,8 @@ namespace CedMod.Addons.QuerySystem.WS
                         return;
                     }
                     data2 = JsonConvert.DeserializeObject<Dictionary<string, string>>(data1);
-                    Log.Info($"Retrieved panel location from API, Connecting to {data1}");
+                    if (!SuppressLog)
+                        Log.Info($"Retrieved panel location from API, Connecting to {data1}");
                 }
 
                 QuerySystem.CurrentMaster = data2["Api"];
@@ -129,126 +134,173 @@ namespace CedMod.Addons.QuerySystem.WS
 
             try
             {
+                Socket = new ClientWebSocket();
+                await Socket.ConnectAsync(new Uri($"ws{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMasterQuery}/QuerySystem?key={QuerySystem.QuerySystemKey}&identity=SCPSL&version=4"), CedModMain.CancellationToken);
+                if (!SuppressLog)
+                    Log.Info($"Connected to cedmod panel");
+                Reconnect = false;
+                
                 LastConnection = DateTime.UtcNow;
-                Socket = new WebsocketClient(new Uri($"ws{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMasterQuery}/QuerySystem?key={QuerySystem.QuerySystemKey}&identity=SCPSL&version=3"));
-                Socket.ReconnectTimeout = TimeSpan.FromSeconds(5);
-                Socket.ErrorReconnectTimeout = TimeSpan.FromSeconds(5);
-                Socket.IsReconnectionEnabled = false;
-
-                Socket.DisconnectionHappened.Subscribe(async i =>
+                LastServerConnection = DateTime.UtcNow;
+                if (SendThread == null || !SendThread.IsAlive)
                 {
-                    if (i.Type == DisconnectionType.Exit)
+                    SendThread?.Abort();
+                    SendThread = new Thread(HandleSendQueue);
+                    SendThread.Start();
+                }
+
+                SuppressLog = false;
+
+                var messageBuffer = WebSocket.CreateClientBuffer(4096, 1024);
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    while (Socket.State == WebSocketState.Open)
                     {
-                        return;
-                    }
-                    if (i.CloseStatusDescription != null && i.CloseStatusDescription == "LOCATION SWITCH")
-                    {
-                        Log.Error($"Lost connection to CedMod Panel Instance location switched");
-                        await Task.Delay(2000, CedModMain.CancellationToken);
-                        lock (reconnectLock)
+                        WebSocketReceiveResult result = null;
+                        while (result == null || !result.EndOfMessage)
                         {
-                            Task.Run(async () =>
-                            { 
-                                WebSocketSystem.Reconnect = false;
-                                if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                    Log.Debug($"ST2");
-                                Stop();
-                                await Task.Delay(1000, CedModMain.CancellationToken);
-                                await Start();
-                            });
+                            result = await Socket.ReceiveAsync(messageBuffer, CancellationToken.None);
+                            await stream.WriteAsync(messageBuffer.Array, messageBuffer.Offset, result.Count);
                         }
-                        Socket.Dispose();
-                        return;
-                    }
-                    else if (i.CloseStatusDescription != null && i.CloseStatusDescription == "TERMINATE RECONNECT")
-                    {
-                        Log.Error($"Lost connection to CedMod Panel Connection terminated, Watchdog does not create a reconnect restart the server");
-                        Socket = null;
-                        SendThread?.Abort();
-                        SendThread = null;
-                    }
-                    else
-                    {
-                        Log.Error($"Lost connection to CedMod Panel {i.CloseStatus} {i.CloseStatusDescription} {i.Type}, reconnecting in 5000ms\n{(i.Exception == null || !CedModMain.Singleton.Config.QuerySystem.Debug ? "" : i.Exception)}");
-                        await Task.Delay(5000, CedModMain.CancellationToken);
-                        lock (reconnectLock)
+                        
+                        LastServerConnection = DateTime.UtcNow;
+                        if (result.MessageType == WebSocketMessageType.Close)
                         {
-                            Task.Run(async () =>
+                            if (result.CloseStatusDescription != null && result.CloseStatusDescription == "LOCATION SWITCH")
                             {
-                                try
+                                Log.Error($"Lost connection to CedMod Panel Instance location switched");
+                                await Task.Delay(2000, CedModMain.CancellationToken);
+                                lock (reconnectLock)
                                 {
-                                    WebSocketSystem.Reconnect = false;
-                                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                        Log.Debug($"ST1");
-                                    Stop();
-                                    await Task.Delay(1000, CedModMain.CancellationToken);
-                                    await Start();
+                                    Task.Run(async () =>
+                                    {
+                                        WebSocketSystem.Reconnect = false;
+                                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                            Log.Debug($"ST2");
+                                        await Stop();
+                                        await Task.Delay(1000, CedModMain.CancellationToken);
+                                        await Start();
+                                    });
                                 }
-                                catch (Exception e)
+
+                                Socket.Dispose();
+                                return;
+                            }
+                            else if (result.CloseStatusDescription != null && result.CloseStatusDescription == "TERMINATE RECONNECT")
+                            {
+                                Log.Error($"Lost connection to CedMod Panel Connection terminated, if Watchdog does not create a reconnect restart the server");
+                                await Stop();
+                                Socket = null;
+                                SendThread?.Abort();
+                                SendThread = null;
+                            }
+                            else
+                            {
+                                Log.Error($"Lost connection to CedMod Panel {result.CloseStatus} {result.CloseStatusDescription}, reconnecting in 1000ms");
+                                await Task.Delay(5000, CedModMain.CancellationToken);
+                                lock (reconnectLock)
                                 {
-                                    Log.Error(e.ToString());
+                                    Task.Run(async () =>
+                                    {
+                                        try
+                                        {
+                                            WebSocketSystem.Reconnect = false;
+                                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                                Log.Debug($"ST1");
+                                            await Stop();
+                                            await Task.Delay(1000, CedModMain.CancellationToken);
+                                            await Start();
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            Log.Error(e.ToString());
+                                        }
+                                    });
                                 }
-                            });
+
+                                Socket.Dispose();
+                            }
                         }
-                        Socket.Dispose();
+                        else if (result.MessageType == WebSocketMessageType.Text)
+                        {
+                            var message = Encoding.UTF8.GetString(stream.ToArray());
+                            await OnMessage(message);
+                        }
+                        
+                        stream.Seek(0, SeekOrigin.Begin);
+                        stream.SetLength(0);
+                        stream.Position = 0;
                     }
-                });
-
-                Socket.ReconnectionHappened.Subscribe(s =>
-                {
-                    LastConnection = DateTime.UtcNow;
-                    Log.Info($"Connected successfully: {s.Type}");
-                    if (SendThread == null || !SendThread.IsAlive)
-                    {
-                        SendThread?.Abort();
-                        SendThread = new Thread(HandleSendQueue);
-                        SendThread.Start();
-                    }
-                });
-
-                Socket.MessageReceived.Subscribe(async s =>
-                {
-                    LastConnection = DateTime.UtcNow;
-                    if (s.MessageType == WebSocketMessageType.Text)
-                        await OnMessage(new object(), s.Text);
-                });
-                await Socket.Start();
-                Log.Info($"Connected to cedmod panel");
+                }
+                
+                if (Socket.State == WebSocketState.Open)
+                    await Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "End", CedModMain.CancellationToken);
             }
             catch (Exception e)
             {
+                int delay = 1000;
+                if (e is WebSocketException e3 && e3.WebSocketErrorCode != WebSocketError.ConnectionClosedPrematurely)
+                {
+                    Reconnect = false;
+                    if (e is WebSocketException e2)
+                    {
+                        if (e2.WebSocketErrorCode == WebSocketError.Success && e2.Message == "Unable to connect to the remote server")
+                            delay = 15000;
+                        
+                        Log.Error($"Lost connection to CedMod Panel {e2.WebSocketErrorCode} {e2.Message}, reconnecting in {delay}");
+                    }
+                    else
+                    {
+                        Log.Error(e.ToString());
+                    }
+                }
+                else if (e is WebSocketException e4 && e4.WebSocketErrorCode == WebSocketError.ConnectionClosedPrematurely)
+                    SuppressLog = true;
+                
                 WebSocketSystem.Reconnect = false;
-                Log.Error(e.ToString());
-                await Task.Delay(1000, CedModMain.CancellationToken);
+                await Task.Delay(delay, CedModMain.CancellationToken);
                 await Start(); //retry until we succeed or the thread gets aborted.
             }
-
-            Reconnect = false;
         }
 
         public static void HandleSendQueue()
         {
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug("Started SendQueueHandler");
-            while (SendThread != null && Socket != null && SendThread.IsAlive && Socket.IsRunning && !Shutdown._quitting)
+            while (SendThread != null && Socket != null && SendThread.IsAlive && (Socket.State == WebSocketState.Open || Socket.State == WebSocketState.Connecting) && !Shutdown._quitting)
             {
                 while (SendQueue.TryDequeue(out QueryCommand cmd))
                 {
                     try
                     {
-                        if (Socket.IsRunning && Socket.IsStarted)
+                        if (Socket != null && Socket.State == WebSocketState.Open)
                         {
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                Log.Debug($"Handling send {Socket.IsRunning} {JsonConvert.SerializeObject(cmd)}");
-                            Socket.Send(JsonConvert.SerializeObject(cmd));
+                                Log.Debug($"Handling send {Socket.State} {JsonConvert.SerializeObject(cmd)}");
+                            var encoded = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(cmd));
+                            int bytesSent = 0;
+                            
+                            while (bytesSent < encoded.Length)
+                            {
+                                int bytesToSend = Math.Min(1024, encoded.Length - bytesSent);
+                                byte[] buffer = new byte[bytesToSend];
+                                Array.Copy(encoded, bytesSent, buffer, 0, bytesToSend);
+                                Socket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, bytesSent + bytesToSend >= encoded.Length, CancellationToken.None).Wait();
+        
+                                bytesSent += bytesToSend;
+                            }
+                            
                             LastConnection = DateTime.UtcNow;
                         }
-                        else 
+                        else
+                        {
                             SendQueue.Enqueue(cmd);
+                            break;
+                        }
                     }
                     catch (Exception e)
                     {
-                        Log.Error($"Failed to handle queue message, state: {(Socket == null ? "Null Socket" : Socket.IsRunning.ToString())}\n{e}");
+                        Log.Error($"Failed to handle queue message, state: {(Socket == null ? "Null Socket" : Socket.State.ToString())}\n{e}");
                         SendQueue.Enqueue(cmd);
                     }
                 }
@@ -257,7 +309,7 @@ namespace CedMod.Addons.QuerySystem.WS
             }
         }
 
-        static async Task OnMessage(object sender, string ev)
+        static async Task OnMessage(string ev)
         {
             try
             {
@@ -318,7 +370,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                     {
                                         if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin)
                                             msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportWatchlistIngameDisabled;
-                                        Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{playerId}", $"{watchlistPlr.PlayerId}").Replace("{userId}", watchlistPlr.UserId).Replace("{playerName}", watchlistPlr.Nickname).Replace("{reason}", jsonData["Reason"]).Replace("{groups}", jsonData["Groups"]), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
+                                        Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{playerId}", $"{watchlistPlr.PlayerId}").Replace("{userId}", RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowUserIdsInBroadcasts ? watchlistPlr.UserId : "REDACTED").Replace("{playerName}", watchlistPlr.Nickname).Replace("{reason}", jsonData["Reason"]).Replace("{groups}", jsonData["Groups"]), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
                                     }
                                     
                                     staff.encryptedChannelManager.TrySendMessageToClient($"0!{CedModMain.Singleton.Config.QuerySystem.PlayerWatchGrouplistJoinStaffChat.Replace("{playerId}", $"{watchlistPlr.PlayerId}").Replace("{playerName}", watchlistPlr.Nickname).Replace("{reason}", jsonData["Reason"]).Replace("{userId}", watchlistPlr.UserId).Replace("{userId}", watchlistPlr.UserId).Replace("{groups}", jsonData["Groups"])}", EncryptedChannelManager.EncryptedChannel.AdminChat);
@@ -359,7 +411,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                     {
                                         if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin)
                                             msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportWatchlistIngameDisabled;
-                                        Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{playerId}", $"{watchlistPlr.PlayerId}").Replace("{playerName}", watchlistPlr.Nickname).Replace("{reason}", jsonData["Reason"]).Replace("{userId}", watchlistPlr.UserId).Replace("{userId}", watchlistPlr.UserId), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
+                                        Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{playerId}", $"{watchlistPlr.PlayerId}").Replace("{playerName}", watchlistPlr.Nickname).Replace("{reason}", jsonData["Reason"]).Replace("{userId}", watchlistPlr.UserId).Replace("{userId}", RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowUserIdsInBroadcasts ? watchlistPlr.UserId : "REDACTED"), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
                                     }
                                     
                                     staff.encryptedChannelManager.TrySendMessageToClient($"0!{CedModMain.Singleton.Config.QuerySystem.PlayerWatchlistJoinStaffChat.Replace("{playerId}", $"{watchlistPlr.PlayerId}").Replace("{playerName}", watchlistPlr.Nickname).Replace("{reason}", jsonData["Reason"]).Replace("{userId}", watchlistPlr.UserId).Replace("{userId}", watchlistPlr.UserId)}", EncryptedChannelManager.EncryptedChannel.AdminChat);
@@ -405,14 +457,14 @@ namespace CedMod.Addons.QuerySystem.WS
                                                 {
                                                     if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin)
                                                         msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportNotificationIngameDisabled;
-                                                    Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{reporterName}", $"{jsonData["ReporterName"]} {jsonData["Reporter"]}").Replace("{reportedName}", $"{jsonData["ReportedName"]} {jsonData["Reported"]}").Replace("{checkType}", RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin ? "RemoteAdmin" : "Discord"), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
+                                                    Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{reporterName}", $"{jsonData["ReporterName"]} {(RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowUserIdsInBroadcasts ? jsonData["Reporter"] : "REDACTED")}").Replace("{reportedName}", $"{jsonData["ReportedName"]} {(RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowUserIdsInBroadcasts ? jsonData["Reported"] : "REDACTED")}").Replace("{checkType}", RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin ? "RemoteAdmin" : "Discord"), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
                                                 });
                                             }
                                             else if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
                                             {
                                                 if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin) 
                                                     msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportNotificationIngameDisabled;
-                                                Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{reporterName}", $"{jsonData["ReporterName"]} {jsonData["Reporter"]}").Replace("{reportedName}", $"{jsonData["ReportedName"]} {jsonData["Reported"]}").Replace("{checkType}", RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin ? "RemoteAdmin" : "Discord"), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
+                                                Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{reporterName}", $"{jsonData["ReporterName"]} {(RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowUserIdsInBroadcasts ? jsonData["Reporter"] : "REDACTED")}").Replace("{reportedName}", $"{jsonData["ReportedName"]} {(RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowUserIdsInBroadcasts ? jsonData["Reported"] : "REDACTED")}").Replace("{checkType}", RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin ? "RemoteAdmin" : "Discord"), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
                                             }
 
                                             staff.encryptedChannelManager.TrySendMessageToClient($"0!{CedModMain.Singleton.Config.QuerySystem.StaffReportAdminChatMessage.Replace("{reporterName}", $"{jsonData["ReporterName"]} {jsonData["Reporter"]}").Replace("{reportedName}", $"{jsonData["ReportedName"]} {jsonData["Reported"]}").Replace("{checkType}", RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin ? "RemoteAdmin" : "Discord").Replace("{reason}", jsonData["Reason"])}", EncryptedChannelManager.EncryptedChannel.AdminChat);
@@ -445,28 +497,28 @@ namespace CedMod.Addons.QuerySystem.WS
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                 Log.Debug("IsPing");
                             
-                            Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                            SendQueue.Enqueue(new QueryCommand()
                             {
                                 Recipient = cmd.Recipient,
                                 Data = new Dictionary<string, string>()
                                 {
                                     { "Message", "PONG" }
                                 }
-                            }));
+                            });
                             return;
                         case "custom":
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                 Log.Debug("CustomCommand");
                             if (!jsonData.ContainsKey("command"))
                             {
-                                Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                                SendQueue.Enqueue(new QueryCommand()
                                 {
                                     Recipient = cmd.Recipient,
                                     Data = new Dictionary<string, string>()
                                     {
                                         { "Message", "Missing argument" }
                                     }
-                                }));
+                                });
                             }
                             else
                             {
@@ -479,40 +531,40 @@ namespace CedMod.Addons.QuerySystem.WS
                                 
                                 if (jsonData["command"].ToUpper().Contains("REQUEST_DATA AUTH") || jsonData["command"].ToUpper().Contains("SUDO QUIT"))
                                 {
-                                    Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                                    SendQueue.Enqueue(new QueryCommand()
                                     {
                                         Recipient = cmd.Recipient,
                                         Data = new Dictionary<string, string>()
                                         {
                                             { "Message", "This command is disabled" }
                                         }
-                                    }));
+                                    });
                                     return;
                                 }
                                 
                                 if (CedModMain.Singleton.Config.QuerySystem.DisallowedWebCommands.Contains(array[0].ToUpper()))
                                 {
-                                    Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                                    SendQueue.Enqueue(new QueryCommand()
                                     {
                                         Recipient = cmd.Recipient,
                                         Data = new Dictionary<string, string>()
                                         {
                                             { "Message", "This command is disabled" }
                                         }
-                                    }));
+                                    });
                                     return;
                                 }
 
                                 if (CedModMain.Singleton.Config.QuerySystem.RejectRemoteCommands)
                                 {
-                                    Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                                    SendQueue.Enqueue(new QueryCommand()
                                     {
                                         Recipient = cmd.Recipient,
                                         Data = new Dictionary<string, string>()
                                         {
                                             { "Message", "Remote commands is disabled, features may not function as intended, to resolve, enabled RejectRemoteCommands in the QueryServer section of the CedMod plugin config" }
                                         }
-                                    }));
+                                    });
                                     return;
                                 }
 
@@ -542,14 +594,14 @@ namespace CedMod.Addons.QuerySystem.WS
                                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                         Log.Debug("CustomCommandPermBad, returning");
                                     
-                                    Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                                    SendQueue.Enqueue(new QueryCommand()
                                     {
                                         Recipient = cmd.Recipient,
                                         Data = new Dictionary<string, string>()
                                         {
                                             { "Message", "Userid not present in RA config, permission denied" }
                                         }
-                                    }));
+                                    });
                                 }
                             }
 
@@ -562,26 +614,26 @@ namespace CedMod.Addons.QuerySystem.WS
                                 if (player.authManager.UserId == jsonData["steamid"])
                                 {
                                     ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>  Timing.RunCoroutine(API.StrikeBad(CedModPlayer.Get(player), jsonData["reason"] + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage)));
-                                    Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                                    SendQueue.Enqueue(new QueryCommand()
                                     {
                                         Recipient = cmd.Recipient,
                                         Data = new Dictionary<string, string>()
                                         {
                                             { "Message", "User kicked" }
                                         }
-                                    }));
+                                    });
                                     return;
                                 }
                             }
 
-                            Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                            SendQueue.Enqueue(new QueryCommand()
                             {
                                 Recipient = cmd.Recipient,
                                 Data = new Dictionary<string, string>()
                                 {
                                     { "Message", "User not found" }
                                 }
-                            }));
+                            });
                             break;
                         case "mutesteamid":
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
@@ -611,25 +663,25 @@ namespace CedMod.Addons.QuerySystem.WS
 
                                 if (!string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.MuteCustomInfo))
                                     plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
-                                Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                                SendQueue.Enqueue(new QueryCommand()
                                 {
                                     Recipient = cmd.Recipient,
                                     Data = new Dictionary<string, string>()
                                     {
                                         { "Message", "User muted" }
                                     }
-                                }));
+                                });
                                 return;
                             }
                             
-                            Socket.Send(JsonConvert.SerializeObject(new QueryCommand()
+                            SendQueue.Enqueue(new QueryCommand()
                             {
                                 Recipient = cmd.Recipient,
                                 Data = new Dictionary<string, string>()
                                 {
                                     { "Message", "User not found" }
                                 }
-                            }));
+                            });
                             break;
                         case "hello":
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
@@ -672,38 +724,42 @@ namespace CedMod.Addons.QuerySystem.WS
                             });
                             break;
                         case "ApplyRA":
-                            Log.Info($"Panel requested AutoSlPerms reload: {jsonData["reason"]}");
+                            //Log.Info($"Panel requested AutoSlPerms reload: {jsonData["reason"]}");
                             new Thread(ApplyRa).Start(true);
                             break;
                         case "FetchApiKey":
                             Log.Info($"Panel requested refresh of api key: {jsonData["Reason"]}");
-                            using (HttpClient client = new HttpClient())
+                            Task.Run(async () =>
                             {
-                                client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
-                                await VerificationChallenge.AwaitVerification();
-                                var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/FetchKey/{QuerySystem.QuerySystemKey}", new StringContent(JsonConvert.SerializeObject(new
+                                using (HttpClient client = new HttpClient())
                                 {
-                                    Hash = jsonData["Hash"]
-                                }), Encoding.UTF8, "application/json"));
+                                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                                    await VerificationChallenge.AwaitVerification();
+                                    var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/FetchKey/{QuerySystem.QuerySystemKey}",
+                                        new StringContent(JsonConvert.SerializeObject(new
+                                        { 
+                                            Hash = jsonData["Hash"]
+                                        }), Encoding.UTF8, "application/json"));
 
-                                if (response.IsSuccessStatusCode)
-                                {
-                                    CedModMain.Singleton.Config.CedMod.CedModApiKey = await response.Content.ReadAsStringAsync();
+                                    if (response.IsSuccessStatusCode)
+                                    {
+                                        CedModMain.Singleton.Config.CedMod.CedModApiKey = await response.Content.ReadAsStringAsync();
 #if !EXILED
-                                    File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "config.yml"), YamlParser.Serializer.Serialize(CedModMain.Singleton.Config));
+                                        File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "config.yml"), YamlParser.Serializer.Serialize(CedModMain.Singleton.Config));
 #else
-                                    var pluginConfigs = ConfigManager.LoadSorted(ConfigManager.Read());
-                                    Config cedModCnf = pluginConfigs[CedModMain.Singleton.Prefix] as Config;
-                                    cedModCnf.CedMod.CedModApiKey = await response.Content.ReadAsStringAsync();
-                                    ConfigManager.Save(pluginConfigs);
+                                        var pluginConfigs = ConfigManager.LoadSorted(ConfigManager.Read());
+                                        Config cedModCnf = pluginConfigs[CedModMain.Singleton.Prefix] as Config;
+                                        cedModCnf.CedMod.CedModApiKey = await response.Content.ReadAsStringAsync();
+                                        ConfigManager.Save(pluginConfigs);
 #endif
-                                    Log.Info($"Successfully saved apikey");
+                                        Log.Info($"Successfully saved apikey");
+                                    }
+                                    else
+                                    {
+                                        Log.Error($"Failed to fetch key: {await response.Content.ReadAsStringAsync()}");
+                                    }
                                 }
-                                else
-                                {
-                                    Log.Error($"Failed to fetch key: {await response.Content.ReadAsStringAsync()}");
-                                }
-                            }
+                            });
                             break;
                         case "VerificationCheck":
                             try
@@ -766,6 +822,12 @@ namespace CedMod.Addons.QuerySystem.WS
                             break;
                         case "reloadsrvprefs":
                             await ServerPreferences.ResolvePreferences(false);
+                            break;
+                        case "requestHeartbeat":
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                            {
+                                ThreadDispatcher.SendHeartbeatMessage(true);
+                            });
                             break;
                     }
                 }
@@ -944,7 +1006,8 @@ namespace CedMod.Addons.QuerySystem.WS
                     else
                     {
                         UseRa = true;
-                        Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
+                        if (request && File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "autoSlPermCache.json")))
+                            Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
                         return;
                     }
                 }
@@ -1055,7 +1118,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             }
                         }
                     }
-                    Log.Info($"Successfully applied {permsSlRequest.PermissionEntries.Count} Groups and {permsSlRequest.MembersList.Count} members for AutoSlPerms");
+                    //Log.Info($"Successfully applied {permsSlRequest.PermissionEntries.Count} Groups and {permsSlRequest.MembersList.Count} members for AutoSlPerms");
                 }
                 catch (Exception e)
                 {
@@ -1149,7 +1212,7 @@ namespace CedMod.Addons.QuerySystem.WS
 
         public void SendText(string text)
         {
-            if (text.Length >= chunksize)
+            /*if (text.Length >= chunksize)
             {
                 IEnumerable<string> chunks = Enumerable.Range(0, text.Length / chunksize).Select(i => text.Substring(i * chunksize, chunksize));
                 foreach (var str in chunks) //WS becomes unstable if we send a large chunk of text
@@ -1164,7 +1227,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     });
                 }
             }
-            else
+            else*/
             {
                 WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
                 {

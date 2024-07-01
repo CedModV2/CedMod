@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Threading;
@@ -55,7 +56,7 @@ namespace CedMod.Addons.QuerySystem
                 }
             }
 
-            timeLeftbeforeAudioHeartBeat -= Time.deltaTime;
+            timeLeftbeforeAudioHeartBeat -= Time.unscaledDeltaTime;
             if (timeLeftbeforeAudioHeartBeat <= 0)
             {
                 timeLeftbeforeAudioHeartBeat = AudioPlayerBase.AudioPlayers.Count >= 1 ? 1 : 20;
@@ -94,26 +95,26 @@ namespace CedMod.Addons.QuerySystem
                 });
             }
 
-            timeLeftbeforeWatchdog -= Time.deltaTime;
+            timeLeftbeforeWatchdog -= Time.unscaledDeltaTime;
             if (timeLeftbeforeWatchdog <= 0)
             {
                 timeLeftbeforeWatchdog = 60f;
-                if (!WebSocketSystem.Reconnect && !WebSocketSystem.SendThread.IsAlive)
+                if (!WebSocketSystem.Reconnect && !WebSocketSystem.SendThread.IsAlive && WebSocketSystem.Socket.State == WebSocketState.Open)
                 {
                     lock (WebSocketSystem.reconnectLock)
                     {
                         Task.Run(async () =>
                         {
                             WebSocketSystem.Reconnect = false;
-                            Log.Error($"WS Watchdog: WS Sendthread not alive, restarting WS");
-                            WebSocketSystem.Stop();
+                            Log.Error($"WS Watchdog: WS Sendthread not alive while socket open, restarting WS");
+                            await WebSocketSystem.Stop();
                             await Task.Delay(1000, CedModMain.CancellationToken);
                             await WebSocketSystem.Start();
                         });
                     }
                 }
                 
-                if (!WebSocketSystem.Reconnect && !WebSocketSystem.Socket.IsRunning && WebSocketSystem.LastConnection < DateTime.UtcNow.AddMinutes(-1))
+                if (!WebSocketSystem.Reconnect && WebSocketSystem.Socket.State != WebSocketState.Open && WebSocketSystem.Socket.State != WebSocketState.Connecting && WebSocketSystem.LastConnection < DateTime.UtcNow.AddMinutes(-1))
                 {
                     lock (WebSocketSystem.reconnectLock)
                     {
@@ -128,7 +129,7 @@ namespace CedMod.Addons.QuerySystem
                     }
                 }
                 
-                if (WebSocketSystem.Reconnect && !WebSocketSystem.Socket.IsRunning && WebSocketSystem.LastConnection < DateTime.UtcNow.AddMinutes(-2))
+                if (WebSocketSystem.Reconnect && WebSocketSystem.Socket.State != WebSocketState.Open && WebSocketSystem.Socket.State != WebSocketState.Connecting && WebSocketSystem.LastConnection < DateTime.UtcNow.AddMinutes(-2))
                 {
                     lock (WebSocketSystem.reconnectLock)
                     {
@@ -143,7 +144,7 @@ namespace CedMod.Addons.QuerySystem
                     }
                 }
                 
-                if (WebSocketSystem.LastConnection < DateTime.UtcNow.AddMinutes(-3))
+                if (WebSocketSystem.LastConnection < DateTime.UtcNow.AddMinutes(-1)) //the full ping flow will ensure that there is activity every 15 seconds
                 {
                     lock (WebSocketSystem.reconnectLock)
                     {
@@ -157,11 +158,26 @@ namespace CedMod.Addons.QuerySystem
                         });
                     }
                 }
+                
+                if (WebSocketSystem.LastServerConnection < DateTime.UtcNow.AddMinutes(-1)) //the full ping flow will ensure that there is activity every 15 seconds
+                {
+                    lock (WebSocketSystem.reconnectLock)
+                    {
+                        Task.Run(async () =>
+                        { 
+                            WebSocketSystem.Reconnect = false;
+                            Log.Error($"WS Watchdog: no server activity for 1 minutes, restarting WS");
+                            await WebSocketSystem.Stop();
+                            await Task.Delay(1000, CedModMain.CancellationToken);
+                            await WebSocketSystem.Start();
+                        });
+                    }
+                }
             }
 
             if (WebSocketSystem.HelloMessage != null)
             {
-                timeLeftbeforeHeartBeat -= Time.deltaTime;
+                timeLeftbeforeHeartBeat -= Time.unscaledDeltaTime;
                 if (timeLeftbeforeHeartBeat <= 0)
                 {
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)

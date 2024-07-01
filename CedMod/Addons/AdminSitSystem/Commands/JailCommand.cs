@@ -48,8 +48,7 @@ namespace CedMod.Addons.AdminSitSystem.Commands
         protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            response =
-                "jail -\ncreate [player1 player2 player3] - creates and assigns a jail location to you for use, and adds any players you put in\njail (a)add {playerid} - adds a player to the jail\njail (r)remove {playerid} - removes a player from the jail\njail (j)join {playerid} - adds you to the jail of the specified player\njail (d)delete - deletes the jail your currently in.";
+            response = "jail -\ncreate [player1 player2 player3] - creates and assigns a jail location to you for use, and adds any players you put in\njail (a)add {playerid} - adds a player to the jail\njail (r)remove {playerid} - removes a player from the jail\njail (j)join {playerid} - adds you to the jail of the specified player\njail (d)delete - deletes the jail your currently in.";
             return false;
         }
 
@@ -60,7 +59,8 @@ namespace CedMod.Addons.AdminSitSystem.Commands
             {
                 if (lift.Value.WorldspaceBounds.Contains(plr.Position))
                 {
-                    Log.Info($"Player in lift {lift.Key}");
+                    if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                        Log.Info($"Player in lift {lift.Key}");
                     var door = DoorVariant.AllDoors.Where(s => s is not ElevatorDoor).OrderBy(s => Vector3.Distance(s.transform.position, lift.Value.transform.position)).FirstOrDefault();
                     if (door != null)
                     {
@@ -84,7 +84,8 @@ namespace CedMod.Addons.AdminSitSystem.Commands
 
             foreach (var effect in plr.ReferenceHub.playerEffectsController.AllEffects)
             {
-                Log.Info($"Saving effect {effect.ToString()} {effect.IsEnabled} {effect.Intensity} {effect.Duration} {effect.TimeLeft}");
+                if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                    Log.Debug($"Saving effect {effect.ToString()} {effect.IsEnabled} {effect.Intensity} {effect.Duration} {effect.TimeLeft}");
                 sitPlr.Effects.Add(effect.ToString(), new Tuple<bool, byte, float>(effect.IsEnabled, effect.Intensity, effect.Duration != 0.0f ? effect.TimeLeft : 0.0f));
             }
             

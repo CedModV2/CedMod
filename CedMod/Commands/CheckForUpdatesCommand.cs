@@ -41,6 +41,8 @@ namespace CedMod.Commands
                 response = "";
                 return true;
             }
+
+            updater.ForceLog = true;
             updater.TimePassedCheck = 300;
             response = "Update check requested to the UpdateService";
             return true;

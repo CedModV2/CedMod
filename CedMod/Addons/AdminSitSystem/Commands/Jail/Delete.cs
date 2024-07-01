@@ -47,6 +47,12 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
                 return false;
             }
             
+            if (invoker == null)
+            {
+                response = $"Invoker could not be found.";
+                return false;
+            }
+            
             var sit = AdminSitHandler.Singleton.Sits.FirstOrDefault(s => s.Players.Any(s => s.UserId == invoker.UserId));
 
             foreach (var plr in sit.Players)

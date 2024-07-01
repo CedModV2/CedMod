@@ -32,6 +32,14 @@ namespace CedMod
                 
                 if (attempt <= 0)
                     ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Authenticating.Add(player.ReferenceHub));
+                
+                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                {
+                    Timing.CallDelayed(8f, () =>
+                    {
+                        Authenticating.Remove(player.ReferenceHub);
+                    });
+                });
 
                 Dictionary<string, string> info = new Dictionary<string, string>();
                 bool req = false;
