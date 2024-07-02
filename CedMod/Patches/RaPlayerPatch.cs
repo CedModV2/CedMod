@@ -59,13 +59,12 @@ namespace CedMod.Patches
                 Log.Debug($"Received: {data} : {source[1]}");
             var cplayer = CedModPlayer.Get(sender.SenderId);
 
-            if (source[1].StartsWith("-1") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
+            if (source[1].StartsWith("-1") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.AdminChat))
             {
                 Timing.RunCoroutine(HandleReportType1(sender, cplayer, source));
                 yield break;
             }
-
-            if (source[1].StartsWith("-2") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
+            if (source[1].StartsWith("-2") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.AdminChat))
             {
                 Timing.RunCoroutine(HandleReportType2(sender, cplayer, source));
                 yield break;
