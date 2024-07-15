@@ -48,232 +48,235 @@ namespace CedMod.Patches
 
         public static IEnumerator<float> RaPlayerCoRoutine(RaPlayer __instance, CommandSender sender, string data)
         {
-            string[] source = data.Split(' ');
-            int result;
-            if (source.Length != 2 || !int.TryParse(source[0], out result))
+            string[] spData = data.Split(' ');
+			if (spData.Length != 2) 
                 yield break;
-            bool isShort = result == 1;
-            PlayerCommandSender playerSender = sender as PlayerCommandSender;
+
+            int result;
+            if (spData.Length != 2 || !int.TryParse(spData[0], out result))
+                yield break;
+            
+			bool isShort = result == 1;
+
+			var playerSender = sender as PlayerCommandSender;
 
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                Log.Debug($"Received: {data} : {source[1]}");
+                Log.Debug($"Received: {data} : {spData[1]}");
             var cplayer = CedModPlayer.Get(sender.SenderId);
 
-            if (source[1].StartsWith("-1") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
+            if (spData[1].StartsWith("-1") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
             {
-                Timing.RunCoroutine(HandleReportType1(sender, cplayer, source));
+                Timing.RunCoroutine(HandleReportType1(sender, cplayer, spData));
                 yield break;
             }
 
-            if (source[1].StartsWith("-2") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
+            if (spData[1].StartsWith("-2") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayersManagement))
             {
-                Timing.RunCoroutine(HandleReportType2(sender, cplayer, source));
+                Timing.RunCoroutine(HandleReportType2(sender, cplayer, spData));
                 yield break;
             }
-
-            if (!isShort && playerSender != null && !playerSender.ReferenceHub.authManager.RemoteAdminGlobalAccess && !playerSender.ReferenceHub.authManager.BypassBansFlagSet && !CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayerSensitiveDataAccess))
-                yield break;
-
-            List<ReferenceHub> players = RAUtils.ProcessPlayerIdOrNamesList(new ArraySegment<string>(((IEnumerable<string>)source).Skip<string>(1).ToArray<string>()), 0, out string[] _);
-            if (players.Count == 0)
-                yield break;
-
-            bool userIdPerms;
-
-            if (playerSender != null && playerSender.ReferenceHub.authManager.NorthwoodStaff)
-                userIdPerms = true;
-            else
-                userIdPerms = PermissionsHandler.IsPermitted(sender.Permissions, ServerRoles.UserIdPerms);
-
-            if (players.Count > 1)
-            {
-                var info2 = StringBuilderPool.Shared.Rent();
-                info2.AppendFormat("${0} ", __instance.DataId);
-                info2.Append("<color=white>Multiple players selected:");
-                info2.Append("\nPlayer ID: <color=green><link=CP_ID>\uf0c5</link></color>");
-                info2.AppendFormat("\nIP Address: {0}", !isShort ? "<color=green><link=CP_IP>\uf0c5</link></color>" : "[REDACTED]");
-                info2.AppendFormat("\nUser ID: {0}", userIdPerms ? "<color=green><link=CP_USERID>\uf0c5</link></color>" : "[REDACTED]");
-                info2.Append("</color>");
-
-                StringBuilder ids = StringBuilderPool.Shared.Rent();
-                StringBuilder ips = !isShort ? StringBuilderPool.Shared.Rent() : null;
-                StringBuilder userids = userIdPerms ? StringBuilderPool.Shared.Rent() : null;
-
-                foreach (ReferenceHub item in players)
-                {
-                    ids.Append(item.PlayerId);
-                    ids.Append(", ");
-
-                    if (!isShort)
-                    {
-                        ServerLogs.AddLog(ServerLogs.Modules.DataAccess, $"{sender.LogName} accessed IP address of player {item.PlayerId} ({item.nicknameSync.MyNick}).", ServerLogs.ServerLogType.RemoteAdminActivity_Misc);
-
-                        ips.Append(item.networkIdentity.connectionToClient.address);
-                        ips.Append(", ");
-                    }
-
-                    if (userIdPerms)
-                    {
-                        userids.Append(item.authManager.UserId);
-                        userids.Append(", ");
-                    }
-                }
-
-                RaClipboard.Send(sender, RaClipboard.RaClipBoardType.PlayerId, StringBuilderPool.Shared.ToStringReturn(ids));
-                RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, ips == null ? string.Empty : StringBuilderPool.Shared.ToStringReturn(ips));
-                RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, userids == null ? string.Empty : StringBuilderPool.Shared.ToStringReturn(userids));
-
-                sender.RaReply(StringBuilderPool.Shared.ToStringReturn(info2), true, true, string.Empty);
-                yield break;
-            }
-
-            var player = players[0];
-
-            var gameplayData = PermissionsHandler.IsPermitted(sender.Permissions, PlayerPermissions.GameplayData);
-
-            var ccm = player.characterClassManager;
-            var pam = player.authManager;
-            var nms = player.nicknameSync;
-            var con = player.networkIdentity.connectionToClient;
-            var sr = player.serverRoles;
-
-            if (sender is PlayerCommandSender commandSender)
-                commandSender.ReferenceHub.queryProcessor.GameplayData = gameplayData;
-
-            var info = StringBuilderPool.Shared.Rent();
-            info.AppendFormat("${0} ", __instance.DataId);
-            info.AppendFormat("<color=white>Nickname: {0}", nms.CombinedName);
-            info.AppendFormat("\nPlayer ID: {0} <color=green><link=CP_ID>\uf0c5</link></color>", player.PlayerId);
-            RaClipboard.Send(sender, RaClipboard.RaClipBoardType.PlayerId, $"{player.PlayerId}");
-            if (con == null)
-            {
-                RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, string.Empty);
-                info.Append("\nIP Address: null");
-            }
-            else if (!isShort)
-            {
-                ServerLogs.AddLog(ServerLogs.Modules.DataAccess, $"{sender.LogName} accessed IP address of player {player.PlayerId} ({player.nicknameSync.MyNick}).", ServerLogs.ServerLogType.RemoteAdminActivity_Misc);
-
-                string address = con.address;
-
-                info.AppendFormat("\nIP Address: {0} ", address);
-                RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, address);
-
-                if (con.IpOverride != null)
-                    info.AppendFormat(" [routed via {0}]", con.OriginalIpAddress);
-
-                info.Append(" <color=green><link=CP_IP>\uf0c5</link></color>");
-            }
-            else
-            {
-                RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, string.Empty);
-                info.Append("\nIP Address: [REDACTED]");
-            }
-
-            info.Append("\nUser ID: ");
-            if (userIdPerms)
-            {
-                if (string.IsNullOrEmpty(pam.UserId))
-                    info.Append("(none)");
-                else
-                    info.AppendFormat("{0} <color=green><link=CP_USERID>\uf0c5</link></color>", pam.UserId);
-
-                RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, pam.UserId ?? string.Empty);
-                if (pam.SaltedUserId != null && pam.SaltedUserId.Contains("$", StringComparison.Ordinal))
-                    info.AppendFormat("\nSalted User ID: {0}", pam.SaltedUserId);
-            }
-            else
-            {
-                info.Append("<color=#D4AF37>INSUFFICIENT PERMISSIONS</color>");
-                RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, string.Empty);
-            }
-
-            info.Append("Server role: ");
-            info.Append(sr.GetColoredRoleString());
-
-            bool vhb = CommandProcessor.CheckPermissions(sender, PlayerPermissions.ViewHiddenBadges);
-            bool ghb = CommandProcessor.CheckPermissions(sender, PlayerPermissions.ViewHiddenGlobalBadges);
-
-            if (playerSender != null)
-            {
-                vhb = true;
-                ghb = true;
-            }
-
-            bool hidden = !string.IsNullOrEmpty(sr.HiddenBadge);
-            bool show = !hidden || sr.GlobalHidden && ghb || !sr.GlobalHidden && vhb;
-
-            if (show)
-            {
-                if (hidden)
-                {
-                    info.AppendFormat("\n<color=#DC143C>Hidden role: </color>{0}", sr.HiddenBadge);
-                    info.AppendFormat("\n<color=#DC143C>Hidden role type: </color>{0}",
-                        (sr.GlobalHidden ? "GLOBAL" : "LOCAL"));
-                }
-
-                if (player.authManager.RemoteAdminGlobalAccess)
-                    info.Append(
-                        "\nStudio Status: <color=#BCC6CC>Studio GLOBAL Staff (management or global moderation)</color>");
-                else if (player.authManager.NorthwoodStaff)
-                    info.Append("\nStudio Status: <color=#94B9CF>Studio Staff</color>");
-            }
-
-            VcMuteFlags muteFlags = VoiceChatMutes.GetFlags(players[0]);
-
-            if (muteFlags != 0)
-            {
-                info.Append("\nMUTE STATUS:");
-
-                foreach (VcMuteFlags flag in EnumUtils<VcMuteFlags>.Values)
-                {
-                    if (flag == 0 || (muteFlags & flag) != flag)
-                        continue;
-
-                    info.Append(" <color=#F70D1A>");
-                    info.Append(flag);
-                    info.Append("</color>");
-                }
-            }
-
-            info.Append("\nActive flag(s):");
-
-            if (ccm.GodMode)
-                info.Append(" <color=#659EC7>[GOD MODE]</color>");
-
-            if (player.playerStats.GetModule<AdminFlagsStat>().HasFlag(AdminFlags.Noclip))
-                info.Append(" <color=#DC143C>[NOCLIP ENABLED]</color>");
-            else if (FpcNoclip.IsPermitted(player))
-                info.Append(" <color=#E52B50>[NOCLIP UNLOCKED]</color>");
-
-            if (pam.DoNotTrack)
-                info.Append(" <color=#BFFF00>[DO NOT TRACK]</color>");
-
-            if (sr.BypassMode)
-                info.Append(" <color=#BFFF00>[BYPASS MODE]</color>");
-
-            if (show && sr.RemoteAdmin)
-                info.Append(" <color=#43C6DB>[RA AUTHENTICATED]</color>");
-
-            if (sr.IsInOverwatch)
-                info.Append(" <color=#008080>[OVERWATCH MODE]</color>");
-            else if (gameplayData)
-            {
-                info.Append("\nClass: ")
-                    .Append(PlayerRoleLoader.AllRoles.TryGetValue(player.GetRoleId(), out PlayerRoleBase cl)
-                        ? cl.RoleTypeId
-                        : "None");
-                info.Append(" <color=#fcff99>[HP: ").Append(CommandProcessor.GetRoundedStat<HealthStat>(player))
-                    .Append("]</color>");
-                info.Append(" <color=green>[AHP: ").Append(CommandProcessor.GetRoundedStat<AhpStat>(player))
-                    .Append("]</color>");
-                info.Append(" <color=#977dff>[HS: ").Append(CommandProcessor.GetRoundedStat<HumeShieldStat>(player))
-                    .Append("]</color>");
-                info.Append("\nPosition: ").Append(player.transform.position.ToPreciseString());
-            }
-            else
-                info.Append("\n<color=#D4AF37>Some fields were hidden. GameplayData permission required.</color>");
             
+			if (!isShort && playerSender != null && !playerSender.ReferenceHub.authManager.RemoteAdminGlobalAccess && !playerSender.ReferenceHub.authManager.BypassBansFlagSet && !CommandProcessor.CheckPermissions(sender, PlayerPermissions.PlayerSensitiveDataAccess))
+                yield break;
+
+			ArraySegment<string> playersData = new ArraySegment<string>(spData.Skip(1).ToArray());
+
+			var players = RAUtils.ProcessPlayerIdOrNamesList(playersData, 0, out _);
+
+			//Players not found
+			if (players.Count == 0)
+                yield break;
+
+			bool userIdPerms;
+
+			if (playerSender != null && playerSender.ReferenceHub.authManager.NorthwoodStaff)
+				userIdPerms = true;
+			else
+				userIdPerms = PermissionsHandler.IsPermitted(sender.Permissions, ServerRoles.UserIdPerms);
+
+			//Multiple select
+			if (players.Count > 1)
+			{
+				var info2 = StringBuilderPool.Shared.Rent();
+				info2.AppendFormat("${0} ", __instance.DataId);
+				info2.Append("<color=white>Multiple players selected:");
+				info2.Append("\nPlayer ID: <color=green><link=CP_ID>\uf0c5</link></color>");
+				info2.AppendFormat("\nIP Address: {0}", !isShort ? "<color=green><link=CP_IP>\uf0c5</link></color>" : "[REDACTED]");
+				info2.AppendFormat("\nUser ID: {0}", userIdPerms ? "<color=green><link=CP_USERID>\uf0c5</link></color>" : "[REDACTED]");
+				info2.Append("</color>");
+
+				StringBuilder ids = StringBuilderPool.Shared.Rent();
+				StringBuilder ips = !isShort ? StringBuilderPool.Shared.Rent() : null;
+				StringBuilder userids = userIdPerms ? StringBuilderPool.Shared.Rent() : null;
+
+				foreach (ReferenceHub item in players)
+				{
+					ids.Append(item.PlayerId);
+					ids.Append(", ");
+
+					if (!isShort)
+					{
+						ServerLogs.AddLog(ServerLogs.Modules.DataAccess, $"{sender.LogName} accessed IP address of player {item.PlayerId} ({item.nicknameSync.MyNick}).", ServerLogs.ServerLogType.RemoteAdminActivity_Misc);
+
+						ips.Append(item.networkIdentity.connectionToClient.address);
+						ips.Append(", ");
+					}
+
+					if (userIdPerms)
+					{
+						userids.Append(item.authManager.UserId);
+						userids.Append(", ");
+					}
+				}
+
+				RaClipboard.Send(sender, RaClipboard.RaClipBoardType.PlayerId, StringBuilderPool.Shared.ToStringReturn(ids));
+				RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, ips == null ? string.Empty : StringBuilderPool.Shared.ToStringReturn(ips));
+				RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, userids == null ? string.Empty : StringBuilderPool.Shared.ToStringReturn(userids));
+
+				sender.RaReply(StringBuilderPool.Shared.ToStringReturn(info2), true, true, string.Empty);
+                yield break;;
+			}
+
+			var player = players[0];
+
+			var gameplayData = PermissionsHandler.IsPermitted(sender.Permissions, PlayerPermissions.GameplayData);
+
+			var ccm = player.characterClassManager;
+			var pam = player.authManager;
+			var nms = player.nicknameSync;
+			var con = player.networkIdentity.connectionToClient;
+			var sr = player.serverRoles;
+
+			if (sender is PlayerCommandSender commandSender)
+				commandSender.ReferenceHub.queryProcessor.GameplayData = gameplayData;
+
+			var info = StringBuilderPool.Shared.Rent();
+			info.AppendFormat("${0} ", __instance.DataId);
+			info.AppendFormat("<color=white>Nickname: {0}", nms.CombinedName);
+			info.AppendFormat("\nPlayer ID: {0} <color=green><link=CP_ID>\uf0c5</link></color>", player.PlayerId);
+			RaClipboard.Send(sender, RaClipboard.RaClipBoardType.PlayerId, $"{player.PlayerId}");
+			if (con == null)
+			{
+				RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, string.Empty);
+				info.Append("\nIP Address: null");
+			}
+			else if (!isShort)
+			{
+				ServerLogs.AddLog(ServerLogs.Modules.DataAccess, $"{sender.LogName} accessed IP address of player {player.PlayerId} ({player.nicknameSync.MyNick}).", ServerLogs.ServerLogType.RemoteAdminActivity_Misc);
+
+				string address = con.address;
+
+				info.AppendFormat("\nIP Address: {0} ", address);
+				RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, address);
+
+				if (con.IpOverride != null)
+					info.AppendFormat(" [routed via {0}]", con.OriginalIpAddress);
+
+				info.Append(" <color=green><link=CP_IP>\uf0c5</link></color>");
+			}
+			else
+			{
+				RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, string.Empty);
+				info.Append("\nIP Address: [REDACTED]");
+			}
+
+			info.Append("\nUser ID: ");
+			if (userIdPerms)
+			{
+				if (string.IsNullOrEmpty(pam.UserId))
+					info.Append("(none)");
+				else
+					info.AppendFormat("{0} <color=green><link=CP_USERID>\uf0c5</link></color>", pam.UserId);
+
+				RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, pam.UserId ?? string.Empty);
+				if (pam.SaltedUserId != null && pam.SaltedUserId.Contains("$", StringComparison.Ordinal))
+					info.AppendFormat("\nSalted User ID: {0}", pam.SaltedUserId);
+			}
+			else
+			{
+				info.Append("<color=#D4AF37>INSUFFICIENT PERMISSIONS</color>");
+				RaClipboard.Send(sender, RaClipboard.RaClipBoardType.UserId, string.Empty);
+			}
+
+			info.Append("\nServer role: ");
+			info.Append(sr.GetColoredRoleString());
+
+			bool vhb = CommandProcessor.CheckPermissions(sender, PlayerPermissions.ViewHiddenBadges);
+			bool ghb = CommandProcessor.CheckPermissions(sender, PlayerPermissions.ViewHiddenGlobalBadges);
+
+			if (playerSender != null)
+			{
+				vhb = true;
+				ghb = true;
+			}
+
+			bool hidden = !string.IsNullOrEmpty(sr.HiddenBadge);
+			bool show = !hidden || sr.GlobalHidden && ghb || !sr.GlobalHidden && vhb;
+
+			if (show)
+			{
+				if (hidden)
+				{
+					info.AppendFormat("\n<color=#DC143C>Hidden role: </color>{0}", sr.HiddenBadge);
+					info.AppendFormat("\n<color=#DC143C>Hidden role type: </color>{0}", (sr.GlobalHidden ? "GLOBAL" : "LOCAL"));
+				}
+
+				if (player.authManager.RemoteAdminGlobalAccess)
+					info.Append("\nStudio Status: <color=#BCC6CC>Studio GLOBAL Staff (management or global moderation)</color>");
+				else if (player.authManager.NorthwoodStaff)
+					info.Append("\nStudio Status: <color=#94B9CF>Studio Staff</color>");
+			}
+
+			VcMuteFlags muteFlags = VoiceChatMutes.GetFlags(players[0]);
+
+			if (muteFlags != 0)
+			{
+				info.Append("\nMUTE STATUS:");
+
+				foreach (VcMuteFlags flag in EnumUtils<VcMuteFlags>.Values)
+				{
+					if (flag == 0 || (muteFlags & flag) != flag)
+						continue;
+
+					info.Append(" <color=#F70D1A>");
+					info.Append(flag);
+					info.Append("</color>");
+				}
+			}
+
+			info.Append("\nActive flag(s):");
+
+			if (ccm.GodMode)
+				info.Append(" <color=#659EC7>[GOD MODE]</color>");
+
+			if (player.playerStats.GetModule<AdminFlagsStat>().HasFlag(AdminFlags.Noclip))
+				info.Append(" <color=#DC143C>[NOCLIP ENABLED]</color>");
+			else if (FpcNoclip.IsPermitted(player))
+				info.Append(" <color=#E52B50>[NOCLIP UNLOCKED]</color>");
+
+			if (pam.DoNotTrack)
+				info.Append(" <color=#BFFF00>[DO NOT TRACK]</color>");
+
+			if (sr.BypassMode)
+				info.Append(" <color=#BFFF00>[BYPASS MODE]</color>");
+
+			if (show && sr.RemoteAdmin)
+				info.Append(" <color=#43C6DB>[RA AUTHENTICATED]</color>");
+
+			if (sr.IsInOverwatch)
+				info.Append(" <color=#008080>[OVERWATCH MODE]</color>");
+			else if (gameplayData)
+			{
+				info.Append("\nClass: ").Append(PlayerRoleLoader.AllRoles.TryGetValue(player.GetRoleId(), out PlayerRoleBase cl) ? cl.RoleTypeId : "None");
+				info.Append(" <color=#fcff99>[HP: ").Append(CommandProcessor.GetRoundedStat<HealthStat>(player)).Append("]</color>");
+				info.Append(" <color=green>[AHP: ").Append(CommandProcessor.GetRoundedStat<AhpStat>(player)).Append("]</color>");
+				info.Append(" <color=#977dff>[HS: ").Append(CommandProcessor.GetRoundedStat<HumeShieldStat>(player)).Append("]</color>");
+				info.Append("\nPosition: ").Append(player.transform.position.ToPreciseString());
+			}
+			else
+				info.Append("\n<color=#D4AF37>Some fields were hidden. GameplayData permission required.</color>");
+
+			
             Log.Debug($"Has permissions: {sender.CheckPermission("cedmod.requestdata")}",
                 CedModMain.Singleton.Config.QuerySystem.Debug);
             if (sender.CheckPermission("cedmod.requestdata"))
@@ -388,10 +391,11 @@ namespace CedMod.Patches
                     Console.WriteLine(e);
                 }
             }
-
+            
             info.Append("</color>");
-            sender.RaReply(string.Format("${0} {1}", (object)__instance.DataId, (object)StringBuilderPool.Shared.ToStringReturn(info)), true, true, string.Empty);
-            RaPlayerQR.Send(sender, false, string.IsNullOrEmpty(pam.UserId) ? "(no User ID)" : pam.UserId);
+
+			sender.RaReply(StringBuilderPool.Shared.ToStringReturn(info), true, true, string.Empty);
+			RaPlayerQR.Send(sender, false, !userIdPerms || string.IsNullOrEmpty(pam.UserId) ? string.Empty : pam.UserId);
         }
 
         public static IEnumerator<float> HandleReportType1(CommandSender sender, CedModPlayer player, string[] source,
