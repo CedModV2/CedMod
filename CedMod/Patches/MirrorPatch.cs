@@ -9,20 +9,14 @@ namespace CedMod.Patches
     [HarmonyPatch(typeof(NetworkClient), nameof(NetworkClient.OnTransportData))]
     internal class TransportReceivePatch
     {
-        public static bool Prefix(ArraySegment<byte> data, int channelId, NetworkConnection __instance)
+        public static bool Prefix(ArraySegment<byte> data, int channelId)
         {
-            if (__instance == null)
-            {
-                Debug.LogWarning("Mirror received packet with null instance (???)");
-                return false;
-            }
-            
             if (NetworkClient.connection != null)
             {
                 if (!NetworkClient.unbatcher.AddBatch(data))
                 {
                     Debug.LogWarning("NetworkClient: failed to add batch, disconnecting.");
-                    if (__instance.identity != null && __instance.identity.isServer)
+                    if (NetworkClient.connection.identity != null && NetworkClient.connection.identity.isServer)
                     {
                         Log.Debug("Mirror attempted to disconnect server.");
                         return false;
@@ -40,7 +34,7 @@ namespace CedMod.Patches
                         if (networkReaderPooled.Remaining < 2)
                         {
                             Debug.LogWarning("NetworkClient: received Message was too short (messages should start with message id)");
-                            if (__instance.identity != null && __instance.identity.isServer)
+                            if (NetworkClient.connection.identity != null && NetworkClient.connection.identity.isServer)
                             {
                                 Log.Debug("Mirror attempted to disconnect server.");
                                 return false;
@@ -52,7 +46,7 @@ namespace CedMod.Patches
                         if (!NetworkClient.UnpackAndInvoke(networkReaderPooled, channelId))
                         {
                             Debug.LogWarning("NetworkClient: failed to unpack and invoke message. Disconnecting.");
-                            if (__instance.identity != null && __instance.identity.isServer)
+                            if (NetworkClient.connection.identity != null && NetworkClient.connection.identity.isServer)
                             {
                                 Log.Debug("Mirror attempted to disconnect server.");
                                 return false;
