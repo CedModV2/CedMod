@@ -11,6 +11,12 @@ namespace CedMod.Patches
     {
         public static bool Prefix(ArraySegment<byte> data, int channelId, NetworkConnection __instance)
         {
+            if (__instance == null)
+            {
+                Debug.LogWarning("Mirror received packet with null instance (???)");
+                return false;
+            }
+            
             if (NetworkClient.connection != null)
             {
                 if (!NetworkClient.unbatcher.AddBatch(data))
