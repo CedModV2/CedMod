@@ -16,12 +16,8 @@ namespace CedMod.Patches
                 if (!NetworkClient.unbatcher.AddBatch(data))
                 {
                     Debug.LogWarning("NetworkClient: failed to add batch, disconnecting.");
-                    if (NetworkClient.connection.identity != null && NetworkClient.connection.identity.isServer)
-                    {
-                        Log.Debug("Mirror attempted to disconnect server.");
-                        return false;
-                    }
-                    NetworkClient.connection.Disconnect();
+                    Log.Warning("Skipping Mirror NetworkClient Disconnect call.");
+                    //NetworkClient.connection.Disconnect();
                     return false;
                 }
                 
@@ -34,24 +30,16 @@ namespace CedMod.Patches
                         if (networkReaderPooled.Remaining < 2)
                         {
                             Debug.LogWarning("NetworkClient: received Message was too short (messages should start with message id)");
-                            if (NetworkClient.connection.identity != null && NetworkClient.connection.identity.isServer)
-                            {
-                                Log.Debug("Mirror attempted to disconnect server.");
-                                return false;
-                            }
-                            NetworkClient.connection.Disconnect();
+                            Log.Warning("Skipping Mirror NetworkClient Disconnect call.");
+                            //NetworkClient.connection.Disconnect();
                             return false;
                         }
                         NetworkClient.connection.remoteTimeStamp = num;
                         if (!NetworkClient.UnpackAndInvoke(networkReaderPooled, channelId))
                         {
                             Debug.LogWarning("NetworkClient: failed to unpack and invoke message. Disconnecting.");
-                            if (NetworkClient.connection.identity != null && NetworkClient.connection.identity.isServer)
-                            {
-                                Log.Debug("Mirror attempted to disconnect server.");
-                                return false;
-                            }
-                            NetworkClient.connection.Disconnect();
+                            Log.Warning("Skipping Mirror NetworkClient Disconnect call.");
+                            //NetworkClient.connection.Disconnect();
                             return false;
                         }
                         continue;
