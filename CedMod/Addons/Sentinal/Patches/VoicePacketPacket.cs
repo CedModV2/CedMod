@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CedMod.Addons.QuerySystem;
 using HarmonyLib;
 using Mirror;
 using PluginAPI.Core;
@@ -26,7 +27,7 @@ namespace CedMod.Addons.Sentinal.Patches
                 if (!Tracker.ContainsKey(conn.identity.netId))
                 {
                     if (BanSystem.Authenticating.Contains(msg.Speaker)) //hint is removed by authenticator
-                        plr.ReceiveHint("Muted: Awaiting CedMod Authentication", 2);
+                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => plr.ReceiveHint("Muted: Awaiting CedMod Authentication", 2));
                     
                     Tracker.Add(conn.identity.netId, 0);
                 }

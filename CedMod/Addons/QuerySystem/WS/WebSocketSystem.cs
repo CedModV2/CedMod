@@ -48,7 +48,9 @@ namespace CedMod.Addons.QuerySystem.WS
     public class WebSocketSystem
     {
         public static event MessageReceived OnMessageReceived;
+
         public delegate void MessageReceived(QueryCommand cmd);
+
         public static ClientWebSocket Socket;
         internal static object reconnectLock = new object();
         internal static Thread SendThread;
@@ -75,9 +77,8 @@ namespace CedMod.Addons.QuerySystem.WS
             }
             catch (Exception e)
             {
-                
             }
-            
+
             Socket = null;
             SendThread = null;
         }
@@ -114,6 +115,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         await Start(); //retry until we succeed or the thread gets aborted.
                         return;
                     }
+
                     data2 = JsonConvert.DeserializeObject<Dictionary<string, string>>(data1);
                     if (!SuppressLog)
                         Log.Info($"Retrieved panel location from API, Connecting to {data1}");
@@ -139,7 +141,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 if (!SuppressLog)
                     Log.Info($"Connected to cedmod panel");
                 Reconnect = false;
-                
+
                 LastConnection = DateTime.UtcNow;
                 LastServerConnection = DateTime.UtcNow;
                 if (SendThread == null || !SendThread.IsAlive)
@@ -162,7 +164,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             result = await Socket.ReceiveAsync(messageBuffer, CancellationToken.None);
                             await stream.WriteAsync(messageBuffer.Array, messageBuffer.Offset, result.Count);
                         }
-                        
+
                         LastServerConnection = DateTime.UtcNow;
                         if (result.MessageType == WebSocketMessageType.Close)
                         {
@@ -226,13 +228,13 @@ namespace CedMod.Addons.QuerySystem.WS
                             var message = Encoding.UTF8.GetString(stream.ToArray());
                             await OnMessage(message);
                         }
-                        
+
                         stream.Seek(0, SeekOrigin.Begin);
                         stream.SetLength(0);
                         stream.Position = 0;
                     }
                 }
-                
+
                 if (Socket.State == WebSocketState.Open)
                     await Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "End", CedModMain.CancellationToken);
             }
@@ -246,7 +248,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     {
                         if (e2.WebSocketErrorCode == WebSocketError.Success && e2.Message == "Unable to connect to the remote server")
                             delay = 15000;
-                        
+
                         Log.Error($"Lost connection to CedMod Panel {e2.WebSocketErrorCode} {e2.Message}, reconnecting in {delay}");
                     }
                     else
@@ -256,7 +258,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 }
                 else if (e is WebSocketException e4 && e4.WebSocketErrorCode == WebSocketError.ConnectionClosedPrematurely)
                     SuppressLog = true;
-                
+
                 WebSocketSystem.Reconnect = false;
                 await Task.Delay(delay, CedModMain.CancellationToken);
                 await Start(); //retry until we succeed or the thread gets aborted.
@@ -279,17 +281,17 @@ namespace CedMod.Addons.QuerySystem.WS
                                 Log.Debug($"Handling send {Socket.State} {JsonConvert.SerializeObject(cmd)}");
                             var encoded = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(cmd));
                             int bytesSent = 0;
-                            
+
                             while (bytesSent < encoded.Length)
                             {
                                 int bytesToSend = Math.Min(1024, encoded.Length - bytesSent);
                                 byte[] buffer = new byte[bytesToSend];
                                 Array.Copy(encoded, bytesSent, buffer, 0, bytesToSend);
                                 Socket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, bytesSent + bytesToSend >= encoded.Length, CancellationToken.None).Wait();
-        
+
                                 bytesSent += bytesToSend;
                             }
-                            
+
                             LastConnection = DateTime.UtcNow;
                         }
                         else
@@ -372,7 +374,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                             msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportWatchlistIngameDisabled;
                                         Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{playerId}", $"{watchlistPlr.PlayerId}").Replace("{userId}", RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowUserIdsInBroadcasts ? watchlistPlr.UserId : "REDACTED").Replace("{playerName}", watchlistPlr.Nickname).Replace("{reason}", jsonData["Reason"]).Replace("{groups}", jsonData["Groups"]), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
                                     }
-                                    
+
                                     staff.encryptedChannelManager.TrySendMessageToClient($"0!{CedModMain.Singleton.Config.QuerySystem.PlayerWatchGrouplistJoinStaffChat.Replace("{playerId}", $"{watchlistPlr.PlayerId}").Replace("{playerName}", watchlistPlr.Nickname).Replace("{reason}", jsonData["Reason"]).Replace("{userId}", watchlistPlr.UserId).Replace("{userId}", watchlistPlr.UserId).Replace("{groups}", jsonData["Groups"])}", EncryptedChannelManager.EncryptedChannel.AdminChat);
                                 }
                             });
@@ -413,7 +415,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                             msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportWatchlistIngameDisabled;
                                         Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{playerId}", $"{watchlistPlr.PlayerId}").Replace("{playerName}", watchlistPlr.Nickname).Replace("{reason}", jsonData["Reason"]).Replace("{userId}", watchlistPlr.UserId).Replace("{userId}", RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowUserIdsInBroadcasts ? watchlistPlr.UserId : "REDACTED"), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
                                     }
-                                    
+
                                     staff.encryptedChannelManager.TrySendMessageToClient($"0!{CedModMain.Singleton.Config.QuerySystem.PlayerWatchlistJoinStaffChat.Replace("{playerId}", $"{watchlistPlr.PlayerId}").Replace("{playerName}", watchlistPlr.Nickname).Replace("{reason}", jsonData["Reason"]).Replace("{userId}", watchlistPlr.UserId).Replace("{userId}", watchlistPlr.UserId)}", EncryptedChannelManager.EncryptedChannel.AdminChat);
                                 }
                             });
@@ -462,7 +464,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                             }
                                             else if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(plr))
                                             {
-                                                if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin) 
+                                                if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin)
                                                     msg += "\n" + CedModMain.Singleton.Config.QuerySystem.StaffReportNotificationIngameDisabled;
                                                 Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{reporterName}", $"{jsonData["ReporterName"]} {(RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowUserIdsInBroadcasts ? jsonData["Reporter"] : "REDACTED")}").Replace("{reportedName}", $"{jsonData["ReportedName"]} {(RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowUserIdsInBroadcasts ? jsonData["Reported"] : "REDACTED")}").Replace("{checkType}", RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin ? "RemoteAdmin" : "Discord"), RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowReportsInRemoteAdmin == true ? (ushort)5 : (ushort)10, Broadcast.BroadcastFlags.AdminChat);
                                             }
@@ -481,12 +483,12 @@ namespace CedMod.Addons.QuerySystem.WS
                                             var msg = CedModMain.Singleton.Config.QuerySystem.PlayerReportUpdateNotification;
                                             Broadcast.Singleton.TargetAddElement(plr.ReferenceHub.connectionToClient, msg.Replace("{reportedName}", $"{jsonData["ReportedName"]}").Replace("{reportState}", $"{jsonData["NewStatus"]}").Replace("{handlerName}", jsonData["Handler"]), 10, Broadcast.BroadcastFlags.Normal);
                                         }
-                                        
+
                                         foreach (var staff in ReferenceHub.AllHubs)
                                         {
                                             if (staff.isLocalPlayer || !PermissionsHandler.IsPermitted(staff.serverRoles.Permissions, PlayerPermissions.PlayersManagement))
                                                 continue;
-                                            
+
                                             staff.encryptedChannelManager.TrySendMessageToClient($"0!{CedModMain.Singleton.Config.QuerySystem.StaffReportAdminChatUpdateMessage.Replace("{reporterName}", $"{jsonData["ReporterName"]} {jsonData["ReporterId"]}").Replace("{reportedName}", $"{jsonData["ReportedName"]} {jsonData["ReportedId"]}").Replace("{state}", jsonData["NewStatus"]).Replace("{reason}", jsonData.TryGetValue("Reason", out var value) ? value : "Not found").Replace("{handler}", jsonData["Handler"])}", EncryptedChannelManager.EncryptedChannel.AdminChat);
                                         }
                                     });
@@ -496,7 +498,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         case "ping":
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                 Log.Debug("IsPing");
-                            
+
                             SendQueue.Enqueue(new QueryCommand()
                             {
                                 Recipient = cmd.Recipient,
@@ -523,12 +525,12 @@ namespace CedMod.Addons.QuerySystem.WS
                             else
                             {
                                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                    Log.Debug("CustomCommand"); 
+                                    Log.Debug("CustomCommand");
                                 string[] array = jsonData["command"].Split(new char[]
                                 {
                                     ' '
                                 });
-                                
+
                                 if (jsonData["command"].ToUpper().Contains("REQUEST_DATA AUTH") || jsonData["command"].ToUpper().Contains("SUDO QUIT"))
                                 {
                                     SendQueue.Enqueue(new QueryCommand()
@@ -541,7 +543,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                     });
                                     return;
                                 }
-                                
+
                                 if (CedModMain.Singleton.Config.QuerySystem.DisallowedWebCommands.Contains(array[0].ToUpper()))
                                 {
                                     SendQueue.Enqueue(new QueryCommand()
@@ -573,7 +575,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 if (ServerStatic.PermissionsHandler._members.ContainsKey(jsonData["user"]))
                                 {
                                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                        Log.Debug("CustomCommandPermGood"); 
+                                        Log.Debug("CustomCommandPermGood");
                                     string name = ServerStatic.PermissionsHandler._members[jsonData["user"]];
                                     UserGroup ugroup = ServerStatic.PermissionsHandler.GetGroup(name);
                                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
@@ -593,7 +595,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 {
                                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                         Log.Debug("CustomCommandPermBad, returning");
-                                    
+
                                     SendQueue.Enqueue(new QueryCommand()
                                     {
                                         Recipient = cmd.Recipient,
@@ -613,7 +615,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             {
                                 if (player.authManager.UserId == jsonData["steamid"])
                                 {
-                                    ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>  Timing.RunCoroutine(API.StrikeBad(CedModPlayer.Get(player), jsonData["reason"] + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage)));
+                                    ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Timing.RunCoroutine(API.StrikeBad(CedModPlayer.Get(player), jsonData["reason"] + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage)));
                                     SendQueue.Enqueue(new QueryCommand()
                                     {
                                         Recipient = cmd.Recipient,
@@ -641,39 +643,42 @@ namespace CedMod.Addons.QuerySystem.WS
                             var plr = CedModPlayer.Get(jsonData["steamid"]);
                             if (plr != null)
                             {
-                                Log.Info($"user: {plr.UserId} muted through panel, issuing mute...");
-                                Enum.TryParse(jsonData["type"], out MuteType muteType);
-                                plr.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), "red");
-                                Broadcast.Singleton.TargetAddElement(plr.Connection, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), 5, Broadcast.BroadcastFlags.Normal);
-                                // if (muteType == MuteType.Global)
-                                //     plr.Mute(true);
-                                //
-                                // if (muteType == MuteType.Intercom)
-                                //     plr.IntercomMute(true);
+                                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                                {
+                                    Log.Info($"user: {plr.UserId} muted through panel, issuing mute...");
+                                    Enum.TryParse(jsonData["type"], out MuteType muteType);
+                                    plr.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), "red");
+                                    Broadcast.Singleton.TargetAddElement(plr.Connection, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", jsonData["duration"]).Replace("{reason}", jsonData["reason"]), 5, Broadcast.BroadcastFlags.Normal);
+                                    // if (muteType == MuteType.Global)
+                                    //     plr.Mute(true);
+                                    //
+                                    // if (muteType == MuteType.Intercom)
+                                    //     plr.IntercomMute(true);
 
-                                if (muteType == MuteType.Global)
-                                {
-                                    VoiceChatMutes.SetFlags(plr.ReferenceHub,  VcMuteFlags.LocalRegular);
-                                }
-                    
-                                if (muteType == MuteType.Intercom)
-                                {
-                                    VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.LocalIntercom);
-                                }
-
-                                if (!string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.MuteCustomInfo))
-                                    plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
-                                SendQueue.Enqueue(new QueryCommand()
-                                {
-                                    Recipient = cmd.Recipient,
-                                    Data = new Dictionary<string, string>()
+                                    if (muteType == MuteType.Global)
                                     {
-                                        { "Message", "User muted" }
+                                        VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.LocalRegular);
                                     }
+
+                                    if (muteType == MuteType.Intercom)
+                                    {
+                                        VoiceChatMutes.SetFlags(plr.ReferenceHub, VcMuteFlags.LocalIntercom);
+                                    }
+
+                                    if (!string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.MuteCustomInfo))
+                                        plr.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
+                                    SendQueue.Enqueue(new QueryCommand()
+                                    {
+                                        Recipient = cmd.Recipient,
+                                        Data = new Dictionary<string, string>()
+                                        {
+                                            { "Message", "User muted" }
+                                        }
+                                    });
+                                    return;
                                 });
-                                return;
                             }
-                            
+
                             SendQueue.Enqueue(new QueryCommand()
                             {
                                 Recipient = cmd.Recipient,
@@ -706,7 +711,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                         BadgeText = group.Value.BadgeText,
                                         BadgeColor = group.Value.BadgeColor,
                                         RoleId = 0,
-                                        Permissions = (PlayerPermissions) group.Value.Permissions,
+                                        Permissions = (PlayerPermissions)group.Value.Permissions,
                                         ExiledPermissions = new List<string>(),
                                         //perms.Value == null ? new List<string>() : perms.Value.CombinedPermissions
                                     });
@@ -717,8 +722,8 @@ namespace CedMod.Addons.QuerySystem.WS
                                     Recipient = cmd.Recipient,
                                     Data = new Dictionary<string, string>()
                                     {
-                                        {"Message", "ImportRAResponse"},
-                                        {"Data", JsonConvert.SerializeObject(Groups)}
+                                        { "Message", "ImportRAResponse" },
+                                        { "Data", JsonConvert.SerializeObject(Groups) }
                                     }
                                 });
                             });
@@ -737,7 +742,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                     await VerificationChallenge.AwaitVerification();
                                     var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/FetchKey/{QuerySystem.QuerySystemKey}",
                                         new StringContent(JsonConvert.SerializeObject(new
-                                        { 
+                                        {
                                             Hash = jsonData["Hash"]
                                         }), Encoding.UTF8, "application/json"));
 
@@ -790,8 +795,8 @@ namespace CedMod.Addons.QuerySystem.WS
                                             {
                                                 Data = new Dictionary<string, string>()
                                                 {
-                                                    {"Message", "VERIFICATIONFEEDBACK"},
-                                                    {"Result", e.ToString()}
+                                                    { "Message", "VERIFICATIONFEEDBACK" },
+                                                    { "Result", e.ToString() }
                                                 },
                                                 Identity = "",
                                                 Recipient = "PANEL",
@@ -811,23 +816,21 @@ namespace CedMod.Addons.QuerySystem.WS
                                 {
                                     Data = new Dictionary<string, string>()
                                     {
-                                        {"Message", "VERIFICATIONFEEDBACK"},
-                                        {"Result", e.ToString()}
+                                        { "Message", "VERIFICATIONFEEDBACK" },
+                                        { "Result", e.ToString() }
                                     },
                                     Identity = "",
                                     Recipient = "PANEL",
                                 });
                                 IsCheckingToken = false;
                             }
+
                             break;
                         case "reloadsrvprefs":
                             await ServerPreferences.ResolvePreferences(false);
                             break;
                         case "requestHeartbeat":
-                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
-                            {
-                                ThreadDispatcher.SendHeartbeatMessage(true);
-                            });
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => { ThreadDispatcher.SendHeartbeatMessage(true); });
                             break;
                     }
                 }
@@ -847,8 +850,8 @@ namespace CedMod.Addons.QuerySystem.WS
             {
                 Data = new Dictionary<string, string>()
                 {
-                    {"Message", "VERIFICATIONFEEDBACK"},
-                    {"Result", $"{ServerConsole.Ip} {(ServerConsole.PortOverride == 0 ? ServerStatic.ServerPort : ServerConsole.PortOverride)} {result}"}
+                    { "Message", "VERIFICATIONFEEDBACK" },
+                    { "Result", $"{ServerConsole.Ip} {(ServerConsole.PortOverride == 0 ? ServerStatic.ServerPort : ServerConsole.PortOverride)} {result}" }
                 },
                 Identity = "",
                 Recipient = "PANEL",
@@ -865,7 +868,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 state = true;
 
             bool request = (bool)state;
-            
+
             lock (LockObj)
             {
                 AutoSlPermsSlRequest permsSlRequest = null;
@@ -875,7 +878,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     {
                         client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
                         VerificationChallenge.AwaitVerification().Wait();
-                        
+
                         try
                         {
                             if (!request)
@@ -897,6 +900,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 {
                                     File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json"), data);
                                 }
+
                                 Log.Info("Loaded whitelist from Api");
                                 CheckWhitelist();
                             }
@@ -934,7 +938,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         {
                             if (request)
                                 Log.Error($"Failed to check for whitelist {e}");
-                            
+
                             if (Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
                             {
                                 if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json")))
@@ -947,10 +951,10 @@ namespace CedMod.Addons.QuerySystem.WS
                                 }
                             }
                         }
-                        
+
                         if (!request)
                             throw new Exception("Request is false");
-                        
+
                         var responsePerms = client.SendAsync(new HttpRequestMessage()
                         {
                             Method = HttpMethod.Options,
@@ -968,13 +972,17 @@ namespace CedMod.Addons.QuerySystem.WS
                                     if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "autoSlPermCache.json")))
                                         File.Delete(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "autoSlPermCache.json"));
                                 }
+
                                 return;
                             }
+
                             Log.Error($"Failed to request RA: {responsePerms.Content.ReadAsStringAsync().Result}");
                             responsePerms.EnsureSuccessStatusCode();
                         }
+
                         permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(responsePerms.Content.ReadAsStringAsync().Result);
                     }
+
                     if (permsSlRequest.PermissionEntries.Count == 0)
                     {
                         if (!UseRa)
@@ -985,8 +993,10 @@ namespace CedMod.Addons.QuerySystem.WS
                             if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "autoSlPermCache.json")))
                                 File.Delete(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "autoSlPermCache.json"));
                         }
+
                         return;
                     }
+
                     if (!Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
                         Directory.CreateDirectory(Path.Combine(CedModMain.PluginConfigFolder, "CedMod"));
                     File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "autoSlPermCache.json"), JsonConvert.SerializeObject(permsSlRequest));
@@ -1012,7 +1022,9 @@ namespace CedMod.Addons.QuerySystem.WS
                     }
                 }
 
-                try
+                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                {
+                    try
                 {
                     var handler = ServerStatic.GetPermissionsHandler();
                     var oldMembers = new Dictionary<string, string>(handler._members);
@@ -1052,7 +1064,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             ProcessNWPermissions(perm);
                         }
 
-#if EXILED                        
+#if EXILED
                         var epGroup1 = new Exiled.Permissions.Features.Group();
                         epGroup1.Permissions.AddRange(perm.ExiledPermissions);
                         epGroup1.CombinedPermissions.AddRange(perm.ExiledPermissions);
@@ -1067,7 +1079,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         if (member.ReservedSlot && !QuerySystem.ReservedSlotUserids.Contains(member.UserId))
                             QuerySystem.ReservedSlotUserids.Add(member.UserId);
                         handler._members.Add(member.UserId, member.Group);
-                        
+
                         var player = CedModPlayer.Get(member.UserId);
                         try
                         {
@@ -1079,15 +1091,12 @@ namespace CedMod.Addons.QuerySystem.WS
                                     if (oldMembers.ContainsKey(member.UserId))
                                         group = oldGroups[oldMembers[member.UserId]];
                                     var newGroup = permsSlRequest.PermissionEntries.FirstOrDefault(s => s.Name == member.Group);
-                                    
+
                                     if (group == null || oldMembers[member.UserId] != member.Group || group.Permissions != (ulong)newGroup.Permissions || group.BadgeText != newGroup.BadgeText || group.BadgeColor != newGroup.BadgeColor || group.KickPower != newGroup.KickPower || group.RequiredKickPower != newGroup.RequiredKickPower || group.Cover != newGroup.Cover || group.HiddenByDefault != newGroup.Hidden)
                                     {
-                                        ThreadDispatcher.ThreadDispatchQueue.Enqueue((() =>
-                                        {
-                                            var hidden = !string.IsNullOrEmpty(player.ReferenceHub.serverRoles.HiddenBadge);
-                                            player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false, !hidden);
-                                            Log.Info($"Refreshed Permissions from {member.UserId} with hidden value: {hidden} as they were present and had changes in the AutoSlPerms response while ingame");
-                                        }));
+                                        var hidden = !string.IsNullOrEmpty(player.ReferenceHub.serverRoles.HiddenBadge);
+                                        player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false, !hidden);
+                                        Log.Info($"Refreshed Permissions from {member.UserId} with hidden value: {hidden} as they were present and had changes in the AutoSlPerms response while ingame");
                                     }
                                 }
                             }
@@ -1104,17 +1113,14 @@ namespace CedMod.Addons.QuerySystem.WS
                         {
                             QuerySystem.ReservedSlotUserids.Remove(member.Key);
                         }
-                        
+
                         if (CedModPlayer.Get(member.Key) != null)
                         {
                             if (Enumerable.All(permsSlRequest.MembersList, s => s.UserId != member.Key))
                             {
-                                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
-                                {
-                                    Log.Info(member.Key + " 3");
-                                    CedModPlayer.Get(member.Key).ReferenceHub.serverRoles.SetGroup(null, false);
-                                    Log.Info($"Removed Permissions from {member.Key} as they were no longer present in the AutoSlPerms response while ingame");
-                                });
+                                Log.Info(member.Key + " 3");
+                                CedModPlayer.Get(member.Key).ReferenceHub.serverRoles.SetGroup(null, false);
+                                Log.Info($"Removed Permissions from {member.Key} as they were no longer present in the AutoSlPerms response while ingame");
                             }
                         }
                     }
@@ -1126,6 +1132,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
                     ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
                 }
+                });
             }
         }
 
@@ -1139,7 +1146,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     {
                         if (plr.isLocalPlayer)
                             continue;
-                    
+
                         if (!plr.authManager.NorthwoodStaff && plr.authManager.UserId != null && !plr.authManager.UserId.EndsWith("@northwood") && !QuerySystem.Whitelist.Contains(plr.authManager.UserId) && !WhiteList.Users.Contains(plr.authManager.UserId))
                         {
                             ThreadDispatcher.ThreadDispatchQueue.Enqueue(new Action(() =>
@@ -1192,6 +1199,7 @@ namespace CedMod.Addons.QuerySystem.WS
     public class CmSender : CommandSender
     {
         public const int chunksize = 1000;
+
         public override void RaReply(string text, bool success, bool logToConsole, string overrideDisplay)
         {
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
@@ -1204,7 +1212,7 @@ namespace CedMod.Addons.QuerySystem.WS
         public override void Print(string text)
         {
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                Log.Debug($"RA Print: {text}"); 
+                Log.Debug($"RA Print: {text}");
             SendText(text);
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug("Added RA message to queue");
@@ -1234,12 +1242,12 @@ namespace CedMod.Addons.QuerySystem.WS
                     Recipient = Ses,
                     Data = new Dictionary<string, string>()
                     {
-                        {"Message", text}
+                        { "Message", text }
                     }
                 });
             }
         }
-        
+
         public CmSender(string ses, string name, string userid, UserGroup group)
         {
             Ses = ses;

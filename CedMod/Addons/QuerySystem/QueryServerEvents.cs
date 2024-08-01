@@ -23,7 +23,7 @@ namespace CedMod.Addons.QuerySystem
     public class QueryServerEvents
     {
         private bool _first = false;
-        
+
         public IEnumerator<float> SyncStart(bool wait = true)
         {
             if (wait)
@@ -35,11 +35,11 @@ namespace CedMod.Addons.QuerySystem
             {
                 Log.Warning("You have RejectRemoteCommands enabled in the CedMod QuerySystem config, features such as RemoteCommands, EventManager, and more will not function correctly");
             }
-            
+
             if (QuerySystem.QuerySystemKey != "None")
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Log.Debug("Checking configs");  
+                    Log.Debug("Checking configs");
                 if (CedModMain.Singleton.Config.QuerySystem.EnableExternalLookup)
                 {
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
@@ -63,54 +63,72 @@ namespace CedMod.Addons.QuerySystem
                             await VerificationChallenge.AwaitVerification();
                             if (CedModMain.Singleton.Config.QuerySystem.EnableBanreasonSync)
                             {
-                                if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                    Log.Debug("Enabling ban reasons");  
-                                ServerConfigSynchronizer.Singleton.NetworkEnableRemoteAdminPredefinedBanTemplates = true;
-                                if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                    Log.Debug("Clearing ban reasons");
-                                ServerConfigSynchronizer.Singleton.RemoteAdminPredefinedBanTemplates.Clear();
+                                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                                {
+                                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                        Log.Debug("Enabling ban reasons");
+                                    ServerConfigSynchronizer.Singleton.NetworkEnableRemoteAdminPredefinedBanTemplates = true;
+                                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                        Log.Debug("Clearing ban reasons");
+                                    ServerConfigSynchronizer.Singleton.RemoteAdminPredefinedBanTemplates.Clear();
+                                });
+
+                                int cnt = 0;
+                                while (ServerConfigSynchronizer.Singleton.RemoteAdminPredefinedBanTemplates.Count >= 1)
+                                {
+                                    if (cnt >= 100)
+                                        break;
+
+                                    cnt++;
+                                    await Task.Delay(10);
+                                }
+
                                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                     Log.Debug("Downloading ban reasons");
                                 var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/BanReasons/{QuerySystem.QuerySystemKey}");
                                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                     Log.Debug("Addding ban reasons");
-                                foreach (var dict in JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(await response.Content.ReadAsStringAsync()))
+                                var data = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(await response.Content.ReadAsStringAsync());
+                                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                                 {
-                                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                        Log.Debug($"Addding ban reason {JsonConvert.SerializeObject(dict)}");
+                                    foreach (var dict in data)
+                                    {
+                                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                            Log.Debug($"Addding ban reason {JsonConvert.SerializeObject(dict)}");
 
-                                    var durationNice = "";
-                                    TimeSpan timeSpan = TimeSpan.FromMinutes(double.Parse(dict["Dur"]));
-                                    int num2 = timeSpan.Days / 365;
-                                    if (num2 > 0)
-                                    {
-                                        durationNice = string.Format("{0}y", num2);
-                                    }
-                                    else if (timeSpan.Days > 0)
-                                    {
-                                        durationNice = string.Format("{0}d", timeSpan.Days);
-                                    }
-                                    else if (timeSpan.Hours > 0)
-                                    {
-                                        durationNice = string.Format("{0}h", timeSpan.Hours);
-                                    }
-                                    else if (timeSpan.Minutes > 0)
-                                    {
-                                        durationNice = string.Format("{0}m", timeSpan.Minutes);
-                                    }
-                                    else
-                                    {
-                                        durationNice = string.Format("{0}s", timeSpan.Seconds);
-                                    }
-
-                                    ServerConfigSynchronizer.Singleton.RemoteAdminPredefinedBanTemplates.Add(
-                                        new ServerConfigSynchronizer.PredefinedBanTemplate()
+                                        var durationNice = "";
+                                        TimeSpan timeSpan = TimeSpan.FromMinutes(double.Parse(dict["Dur"]));
+                                        int num2 = timeSpan.Days / 365;
+                                        if (num2 > 0)
                                         {
-                                            Duration = Convert.ToInt32(dict["Dur"]),
-                                            FormattedDuration = durationNice,
-                                            Reason = dict["Reason"]
-                                        });
-                                }
+                                            durationNice = string.Format("{0}y", num2);
+                                        }
+                                        else if (timeSpan.Days > 0)
+                                        {
+                                            durationNice = string.Format("{0}d", timeSpan.Days);
+                                        }
+                                        else if (timeSpan.Hours > 0)
+                                        {
+                                            durationNice = string.Format("{0}h", timeSpan.Hours);
+                                        }
+                                        else if (timeSpan.Minutes > 0)
+                                        {
+                                            durationNice = string.Format("{0}m", timeSpan.Minutes);
+                                        }
+                                        else
+                                        {
+                                            durationNice = string.Format("{0}s", timeSpan.Seconds);
+                                        }
+
+                                        ServerConfigSynchronizer.Singleton.RemoteAdminPredefinedBanTemplates.Add(
+                                            new ServerConfigSynchronizer.PredefinedBanTemplate()
+                                            {
+                                                Duration = Convert.ToInt32(dict["Dur"]),
+                                                FormattedDuration = durationNice,
+                                                Reason = dict["Reason"]
+                                            });
+                                    }
+                                });
                             }
                         }
                     }
@@ -118,6 +136,7 @@ namespace CedMod.Addons.QuerySystem
                     {
                         Log.Error(e.ToString());
                     }
+
                     new Thread((o =>
                     {
                         if (!_first)
@@ -125,6 +144,7 @@ namespace CedMod.Addons.QuerySystem
                             WebSocketSystem.ApplyRa(false);
                             _first = true;
                         }
+
                         WebSocketSystem.ApplyRa(true);
                     })).Start(true);
                 });
@@ -150,8 +170,8 @@ namespace CedMod.Addons.QuerySystem
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"Type", nameof(OnWaitingForPlayers)},
-                    {"Message", "Server is waiting for players."}
+                    { "Type", nameof(OnWaitingForPlayers) },
+                    { "Message", "Server is waiting for players." }
                 }
             });
         }
@@ -164,8 +184,8 @@ namespace CedMod.Addons.QuerySystem
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"Type", nameof(OnRoundStart)},
-                    {"Message", "Round is starting."}
+                    { "Type", nameof(OnRoundStart) },
+                    { "Message", "Round is starting." }
                 }
             });
             LevelerStore.TrackingEnabled = WebSocketSystem.HelloMessage.ExpEnabled;
@@ -182,7 +202,7 @@ namespace CedMod.Addons.QuerySystem
                 });
             }
         }
-        
+
         [PluginEvent(ServerEventType.RoundRestart)]
         public void OnRoundRestart(RoundRestartEvent ev)
         {
@@ -191,8 +211,8 @@ namespace CedMod.Addons.QuerySystem
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"Type", nameof(OnRoundRestart)},
-                    {"Message", "Round is restarting."}
+                    { "Type", nameof(OnRoundRestart) },
+                    { "Message", "Round is restarting." }
                 }
             });
         }
@@ -205,8 +225,8 @@ namespace CedMod.Addons.QuerySystem
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"Type", nameof(OnRoundEnd)},
-                    {"Message", "Round has ended."}
+                    { "Type", nameof(OnRoundEnd) },
+                    { "Message", "Round has ended." }
                 }
             });
 
@@ -221,17 +241,18 @@ namespace CedMod.Addons.QuerySystem
                         Recipient = "PANEL",
                         Data = new Dictionary<string, string>()
                         {
-                            {"Message", "GRANTEXP"},
-                            {"GrantType", "SurvivalEndRound"},
-                            {"UserId", plr.Key.UserId},
-                            {"RoleType", plr.Value.ToString()}
+                            { "Message", "GRANTEXP" },
+                            { "GrantType", "SurvivalEndRound" },
+                            { "UserId", plr.Key.UserId },
+                            { "RoleType", plr.Value.ToString() }
                         }
                     });
                 }
+
                 LevelerStore.InitialPlayerRoles.Clear();
             }
         }
-        
+
 
         [PluginEvent(ServerEventType.TeamRespawn)]
         public void OnRespawn(TeamRespawnEvent ev)
@@ -241,8 +262,8 @@ namespace CedMod.Addons.QuerySystem
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"Type", nameof(OnRespawn)},
-                    {"Message", string.Format("Respawn: {0} as {1}.", "undef", ev.Team)}
+                    { "Type", nameof(OnRespawn) },
+                    { "Message", string.Format("Respawn: {0} as {1}.", "undef", ev.Team) }
                 }
             });
         }

@@ -138,14 +138,14 @@ namespace CedMod
                     int count = 5;
                     while (count >= 0)
                     {
-                        await Task.Delay(500);
                         count--;
                         try
                         {
-                            player.Disconnect(reason);
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => player.Disconnect(reason));
                         }
                         catch (Exception e)
                         {
+                            await Task.Delay(500);
                             continue;
                         }
                             
@@ -161,17 +161,16 @@ namespace CedMod
                         int count = 5;
                         while (count >= 0)
                         {
-                            await Task.Delay(500);
                             count--;
                             try
                             {
-                                player.Disconnect(reason + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage);
+                                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => player.Disconnect(reason + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage));
                             }
                             catch (Exception e)
                             {
+                                await Task.Delay(500);
                                 continue;
                             }
-                            
                             break;
                         }
                     }
@@ -189,37 +188,50 @@ namespace CedMod
                 {
                     Log.Info($"user: {player.UserId} joined while muted, issuing mute...");
                     Enum.TryParse(info["mute"], out MuteType muteType);
-                    player.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", info["muteduration"]).Replace("{reason}", info["mutereason"]), "red");
-                    Broadcast.Singleton.TargetAddElement(player.Connection, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", info["muteduration"]).Replace("{reason}", info["mutereason"]), 5, Broadcast.BroadcastFlags.Normal);
                     // if (muteType == MuteType.Global)
                     //     player.Mute(true);
                     //
                     // if (muteType == MuteType.Intercom)
                     //     player.IntercomMute(true);
 
-                    Timing.CallDelayed(0.1f, () =>
+                    ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                     {
-                        if (muteType == MuteType.Global)
+                        player.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", info["muteduration"]).Replace("{reason}", info["mutereason"]), "red");
+                        Broadcast.Singleton.TargetAddElement(player.Connection, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", info["muteduration"]).Replace("{reason}", info["mutereason"]), 5, Broadcast.BroadcastFlags.Normal);
+                        
+                        Timing.CallDelayed(0.1f, () =>
                         {
-                            VoiceChatMutes.SetFlags(player.ReferenceHub, VcMuteFlags.LocalRegular);
-                        }
+                            if (muteType == MuteType.Global)
+                            {
+                                VoiceChatMutes.SetFlags(player.ReferenceHub, VcMuteFlags.LocalRegular);
+                            }
 
-                        if (muteType == MuteType.Intercom)
-                        {
-                            VoiceChatMutes.SetFlags(player.ReferenceHub, VcMuteFlags.LocalIntercom);
-                        }
+                            if (muteType == MuteType.Intercom)
+                            {
+                                VoiceChatMutes.SetFlags(player.ReferenceHub, VcMuteFlags.LocalIntercom);
+                            }
+                        });
                     });
 
                     if (!string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.MuteCustomInfo))
-                        player.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
+                    {
+                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => player.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString()));
+                    }
                 }
-                player.ReceiveHint("", 1); //clear authenticator hint
-                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Authenticating.Remove(player.ReferenceHub));
+                
+                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                {
+                    player.ReceiveHint("", 1); //clear authenticator hint
+                    Authenticating.Remove(player.ReferenceHub);
+                });
             }
             catch (Exception ex)
             {
-                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Authenticating.Remove(player.ReferenceHub));
-                player.ReceiveHint("", 1); //clear authenticator hint
+                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                {
+                    Authenticating.Remove(player.ReferenceHub);
+                    player.ReceiveHint("", 1); //clear authenticator hint
+                });
                 Log.Error(ex.ToString());
 
                 if (attempt <= 4) //we will retry 5 times

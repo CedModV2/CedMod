@@ -102,7 +102,7 @@ namespace CedMod
             {
                 using (StreamReader r = new StreamReader(((HttpWebResponse)ex.Response).GetResponseStream()))
                 {
-                    response = r.ReadToEnd();
+                    response = await r.ReadToEndAsync();
                 }
                 Log.Error($"API request failed: {response} | {ex.Message}");
                 return null;
