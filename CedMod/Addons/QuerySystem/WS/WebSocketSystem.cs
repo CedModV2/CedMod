@@ -1025,113 +1025,113 @@ namespace CedMod.Addons.QuerySystem.WS
                 ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                 {
                     try
-                {
-                    var handler = ServerStatic.GetPermissionsHandler();
-                    var oldMembers = new Dictionary<string, string>(handler._members);
-                    var oldGroups = new Dictionary<string, UserGroup>(handler._groups);
-                    handler._groups.Clear();
-                    handler._members.Clear();
-                    if (AppDomain.CurrentDomain.GetAssemblies().Any(s => s.GetName().Name == "NWAPIPermissionSystem"))
                     {
-                        ClearNWApiPermissions();
-                        HandleDefault(permsSlRequest.DefaultPermissions);
-                    }
-#if EXILED
-                    Permissions.Groups.Clear();
-                    var epGroup = new Exiled.Permissions.Features.Group();
-                    epGroup.Permissions.AddRange(permsSlRequest.DefaultPermissions);
-                    epGroup.CombinedPermissions.AddRange(permsSlRequest.DefaultPermissions);
-                    epGroup.Inheritance.Clear();
-                    epGroup.IsDefault = true;
-                    Permissions.Groups.Add("default", epGroup);
-#endif
-                    foreach (var perm in permsSlRequest.PermissionEntries)
-                    {
-                        handler._groups.Add(perm.Name, new UserGroup()
-                        {
-                            BadgeColor = string.IsNullOrEmpty(perm.BadgeColor) ? "none" : perm.BadgeColor,
-                            BadgeText = perm.BadgeText,
-                            Cover = perm.Cover,
-                            HiddenByDefault = perm.Hidden,
-                            KickPower = (byte)perm.KickPower,
-                            Permissions = (ulong)perm.Permissions,
-                            RequiredKickPower = (byte)perm.RequiredKickPower,
-                            Shared = false
-                        });
-
+                        var handler = ServerStatic.GetPermissionsHandler();
+                        var oldMembers = new Dictionary<string, string>(handler._members);
+                        var oldGroups = new Dictionary<string, UserGroup>(handler._groups);
+                        handler._groups.Clear();
+                        handler._members.Clear();
                         if (AppDomain.CurrentDomain.GetAssemblies().Any(s => s.GetName().Name == "NWAPIPermissionSystem"))
                         {
-                            ProcessNWPermissions(perm);
+                            ClearNWApiPermissions();
+                            HandleDefault(permsSlRequest.DefaultPermissions);
                         }
+#if EXILED
+                        Permissions.Groups.Clear();
+                        var epGroup = new Exiled.Permissions.Features.Group();
+                        epGroup.Permissions.AddRange(permsSlRequest.DefaultPermissions);
+                        epGroup.CombinedPermissions.AddRange(permsSlRequest.DefaultPermissions);
+                        epGroup.Inheritance.Clear();
+                        epGroup.IsDefault = true;
+                        Permissions.Groups.Add("default", epGroup);
+#endif
+                        foreach (var perm in permsSlRequest.PermissionEntries)
+                        {
+                            handler._groups.Add(perm.Name, new UserGroup()
+                            {
+                                BadgeColor = string.IsNullOrEmpty(perm.BadgeColor) ? "none" : perm.BadgeColor,
+                                BadgeText = perm.BadgeText,
+                                Cover = perm.Cover,
+                                HiddenByDefault = perm.Hidden,
+                                KickPower = (byte)perm.KickPower,
+                                Permissions = (ulong)perm.Permissions,
+                                RequiredKickPower = (byte)perm.RequiredKickPower,
+                                Shared = false
+                            });
+
+                            if (AppDomain.CurrentDomain.GetAssemblies().Any(s => s.GetName().Name == "NWAPIPermissionSystem"))
+                            {
+                                ProcessNWPermissions(perm);
+                            }
 
 #if EXILED
-                        var epGroup1 = new Exiled.Permissions.Features.Group();
-                        epGroup1.Permissions.AddRange(perm.ExiledPermissions);
-                        epGroup1.CombinedPermissions.AddRange(perm.ExiledPermissions);
-                        epGroup1.Inheritance.Clear();
-                        epGroup1.IsDefault = false;
-                        Permissions.Groups.Add(perm.Name, epGroup1);
+                            var epGroup1 = new Exiled.Permissions.Features.Group();
+                            epGroup1.Permissions.AddRange(perm.ExiledPermissions);
+                            epGroup1.CombinedPermissions.AddRange(perm.ExiledPermissions);
+                            epGroup1.Inheritance.Clear();
+                            epGroup1.IsDefault = false;
+                            Permissions.Groups.Add(perm.Name, epGroup1);
 #endif
-                    }
+                        }
 
-                    foreach (var member in permsSlRequest.MembersList)
-                    {
-                        if (member.ReservedSlot && !QuerySystem.ReservedSlotUserids.Contains(member.UserId))
-                            QuerySystem.ReservedSlotUserids.Add(member.UserId);
-                        handler._members.Add(member.UserId, member.Group);
-
-                        var player = CedModPlayer.Get(member.UserId);
-                        try
+                        foreach (var member in permsSlRequest.MembersList)
                         {
-                            if (player != null)
-                            {
-                                if (oldMembers.ContainsKey(member.UserId))
-                                {
-                                    UserGroup group = null;
-                                    if (oldMembers.ContainsKey(member.UserId))
-                                        group = oldGroups[oldMembers[member.UserId]];
-                                    var newGroup = permsSlRequest.PermissionEntries.FirstOrDefault(s => s.Name == member.Group);
+                            if (member.ReservedSlot && !QuerySystem.ReservedSlotUserids.Contains(member.UserId))
+                                QuerySystem.ReservedSlotUserids.Add(member.UserId);
+                            handler._members.Add(member.UserId, member.Group);
 
-                                    if (group == null || oldMembers[member.UserId] != member.Group || group.Permissions != (ulong)newGroup.Permissions || group.BadgeText != newGroup.BadgeText || group.BadgeColor != newGroup.BadgeColor || group.KickPower != newGroup.KickPower || group.RequiredKickPower != newGroup.RequiredKickPower || group.Cover != newGroup.Cover || group.HiddenByDefault != newGroup.Hidden)
+                            var player = CedModPlayer.Get(member.UserId);
+                            try
+                            {
+                                if (player != null)
+                                {
+                                    if (oldMembers.ContainsKey(member.UserId))
                                     {
-                                        var hidden = !string.IsNullOrEmpty(player.ReferenceHub.serverRoles.HiddenBadge);
-                                        player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false, !hidden);
-                                        Log.Info($"Refreshed Permissions from {member.UserId} with hidden value: {hidden} as they were present and had changes in the AutoSlPerms response while ingame");
+                                        UserGroup group = null;
+                                        if (oldMembers.ContainsKey(member.UserId))
+                                            group = oldGroups[oldMembers[member.UserId]];
+                                        var newGroup = permsSlRequest.PermissionEntries.FirstOrDefault(s => s.Name == member.Group);
+
+                                        if (group == null || oldMembers[member.UserId] != member.Group || group.Permissions != (ulong)newGroup.Permissions || group.BadgeText != newGroup.BadgeText || group.BadgeColor != newGroup.BadgeColor || group.KickPower != newGroup.KickPower || group.RequiredKickPower != newGroup.RequiredKickPower || group.Cover != newGroup.Cover || group.HiddenByDefault != newGroup.Hidden)
+                                        {
+                                            var hidden = !string.IsNullOrEmpty(player.ReferenceHub.serverRoles.HiddenBadge);
+                                            player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false, !hidden);
+                                            Log.Info($"Refreshed Permissions from {member.UserId} with hidden value: {hidden} as they were present and had changes in the AutoSlPerms response while ingame");
+                                        }
                                     }
                                 }
                             }
-                        }
-                        catch (Exception e)
-                        {
-                            Log.Error($"Failed to apply permission at realtime for {player.UserId} - {player.Nickname}");
-                        }
-                    }
-
-                    foreach (var member in oldMembers)
-                    {
-                        if (Enumerable.All(permsSlRequest.MembersList, s => s.UserId != member.Key) && QuerySystem.ReservedSlotUserids.Contains(member.Key))
-                        {
-                            QuerySystem.ReservedSlotUserids.Remove(member.Key);
-                        }
-
-                        if (CedModPlayer.Get(member.Key) != null)
-                        {
-                            if (Enumerable.All(permsSlRequest.MembersList, s => s.UserId != member.Key))
+                            catch (Exception e)
                             {
-                                Log.Info(member.Key + " 3");
-                                CedModPlayer.Get(member.Key).ReferenceHub.serverRoles.SetGroup(null, false);
-                                Log.Info($"Removed Permissions from {member.Key} as they were no longer present in the AutoSlPerms response while ingame");
+                                Log.Error($"Failed to apply permission at realtime for {player.UserId} - {player.Nickname}");
                             }
                         }
+
+                        foreach (var member in oldMembers)
+                        {
+                            if (Enumerable.All(permsSlRequest.MembersList, s => s.UserId != member.Key) && QuerySystem.ReservedSlotUserids.Contains(member.Key))
+                            {
+                                QuerySystem.ReservedSlotUserids.Remove(member.Key);
+                            }
+
+                            if (CedModPlayer.Get(member.Key) != null)
+                            {
+                                if (Enumerable.All(permsSlRequest.MembersList, s => s.UserId != member.Key))
+                                {
+                                    Log.Info(member.Key + " 3");
+                                    CedModPlayer.Get(member.Key).ReferenceHub.serverRoles.SetGroup(null, false);
+                                    Log.Info($"Removed Permissions from {member.Key} as they were no longer present in the AutoSlPerms response while ingame");
+                                }
+                            }
+                        }
+                        //Log.Info($"Successfully applied {permsSlRequest.PermissionEntries.Count} Groups and {permsSlRequest.MembersList.Count} members for AutoSlPerms");
                     }
-                    //Log.Info($"Successfully applied {permsSlRequest.PermissionEntries.Count} Groups and {permsSlRequest.MembersList.Count} members for AutoSlPerms");
-                }
-                catch (Exception e)
-                {
-                    UseRa = true;
-                    Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
-                    ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
-                }
+                    catch (Exception e)
+                    {
+                        UseRa = true;
+                        Log.Error($"Failed to fetch RA from panel, using RA...\n{e}");
+                        ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
+                    }
                 });
             }
         }
