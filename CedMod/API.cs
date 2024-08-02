@@ -270,5 +270,25 @@ namespace CedMod
                 break;
             }
         }
+        
+        public static IEnumerator<float> NormalDisconnect(CedModPlayer player, string reason)
+        {
+            int count = 5;
+            while (count >= 0)
+            {
+                yield return Timing.WaitForSeconds(0.2f);
+                count--;
+                try
+                {
+                    player.Disconnect(reason);
+                }
+                catch (Exception e)
+                {
+                    continue;
+                }
+                            
+                break;
+            }
+        }
     }
 }
