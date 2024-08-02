@@ -276,7 +276,9 @@ namespace CedMod
             int count = 5;
             while (count >= 0)
             {
-                yield return Timing.WaitForSeconds(0.2f);
+                if (count != 5)
+                    yield return Timing.WaitForSeconds(0.2f);
+                
                 count--;
                 try
                 {
