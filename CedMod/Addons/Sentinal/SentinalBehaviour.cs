@@ -33,7 +33,7 @@ namespace CedMod.Addons.Sentinal
                 bool offSize = false;
                 foreach (var data in pack.Value)
                 {
-                    if (data != 480)
+                    if (data != 512)
                         offSize = true;
                 }
                 
