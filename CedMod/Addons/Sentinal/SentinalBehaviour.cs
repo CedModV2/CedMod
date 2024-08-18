@@ -16,8 +16,8 @@ namespace CedMod.Addons.Sentinal
     public class SentinalBehaviour: MonoBehaviour
     {
         public float AuthTimer = 1;
-        public Dictionary<int, Dictionary<uint, List<int>>> FrameCount = new Dictionary<int, Dictionary<uint, List<int>>>();
-        Dictionary<uint, Dictionary<int, List<int>>> UserFrames = new Dictionary<uint, Dictionary<int, List<int>>>();
+        public Dictionary<int, Dictionary<uint, List<(int, float, float)>>> FrameCount = new Dictionary<int, Dictionary<uint, List<(int, float, float)>>>();
+        Dictionary<uint, Dictionary<int, List<(int, float, float)>>> UserFrames = new Dictionary<uint, Dictionary<int, List<(int, float, float)>>>();
         public static int Frames = 0;
         
         public void FixedUpdate()
@@ -33,13 +33,13 @@ namespace CedMod.Addons.Sentinal
                 bool offSize = false;
                 foreach (var data in pack.Value)
                 {
-                    if (data != 512)
+                    if (data.Item1 != 480 || data.Item2 <= -1 || data.Item3 >= 1)
                         offSize = true;
                 }
                 
                 if (pack.Value.Count >= 30 || offSize) //keep track of all exceeding packets per frame
                 {
-                    FrameCount.TryAdd(Frames, new Dictionary<uint, List<int>>());
+                    FrameCount.TryAdd(Frames, new Dictionary<uint, List<(int, float, float)>>());
                     FrameCount[Frames].TryAdd(pack.Key, pack.Value);
                 }
             }
@@ -58,7 +58,7 @@ namespace CedMod.Addons.Sentinal
                 {
                     foreach (var frameData in detectionPackets.Value)
                     {
-                        UserFrames.TryAdd(frameData.Key, new Dictionary<int, List<int>>());
+                        UserFrames.TryAdd(frameData.Key, new Dictionary<int, List<(int, float, float)>>());
                         UserFrames[frameData.Key].TryAdd(detectionPackets.Key, frameData.Value);
                     }
                 }
@@ -76,7 +76,7 @@ namespace CedMod.Addons.Sentinal
                                 await VerificationChallenge.AwaitVerification();
                                 try
                                 {
-                                    var response = await client.PostAsync($"http{(QuerySystem.QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.QuerySystem.CurrentMaster}/Api/Sentinal/ReportV2?key={QuerySystem.QuerySystem.QuerySystemKey}&userid={plr.authManager.UserId}&type=VCExploit2&token={Uri.EscapeDataString(BanSystem.CedModAuthTokens.ContainsKey(plr) ? BanSystem.CedModAuthTokens[plr].Item1 : "unavailable")}&signature={Uri.EscapeDataString(BanSystem.CedModAuthTokens.ContainsKey(plr) ? BanSystem.CedModAuthTokens[plr].Item2 : "unavailable")}", new StringContent(JsonConvert.SerializeObject(userFrames.Value), Encoding.Default, "application/json"));
+                                    var response = await client.PostAsync($"https://frikanweb.cedmod.nl/Api/Sentinal/ReportV2?key={QuerySystem.QuerySystem.QuerySystemKey}&userid={plr.authManager.UserId}&type=VCExploit3&token={Uri.EscapeDataString(BanSystem.CedModAuthTokens.ContainsKey(plr) ? BanSystem.CedModAuthTokens[plr].Item1 : "unavailable")}&signature={Uri.EscapeDataString(BanSystem.CedModAuthTokens.ContainsKey(plr) ? BanSystem.CedModAuthTokens[plr].Item2 : "unavailable")}", new StringContent(JsonConvert.SerializeObject(userFrames.Value), Encoding.Default, "application/json"));
                                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                         Log.Debug(await response.Content.ReadAsStringAsync());
                                 }
