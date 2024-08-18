@@ -51,7 +51,7 @@ namespace CedMod.Addons.Sentinal.Patches
 
                 PacketsSent[conn.identity.netId].Add((len, lowest, highest));
                 
-                if (BanSystem.Authenticating.Contains(msg.Speaker) || lowest <= -2 || highest >= 2)
+                if (BanSystem.Authenticating.Contains(msg.Speaker) || lowest <= -2 || highest >= 2 || len != 480)
                 {
                     return false;
                 }
