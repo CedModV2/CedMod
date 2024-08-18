@@ -76,7 +76,7 @@ namespace CedMod.Addons.Sentinal
                                 await VerificationChallenge.AwaitVerification();
                                 try
                                 {
-                                    var response = await client.PostAsync($"https://frikanweb.cedmod.nl/Api/Sentinal/ReportV2?key={QuerySystem.QuerySystem.QuerySystemKey}&userid={plr.authManager.UserId}&type=VCExploit3&token={Uri.EscapeDataString(BanSystem.CedModAuthTokens.ContainsKey(plr) ? BanSystem.CedModAuthTokens[plr].Item1 : "unavailable")}&signature={Uri.EscapeDataString(BanSystem.CedModAuthTokens.ContainsKey(plr) ? BanSystem.CedModAuthTokens[plr].Item2 : "unavailable")}", new StringContent(JsonConvert.SerializeObject(userFrames.Value), Encoding.Default, "application/json"));
+                                    var response = await client.PostAsync($"http{(QuerySystem.QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.QuerySystem.CurrentMaster}/Api/Sentinal/ReportV2?key={QuerySystem.QuerySystem.QuerySystemKey}&userid={plr.authManager.UserId}&type=VCExploit3&token={Uri.EscapeDataString(BanSystem.CedModAuthTokens.ContainsKey(plr) ? BanSystem.CedModAuthTokens[plr].Item1 : "unavailable")}&signature={Uri.EscapeDataString(BanSystem.CedModAuthTokens.ContainsKey(plr) ? BanSystem.CedModAuthTokens[plr].Item2 : "unavailable")}", new StringContent(JsonConvert.SerializeObject(userFrames.Value), Encoding.Default, "application/json"));
                                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                         Log.Debug(await response.Content.ReadAsStringAsync());
                                 }
