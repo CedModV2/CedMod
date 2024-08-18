@@ -22,6 +22,9 @@ namespace CedMod.Addons.Sentinal.Patches
         {
             try
             {
+                if (msg.Speaker == null || conn.identity.netId != msg.Speaker.netId)
+                    return false;
+                
                 var plr = CedModPlayer.Get(msg.Speaker);
                 if (!PacketsSent.ContainsKey(conn.identity.netId))
                 {
