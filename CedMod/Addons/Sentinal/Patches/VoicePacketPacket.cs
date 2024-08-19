@@ -5,6 +5,7 @@ using CedMod.Addons.QuerySystem;
 using HarmonyLib;
 using Mirror;
 using PluginAPI.Core;
+using UnityEngine;
 using VoiceChat.Codec;
 using VoiceChat.Networking;
 
@@ -56,8 +57,9 @@ namespace CedMod.Addons.Sentinal.Patches
                 }
 
                 PacketsSent[conn.identity.netId].Add((len, lowest, highest));
-                
-                if (BanSystem.Authenticating.Contains(msg.Speaker) || lowest <= -2 || highest >= 2 || len != 480)
+
+                Log.Info($"pl {msg.DataLength} {lowest} {highest} {len}");
+                if (BanSystem.Authenticating.Contains(msg.Speaker) || lowest <= -6 || highest >= 6 || len != 480)
                 {
                     return false;
                 }
