@@ -15,8 +15,8 @@ namespace CedMod.Addons.Sentinal.Patches
     {
         public static Dictionary<uint, List<(int, float, float)>> PacketsSent = new Dictionary<uint, List<(int, float, float)>>();
         public static Dictionary<uint, int> Tracker = new Dictionary<uint, int>();
-        public static OpusDecoder OpusDecoder = new OpusDecoder();
-        public static float[] Floats = new float[24000];
+        public static Dictionary<uint, OpusDecoder> OpusDecoders = new Dictionary<uint, OpusDecoder>();
+        public static Dictionary<uint, float[]> Floats = new Dictionary<uint, float[]>();
 
         public static bool Prefix(NetworkConnection conn, VoiceMessage msg)
         {
@@ -39,11 +39,14 @@ namespace CedMod.Addons.Sentinal.Patches
                     Tracker.Add(conn.identity.netId, 0);
                 }
                 
-                Floats = new float[24000];
-                var len = OpusDecoder.Decode(msg.Data, msg.DataLength, Floats);
+                if (!OpusDecoders.ContainsKey(conn.identity.netId))
+                    OpusDecoders.Add(conn.identity.netId, new OpusDecoder());
+                
+                Floats[conn.identity.netId] = new float[24000];
+                var len = OpusDecoders[conn.identity.netId].Decode(msg.Data, msg.DataLength,  Floats[conn.identity.netId]);
                 float highest = 0;
                 float lowest = 0;
-                foreach (var f in Floats)
+                foreach (var f in  Floats[conn.identity.netId])
                 {
                     if (f <= 0 && f <= lowest)
                         lowest = f;
