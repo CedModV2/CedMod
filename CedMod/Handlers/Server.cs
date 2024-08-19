@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.Audio;
 using CedMod.Addons.Sentinal;
+using CedMod.Addons.Sentinal.Patches;
 using CedMod.Commands;
 using CedMod.Components;
 using MEC;
@@ -41,6 +42,8 @@ namespace CedMod.Handlers
                 }
             });
             BanSystem.Authenticating.Clear();
+            VoicePacketPacket.Floats.Clear();
+            VoicePacketPacket.OpusDecoders.Clear();
         }
     }
 }

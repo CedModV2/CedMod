@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using CedMod.Addons.Sentinal.Patches;
 using MEC;
 using PlayerStatsSystem;
 using PluginAPI.Core.Attributes;
@@ -16,6 +17,13 @@ namespace CedMod.Handlers
             var plr = CedModPlayer.Get(ev.Player.ReferenceHub);
             Task.Run(async () => { await BanSystem.HandleJoin(plr); });
             Timing.RunCoroutine(Name(CedModPlayer.Get(ev.Player.ReferenceHub)));
+        }
+        
+        [PluginEvent(ServerEventType.PlayerLeft)]
+        public void OnJoin(PlayerLeftEvent ev)
+        {
+            VoicePacketPacket.Floats.Remove(ev.Player.ReferenceHub.netId);
+            VoicePacketPacket.OpusDecoders.Remove(ev.Player.ReferenceHub.netId);
         }
         
         public IEnumerator<float> Name(CedModPlayer player)
