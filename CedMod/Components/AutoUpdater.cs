@@ -225,7 +225,12 @@ namespace CedMod.Components
 #else 
                     var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Version/TargetDownload?TargetVersion={Pending.CedModVersionIdentifier}&VersionId={CedModMain.VersionIdentifier}&ExiledVersion={Loader.Version.ToString()}&ScpSlVersions={Version.Major}.{Version.Minor}.{Version.Revision}&OwnHash={CedModMain.FileHash}&token={QuerySystem.QuerySystemKey}");
 #endif
-                    if (response.StatusCode != HttpStatusCode.OK)
+                    if (response.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        Pending = null;
+                        Log.Info("Version no longer available, retrying later...");
+                    }
+                    else if (response.StatusCode != HttpStatusCode.OK)
                     {
                         Log.Error($"Failed to download update: {response.StatusCode} | {await response.Content.ReadAsStringAsync()}");
                     }
