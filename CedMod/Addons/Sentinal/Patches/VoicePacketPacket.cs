@@ -43,7 +43,7 @@ namespace CedMod.Addons.Sentinal.Patches
                 if (!OpusDecoders.ContainsKey(conn.identity.netId))
                     OpusDecoders.Add(conn.identity.netId, new OpusDecoder());
                 
-                if (Floats.ContainsKey(conn.identity.netId)) 
+                if (!Floats.ContainsKey(conn.identity.netId)) 
                     Floats[conn.identity.netId] = new float[24000];
                 
                 var len = OpusDecoders[conn.identity.netId].Decode(msg.Data, msg.DataLength,  Floats[conn.identity.netId]);
