@@ -387,6 +387,9 @@ namespace CedMod
                     {
                         if (plugin is not IEvent @event)
                             continue;
+                        
+                        if (@event == null)
+                            continue;
 
                         if (!@event.Config.IsEnabled)
                         {
