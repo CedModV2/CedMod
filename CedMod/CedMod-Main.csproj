@@ -138,7 +138,6 @@
     <Compile Include="CacheHandler.cs" />
     <Compile Include="CedModConfig.cs" />
     <Compile Include="CedModPlayer.cs" />
-    <Compile Include="CedModPlayerFactory.cs" />
     <Compile Include="Commands\CedModSetupCommand.cs" />
     <Compile Include="Commands\CheckForUpdatesCommand.cs" />
     <Compile Include="Commands\DialogBox.cs" />

@@ -14,9 +14,8 @@ namespace CedMod.Handlers
         [PluginEvent(ServerEventType.PlayerJoined)]
         public void OnJoin(PlayerJoinedEvent ev)
         {
-            var plr = CedModPlayer.Get(ev.Player.ReferenceHub);
-            Task.Run(async () => { await BanSystem.HandleJoin(plr); });
-            Timing.RunCoroutine(Name(CedModPlayer.Get(ev.Player.ReferenceHub)));
+            Task.Run(async () => { await BanSystem.HandleJoin(ev.Player); });
+            Timing.RunCoroutine(Name(ev.Player));
         }
         
         [PluginEvent(ServerEventType.PlayerLeft)]
@@ -26,9 +25,9 @@ namespace CedMod.Handlers
             VoicePacketPacket.OpusDecoders.Remove(ev.Player.ReferenceHub.netId);
         }
         
-        public IEnumerator<float> Name(CedModPlayer player)
+        public IEnumerator<float> Name(PluginAPI.Core.Player player)
         {
-            foreach (var pp in PluginAPI.Core.Player.GetPlayers<CedModPlayer>())
+            foreach (var pp in PluginAPI.Core.Player.GetPlayers())
             {
                 if (pp.UserId == player.UserId) 
                     yield break;
@@ -55,7 +54,7 @@ namespace CedMod.Handlers
         {
             if (ev.Player == null || ev.Attacker == null)
                 return;
-            FriendlyFireAutoban.HandleKill(CedModPlayer.Get(ev.Player.ReferenceHub), CedModPlayer.Get(ev.Attacker.ReferenceHub), ev.DamageHandler);
+            FriendlyFireAutoban.HandleKill(ev.Player, ev.Attacker, ev.DamageHandler);
         }
     }
 }

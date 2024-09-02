@@ -167,7 +167,6 @@ namespace CedMod
             PluginAPI.Events.EventManager.RegisterEvents<AdminSitHandler>(this);
             if (Config.QuerySystem.StaffInfoSystem)
                 PluginAPI.Events.EventManager.RegisterEvents<StaffInfoHandler>(this);
-            FactoryManager.RegisterPlayerFactory(this, new CedModPlayerFactory());
 
             try
             {

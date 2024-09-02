@@ -5,6 +5,7 @@ using CustomPlayerEffects;
 using InventorySystem.Items;
 using InventorySystem.Items.Firearms.Ammo;
 using PlayerRoles;
+using PluginAPI.Core;
 using PluginAPI.Core.Items;
 using UnityEngine;
 
@@ -25,7 +26,7 @@ namespace CedMod.Addons.AdminSitSystem
     public class AdminSitPlayer
     {
         public string UserId { get; set; }
-        public CedModPlayer Player { get; set; }
+        public Player Player { get; set; }
         public AdminSitPlayerType PlayerType { get; set; }
         public Dictionary<ushort, ItemBase> Items { get; set; }
         public RoleTypeId Role { get; set; }

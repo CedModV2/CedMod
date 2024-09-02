@@ -29,10 +29,10 @@ namespace CedMod.Components
         
         public static List<Reports> ReportsList { get; set; } = new List<Reports>();
         public static RemoteAdminModificationHandler Singleton;
-        public static Dictionary<CedModPlayer, Tuple<int, DateTime>> ReportUnHandledState { get; set; } = new Dictionary<CedModPlayer, Tuple<int, DateTime>>();
-        public static Dictionary<CedModPlayer, Tuple<int, DateTime>> ReportInProgressState { get; set; } = new Dictionary<CedModPlayer, Tuple<int, DateTime>>();
+        public static Dictionary<Player, Tuple<int, DateTime>> ReportUnHandledState { get; set; } = new Dictionary<Player, Tuple<int, DateTime>>();
+        public static Dictionary<Player, Tuple<int, DateTime>> ReportInProgressState { get; set; } = new Dictionary<Player, Tuple<int, DateTime>>();
 
-        public static Dictionary<CedModPlayer, IngameUserPreferences> IngameUserPreferencesMap = new Dictionary<CedModPlayer, IngameUserPreferences>();
+        public static Dictionary<Player, IngameUserPreferences> IngameUserPreferencesMap = new Dictionary<Player, IngameUserPreferences>();
 
         public static bool UiBlink { get; set; }
 
@@ -215,7 +215,7 @@ namespace CedMod.Components
         
         public List<string> Requesting = new List<string>();
 
-        public async void ResolvePreferences(CedModPlayer player, Action callback)
+        public async void ResolvePreferences(Player player, Action callback)
         {
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug($"start get pref 1");

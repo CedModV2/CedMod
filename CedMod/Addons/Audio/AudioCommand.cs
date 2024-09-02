@@ -14,6 +14,7 @@ using NWAPIPermissionSystem;
 using Exiled.Permissions.Extensions;
 #endif
 using PlayerRoles;
+using PluginAPI.Core;
 using RemoteAdmin;
 using VoiceChat;
 using Console = System.Console;
@@ -46,9 +47,7 @@ namespace CedMod.Addons.Audio
                 response = "You dont have permission to run this command.";
                 return false;
             }
-
-            CedModPlayer player = CedModPlayer.Get(raSender.ReferenceHub);
-
+            
             if (arguments.Count == 0)
             {
                 response = "Args: audio fake {playerid} - spawns a dummyplayer\naudio enqueue {playerid} {cedmodfilename} [index] - enqueues a file on from the CedMod panel in the queue at the given index (index is optional)\naudio play {playerid} {index} - starts playing at the given index\naudio destroy {playerid} - destroys the player\ntesting volume {playerid} {volume} - sets the volume";

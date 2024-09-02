@@ -5,17 +5,13 @@ using UnityEngine;
 
 namespace CedMod
 {
-    public class CedModPlayer: Player
+    public static class CedModPlayer
     {
-        public CedModPlayer(IGameComponent component) : base(component)
-        {
-        }
-
-        public static CedModPlayer Get(string userid)
+        public static Player Get(string userid)
         {
             // Check id
             if (int.TryParse(userid, out int id))
-                return Get<CedModPlayer>(id);
+                return Player.Get(id);
 
             // Check Userid
             if (userid.EndsWith("@steam") || userid.EndsWith("@discord") || userid.EndsWith("@northwood") || userid.EndsWith("@patreon") || (userid.StartsWith("ID_Offline") && !PlayerAuthenticationManager.OnlineMode))
@@ -23,7 +19,7 @@ namespace CedMod
                 foreach (var hub in ReferenceHub.AllHubs)
                 {
                     if (hub.authManager.UserId == userid)
-                        return Get<CedModPlayer>(hub);
+                        return Player.Get(hub);
                 }
             }
             else // Check username
@@ -37,7 +33,7 @@ namespace CedMod
                 if (hub == null) // if nobody is found after this, return null
                     return null;
 
-                return Get<CedModPlayer>(hub);
+                return Player.Get(hub);
             }
 
             return null;
@@ -68,20 +64,20 @@ namespace CedMod
             return null;
         }
         
-        public static CedModPlayer Get(int PlayerId)
+        public static Player Get(int PlayerId)
         {
             foreach (var hub in ReferenceHub.AllHubs)
             {
                 if (hub.PlayerId == PlayerId)
-                    return Get<CedModPlayer>(hub);
+                    return Player.Get(hub);
             }
 
             return null;
         }
         
-        public static CedModPlayer Get(ReferenceHub refhub)
+        public static Player Get(ReferenceHub refhub)
         {
-            return Get<CedModPlayer>(refhub);
+            return Player.Get(refhub);
         }
     }
 }

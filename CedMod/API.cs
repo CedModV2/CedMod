@@ -140,7 +140,7 @@ namespace CedMod
             }
         }
 
-        public static async Task Ban(CedModPlayer player, long duration, string sender, string reason, bool bc = true)
+        public static async Task Ban(Player player, long duration, string sender, string reason, bool bc = true)
         {
             long realduration = (long)TimeSpan.FromSeconds(duration).TotalMinutes;
             if (duration >= 1)
@@ -217,7 +217,7 @@ namespace CedMod
                         { "UserId", UserId }                    
                     }                                                  
                 });                                                    
-                CedModPlayer player = CedModPlayer.Get(UserId);
+                Player player = CedModPlayer.Get(UserId);
                 if (player != null)
                 {
                     if (player != null)
@@ -233,7 +233,7 @@ namespace CedMod
             {
                 if (duration <= 0)
                 {
-                    CedModPlayer player = CedModPlayer.Get(UserId);
+                    Player player = CedModPlayer.Get(UserId);
                     if (player != null)
                     {
                         ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>  Timing.RunCoroutine(StrikeBad(player, reason + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage)));
@@ -242,7 +242,7 @@ namespace CedMod
             }
         }
 
-        public static IEnumerator<float> StrikeBad(CedModPlayer player, string reason)
+        public static IEnumerator<float> StrikeBad(Player player, string reason)
         {
             try
             {
@@ -271,7 +271,7 @@ namespace CedMod
             }
         }
         
-        public static IEnumerator<float> NormalDisconnect(CedModPlayer player, string reason)
+        public static IEnumerator<float> NormalDisconnect(Player player, string reason)
         {
             int count = 5;
             while (count >= 0)

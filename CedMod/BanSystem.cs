@@ -20,7 +20,7 @@ namespace CedMod
         public static Dictionary<ReferenceHub, Tuple<string, string>> CedModAuthTokens = new Dictionary<ReferenceHub, Tuple<string, string>>();
 
         public static readonly object Banlock = new object();
-        public static async Task HandleJoin(CedModPlayer player, int attempt = 0)
+        public static async Task HandleJoin(Player player, int attempt = 0)
         {
             try
             {

@@ -39,10 +39,10 @@ namespace CedMod.Addons.StaffInfo
             if (cmd.Data["action"] == "StaffInfo")
             {
                 var staffId = cmd.Data["StaffId"];
-                CedModPlayer staffPlayer = CedModPlayer.Get(staffId);
+                Player staffPlayer = CedModPlayer.Get(staffId);
                 
                 var playerId = cmd.Data["PlayerId"];
-                CedModPlayer player = CedModPlayer.Get(playerId);
+                Player player = CedModPlayer.Get(playerId);
                 
                 if (staffPlayer == null || player == null)
                     return;
@@ -87,7 +87,7 @@ namespace CedMod.Addons.StaffInfo
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug("Starting staffinfo", CedModMain.Singleton.Config.QuerySystem.Debug);
             
-            foreach (var staff in CedModPlayer.GetPlayers<CedModPlayer>())
+            foreach (var staff in Player.GetPlayers())
             {
                 if (!staff.RemoteAdminAccess)
                     continue;
@@ -113,7 +113,7 @@ namespace CedMod.Addons.StaffInfo
                 
                 var prefs = RemoteAdminModificationHandler.IngameUserPreferencesMap[staff];
 
-                foreach (var player in CedModPlayer.GetPlayers())
+                foreach (var player in Player.GetPlayers())
                 {
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                         Log.Debug($"Staffinfo for {staff.Nickname} getting {player.Nickname}", CedModMain.Singleton.Config.QuerySystem.Debug);
@@ -147,7 +147,7 @@ namespace CedMod.Addons.StaffInfo
                 if (prefs.StreamerMode)
                     continue;
 
-                var currentlySpectating = CedModPlayer.GetPlayers().FirstOrDefault(s => s.ReferenceHub.IsSpectatedBy(staff.ReferenceHub));
+                var currentlySpectating = Player.GetPlayers().FirstOrDefault(s => s.ReferenceHub.IsSpectatedBy(staff.ReferenceHub));
                 
                 switch (staff.Role)
                 {

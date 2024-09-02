@@ -48,8 +48,8 @@ namespace CedMod.Commands
                 return false;
             }
             
-            CedModPlayer plr = CedModPlayer.Get(arguments.At(0));
-            CedModPlayer send = Player.Get<CedModPlayer>(sender);
+            Player plr = Player.Get(arguments.At(0));
+            Player send = Player.Get(sender);
             string reason = arguments.Skip(1).Aggregate((current, n) => current + " " + n);
 
             Task.Run(async () =>

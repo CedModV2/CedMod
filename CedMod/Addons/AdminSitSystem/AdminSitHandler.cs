@@ -73,7 +73,7 @@ namespace CedMod.Addons.AdminSitSystem
                     var plrInstance = sit.Players.FirstOrDefault(s => s.UserId == ev.Player.UserId);
                     if (plrInstance != null)
                     {
-                        plrInstance.Player = CedModPlayer.Get(ev.Player.ReferenceHub);
+                        plrInstance.Player = ev.Player;
                     }
                     
                     Timing.CallDelayed(0.1f, () => {
@@ -108,7 +108,7 @@ namespace CedMod.Addons.AdminSitSystem
                 {
                     sit.Players.Add(new AdminSitPlayer()
                     {
-                        Player = CedModPlayer.Get(ev.Player.ReferenceHub),
+                        Player = ev.Player,
                         PlayerType = AdminSitPlayerType.Handler,
                         UserId = ev.Player.UserId,
                         Ammo = new Dictionary<ItemType, ushort>(ev.Player.ReferenceHub.inventory.UserInventory.ReserveAmmo),

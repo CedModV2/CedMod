@@ -16,7 +16,7 @@ namespace CedMod
     {
         public static Dictionary<string, int> Teamkillers = new Dictionary<string, int>();
         public static bool AdminDisabled = false;
-        public static void HandleKill(CedModPlayer player, CedModPlayer attacker, DamageHandlerBase damageHandler)
+        public static void HandleKill(Player player, Player attacker, DamageHandlerBase damageHandler)
         {
             if (!RoundSummary.RoundInProgress() || !CedModMain.Singleton.Config.CedMod.AutobanEnabled || AdminDisabled || !IsTeamKill(player, attacker, damageHandler))
                 return;
@@ -84,7 +84,7 @@ namespace CedMod
             }
         }
 
-        public static bool IsTeamKill(CedModPlayer player, CedModPlayer attacker, DamageHandlerBase damageHandler)
+        public static bool IsTeamKill(Player player, Player attacker, DamageHandlerBase damageHandler)
         {
             if (!RoundSummary.RoundInProgress())
                 return false;

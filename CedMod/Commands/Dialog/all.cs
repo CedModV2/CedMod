@@ -36,7 +36,7 @@ namespace CedMod.Commands.Dialog
             }
 
             string msg = arguments.Skip(0).Aggregate((current, n) => current + " " + n);
-            foreach (CedModPlayer ply in Player.GetPlayers<CedModPlayer>()) 
+            foreach (Player ply in Player.GetPlayers()) 
             {
                 ply.SendConsoleMessage("[REPORTING] " + msg + " Press ESC to close", "green");
             }

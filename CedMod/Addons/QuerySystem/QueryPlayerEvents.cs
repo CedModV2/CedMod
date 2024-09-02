@@ -365,7 +365,7 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
 
-            var plr = CedModPlayer.Get(ev.Player.ReferenceHub);
+            var plr = ev.Player;
             if (LevelerStore.TrackingEnabled && LevelerStore.InitialPlayerRoles.ContainsKey(plr))
             {
                 if (ev.ChangeReason != RoleChangeReason.Escaped)
@@ -514,7 +514,7 @@ namespace CedMod.Addons.QuerySystem
                 return;
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Log.Debug("plrdeath");
-            if (FriendlyFireAutoban.IsTeamKill(CedModPlayer.Get(ev.Player.ReferenceHub), CedModPlayer.Get(ev.Attacker.ReferenceHub), ev.DamageHandler))
+            if (FriendlyFireAutoban.IsTeamKill(ev.Player, ev.Attacker, ev.DamageHandler))
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug("istk");
@@ -565,7 +565,7 @@ namespace CedMod.Addons.QuerySystem
 
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Log.Debug("resolving on scene players");
-                foreach (var bystanders in Player.GetPlayers<CedModPlayer>())
+                foreach (var bystanders in Player.GetPlayers())
                 {
                     if (bystanders.Role == RoleTypeId.Spectator || ev.Attacker.Role == RoleTypeId.Overwatch || ev.Attacker.Role == RoleTypeId.None)
                         continue;

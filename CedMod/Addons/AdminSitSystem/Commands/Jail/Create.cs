@@ -13,6 +13,7 @@ using NWAPIPermissionSystem;
 using Exiled.Permissions.Extensions;
 #endif
 using PlayerRoles;
+using PluginAPI.Core;
 using UnityEngine;
 
 namespace CedMod.Addons.AdminSitSystem.Commands.Jail
@@ -96,7 +97,7 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
             response = "";
             foreach (var plr1 in arguments)
             {
-                CedModPlayer cmPlr = CedModPlayer.Get(plr1);
+                Player cmPlr = CedModPlayer.Get(plr1);
                 if (cmPlr == null)
                 {
                     response += $"{plr1} Could not be found!\n";

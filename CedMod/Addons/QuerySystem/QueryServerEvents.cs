@@ -195,7 +195,7 @@ namespace CedMod.Addons.QuerySystem
                 Timing.CallDelayed(2, () =>
                 {
                     LevelerStore.InitialPlayerRoles.Clear();
-                    foreach (var plr in Player.GetPlayers<CedModPlayer>())
+                    foreach (var plr in Player.GetPlayers())
                     {
                         LevelerStore.InitialPlayerRoles.Add(plr, plr.Role);
                     }

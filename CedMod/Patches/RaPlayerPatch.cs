@@ -398,7 +398,7 @@ namespace CedMod.Patches
 			RaPlayerQR.Send(sender, false, !userIdPerms || string.IsNullOrEmpty(pam.UserId) ? string.Empty : pam.UserId);
         }
 
-        public static IEnumerator<float> HandleReportType1(CommandSender sender, CedModPlayer player, string[] source,
+        public static IEnumerator<float> HandleReportType1(CommandSender sender, Player player, string[] source,
             string additional = "")
         {
             try
@@ -600,7 +600,7 @@ namespace CedMod.Patches
             }
         }
 
-        public static IEnumerator<float> HandleReportType2(CommandSender sender, CedModPlayer player, string[] source,
+        public static IEnumerator<float> HandleReportType2(CommandSender sender, Player player, string[] source,
             string additional = "")
         {
             try
