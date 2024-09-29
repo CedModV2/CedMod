@@ -355,7 +355,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                     {
                                         RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, () =>
                                         {
-                                            if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].StreamerMode)
+                                            if (RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].StreamerMode)
                                                 return;
                                             
                                             if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin)
@@ -402,7 +402,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                     {
                                         RemoteAdminModificationHandler.Singleton.ResolvePreferences(plr, () =>
                                         {
-                                            if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].StreamerMode)
+                                            if (RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].StreamerMode)
                                                 return;
                                             
                                             if (!RemoteAdminModificationHandler.IngameUserPreferencesMap[plr].ShowWatchListUsersInRemoteAdmin)
