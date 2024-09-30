@@ -5,38 +5,33 @@ using CedMod.Addons.Events.Interfaces;
 using CedMod.Addons.Events.Patches;
 using CedMod.Addons.QuerySystem;
 using Exiled.API.Features;
-using PluginAPI.Core.Attributes;
-using PluginAPI.Enums;
-using PluginAPI.Events;
-using Log = PluginAPI.Core.Log;
+using LabApi.Events.Arguments.ServerEvents;
+using LabApi.Events.CustomHandlers;
+using LabApi.Features.Console;
 
 namespace CedMod.Addons.Events
 {
-    public class EventManagerServerEvents
+    public class EventManagerServerEvents: CustomEventsHandler
     {
-        [PluginEvent(ServerEventType.RoundEndConditionsCheck)]
-        public RoundEndConditionsCheckCancellationData OnRoundEndConditionsCheck(bool baseGameConditionsSatisfied)
+        public override void OnServerRoundEnding(RoundEndingEventArgs ev)
         {
             if (EventManager.CurrentEvent != null && EventManager.CurrentEvent is IEndConditionBehaviour endConditionBehaviour)
             { 
-                return RoundEndConditionsCheckCancellationData.Override(endConditionBehaviour.CanRoundEnd(baseGameConditionsSatisfied));
+                ev.IsAllowed = endConditionBehaviour.CanRoundEnd(false);
             }
-            return RoundEndConditionsCheckCancellationData.LeaveUnchanged();
         }
         
-        [PluginEvent(ServerEventType.RoundEnd)]
-        public void EndRound(RoundEndEvent ev)
+        public override void OnServerRoundEnded(RoundEndedEventArgs ev)
         {
             if (EventManager.CurrentEvent != null)
             {
-                Log.Info($"Enabled {EventManager.CurrentEvent.EventName} has been disabled due to round end");
+                Logger.Info($"Enabled {EventManager.CurrentEvent.EventName} has been disabled due to round end");
                 EventManager.CurrentEvent.StopEvent();
                 EventManager.CurrentEvent = null;
             }
         }
-
-        [PluginEvent(ServerEventType.WaitingForPlayers)]
-        public void WaitingForPlayers(WaitingForPlayersEvent ev)
+        
+        public override void OnServerWaitingForPlayers()
         {
             if (EventManager.EventQueue.Count >= 1)
             {
@@ -47,7 +42,7 @@ namespace CedMod.Addons.Events
             if (EventManager.CurrentEvent != null)
             {
                 EventManager.CurrentEvent.PrepareEvent();
-                Log.Info($"Enabled {EventManager.CurrentEvent.EventName} for this round");
+                Logger.Info($"Enabled {EventManager.CurrentEvent.EventName} for this round");
             }
             ThreadDispatcher.SendHeartbeatMessage(true);
             
@@ -76,12 +71,11 @@ namespace CedMod.Addons.Events
 #endif
         }
 
-        [PluginEvent(ServerEventType.RoundRestart)]
-        public void RestartingRound(RoundRestartEvent ev)
+        public override void OnServerRoundRestarted()
         {
             if (EventManager.CurrentEvent != null)
             {
-                Log.Info($"Enabled {EventManager.CurrentEvent.EventName} has been disabled due to round restart");
+                Logger.Info($"Enabled {EventManager.CurrentEvent.EventName} has been disabled due to round restart");
                 EventManager.CurrentEvent.StopEvent();
                 EventManager.CurrentEvent = null;
             }

@@ -1,8 +1,9 @@
 ﻿using System;
 using CommandSystem;
+using LabApi.Features.Permissions;
 
 #if !EXILED
-using NWAPIPermissionSystem;
+
 #else
 using Exiled.Permissions.Extensions;
 #endif
@@ -22,7 +23,7 @@ namespace CedMod.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            if (!sender.CheckPermission("cedmod.ffadisable"))
+            if (!sender.HasPermissions("cedmod.ffadisable"))
             {
                 response = "no permission";
                 return false;

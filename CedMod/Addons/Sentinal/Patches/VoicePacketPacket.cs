@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using CedMod.Addons.QuerySystem;
 using HarmonyLib;
+using LabApi.Features.Console;
 using Mirror;
-using PluginAPI.Core;
-using UnityEngine;
 using VoiceChat.Codec;
 using VoiceChat.Networking;
 
@@ -67,7 +65,7 @@ namespace CedMod.Addons.Sentinal.Patches
             }
             catch (Exception e)
             {
-                Log.Error(e.ToString());
+                Logger.Error(e.ToString());
             }
 
             return true;

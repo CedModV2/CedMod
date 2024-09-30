@@ -1,7 +1,4 @@
-﻿using InventorySystem.Items.Firearms.Modules;
-using UnityEngine;
-
-namespace CedMod.Addons.Events.Interfaces
+﻿namespace CedMod.Addons.Events.Interfaces
 {
     public interface IMapgenBehaviour
     {

@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using CedMod.Addons.Events.Interfaces;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
+using Exiled.API.Features;
+using LabApi.Features.Permissions;
 using MEC;
-#if !EXILED
-using NWAPIPermissionSystem;
-#else
-using Exiled.Permissions.Extensions;
-#endif
-using PluginAPI.Core;
 
 namespace CedMod.Addons.Events.Commands
 {
@@ -46,7 +41,7 @@ namespace CedMod.Addons.Events.Commands
                 return false;
             }
             
-            if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.CheckPermission("cedmod.events.enable"))
+            if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.HasPermissions("cedmod.events.enable"))
             {
                 response = "No permission";
                 return false;

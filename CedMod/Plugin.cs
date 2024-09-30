@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -16,34 +15,32 @@ using CedMod.Addons.Events.Interfaces;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
 using CedMod.Addons.Sentinal;
-using CedMod.Addons.Sentinal.Patches;
 using CedMod.Addons.StaffInfo;
 using CedMod.Components;
 using CentralAuth;
+using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.Loader;
 using HarmonyLib;
-using UnityEngine;
+using LabApi.Events.CustomHandlers;
+using LabApi.Loader;
+using LabApi.Loader.Features.Misc;
+using LabApi.Loader.Features.Paths;
+using LabApi.Loader.Features.Plugins;
+using LabApi.Loader.Features.Plugins.Enums;
 using MEC;
-using PluginAPI.Core;
-using PluginAPI.Core.Attributes;
-using PluginAPI.Core.Extensions;
-using PluginAPI.Enums;
-using PluginAPI.Helpers;
-using PluginAPI.Loader;
-using PluginAPI.Loader.Features;
-using Log = PluginAPI.Core.Log;
+using Logger = LabApi.Features.Console.Logger;
 using Object = UnityEngine.Object;
-using Paths = Exiled.API.Features.Paths;
-using Server = PluginAPI.Core.Server;
+using Player = CedMod.Handlers.Player;
+using Server = CedMod.Handlers.Server;
 
 namespace CedMod
 {
     
 #if EXILED
-    public class CedModMain: Plugin<Config>
+    public class CedModMain: Exiled.API.Features.Plugin<Config>
 #else
-    public class CedModMain
+    public class CedModMain: LabApi.Loader.Features.Plugins.Plugin<Config>
 #endif
     {
         private Harmony _harmony;
@@ -55,46 +52,59 @@ namespace CedMod
 
         public static string PluginConfigFolder = "";
         public static string PluginLocation = "";
-        public static PluginDirectory GameModeDirectory;
         public static Assembly Assembly;
         public Thread CacheHandler;
         public static CancellationToken CancellationToken;
         public CancellationTokenSource CancellationTokenSource;
-#if !EXILED
-        public static PluginHandler Handler;
-#endif
 
         public const string PluginVersion = "3.4.18";
 
-#if !EXILED
-        [PluginConfig]
-        public Config Config;
-#endif
-
-#if EXILED
         public override string Name { get; } = "CedMod";
-        public override string Prefix { get; } = "cm";
         public override string Author { get; } = "ced777ric#8321";
         public override Version Version { get; } = new Version(PluginVersion);
-        public override Version RequiredExiledVersion { get; } = new Version(8, 0, 0);
 
+#if EXILED
+        public override string Prefix { get; } = "cm";
+        public override Version RequiredExiledVersion { get; } = new Version(8, 0, 0);
+        public override PluginPriority Priority { get; } = PluginPriority.High;
+        
         public override void OnEnabled()
         {
             LoadPlugin();
             base.OnEnabled();
         }
+#else
+        public override string Description { get; } = "Moderation system and admin tools";
+        public override Version RequiredApiVersion { get; } = new Version(0, 0,0);
+        public override LoadPriority Priority { get; } = LoadPriority.High;
+
+        public override void Enable()
+        {
+            LoadPlugin();
+        }
 #endif
 
-#if !EXILED
-        [PluginPriority(LoadPriority.Lowest)]
-        [PluginEntryPoint("CedMod", PluginVersion, "SCP:SL Moderation system https://cedmod.nl/About", "ced777ric#8321")]
-#endif
+        public Handlers.Player PlayerEvents = new Player();
+        public Handlers.Server ServerEvents = new Server();
+        public QueryPlayerEvents QueryPlayerEvents = new QueryPlayerEvents();
+        public QueryMapEvents QueryMapEvents = new QueryMapEvents();
+        public QueryServerEvents QueryServerEvents = new QueryServerEvents();
+        public EventManagerPlayerEvents EventManagerPlayerEvents = new EventManagerPlayerEvents();
+        public EventManagerServerEvents EventManagerServerEvents = new EventManagerServerEvents();
+        public AutoUpdater AutoUpdater = null;
+        public AdminSitHandler AdminSitHandlerEvents = null;
+        public StaffInfoHandler StaffInfoHandler = null;
+        public string GameModeDirectory { get; set; }
+        Dictionary<Assembly, Plugin> LabApiPluginGamemodes = new Dictionary<Assembly, Plugin>();
+        Dictionary<Plugin, string> LabApiPluginGamemodesPaths = new Dictionary<Plugin, string>();
+        List<Assembly> ExiledPlugin = new List<Assembly>();
+        
         void LoadPlugin()
         {
 #if !EXILED
             if (Config == null)
             {
-                Timing.CallPeriodically(100000, 1, () => Log.Error("Failed to load CedMod, your CedMod config file is invalid. Please make sure the config.yml file is valid, the config.yml file is located in the CedMod folder inside the folder you installed the dll into, if the file does not contain valid yml, delete it, or resolve issues, and restart."));
+                Timing.CallPeriodically(100000, 1, () => Logger.Error("Failed to load CedMod, your CedMod config file is invalid. Please make sure the config.yml file is valid, the config.yml file is located in the CedMod folder inside the folder you installed the dll into, if the file does not contain valid yml, delete it, or resolve issues, and restart."));
                 return;
             }
             
@@ -104,32 +114,38 @@ namespace CedMod
             bool loaded = (bool)loadProperty.GetValue(null);
             if (loaded)
             {
-                Timing.CallPeriodically(100000, 1, () => Log.Error("It would appear that the NWApi tried loading CedMod twice, please ensure that you do not have CedMod installed twice"));
+                Timing.CallPeriodically(100000, 1, () => Logger.Error("It would appear that the NWApi tried loading CedMod twice, please ensure that you do not have CedMod installed twice"));
                 return;
             }
             loadProperty.SetValue(null, true);
-            Handler = PluginHandler.Get(this);
+            
             Timing.CallDelayed(5, () =>
             {
                 if (!AppDomain.CurrentDomain.GetAssemblies().Any(s => s.GetName().Name == "NWAPIPermissionSystem"))
-                    Timing.CallPeriodically(100000, 1, () => Log.Error("You do not have the NWAPIPermissionSystem Installed, CedMod Requires the NWAPIPermission system in order to operate properly, please download it here: https://github.com/CedModV2/NWAPIPermissionSystem"));
+                    Timing.CallPeriodically(100000, 1, () => Logger.Error("You do not have the NWAPIPermissionSystem Installed, CedMod Requires the NWAPIPermission system in order to operate properly, please download it here: https://github.com/CedModV2/NWAPIPermissionSystem"));
                 return;
             });
 
-            PluginLocation = Handler.PluginFilePath;
-            PluginConfigFolder = Handler.PluginDirectoryPath;
+            var files = PathManager.Plugins.GetFiles("CedMod*.dll");
+            if (files.Length == 0)
+            {
+                Timing.CallPeriodically(100000, 1, () => Logger.Error("Failed to load CedMod, CedMod path is empty, please contact cedmod support."));
+                return;
+            }
+            PluginLocation = files.FirstOrDefault().FullName;
+            PluginConfigFolder = this.GetConfigDirectory().FullName;
 #else
             var loadProperty = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(s => s.GetName().Name == "CedModV3").GetType("CedMod.API").GetProperty("HasLoaded");
             bool loaded = (bool)loadProperty.GetValue(null);
             if (loaded)
             {
-                Timing.CallPeriodically(100000, 1, () => Log.Error("It would appear that EXILED tried loading CedMod twice, please ensure that you do not have CedMod or EXILED installed twice"));
+                Timing.CallPeriodically(100000, 1, () => Logger.Error("It would appear that EXILED tried loading CedMod twice, please ensure that you do not have CedMod or EXILED installed twice"));
                 return;
             }
             loadProperty.SetValue(null, true);
             PluginLocation = this.GetPath();
             PluginConfigFolder = Path.Combine(Paths.Configs, "CedMod");
-            Log.Info($"Using {PluginConfigFolder} as CedMod data folder.");
+            Logger.Info($"Using {PluginConfigFolder} as CedMod data folder.");
 #endif
             CancellationTokenSource = new CancellationTokenSource();
             CancellationToken = CancellationTokenSource.Token;
@@ -152,32 +168,17 @@ namespace CedMod
             PlayerAuthenticationManager.OnInstanceModeChanged += HandleInstanceModeChange; 
             Assembly = Assembly.GetExecutingAssembly();
             CosturaUtility.Initialize();
-
-            PluginAPI.Events.EventManager.RegisterEvents<Handlers.Player>(this);
-            PluginAPI.Events.EventManager.RegisterEvents<Handlers.Server>(this);
-
-            PluginAPI.Events.EventManager.RegisterEvents<QueryMapEvents>(this);
-            PluginAPI.Events.EventManager.RegisterEvents<QueryServerEvents>(this);
-            PluginAPI.Events.EventManager.RegisterEvents<QueryPlayerEvents>(this);
-
-            PluginAPI.Events.EventManager.RegisterEvents<EventManagerServerEvents>(this);
-            PluginAPI.Events.EventManager.RegisterEvents<EventManagerPlayerEvents>(this);
-
-            PluginAPI.Events.EventManager.RegisterEvents<AutoUpdater>(this);
-            PluginAPI.Events.EventManager.RegisterEvents<AdminSitHandler>(this);
-            if (Config.QuerySystem.StaffInfoSystem)
-                PluginAPI.Events.EventManager.RegisterEvents<StaffInfoHandler>(this);
-
+            
             try
             {
-                GameModeDirectory = new PluginDirectory(Path.Combine(PluginConfigFolder, "CedModEvents"));
+                GameModeDirectory = Path.Combine(PluginConfigFolder, "CedModEvents");
                 var file = File.Open(PluginLocation, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
                 FileHash = GetHashCode(file, new MD5CryptoServiceProvider());
                 file.Dispose();
             }
             catch (Exception e)
             {
-                Log.Error(e.ToString());
+                Logger.Error(e.ToString());
             }
 
             try
@@ -187,10 +188,46 @@ namespace CedMod
             }
             catch (Exception e)
             {
-                PluginAPI.Core.Log.Error($"Failed to patch: {e.ToString()}");
+                Logger.Error($"Failed to patch: {e.ToString()}");
                 _harmony.UnpatchAll(_harmony.Id);
-                PluginAPI.Events.EventManager.UnregisterAllEvents(this);
             }
+            
+            CustomHandlersManager.RegisterEventsHandler(PlayerEvents);
+            CustomHandlersManager.RegisterEventsHandler(ServerEvents);
+
+            CustomHandlersManager.RegisterEventsHandler(QueryPlayerEvents);
+            CustomHandlersManager.RegisterEventsHandler(QueryMapEvents);
+            CustomHandlersManager.RegisterEventsHandler(QueryServerEvents);
+            
+            CustomHandlersManager.RegisterEventsHandler(EventManagerPlayerEvents);
+            CustomHandlersManager.RegisterEventsHandler(EventManagerServerEvents);
+            
+            ThreadDispatcher dispatcher = Object.FindObjectOfType<ThreadDispatcher>();
+            if (dispatcher == null)
+                CustomNetworkManager.singleton.gameObject.AddComponent<ThreadDispatcher>();
+
+            AutoUpdater = Object.FindObjectOfType<AutoUpdater>();
+            if (AutoUpdater == null)
+                AutoUpdater = CustomNetworkManager.singleton.gameObject.AddComponent<AutoUpdater>();
+
+            AdminSitHandlerEvents = Object.FindObjectOfType<AdminSitHandler>();
+            if (AdminSitHandlerEvents == null)
+                AdminSitHandlerEvents = CustomNetworkManager.singleton.gameObject.AddComponent<AdminSitHandler>();
+
+            RemoteAdminModificationHandler remoteAdminModificationHandler = Object.FindObjectOfType<RemoteAdminModificationHandler>();
+            if (remoteAdminModificationHandler == null)
+                remoteAdminModificationHandler = CustomNetworkManager.singleton.gameObject.AddComponent<RemoteAdminModificationHandler>();
+
+            if (Config.QuerySystem.StaffInfoSystem)
+            {
+                StaffInfoHandler staffInfoHandler = Object.FindObjectOfType<StaffInfoHandler>();
+                if (staffInfoHandler == null)
+                    staffInfoHandler = CustomNetworkManager.singleton.gameObject.AddComponent<StaffInfoHandler>();
+            }
+            
+            SentinalBehaviour sentinalBehaviour = Object.FindObjectOfType<SentinalBehaviour>();
+            if (sentinalBehaviour == null)
+                sentinalBehaviour = CustomNetworkManager.singleton.gameObject.AddComponent<SentinalBehaviour>();
 
             using (Stream stream = Assembly.GetManifestResourceStream("CedMod.version.txt"))
             using (StreamReader reader = new StreamReader(stream))
@@ -206,7 +243,7 @@ namespace CedMod
 
             if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", "dev.txt")))
             {
-                Log.Info("Plugin running as Dev");
+                Logger.Info("Plugin running as Dev");
                 QuerySystem.IsDev = true;
                 using (StreamReader reader = new StreamReader(Path.Combine(PluginConfigFolder, "CedMod", "dev.txt")))
                 {
@@ -240,35 +277,7 @@ namespace CedMod
 
             Singleton = this;
 
-            ThreadDispatcher dispatcher = Object.FindObjectOfType<ThreadDispatcher>();
-            if (dispatcher == null)
-                CustomNetworkManager.singleton.gameObject.AddComponent<ThreadDispatcher>();
-
-            AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
-            if (updater == null)
-                updater = CustomNetworkManager.singleton.gameObject.AddComponent<AutoUpdater>();
-
-            AdminSitHandler adminSitHandler = Object.FindObjectOfType<AdminSitHandler>();
-            if (adminSitHandler == null)
-                adminSitHandler = CustomNetworkManager.singleton.gameObject.AddComponent<AdminSitHandler>();
-
-            RemoteAdminModificationHandler remoteAdminModificationHandler = Object.FindObjectOfType<RemoteAdminModificationHandler>();
-            if (remoteAdminModificationHandler == null)
-                remoteAdminModificationHandler = CustomNetworkManager.singleton.gameObject.AddComponent<RemoteAdminModificationHandler>();
-
-            if (Config.QuerySystem.StaffInfoSystem)
-            {
-                StaffInfoHandler staffInfoHandler = Object.FindObjectOfType<StaffInfoHandler>();
-                if (staffInfoHandler == null)
-                    staffInfoHandler = CustomNetworkManager.singleton.gameObject.AddComponent<StaffInfoHandler>();
-            }
-            
-            SentinalBehaviour sentinalBehaviour = Object.FindObjectOfType<SentinalBehaviour>();
-            if (sentinalBehaviour == null)
-                sentinalBehaviour = CustomNetworkManager.singleton.gameObject.AddComponent<SentinalBehaviour>();
-            
-
-            if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt")))
+            if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{ServerConsole.PortToReport}.txt")))
             {
                 // Start the HTTP server.
                 Task.Run(async () =>
@@ -280,20 +289,16 @@ namespace CedMod
                     }
                     catch (Exception e)
                     {
-                        Log.Error(e.ToString());
+                        Logger.Error(e.ToString());
                     }
                 });
             }
             else
-                Log.Warning("Plugin is not setup properly, please use refer to the cedmod setup guide"); //todo link guide
+                Logger.Warn("Plugin is not setup properly, please use refer to the cedmod setup guide"); //todo link guide
 
             Shutdown.OnQuit += OnQuit;
             CacheHandler = new Thread(CedMod.CacheHandler.Loop);
             CacheHandler.Start();
-
-            QuerySystem.QueryMapEvents = new QueryMapEvents();
-            QuerySystem.QueryServerEvents = new QueryServerEvents();
-            QuerySystem.QueryPlayerEvents = new QueryPlayerEvents();
 
             if (!Directory.Exists(Path.Combine(PluginConfigFolder, "CedModEvents")))
             {
@@ -306,11 +311,6 @@ namespace CedMod
             }
 
             int successes = 0;
-            
-            Dictionary<Type, PluginHandler> handlers = new Dictionary<Type, PluginHandler>();
-            Dictionary<PluginHandler, string> pluginLocations = new Dictionary<PluginHandler, string>();
-
-            List<Assembly> ExiledPlugin = new List<Assembly>();
 
             foreach (var file in Directory.GetFiles(Path.Combine(PluginConfigFolder, "CedModEvents"), "*.dll"))
             {
@@ -327,27 +327,30 @@ namespace CedMod
                         continue;
                     }
 #endif
-                    if (!entryType.IsValidEntrypoint()) 
+                    if (AssemblyUtils.HasMissingDependencies(assembly, file, out Type[]? missingTypes))
                         continue;
 
-                    if (!AssemblyLoader.Plugins.ContainsKey(assembly)) 
-                        AssemblyLoader.Plugins.Add(assembly, new Dictionary<Type, PluginHandler>());
-
-                    if (!AssemblyLoader.Plugins[assembly].ContainsKey(entryType))
+                    if (PluginLoader.Plugins.ContainsValue(assembly)) 
+                        continue;
+                    
+                    foreach (Type type in types)
                     {
                         try
                         {
-                            var plugin = Activator.CreateInstance(entryType);
-                            var pluginType = new PluginHandler(GameModeDirectory, plugin, entryType, types);
-                            pluginLocations.Add(pluginType, file);
-                            handlers.Add(entryType, pluginType);
-                            AssemblyLoader.Plugins[assembly].Add(entryType, pluginType);
-                            AssemblyLoader.PluginToAssembly.Add(plugin, assembly);
+                            if (!type.IsSubclassOf(typeof(Plugin)))
+                                continue;
+
+                            if (Activator.CreateInstance(type) is not Plugin plugin)
+                                continue;
+
+                            LabApiPluginGamemodes.Add(assembly, plugin);
+                            LabApiPluginGamemodesPaths[plugin] = file;
+                            Logger.Info($"[CedModEvents-LabApi] Successfully loaded {plugin.Name}");
                             successes++;
                         }
                         catch (Exception e)
                         {
-                            Log.Info($"Failed to load {entryType.FullName}.\n{e}");
+                            Logger.Info($"Failed to load {entryType.FullName}.\n{e}");
                             continue;
                         }
                     }
@@ -365,7 +368,7 @@ namespace CedMod
                 }
                 catch (Exception e)
                 {
-                    Log.Info($"[ExiledGameMode] Failed to load {plugin.Name}.\n{e}");
+                    Logger.Info($"[ExiledGameMode] Failed to load {plugin.Name}.\n{e}");
                     continue;
                 }
 
@@ -374,12 +377,12 @@ namespace CedMod
                 foreach (var type in exiled.GetTypes().Where(x => typeof(IEvent).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract))
                 {
                     if (Config.EventManager.Debug)
-                        Log.Debug($"[ExiledGameMode] Checked {plugin.Name} for CedMod-Events functionality, IEvent inherited");
+                        Logger.Debug($"[ExiledGameMode] Checked {plugin.Name} for CedMod-Events functionality, IEvent inherited");
                     var constructor = type.GetConstructor(Type.EmptyTypes);
                     if (constructor == null)
                     {
                         if (Config.EventManager.Debug) 
-                            Log.Debug($"[ExiledGameMode] Checked {plugin.Name} Constructor is null, cannot continue");
+                            Logger.Debug($"[ExiledGameMode] Checked {plugin.Name} Constructor is null, cannot continue");
                         continue;
                     }
                     else
@@ -390,64 +393,65 @@ namespace CedMod
                         if (@event == null)
                             continue;
 
-                        if (!@event.Config.IsEnabled)
+                        if (!@event.EventConfig.IsEnabled)
                         {
                             if (Config.EventManager.Debug)
-                                Log.Debug($"[ExiledGameMode] Checked {plugin.Name} IsEnabled is False, cannot continue");
+                                Logger.Debug($"[ExiledGameMode] Checked {plugin.Name} IsEnabled is False, cannot continue");
                             continue;
                         }
 
                         EventManager.AvailableEvents.Add(@event);
-                        Log.Info($"[ExiledGameMode] Successfully registered {@event.EventName} By {@event.EvenAuthor} ({@event.EventPrefix})");
+                        Logger.Info($"[ExiledGameMode] Successfully registered {@event.EventName} By {@event.EvenAuthor} ({@event.EventPrefix})");
                     }
                 }
             }
 #endif
             
-            foreach (var gamemode in handlers)
+            foreach (var gamemode in LabApiPluginGamemodes)
             {
                 if (EventManager.AvailableEventPlugins.Contains(gamemode.Value))
                 {
-                    Log.Error($"[NWAPIGamemode] Found duplicate Event: {gamemode.Value.PluginName} Located at: {pluginLocations[gamemode.Value]} Please only have one of each Event installed");
+                    Logger.Error($"[NWAPIGamemode] Found duplicate Event: {gamemode.Value.Name} Located at: {LabApiPluginGamemodesPaths[gamemode.Value]} Please only have one of each Event installed");
                     continue;
                 }
                 EventManager.AvailableEventPlugins.Add(gamemode.Value);
                 try
                 {
-                    gamemode.Value.Load();
+                    gamemode.Value.LoadConfigs();
+                    gamemode.Value.Enable();
+                    gamemode.Value.RegisterCommands();
                 }
                 catch (Exception e)
                 {
-                    Log.Info($"[NWAPIGamemode] Failed to load {gamemode.Value.PluginName}.\n{e}");
+                    Logger.Info($"[CedModEvents-LabApi] Failed to load {gamemode.Value.Name}.\n{e}");
                     continue;
                 }
 
-                foreach (var type in gamemode.Key.Assembly.GetTypes().Where(x => typeof(IEvent).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract))
+                foreach (var type in gamemode.Key.GetTypes().Where(x => typeof(IEvent).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract))
                 {
                     if (Config.EventManager.Debug)
-                        Log.Debug($"[NWAPIGamemode] Checked {gamemode.Value.PluginName} for CedMod-Events functionality, IEvent inherited");
-                    var constructor = type.GetConstructor(Type.EmptyTypes);
-                    if (constructor == null)
+                        Logger.Debug($"[CedModEvents-LabApi] Checked {gamemode.Value.Name} for CedMod-Events functionality, IEvent inherited");
+                    var constructor = Activator.CreateInstance(type);
+                    if (constructor == null || constructor is not IEvent @event)
                     {
                         if (Config.EventManager.Debug)
-                            Log.Debug($"[NWAPIGamemode] Checked {gamemode.Value.PluginName} Constructor is null, cannot continue");
+                            Logger.Debug($"[CedModEvents-LabApi] Checked {gamemode.Value.Name} Constructor is null, cannot continue");
                         continue;
                     }
                     else
                     {
-                        IEvent @event = gamemode.Value._plugin as IEvent;
                         if (@event == null) 
                             continue;
 
-                        if (!@event.Config.IsEnabled)
+                        if (!@event.EventConfig.IsEnabled)
                         {
                             if (Config.EventManager.Debug)
-                                Log.Debug($"[NWAPIGamemode] Checked {gamemode.Value.PluginName} IsEnabled is False, cannot continue");
+                                Logger.Debug($"[CedModEvents-LabApi] Checked {gamemode.Value.Name} IsEnabled is False, cannot continue");
                             continue;
                         }
                       
                         EventManager.AvailableEvents.Add(@event);
-                        Log.Info($"[NWAPIGamemode] Successfully registered {@event.EventName} By {@event.EvenAuthor} ({@event.EventPrefix})");
+                        Logger.Info($"[CedModEvents-LabApi] Successfully registered {@event.EventName} By {@event.EvenAuthor} ({@event.EventPrefix})");
                     }
                 }
             }
@@ -462,24 +466,24 @@ namespace CedMod
             {
                 try
                 {
-                    Log.Info("Exit watcher enabled.");
+                    Logger.Info("Exit watcher enabled.");
                     //CedMod.CacheHandler.WaitForSecond(5, o => true);
                     for (int i = 0; i < 30 && ServerShutdown.ShutdownState != ServerShutdown.ServerShutdownState.Complete || i < 6; ++i)
                     {
                         Thread.Sleep(120);
                     }
                     var process = Process.GetCurrentProcess();
-                    Log.Info($"Exit taking too long, killing {process.Id} {process.ProcessName} {process.StartInfo.Arguments}");
+                    Logger.Info($"Exit taking too long, killing {process.Id} {process.ProcessName} {process.StartInfo.Arguments}");
                     process.Kill();
-                    Log.Info("Killed");
+                    Logger.Info("Killed");
                 }
                 catch (Exception e)
                 {
-                    Log.Error(e.ToString());
+                    Logger.Error(e.ToString());
                 }
             }).Start();
             
-            Log.Info("Server shutting down, stopping threads...");
+            Logger.Info("Server shutting down, stopping threads...");
             CancellationTokenSource.Cancel();
             try
             {
@@ -491,7 +495,7 @@ namespace CedMod
                 Console.WriteLine(e);
             }
             
-            Log.Info("Shutdown WebsocketSystem");
+            Logger.Info("Shutdown WebsocketSystem");
             
             try
             {
@@ -501,14 +505,14 @@ namespace CedMod
             {
                 Console.WriteLine(e);
             }
-            Log.Info("CedMod Threads stopped.");
+            Logger.Info("CedMod Threads stopped.");
         }
 
         private void HandleInstanceModeChange(ReferenceHub arg1, ClientInstanceMode arg2)
         {
             if ((arg2 != ClientInstanceMode.Unverified || arg2 != ClientInstanceMode.Host) && AudioCommand.FakeConnectionsIds.ContainsValue(arg1))
             {
-                Log.Info($"Replaced instancemode for dummy to host.");
+                Logger.Info($"Replaced instancemode for dummy to host.");
                 arg1.authManager.InstanceMode = ClientInstanceMode.Host;
             }
         }
@@ -529,7 +533,7 @@ namespace CedMod
                 if (type?.IsGenericType ?? false)
                 {
                     Type genericDef = type.GetGenericTypeDefinition();
-                    if (genericDef == typeof(Plugin<>) || genericDef == typeof(Plugin<,>))
+                    if (genericDef == typeof(LabApi.Loader.Features.Plugins.Plugin<>) || genericDef == typeof(Plugin<,>))
                         return true;
                 }
             }
@@ -537,7 +541,10 @@ namespace CedMod
             return false;
         }
 #else
-        [PluginUnload]
+        public override void Disable()
+        {
+            Disabled();
+        }
 #endif
         public void Disabled()
         {
@@ -546,20 +553,15 @@ namespace CedMod
             PlayerAuthenticationManager.OnInstanceModeChanged -= HandleInstanceModeChange;
             _harmony.UnpatchAll(_harmony.Id);
             
-            PluginAPI.Events.EventManager.UnregisterEvents<Handlers.Player>(this);
-            PluginAPI.Events.EventManager.UnregisterEvents<Handlers.Server>(this);
+            CustomHandlersManager.UnregisterEventsHandler(PlayerEvents);
+            CustomHandlersManager.UnregisterEventsHandler(ServerEvents);
 
-            PluginAPI.Events.EventManager.UnregisterEvents<QueryMapEvents>(this);
-            PluginAPI.Events.EventManager.UnregisterEvents<QueryServerEvents>(this);
-            PluginAPI.Events.EventManager.UnregisterEvents<QueryPlayerEvents>(this);
-
-            PluginAPI.Events.EventManager.UnregisterEvents<EventManagerServerEvents>(this);
-            PluginAPI.Events.EventManager.UnregisterEvents<EventManagerPlayerEvents>(this);
-
-            PluginAPI.Events.EventManager.UnregisterEvents<AutoUpdater>(this);
-            PluginAPI.Events.EventManager.UnregisterEvents<AdminSitHandler>(this);
-            if (Config.QuerySystem.StaffInfoSystem)
-                PluginAPI.Events.EventManager.UnregisterEvents<StaffInfoHandler>(this);
+            CustomHandlersManager.UnregisterEventsHandler(QueryPlayerEvents);
+            CustomHandlersManager.UnregisterEventsHandler(QueryMapEvents);
+            CustomHandlersManager.UnregisterEventsHandler(QueryServerEvents);
+            
+            CustomHandlersManager.UnregisterEventsHandler(EventManagerPlayerEvents);
+            CustomHandlersManager.UnregisterEventsHandler(EventManagerServerEvents);
             
             Shutdown.OnQuit -= OnQuit;
             
@@ -569,13 +571,11 @@ namespace CedMod
             if (dispatcher != null)
                 Object.Destroy(dispatcher);
             
-            AutoUpdater updater = Object.FindObjectOfType<AutoUpdater>();
-            if (updater != null)
-                Object.Destroy(updater);
+            if (AutoUpdater != null)
+                Object.Destroy(AutoUpdater);
             
-            AdminSitHandler adminSitHandler = Object.FindObjectOfType<AdminSitHandler>();
-            if (adminSitHandler != null)
-                Object.Destroy(adminSitHandler);
+            if (AdminSitHandlerEvents != null)
+                Object.Destroy(AdminSitHandlerEvents);
             
             RemoteAdminModificationHandler remoteAdminModificationHandler = Object.FindObjectOfType<RemoteAdminModificationHandler>();
             if (remoteAdminModificationHandler != null)
@@ -587,30 +587,23 @@ namespace CedMod
 
             if (Config.QuerySystem.StaffInfoSystem)
             {
-                StaffInfoHandler staffInfoHandler = Object.FindObjectOfType<StaffInfoHandler>();
-                if (staffInfoHandler != null)
-                    Object.Destroy(staffInfoHandler);
+                if (StaffInfoHandler != null)
+                    Object.Destroy(StaffInfoHandler);
             }
 
             WebSocketSystem.Stop();
             CacheHandler.Interrupt();
-            
-            QuerySystem.QueryMapEvents = null;
-            QuerySystem.QueryServerEvents = null;
-            QuerySystem.QueryPlayerEvents = null;
-            
-            EventManager.EventManagerServerEvents = null;
-            EventManager.EventManagerPlayerEvents = null;
 
             foreach (var plugin in EventManager.AvailableEventPlugins)
             {
                 try
                 {
-                    plugin.Unload();
+                    plugin.UnregisterCommands();
+                    plugin.Disable();
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"Failed to disable GameMode: {plugin.PluginName}\n{e}");
+                    Logger.Error($"Failed to disable GameMode: {plugin.Name}\n{e}");
                 }
             }
 
@@ -623,7 +616,7 @@ namespace CedMod
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"Failed to disable GameMode: {plugin.Name}\n{e}");
+                    Logger.Error($"Failed to disable GameMode: {plugin.Name}\n{e}");
                 }
             }
 #endif

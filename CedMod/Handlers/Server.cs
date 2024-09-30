@@ -1,28 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CedMod.Addons.Audio;
-using CedMod.Addons.Sentinal;
 using CedMod.Addons.Sentinal.Patches;
-using CedMod.Commands;
 using CedMod.Components;
-using MEC;
+using LabApi.Events.CustomHandlers;
 using Mirror;
-using Newtonsoft.Json;
-using PluginAPI.Core.Attributes;
-using PluginAPI.Enums;
-using PluginAPI.Events;
 
 namespace CedMod.Handlers
 {
-    public class Server
+    public class Server: CustomEventsHandler
     {
         public static Dictionary<ReferenceHub, ReferenceHub> reported = new Dictionary<ReferenceHub, ReferenceHub>();
 
-        [PluginEvent(ServerEventType.RoundRestart)]
-        public void OnRoundRestart(RoundRestartEvent ev)
+        public override void OnServerRoundRestarted()
         {
             FriendlyFireAutoban.Teamkillers.Clear();
             FriendlyFireAutoban.AdminDisabled = false;

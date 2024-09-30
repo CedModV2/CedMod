@@ -1,8 +1,6 @@
 ﻿using System;
-using InventorySystem.Items.Firearms.Modules;
+using LabApi.Features.Wrappers;
 using PlayerStatsSystem;
-using PluginAPI.Core;
-using UnityEngine;
 
 namespace CedMod.Addons.Events.Interfaces
 {

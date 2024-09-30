@@ -1,15 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using CommandSystem;
-using InventorySystem.Items;
-using MEC;
-#if !EXILED
-using NWAPIPermissionSystem;
-#else
-using Exiled.Permissions.Extensions;
-#endif
-using PlayerRoles;
+using LabApi.Features.Permissions;
 
 namespace CedMod.Addons.AdminSitSystem.Commands.Jail
 {
@@ -26,7 +18,7 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            if (!sender.CheckPermission("cedmod.jail"))
+            if (!sender.HasPermissions("cedmod.jail"))
             {
                 response = "no permission";
                 return false;

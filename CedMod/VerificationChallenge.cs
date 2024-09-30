@@ -8,9 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
 using Cryptography;
+using LabApi.Features.Console;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Engines;
-using PluginAPI.Core;
 
 namespace CedMod
 {
@@ -37,15 +37,15 @@ namespace CedMod
                 while (!CompletedChallenge && !CedModMain.CancellationToken.IsCancellationRequested)
                 {
                     await Task.Delay(100, CedModMain.CancellationToken);
-                    //Log.Info("Waiting");
+                    //Logger.Info("Waiting");
                 }
-                //Log.Info("Exit waiting");
+                //Logger.Info("Exit waiting");
             }
             catch (Exception e)
             {
                 if (e is TaskCanceledException)
                     return;
-                Log.Error($"Failed to await verification process {e}");
+                Logger.Error($"Failed to await verification process {e}");
             }
         }
 
@@ -72,7 +72,7 @@ namespace CedMod
                     
                     using (HttpClient client = new HttpClient())
                     {
-                        client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                        client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
                         var response = client.GetAsync("https://challenge.cedmod.nl/Check/ShouldChallenge").Result;
                         if (response.StatusCode == HttpStatusCode.OK)
                         {
@@ -81,7 +81,7 @@ namespace CedMod
                             return;
                         }
 
-                        Log.Info("Performing security challenge");
+                        Logger.Info("Performing security challenge");
 
                         AsymmetricKeyParameter keyParameter = null;
                         client.DefaultRequestHeaders.Add("X-Challenge-Time", "1" + DateTime.UtcNow.Ticks);
@@ -90,7 +90,7 @@ namespace CedMod
 
                         if (response.StatusCode != HttpStatusCode.OK)
                         {
-                            Log.Error($"Failed to perform security challenge, {response.Content.ReadAsStringAsync().Result}");
+                            Logger.Error($"Failed to perform security challenge, {response.Content.ReadAsStringAsync().Result}");
                             Thread.Sleep(1000);
                             PerformVerification(key, true).Wait();
                             return;
@@ -110,7 +110,7 @@ namespace CedMod
                         byte[] encrypted = cipher.ProcessBlock(bytesArray, 0, bytesArray.Length);
                         string solution = Convert.ToBase64String(encrypted);
                         
-                        response = client.PostAsync($"https://challenge.cedmod.nl/ChallengeResponse/ProcessResponse?key={(string.IsNullOrEmpty(key) ? QuerySystem.QuerySystemKey : key)}&i={Time}&ip={Server.ServerIpAddress}", new StringContent(solution, Encoding.UTF8)).Result;
+                        response = client.PostAsync($"https://challenge.cedmod.nl/ChallengeResponse/ProcessResponse?key={(string.IsNullOrEmpty(key) ? QuerySystem.QuerySystemKey : key)}&i={Time}&ip={ServerConsole.Ip}", new StringContent(solution, Encoding.UTF8)).Result;
                         if (response.StatusCode == HttpStatusCode.OK)
                         {
                             client.DefaultRequestHeaders.Remove("X-Challenge-Id");
@@ -119,13 +119,13 @@ namespace CedMod
                             if (response.StatusCode == HttpStatusCode.OK)
                             {
                                 CompletedChallenge = true;
-                                Log.Info("Completed server security challenge.");
+                                Logger.Info("Completed server security challenge.");
                             }
                             else
                             {
                                 if (Time >= 6)
                                 {
-                                    Log.Error($"Failed to perform security challenge, {response.Content.ReadAsStringAsync().Result}");
+                                    Logger.Error($"Failed to perform security challenge, {response.Content.ReadAsStringAsync().Result}");
                                 }
 
                                 Time++;
@@ -135,7 +135,7 @@ namespace CedMod
                         }
                         else
                         {
-                            Log.Error($"Failed to perform security challenge, {response.Content.ReadAsStringAsync().Result}");
+                            Logger.Error($"Failed to perform security challenge, {response.Content.ReadAsStringAsync().Result}");
                             Thread.Sleep(1000);
                             PerformVerification(key, true).Wait();
                             return;
@@ -144,7 +144,7 @@ namespace CedMod
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"Failed to perform security challenge, {e}");
+                    Logger.Error($"Failed to perform security challenge, {e}");
                     Thread.Sleep(1000);
                     PerformVerification(key, true).Wait();
                 }

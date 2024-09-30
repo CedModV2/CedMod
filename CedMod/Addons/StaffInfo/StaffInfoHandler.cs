@@ -4,14 +4,11 @@ using System.Linq;
 using CedMod.Addons.QuerySystem.WS;
 using CedMod.Components;
 using CentralAuth;
+using LabApi.Features.Wrappers;
 using PlayerRoles;
 using PlayerRoles.Spectating;
-using PluginAPI.Core;
-using PluginAPI.Core.Attributes;
-using PluginAPI.Enums;
-using PluginAPI.Events;
 using UnityEngine;
-using Utils.NonAllocLINQ;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace CedMod.Addons.StaffInfo
 {
@@ -53,7 +50,7 @@ namespace CedMod.Addons.StaffInfo
                 string combined = cmd.Data["Message"];
                 
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Log.Debug($"received staffinfo {staffPlayer.Nickname} {player.Nickname}", CedModMain.Singleton.Config.QuerySystem.Debug);
+                    Logger.Debug($"received staffinfo {staffPlayer.Nickname} {player.Nickname}", CedModMain.Singleton.Config.QuerySystem.Debug);
 
                 var watchlist = RemoteAdminModificationHandler.Watchlist.FirstOrDefault(s => s.Userid == player.UserId);
                 var groupWatchlist = RemoteAdminModificationHandler.GroupWatchlist.Where(s => s.UserIds.Contains(player.UserId));
@@ -85,15 +82,15 @@ namespace CedMod.Addons.StaffInfo
             Timer = 1;
             
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                Log.Debug("Starting staffinfo", CedModMain.Singleton.Config.QuerySystem.Debug);
+                Logger.Debug("Starting staffinfo", CedModMain.Singleton.Config.QuerySystem.Debug);
             
-            foreach (var staff in Player.GetPlayers())
+            foreach (var staff in Player.List)
             {
                 if (!staff.RemoteAdminAccess)
                     continue;
                 
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Log.Debug($"Staffinfo for {staff.Nickname}", CedModMain.Singleton.Config.QuerySystem.Debug);
+                    Logger.Debug($"Staffinfo for {staff.Nickname}", CedModMain.Singleton.Config.QuerySystem.Debug);
                 
                 if (!StaffData.ContainsKey(staff.UserId))
                     StaffData.Add(staff.UserId, new Dictionary<string, Tuple<string, DateTime>>());
@@ -105,7 +102,7 @@ namespace CedMod.Addons.StaffInfo
                 {
                     RemoteAdminModificationHandler.Singleton.ResolvePreferences(staff, null);
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug($"Staffinfo for {staff.Nickname} no prefs", CedModMain.Singleton.Config.QuerySystem.Debug);
+                        Logger.Debug($"Staffinfo for {staff.Nickname} no prefs", CedModMain.Singleton.Config.QuerySystem.Debug);
                 }
                 
                 if (!RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(staff))
@@ -113,10 +110,10 @@ namespace CedMod.Addons.StaffInfo
                 
                 var prefs = RemoteAdminModificationHandler.IngameUserPreferencesMap[staff];
 
-                foreach (var player in Player.GetPlayers())
+                foreach (var player in Player.List)
                 {
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug($"Staffinfo for {staff.Nickname} getting {player.Nickname}", CedModMain.Singleton.Config.QuerySystem.Debug);
+                        Logger.Debug($"Staffinfo for {staff.Nickname} getting {player.Nickname}", CedModMain.Singleton.Config.QuerySystem.Debug);
                     
                     if (player.ReferenceHub.authManager.InstanceMode != ClientInstanceMode.ReadyClient)
                         continue;
@@ -139,7 +136,7 @@ namespace CedMod.Addons.StaffInfo
                         continue;
                     
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug($"Staffinfo for {staff.Nickname} getting final {player.Nickname}");
+                        Logger.Debug($"Staffinfo for {staff.Nickname} getting final {player.Nickname}");
 
                     RequestInfo(staff, player);
                 }
@@ -147,7 +144,7 @@ namespace CedMod.Addons.StaffInfo
                 if (prefs.StreamerMode)
                     continue;
 
-                var currentlySpectating = Player.GetPlayers().FirstOrDefault(s => s.ReferenceHub.IsSpectatedBy(staff.ReferenceHub));
+                var currentlySpectating = Player.List.FirstOrDefault(s => s.ReferenceHub.IsSpectatedBy(staff.ReferenceHub));
                 
                 switch (staff.Role)
                 {

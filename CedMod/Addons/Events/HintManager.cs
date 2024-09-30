@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using PluginAPI.Core;
+using LabApi.Features.Wrappers;
 using UnityEngine;
 
 namespace CedMod.Addons.Events
@@ -17,7 +17,7 @@ namespace CedMod.Addons.Events
         public void Awake()
         {
             player = Player.Get(this.GetComponent<ReferenceHub>());
-            Log.Info($"Initialized HintManager for {player.Nickname}");
+            LabApi.Features.Console.Logger.Info($"Initialized HintManager for {player.Nickname}");
             currentHint = "\n\n<size=25><color=yellow>" +
                           "This server is currently running an event:" +
                           $"\n{EventManager.CurrentEvent.EventName} By {EventManager.CurrentEvent.EvenAuthor}" +
@@ -50,7 +50,7 @@ namespace CedMod.Addons.Events
                     currentHint = "";
                 
                 if (CedModMain.Singleton.Config.EventManager.Debug)
-                    Log.Debug($"Hint display: {currentHint}");
+                    LabApi.Features.Console.Logger.Debug($"Hint display: {currentHint}");
                 
                 if (!string.IsNullOrEmpty(currentHint))
                     player.ReceiveHint(currentHint, hintRefreshRate);

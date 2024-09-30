@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
 using Exiled.Loader;
 using MEC;
 using Newtonsoft.Json;
-using PluginAPI.Core;
 using RoundRestarting;
 using Serialization;
-using UnityEngine;
 
 namespace CedMod.Commands
 {
@@ -35,7 +31,7 @@ namespace CedMod.Commands
 
             using (HttpClient client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
                 HttpResponseMessage panelResponse = null;
                 if (arguments.Count >= 2)
                 {

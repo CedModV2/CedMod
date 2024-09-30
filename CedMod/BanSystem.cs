@@ -5,11 +5,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
+using LabApi.Features.Console;
+using LabApi.Features.Wrappers;
 using MEC;
 using Newtonsoft.Json;
-using PluginAPI.Core;
 using VoiceChat;
-using VoiceChat.Networking;
 
 namespace CedMod
 {
@@ -25,7 +25,7 @@ namespace CedMod
             try
             {
                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                    Log.Debug("Join");
+                    Logger.Debug("Join");
 
                 if (player.ReferenceHub.authManager.AuthenticationResponse.AuthToken != null && player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.BypassBans || player.ReferenceHub.isLocalPlayer)
                     return;
@@ -65,7 +65,7 @@ namespace CedMod
 
                 if (player.ReferenceHub.authManager.AuthenticationResponse.AuthToken != null && player.IpAddress != player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.RequestIp && info != null && info.ContainsKey("success") && info["success"] == "true" && info["vpn"] == "false" && info["isbanned"] == "false")
                 {
-                    Log.Debug("Ip address mismatch, performing request again", CedModMain.Singleton.Config.CedMod.ShowDebug);
+                    Logger.Debug("Ip address mismatch, performing request again", CedModMain.Singleton.Config.CedMod.ShowDebug);
                     var info2 = (Dictionary<string, string>) await API.APIRequest($"Auth/{player.UserId}&{player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.RequestIp}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&server={Uri.EscapeDataString(WebSocketSystem.HelloMessage == null ? "Unknown" : WebSocketSystem.HelloMessage.Identity)}&r=2", JsonConvert.SerializeObject(authToken), false, "POST");
                     if (info2 != null && info2.ContainsKey("success") && info2["success"] == "true" && (info2["vpn"] == "true" || info2["isbanned"] == "true"))
                         info = info2;
@@ -128,13 +128,13 @@ namespace CedMod
                 }
 
                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                    Log.Debug(JsonConvert.SerializeObject(info));
+                    Logger.Debug(JsonConvert.SerializeObject(info));
                 
                 string reason;
                 if (info["success"] == "true" && info["vpn"] == "true" && info["isbanned"] == "false")
                 {
                     reason = info["reason"];
-                    Log.Info($"user: {player.UserId} attempted connection with blocked ASN/IP/VPN/Hosting service");
+                    Logger.Info($"user: {player.UserId} attempted connection with blocked ASN/IP/VPN/Hosting service");
                     ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Timing.RunCoroutine(API.NormalDisconnect(player, reason)));
                 }
                 else
@@ -142,7 +142,7 @@ namespace CedMod
                     if (info["success"] == "true" && info["vpn"] == "false" && info["isbanned"] == "true")
                     {
                         reason = info["preformattedmessage"];
-                        Log.Info($"user: {player.UserId} attempted connection with active ban disconnecting");
+                        Logger.Info($"user: {player.UserId} attempted connection with active ban disconnecting");
                         ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Timing.RunCoroutine(API.NormalDisconnect(player, reason + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage)));
                     }
                     else
@@ -150,14 +150,14 @@ namespace CedMod
                         if (info["success"] == "true" && info["vpn"] == "false" && info["isbanned"] == "false" &&
                             info["iserror"] == "true")
                         {
-                            Log.Info($"Message from CedMod server: {info["error"]}");
+                            Logger.Info($"Message from CedMod server: {info["error"]}");
                         }
                     }
                 }
 
                 if (info["success"] == "true" && info.ContainsKey("mute") && info.ContainsKey("mutereason") && info.ContainsKey("muteduration"))
                 {
-                    Log.Info($"user: {player.UserId} joined while muted, issuing mute...");
+                    Logger.Info($"user: {player.UserId} joined while muted, issuing mute...");
                     Enum.TryParse(info["mute"], out MuteType muteType);
                     // if (muteType == MuteType.Global)
                     //     player.Mute(true);
@@ -203,7 +203,7 @@ namespace CedMod
                     Authenticating.Remove(player.ReferenceHub);
                     player.ReceiveHint("", 1); //clear authenticator hint
                 });
-                Log.Error(ex.ToString());
+                Logger.Error(ex.ToString());
 
                 if (attempt <= 4) //we will retry 5 times
                 {

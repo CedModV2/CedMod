@@ -163,7 +163,6 @@
     <Compile Include="Patches\BanPatch.cs" />
     <Compile Include="Patches\MirrorPatch.cs" />
     <Compile Include="Patches\MuteCommandPatch.cs" />
-    <Compile Include="Patches\NicknamePatch.cs" />
     <Compile Include="Patches\NpcInstanceModePatch.cs" />
     <Compile Include="Patches\OBanCommandPatch.cs" />
     <Compile Include="Patches\RaPlayerAuthPatch.cs" />
@@ -245,6 +244,9 @@
     <Reference Include="Facepunch.Steamworks.Win64, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\Facepunch.Steamworks.Win64.dll</HintPath>
     </Reference>
+    <Reference Include="LabApi">
+      <HintPath>..\References\LabApi.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Win32.Primitives, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <HintPath>..\packages\Microsoft.Win32.Primitives.4.3.0\lib\net46\Microsoft.Win32.Primitives.dll</HintPath>
       <Private>True</Private>
@@ -305,14 +307,8 @@
       <HintPath>..\packages\NVorbis.0.10.5\lib\net45\NVorbis.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NWAPIPermissionSystem, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\References\NWAPIPermissionSystem.dll</HintPath>
-    </Reference>
     <Reference Include="OpusWrapper, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\0OpusWrapper.dll</HintPath>
-    </Reference>
-    <Reference Include="PluginAPI">
-      <HintPath>..\References\PluginAPI_Publicized.dll</HintPath>
     </Reference>
     <Reference Include="Pooling">
       <HintPath>..\References\Pooling.dll</HintPath>

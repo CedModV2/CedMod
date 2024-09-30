@@ -1,19 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using CedMod.Addons.Audio;
-using CedMod.Addons.QuerySystem;
 using CentralAuth;
 using CommandSystem;
+using LabApi.Features.Permissions;
 using MEC;
 using Mirror;
-#if !EXILED
-using NWAPIPermissionSystem;
-#else
-using Exiled.Permissions.Extensions;
-#endif
-using PluginAPI.Core;
 using Object = UnityEngine.Object;
 
 namespace CedMod.Addons.Events.Commands
@@ -36,7 +29,7 @@ namespace CedMod.Addons.Events.Commands
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (!sender.CheckPermission("cedmod.populate"))
+            if (!sender.HasPermissions("cedmod.populate"))
             {
                 response = "no permission";
                 return false;

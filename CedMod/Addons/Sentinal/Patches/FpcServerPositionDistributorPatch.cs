@@ -1,5 +1,4 @@
-﻿using HarmonyLib;
-using Mirror;
+﻿using Mirror;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PlayerRoles.FirstPersonControl.NetworkMessages;

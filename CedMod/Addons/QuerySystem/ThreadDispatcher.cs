@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.WebSockets;
-using System.Reflection;
 using System.Security.Cryptography;
-using System.Threading;
 using System.Threading.Tasks;
 using CedMod.Addons.Audio;
 using CedMod.Addons.Events;
@@ -15,9 +12,9 @@ using CedMod.ApiModals;
 using CentralAuth;
 using Exiled.Loader;
 using Newtonsoft.Json;
-using PluginAPI.Core;
 using SCPSLAudioApi.AudioCore;
 using UnityEngine;
+using Logger = LabApi.Features.Console.Logger;
 using Version = GameCore.Version;
 
 namespace CedMod.Addons.QuerySystem
@@ -31,7 +28,7 @@ namespace CedMod.Addons.QuerySystem
         public void Start()
         {
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                Log.Debug("ThreadDispatcher started");
+                Logger.Debug("ThreadDispatcher started");
         }
 
         public static ConcurrentQueue<Action> ThreadDispatchQueue = new ConcurrentQueue<Action>();
@@ -45,14 +42,14 @@ namespace CedMod.Addons.QuerySystem
                 try
                 {
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug($"Invoking action");
+                        Logger.Debug($"Invoking action");
                     action.Invoke();
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug($"Action Invoked");
+                        Logger.Debug($"Action Invoked");
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"Failed to invoke Dispatch\n{e}");
+                    Logger.Error($"Failed to invoke Dispatch\n{e}");
                 }
             }
 
@@ -106,7 +103,7 @@ namespace CedMod.Addons.QuerySystem
                         Task.Run(async () =>
                         {
                             WebSocketSystem.Reconnect = false;
-                            Log.Error($"WS Watchdog: WS Sendthread not alive while socket open, restarting WS");
+                            Logger.Error($"WS Watchdog: WS Sendthread not alive while socket open, restarting WS");
                             await WebSocketSystem.Stop();
                             await Task.Delay(1000, CedModMain.CancellationToken);
                             await WebSocketSystem.Start();
@@ -121,7 +118,7 @@ namespace CedMod.Addons.QuerySystem
                         Task.Run(async () =>
                         { 
                             WebSocketSystem.Reconnect = false;
-                            Log.Error($"WS Watchdog: WS inactive out of reconnect mode without activity for 1 minutes, restarting WS");
+                            Logger.Error($"WS Watchdog: WS inactive out of reconnect mode without activity for 1 minutes, restarting WS");
                             await WebSocketSystem.Stop();
                             await Task.Delay(1000, CedModMain.CancellationToken);
                             await WebSocketSystem.Start();
@@ -136,7 +133,7 @@ namespace CedMod.Addons.QuerySystem
                         Task.Run(async () =>
                         { 
                             WebSocketSystem.Reconnect = false;
-                            Log.Error($"WS Watchdog: WS inactive in reconnect mode without activity for 2 minutes, restarting WS");
+                            Logger.Error($"WS Watchdog: WS inactive in reconnect mode without activity for 2 minutes, restarting WS");
                             await WebSocketSystem.Stop();
                             await Task.Delay(1000, CedModMain.CancellationToken);
                             await WebSocketSystem.Start();
@@ -151,7 +148,7 @@ namespace CedMod.Addons.QuerySystem
                         Task.Run(async () =>
                         { 
                             WebSocketSystem.Reconnect = false;
-                            Log.Error($"WS Watchdog: no activity for 3 minutes, restarting WS");
+                            Logger.Error($"WS Watchdog: no activity for 3 minutes, restarting WS");
                             await WebSocketSystem.Stop();
                             await Task.Delay(1000, CedModMain.CancellationToken);
                             await WebSocketSystem.Start();
@@ -166,7 +163,7 @@ namespace CedMod.Addons.QuerySystem
                         Task.Run(async () =>
                         { 
                             WebSocketSystem.Reconnect = false;
-                            Log.Error($"WS Watchdog: no server activity for 1 minutes, restarting WS");
+                            Logger.Error($"WS Watchdog: no server activity for 1 minutes, restarting WS");
                             await WebSocketSystem.Stop();
                             await Task.Delay(1000, CedModMain.CancellationToken);
                             await WebSocketSystem.Start();
@@ -181,7 +178,7 @@ namespace CedMod.Addons.QuerySystem
                 if (timeLeftbeforeHeartBeat <= 0)
                 {
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug("Invoking heartbeat");
+                        Logger.Debug("Invoking heartbeat");
                     timeLeftbeforeHeartBeat = 20;
                     SendHeartbeatMessage(true);
                 }

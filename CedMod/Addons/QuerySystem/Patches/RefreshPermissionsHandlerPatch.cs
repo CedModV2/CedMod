@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading;
 using CedMod.Addons.QuerySystem.WS;
 using HarmonyLib;
-using InventorySystem.Items.Firearms.Modules;
 using MEC;
-using UnityEngine;
 
 namespace CedMod.Addons.QuerySystem.Patches
 {
@@ -34,7 +29,7 @@ namespace CedMod.Addons.QuerySystem.Patches
             if (CoroutineHandle.IsRunning)
                 return false;
 
-            CoroutineHandle = Timing.RunCoroutine(QuerySystem.QueryServerEvents.SyncStart(false));
+            CoroutineHandle = Timing.RunCoroutine(CedModMain.Singleton.QueryServerEvents.SyncStart(false));
 
             return true;
         }

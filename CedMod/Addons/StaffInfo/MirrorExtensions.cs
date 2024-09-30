@@ -1,6 +1,6 @@
 ﻿using System;
+using LabApi.Features.Wrappers;
 using Mirror;
-using PluginAPI.Core;
 
 namespace CedMod.Addons.StaffInfo
 {

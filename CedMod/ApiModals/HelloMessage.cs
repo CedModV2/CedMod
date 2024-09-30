@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace CedMod.ApiModals
+﻿namespace CedMod.ApiModals
 {
     public class HelloMessage
     {

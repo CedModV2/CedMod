@@ -1,15 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using CedMod.Addons.QuerySystem;
-using CedMod.ApiModals;
 using CommandSystem;
-using Newtonsoft.Json;
-#if !EXILED
-using NWAPIPermissionSystem;
-#else
-using Exiled.Permissions.Extensions;
-#endif
+using LabApi.Features.Permissions;
 
 namespace CedMod.Addons.Events.Commands
 {
@@ -27,7 +18,7 @@ namespace CedMod.Addons.Events.Commands
             out string response)
         {
             response = "";
-            if (!sender.CheckPermission("cedmod.events.list"))
+            if (!sender.HasPermissions("cedmod.events.list"))
             {
                 response = "No permission";
                 return false;

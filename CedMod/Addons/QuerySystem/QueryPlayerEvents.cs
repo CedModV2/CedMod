@@ -1,31 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem.WS;
 using CentralAuth;
 using CustomPlayerEffects;
-using Interactables.Interobjects;
+using GameCore;
 using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Disarming;
-using InventorySystem.Items;
-using InventorySystem.Items.ThrowableProjectiles;
-using InventorySystem.Items.Usables;
+using LabApi.Events.Arguments.PlayerEvents;
+using LabApi.Events.Arguments.Scp079Events;
+using LabApi.Events.CustomHandlers;
+using LabApi.Features.Wrappers;
 using MapGeneration;
 using MEC;
 using Newtonsoft.Json;
 using PlayerRoles;
-using PlayerStatsSystem;
-using PluginAPI.Core;
-using PluginAPI.Core.Attributes;
-using PluginAPI.Enums;
-using PluginAPI.Events;
 using UnityEngine;
-using EventManager = PluginAPI.Events.EventManager;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace CedMod.Addons.QuerySystem
 {
@@ -55,7 +49,7 @@ namespace CedMod.Addons.QuerySystem
         public List<RoomsInvolved> RoomsInvolved = new List<RoomsInvolved>();
     }
 
-    public class QueryPlayerEvents
+    public class QueryPlayerEvents: CustomEventsHandler
     {
         public QueryPlayerEvents()
         {
@@ -63,9 +57,8 @@ namespace CedMod.Addons.QuerySystem
             StatusEffectBase.OnEnabled += OnPlayerReceiveEffect;
             StatusEffectBase.OnIntensityChanged += OnPlayerReceiveEffectIntensity;
         }
-        
-        [PluginEvent(ServerEventType.PlayerActivateGenerator)]
-        public void OnActivateGenerator(PlayerActivateGeneratorEvent ev)
+
+        public override void OnPlayerActivatedGenerator(PlayerActivatedGeneratorEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -74,7 +67,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnActivateGenerator)},
+                    {"Type", nameof(OnPlayerActivatedGenerator)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has activated generator {4}", new object[]
@@ -83,15 +76,14 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
-                                ev.Generator.netId
+                                ev.Generator.Base.netId
                             })
                     }
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerCancelUsingItem)]
-        public void OnCancelItem(PlayerCancelUsingItemEvent ev)
+
+        public override void OnPlayerCancelledUsingItem(PlayerCancelledUsingItemEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -100,7 +92,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnCancelItem)},
+                    {"Type", nameof(OnPlayerCancelledUsingItem)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has cancelled Item Usage {4}", new object[]
@@ -115,9 +107,8 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerChangeItem)]
-        public void OnChangeItem(PlayerChangeItemEvent ev)
+
+        public override void OnPlayerChangedItem(PlayerChangedItemEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -126,7 +117,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnChangeItem)},
+                    {"Type", nameof(OnPlayerChangedItem)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has changed held item to {4}", new object[]
@@ -135,15 +126,14 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
-                                ev.Player.ReferenceHub.inventory.UserInventory.Items.ContainsKey(ev.NewItem) ? ev.Player.ReferenceHub.inventory.UserInventory.Items[ev.NewItem].ItemTypeId : ItemType.None
+                                ev.NewItem == null ? "None" : ev.NewItem.Type.ToString()
                             })
                     }
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerEnterPocketDimension)]
-        public void OnPocketEnter(PlayerEnterPocketDimensionEvent ev)
+
+        public override void OnPlayerEnteredPocketDimension(PlayerEnteredPocketDimensionEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -152,7 +142,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnPocketEnter)},
+                    {"Type", nameof(OnPlayerEnteredPocketDimension)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has entered the pocket dimension.", new object[]
@@ -167,8 +157,7 @@ namespace CedMod.Addons.QuerySystem
             });
         }
 
-        [PluginEvent(ServerEventType.PlayerExitPocketDimension)]
-        public void OnPocketEscape(PlayerExitPocketDimensionEvent ev)
+        public override void OnPlayerLeavingPocketDimension(PlayerLeavingPocketDimensionEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -178,7 +167,7 @@ namespace CedMod.Addons.QuerySystem
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
                     {"Success", ev.IsSuccessful.ToString()},
-                    {"Type", nameof(OnPocketEscape)},
+                    {"Type", nameof(OnPlayerLeavingPocketDimension)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has escaped the pocket dimension {4}.", new object[]
@@ -193,9 +182,8 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerInteractDoor)]
-        public void OnInteractDoor(PlayerInteractDoorEvent ev)
+
+        public override void OnPlayerInteractedDoor(PlayerInteractedDoorEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -204,7 +192,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnInteractDoor)},
+                    {"Type", nameof(OnPlayerInteractedDoor)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has interacted with door {4}", new object[]
@@ -213,15 +201,14 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
-                                ev.Door.netId + (DoorNametagExtension.NamedDoors.Any(s => s.Value.TargetDoor == ev.Door) ? $" {DoorNametagExtension.NamedDoors.FirstOrDefault(s => s.Value.TargetDoor == ev.Door).Key}" : "") 
+                                ev.Door.Base.netId + (DoorNametagExtension.NamedDoors.Any(s => s.Value.TargetDoor == ev.Door.Base) ? $" {DoorNametagExtension.NamedDoors.FirstOrDefault(s => s.Value.TargetDoor == ev.Door.Base).Key}" : "") 
                             })
                     }
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerInteractGenerator)]
-        public void OnInteractGenerator(PlayerInteractGeneratorEvent ev)
+
+        public override void OnPlayerInteractedGenerator(PlayerInteractedGeneratorEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -230,7 +217,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnInteractGenerator)},
+                    {"Type", nameof(OnPlayerInteractedGenerator)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has interacted with generator {4}.", new object[]
@@ -239,15 +226,14 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
-                                ev.Generator.netId
+                                ev.Generator.Base.netId
                             })
                     }
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerInteractLocker)]
-        public void OnInteractLocker(PlayerInteractLockerEvent ev)
+
+        public override void OnPlayerInteractedLocker(PlayerInteractedLockerEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -256,7 +242,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnInteractLocker)},
+                    {"Type", nameof(OnPlayerInteractedLocker)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has interacted with locker {4}, Chamber {5}.", new object[]
@@ -272,10 +258,9 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
         }
-        
 
-        [PluginEvent(ServerEventType.PlayerInteractElevator)]
-        public void OnElevatorInteraction(PlayerInteractElevatorEvent ev)
+
+        public override void OnPlayerInteractedElevator(PlayerInteractedElevatorEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -284,14 +269,13 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnElevatorInteraction)},
-                    {"Message", ev.Player.Nickname + " - " + ev.Player.UserId + $" has interacted with elevator {ev.Elevator.AssignedGroup}."}
+                    {"Type", nameof(OnPlayerInteractedElevator)},
+                    {"Message", ev.Player.Nickname + " - " + ev.Player.UserId + $" has interacted with elevator {ev.Elevator.Base.AssignedGroup}."}
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.Scp079UseTesla)]
-        public void On079Tesla(Scp079UseTeslaEvent ev)
+
+        public override void OnScp079UsedTesla(Scp079UsedTeslaEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -300,7 +284,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(On079Tesla)},
+                    {"Type", nameof(OnScp079UsedTesla)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has activated the tesla as 079.", new object[]
@@ -315,8 +299,7 @@ namespace CedMod.Addons.QuerySystem
             });
         }
 
-        [PluginEvent(ServerEventType.PlayerShotWeapon)]
-        public void OnPlayerShoot(PlayerShotWeaponEvent ev)
+        public override void OnPlayerShootingWeapon(PlayerShootingWeaponEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -325,7 +308,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnPlayerShoot)},
+                    {"Type", nameof(OnPlayerShootingWeapon)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has shot a {4}.", new object[]
@@ -340,9 +323,8 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerChangeRole)]
-        public void OnSetClass(PlayerChangeRoleEvent ev)
+
+        public override void OnPlayerChangedRole(PlayerChangedRoleEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -352,7 +334,7 @@ namespace CedMod.Addons.QuerySystem
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
                     {"Reason", ev.ChangeReason.ToString()},
-                    {"Type", nameof(OnSetClass)},
+                    {"Type", nameof(OnPlayerChangedRole)},
                     {
                         "Message", string.Format("{0} - {1}'s role has been changed to {2}",
                             new object[]
@@ -381,10 +363,9 @@ namespace CedMod.Addons.QuerySystem
             yield return Timing.WaitForSeconds(60f);
             CedMod.Handlers.Server.reported.Remove(target);
         }
-        
-        
-        [PluginEvent(ServerEventType.PlayerCloseGenerator)]
-        public void OnCloseGenerator(PlayerCloseGeneratorEvent ev)
+
+
+        public override void OnPlayerClosedGenerator(PlayerClosedGeneratorEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -393,7 +374,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnCloseGenerator)},
+                    {"Type", nameof(OnPlayerClosedGenerator)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has closed generator {4}.", new object[]
@@ -402,15 +383,14 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
-                                ev.Generator.netId
+                                ev.Generator.Base.netId
                             })
                     }
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerDamage)]
-        public void OnPlayerHurt(PlayerDamageEvent ev)
+
+        public override void OnPlayerHurt(PlayerHurtEventArgs ev)
         {
             if (ev.Target == null)
                 return;
@@ -480,9 +460,8 @@ namespace CedMod.Addons.QuerySystem
                 });
             }
         }
-        
-        [PluginEvent(ServerEventType.PlayerDeactivatedGenerator)]
-        public void OnDeactivateGenerator(PlayerDeactivatedGeneratorEvent ev)
+
+        public override void OnPlayerDeactivatedGenerator(PlayerDeactivatedGeneratorEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -491,7 +470,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnDeactivateGenerator)},
+                    {"Type", nameof(OnPlayerDeactivatedGenerator)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has deactivated generator {4}.", new object[]
@@ -500,24 +479,23 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
-                                ev.Generator.netId
+                                ev.Generator.Base.netId
                             })
                     }
                 }
             });
         }
 
-        [PluginEvent(ServerEventType.PlayerDying)]
-        public void OnPlayerDeath(PlayerDyingEvent ev)
+        public override void OnPlayerDeath(PlayerDeathEventArgs ev)
         {
             if (ev.Player == null || ev.Attacker == null)
                 return;
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                Log.Debug("plrdeath");
+                Logger.Debug("plrdeath");
             if (FriendlyFireAutoban.IsTeamKill(ev.Player, ev.Attacker, ev.DamageHandler))
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Log.Debug("istk");
+                    Logger.Debug("istk");
                 TeamkillData data = new TeamkillData();
                 RoomIdentifier killerRoom = RoomIdUtils.RoomAtPosition(ev.Attacker.Position);
                 RoomIdentifier targetRoom = RoomIdUtils.RoomAtPosition(ev.Player.Position);
@@ -564,15 +542,15 @@ namespace CedMod.Addons.QuerySystem
                 }
 
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Log.Debug("resolving on scene players");
-                foreach (var bystanders in Player.GetPlayers())
+                    Logger.Debug("resolving on scene players");
+                foreach (var bystanders in Player.List)
                 {
                     if (bystanders.Role == RoleTypeId.Spectator || ev.Attacker.Role == RoleTypeId.Overwatch || ev.Attacker.Role == RoleTypeId.None)
                         continue;
 
                     var distance = Vector3.Distance(ev.Attacker.Position, bystanders.Position);
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug($"Checking distance on killer {distance} from {ev.Attacker.Nickname} to {bystanders.Nickname} {data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId)}");
+                        Logger.Debug($"Checking distance on killer {distance} from {ev.Attacker.Nickname} to {bystanders.Nickname} {data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId)}");
                     if (distance <= 60 && data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId))
                     {
                         RoomIdentifier bystanderRoom = RoomIdUtils.RoomAtPosition(bystanders.Position);
@@ -601,28 +579,28 @@ namespace CedMod.Addons.QuerySystem
                 
 
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Log.Debug("sending WR");
+                    Logger.Debug("sending WR");
                 Task.Run(async () =>
                 {
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug("Thread send");
+                        Logger.Debug("Thread send");
                     if (QuerySystem.QuerySystemKey == "None")
                         return;
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug("sending WR");
+                        Logger.Debug("sending WR");
                     using (HttpClient client = new HttpClient())
                     {
-                        client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                        client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
                         await VerificationChallenge.AwaitVerification();
                         try
                         {
                             var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/Teamkill/{QuerySystem.QuerySystemKey}?v=2", new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json"));
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                Log.Debug(await response.Content.ReadAsStringAsync());
+                                Logger.Debug(await response.Content.ReadAsStringAsync());
                         }
                         catch (Exception ex)
                         {
-                            Log.Error(ex.ToString());
+                            Logger.Error(ex.ToString());
                         }
                     }
                 });
@@ -697,9 +675,8 @@ namespace CedMod.Addons.QuerySystem
                 });
             }
         }
-        
-        [PluginEvent(ServerEventType.PlayerDroppedAmmo)]
-        public void OnPlayerDropAmmo(PlayerDroppedAmmoEvent ev)
+
+        public override void OnPlayerDroppedAmmo(PlayerDroppedAmmoEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -708,7 +685,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnPlayerDropAmmo)},
+                    {"Type", nameof(OnPlayerDroppedAmmo)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has dropped {4} {5}.", new object[]
@@ -718,15 +695,14 @@ namespace CedMod.Addons.QuerySystem
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
                                 ev.Amount,
-                                ev.Item.NetworkInfo.ItemId
+                                ev.Pickup.ItemPickupBase.NetworkInfo.ItemId
                             })
                     }
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerDropedpItem)]
-        public void OnPlayerDropItem(PlayerDroppedItemEvent ev)
+
+        public override void OnPlayerDroppedItem(PlayerDroppedItemEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -735,7 +711,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnPlayerDropItem)},
+                    {"Type", nameof(OnPlayerDroppedItem)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has dropped {4}.", new object[]
@@ -744,15 +720,14 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
-                                ev.Item.NetworkInfo.ItemId
+                                ev.Pickup.ItemPickupBase.NetworkInfo.ItemId
                             })
                     }
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerJoined)]
-        public void OnPlayerJoin(PlayerJoinedEvent ev)
+
+        public override void OnPlayerJoined(PlayerJoinedEventArgs ev)
         {
             ThreadDispatcher.SendHeartbeatMessage(true);
             if (CommandHandler.Synced.ContainsKey(ev.Player.UserId))
@@ -771,7 +746,7 @@ namespace CedMod.Addons.QuerySystem
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
                     {"PlayerId", ev.Player.PlayerId.ToString()},
-                    {"Type", nameof(OnPlayerJoin)},
+                    {"Type", nameof(OnPlayerJoined)},
                     {
                         "Message", string.Format("({0}) {1} - {2} joined the game.",
                             ev.Player.PlayerId, ev.Player.Nickname, ev.Player.UserId)
@@ -779,9 +754,8 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerLeft)]
-        public void OnPlayerLeave(PlayerLeftEvent ev)
+
+        public override void OnPlayerLeft(PlayerLeftEventArgs ev)
         {
             BanSystem.Authenticating.Remove(ev.Player.ReferenceHub);
             BanSystem.CedModAuthTokens.Remove(ev.Player.ReferenceHub);
@@ -793,14 +767,13 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnPlayerLeave)},
+                    {"Type", nameof(OnPlayerLeft)},
                     {"Message", ev.Player.Nickname + " - " + ev.Player.UserId + " has left the server."}
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerPickupAmmo)]
-        public void OnPlayerPickupAmmo(PlayerPickupAmmoEvent ev)
+
+        public override void OnPlayerPickedUpAmmo(PlayerPickedUpAmmoEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -809,7 +782,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnPlayerPickupAmmo)},
+                    {"Type", nameof(OnPlayerPickedUpAmmo)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has picked up {4}", new object[]
@@ -818,15 +791,14 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
-                                ev.Item.NetworkInfo.ItemId
+                                ev.Pickup?.ItemPickupBase.NetworkInfo.ItemId
                             })
                     }
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerPickupArmor)]
-        public void OnPlayerPickupArmor(PlayerPickupArmorEvent ev)
+
+        public override void OnPlayerPickedUpArmor(PlayerPickedUpArmorEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -835,7 +807,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnPlayerPickupArmor)},
+                    {"Type", nameof(OnPlayerPickedUpArmor)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has picked up {4}", new object[]
@@ -844,15 +816,14 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
-                                ev.Item.NetworkInfo.ItemId
+                                ev.Item.Type
                             })
                     }
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerSearchedPickup)]
-        public void OnPlayerPickupItem(PlayerSearchedPickupEvent ev)
+
+        public override void OnPlayerPickedUpItem(PlayerPickedUpItemEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -861,7 +832,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnPlayerPickupItem)},
+                    {"Type", nameof(OnPlayerPickedUpItem)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has picked up {4}", new object[]
@@ -870,7 +841,7 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
-                                ev.Item.NetworkInfo.ItemId
+                                ev.Item.Type
                             })
                     }
                 }
@@ -964,9 +935,8 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerReloadWeapon)]
-        public void OnPlayerReloadWeapon(PlayerReloadWeaponEvent ev)
+
+        public override void OnPlayerReloadedWeapon(PlayerReloadedWeaponEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -975,7 +945,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnPlayerReloadWeapon)},
+                    {"Type", nameof(OnPlayerReloadedWeapon)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has reloaded {4}", new object[]
@@ -984,15 +954,14 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
-                                ev.Firearm.ItemTypeId
+                                ev.Weapon.Type
                             })
                     }
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerUnlockGenerator)]
-        public void OnPlayerUnlockGenerator(PlayerUnlockGeneratorEvent ev)
+
+        public override void OnPlayerOpenedGenerator(PlayerOpenedGeneratorEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -1001,24 +970,23 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnPlayerUnlockGenerator)},
+                    {"Type", nameof(OnPlayerOpenedGenerator)},
                     {
                         "Message", string.Format(
-                            "{0} - {1} (<color={2}>{3}</color>) has unlocked generator {4}", new object[]
+                            "{0} - {1} (<color={2}>{3}</color>) has opened generator {4}", new object[]
                             {
                                 ev.Player.Nickname,
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
-                                ev.Generator.netId
+                                ev.Generator.Base.netId
                             })
                     }
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.RagdollSpawn)]
-        public void OnPlayerRagdollSpawn(RagdollSpawnEvent ev)
+
+        public override void OnPlayerSpawnedRagdoll(PlayerSpawnedRagdollEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -1027,7 +995,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnPlayerRagdollSpawn)},
+                    {"Type", nameof(OnPlayerSpawnedRagdoll)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has spawned ragdoll.", new object[]
@@ -1041,9 +1009,8 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerRemoveHandcuffs)]
-        public void OnPlayerFreed(PlayerRemoveHandcuffsEvent ev)
+
+        public override void OnPlayerUncuffed(PlayerUncuffedEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -1052,7 +1019,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Target.UserId},
                     {"UserName", ev.Target.Nickname},
-                    {"Type", nameof(OnPlayerFreed)},
+                    {"Type", nameof(OnPlayerUncuffed)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has been freed by {4} - {5} (<color={6}>{7}</color>).",
@@ -1071,23 +1038,22 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerCheaterReport)]
-        public void OnCheaterReport(PlayerCheaterReportEvent ev)
+
+        public override void OnPlayerReportedCheater(PlayerReportedCheaterEventArgs ev)
         {
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                Log.Debug("sending report WR");
+                Logger.Debug("sending report WR");
             Task.Run(async () =>
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Log.Debug("Thread report send");
+                    Logger.Debug("Thread report send");
                 if (QuerySystem.QuerySystemKey == "None" || !CedModMain.Singleton.Config.CedMod.EnableIngameReports)
                     return;
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Log.Debug("sending report WR");
+                    Logger.Debug("sending report WR");
                 using (HttpClient client = new HttpClient())
                 {
-                    client.DefaultRequestHeaders.Add("X-ServerIp", PluginAPI.Core.Server.ServerIpAddress);
+                    client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
                     await VerificationChallenge.AwaitVerification();
                     try
                     {
@@ -1101,11 +1067,11 @@ namespace CedMod.Addons.QuerySystem
                                     }), Encoding.UTF8,
                                     "application/json"));
                         if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Log.Debug(await response.Content.ReadAsStringAsync());
+                            Logger.Debug(await response.Content.ReadAsStringAsync());
                     }
                     catch (Exception ex)
                     {
-                        Log.Error(ex.ToString());
+                        Logger.Error(ex.ToString());
                     }
                 }
                 
@@ -1115,7 +1081,7 @@ namespace CedMod.Addons.QuerySystem
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"Type", nameof(OnCheaterReport)},
+                    {"Type", nameof(OnPlayerReportedCheater)},
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
                     {
@@ -1134,64 +1100,70 @@ namespace CedMod.Addons.QuerySystem
             });
         }
 
-        [PluginEvent(ServerEventType.PlayerReport)]
-        public bool OnReport(PlayerReportEvent ev)
+        public override void OnPlayerReportingPlayer(PlayerReportingPlayerEventArgs ev)
         {
             if (!CedModMain.Singleton.Config.CedMod.EnableIngameReports)
             {
                 if (string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.IngameReportDisabledMessage))
                 {
                     ev.Player.SendConsoleMessage($"[REPORTING] Ingame reporting is disabled on this server.", "green");
-                    return false;
+                    ev.IsAllowed = false;
+                    return;
                 }
                 else
                 {
                     ev.Player.SendConsoleMessage($"[REPORTING] {CedModMain.Singleton.Config.CedMod.IngameReportDisabledMessage}", "green");
-                    return false;
+                    ev.IsAllowed = false;
+                    return;
                 }
             }
             if (CedModMain.Singleton.Config.QuerySystem.ReportBlacklist.Contains(ev.Player.UserId))
             {
                 ev.Player.SendConsoleMessage($"[REPORTING] You are blacklisted from ingame reporting", "green");
-                return false;
+                ev.IsAllowed = false;
+                return;
             }
             if (ev.Player.UserId == ev.Target.UserId)
             {
                 ev.Player.SendConsoleMessage($"[REPORTING] You can't report yourself", "green");
-                return false;
+                ev.IsAllowed = false;
+                return;
             }
             if (CedMod.Handlers.Server.reported.ContainsKey(ev.Target.ReferenceHub))
             {
                 ev.Player.SendConsoleMessage($"[REPORTING] {ev.Target.Nickname} ({(ev.Target.DoNotTrack ? "DNT" : ev.Target.UserId)}) has already been reported by {CedModPlayer.Get(CedMod.Handlers.Server.reported[ev.Target.ReferenceHub]).Nickname}", "green");
-                return false;
+                ev.IsAllowed = false;
+                return;
             }
             if (ev.Target.RemoteAdminAccess && !CedModMain.Singleton.Config.QuerySystem.StaffReportAllowed)
             {
                 ev.Player.SendConsoleMessage($"[REPORTING] " + CedModMain.Singleton.Config.QuerySystem.StaffReportMessage, "green");
-                return false;
+                ev.IsAllowed = false;
+                return;
             }
             if (ev.Reason.IsEmpty())
             {
                 ev.Player.SendConsoleMessage($"[REPORTING] You have to enter a reason", "green");
-                return false;
+                ev.IsAllowed = false;
+                return;
             }
             
             CedMod.Handlers.Server.reported.Add(ev.Target.ReferenceHub, ev.Player.ReferenceHub);
             Timing.RunCoroutine(RemoveFromReportList(ev.Target.ReferenceHub));
             
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                Log.Debug("sending report WR");
+                Logger.Debug("sending report WR");
             Task.Run(async () =>
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Log.Debug("Thread report send");    
+                    Logger.Debug("Thread report send");    
                 if (QuerySystem.QuerySystemKey == "None")
                     return;
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Log.Debug("sending report WR");
+                    Logger.Debug("sending report WR");
                 using (HttpClient client = new HttpClient())
                 {
-                    client.DefaultRequestHeaders.Add("X-ServerIp", PluginAPI.Core.Server.ServerIpAddress);
+                    client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
                     await VerificationChallenge.AwaitVerification();
                     try
                     {
@@ -1222,11 +1194,11 @@ namespace CedMod.Addons.QuerySystem
                             {
                                 ev.Player.SendConsoleMessage($"[REPORTING] Failed to send report, please let server staff know: {textResponse}", "green");
                             });
-                            Log.Error($"Failed to send report: {textResponse}");
+                            Logger.Error($"Failed to send report: {textResponse}");
                         }
 
                         if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Log.Debug(await response.Content.ReadAsStringAsync());
+                            Logger.Debug(await response.Content.ReadAsStringAsync());
                     }
                     catch (Exception ex)
                     {
@@ -1234,7 +1206,7 @@ namespace CedMod.Addons.QuerySystem
                         {
                             ev.Player.SendConsoleMessage($"[REPORTING] Failed to send report, please let server staff know: {ex}", "green");
                         });
-                        Log.Error(ex.ToString());
+                        Logger.Error(ex.ToString());
                     }
                 }
             });
@@ -1243,7 +1215,7 @@ namespace CedMod.Addons.QuerySystem
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"Type", nameof(OnReport)},
+                    {"Type", nameof(OnPlayerReportingPlayer)},
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
                     {
@@ -1261,11 +1233,11 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
             
-            return false;
+            ev.IsAllowed = false;
+            return;
         }
 
-        [PluginEvent(ServerEventType.PlayerThrowItem)]
-        public void OnItemThrown(PlayerThrowItemEvent ev)
+        public override void OnPlayerThrowingItem(PlayerThrowingItemEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -1274,7 +1246,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Type", nameof(OnItemThrown)},
+                    {"Type", nameof(OnPlayerThrowingItem)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) threw an item {4}.", new object[]
@@ -1283,41 +1255,14 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
-                                ev.Item.ItemTypeId
-                            })
-                    }
-                }
-            });
-        }
-        
-        [PluginEvent(ServerEventType.PlayerThrowProjectile)]
-        public void OnThrowProjectile(PlayerThrowProjectileEvent ev)
-        {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
-            {
-                Recipient = "ALL",
-                Data = new Dictionary<string, string>()
-                {
-                    {"UserId", ev.Thrower.UserId},
-                    {"UserName", ev.Thrower.Nickname},
-                    {"Type", nameof(OnThrowProjectile)},
-                    {
-                        "Message", string.Format(
-                            "{0} - {1} (<color={2}>{3}</color>) threw a projectile {4}.", new object[]
-                            {
-                                ev.Thrower.Nickname,
-                                ev.Thrower.UserId,
-                                Misc.ToHex(ev.Thrower.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                ev.Thrower.Role,
-                                ev.Item.ItemTypeId
+                                ev.Pickup.ItemPickupBase.NetworkInfo.ItemId
                             })
                     }
                 }
             });
         }
 
-        [PluginEvent(ServerEventType.PlayerUsedItem)]
-        public void OnUsedItem(PlayerUsedItemEvent ev)
+        public override void OnPlayerThrewProjectile(PlayerThrewProjectileEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -1326,11 +1271,10 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"ItemType", ev.Item.ItemTypeId.ToString()},
-                    {"Type", nameof(OnUsedItem)},
+                    {"Type", nameof(OnPlayerThrewProjectile)},
                     {
                         "Message", string.Format(
-                            "{0} - {1} (<color={2}>{3}</color>) used an item {4}.", new object[]
+                            "{0} - {1} (<color={2}>{3}</color>) threw a projectile {4}.", new object[]
                             {
                                 ev.Player.Nickname,
                                 ev.Player.UserId,
@@ -1342,9 +1286,34 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
         }
-        
-        [PluginEvent(ServerEventType.PlayerHandcuff)]
-        public void OnPlayerHandcuffed(PlayerHandcuffEvent ev)
+
+        public override void OnPlayerUsedItem(PlayerUsedItemEventArgs ev)
+        {
+            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    {"UserId", ev.Player.UserId},
+                    {"UserName", ev.Player.Nickname},
+                    {"ItemType", ev.Item.Type.ToString()},
+                    {"Type", nameof(OnPlayerUsedItem)},
+                    {
+                        "Message", string.Format(
+                            "{0} - {1} (<color={2}>{3}</color>) used an item {4}.", new object[]
+                            {
+                                ev.Player.Nickname,
+                                ev.Player.UserId,
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role,
+                                ev.Item.Type
+                            })
+                    }
+                }
+            });
+        }
+
+        public override void OnPlayerCuffed(PlayerCuffedEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -1353,7 +1322,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Target.UserId},
                     {"UserName", ev.Target.Nickname},
-                    {"Type", nameof(OnPlayerHandcuffed)},
+                    {"Type", nameof(OnPlayerCuffed)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has been cuffed by {4} - {5} (<color={6}>{7}</color>).",
@@ -1373,8 +1342,7 @@ namespace CedMod.Addons.QuerySystem
             });
         }
 
-        [PluginEvent(ServerEventType.PlayerEscape)]
-        public void OnEscape(PlayerEscapeEvent ev)
+        public override void OnPlayerEscaped(PlayerEscapedEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
@@ -1383,8 +1351,8 @@ namespace CedMod.Addons.QuerySystem
                 {
                     {"UserId", ev.Player.UserId},
                     {"UserName", ev.Player.Nickname},
-                    {"Time", Statistics.Round.Duration.ToString()},
-                    {"Type", nameof(OnEscape)},
+                    {"Time", RoundStart.RoundLength.ToString()},
+                    {"Type", nameof(OnPlayerEscaped)},
                     {
                         "Message", string.Format(
                             "{0} - {1} (<color={2}>{3}</color>) has escaped, Cuffed: {4}",
@@ -1419,7 +1387,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     if ((int)entry.DisarmedPlayer == (int)ev.Player.NetworkId)
                     {
-                        var disarmer = Player.GetPlayers().FirstOrDefault(s => s.NetworkId == entry.Disarmer);
+                        var disarmer = Player.List.FirstOrDefault(s => s.NetworkId == entry.Disarmer);
                         if (disarmer != null)
                         {
                             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()

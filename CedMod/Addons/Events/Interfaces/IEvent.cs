@@ -6,7 +6,7 @@
         string EvenAuthor { get; }
         string EventDescription { get; set; }
         string EventPrefix { get; }
-        IEventConfig Config { get; }
+        IEventConfig EventConfig { get; }
         
         void PrepareEvent();
         void StopEvent();

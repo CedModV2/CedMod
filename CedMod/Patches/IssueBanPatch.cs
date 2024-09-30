@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 using HarmonyLib;
-using PluginAPI.Core;
-using UnityEngine;
+using LabApi.Features.Console;
 
 namespace CedMod.Patches
 {
@@ -14,7 +12,7 @@ namespace CedMod.Patches
         {
             try
             {
-                Log.Info($"MainGame ban IssueBanpatch: banning user. {ban.Id} {banType} {ban.OriginalName}");
+                Logger.Info($"MainGame ban IssueBanpatch: banning user. {ban.Id} {banType} {ban.OriginalName}");
                 new Thread(() =>
                 {
                     try
@@ -26,13 +24,13 @@ namespace CedMod.Patches
                     }
                     catch (Exception ex)
                     {
-                       Log.Error($"MainGame IssueBan patch failed {ex}");
+                       Logger.Error($"MainGame IssueBan patch failed {ex}");
                     }
                 }).Start();
             }
             catch (Exception ex)
             {
-                Log.Error($"MainGame IssueBan patch failed {ex}");
+                Logger.Error($"MainGame IssueBan patch failed {ex}");
             }
 
             return false;

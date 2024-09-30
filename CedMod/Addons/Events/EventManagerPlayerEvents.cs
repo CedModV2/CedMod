@@ -1,19 +1,15 @@
-﻿using MEC;
-using PluginAPI.Core;
-using PluginAPI.Core.Attributes;
-using PluginAPI.Enums;
-using PluginAPI.Events;
+﻿using LabApi.Events.Arguments.PlayerEvents;
+using LabApi.Events.CustomHandlers;
+using LabApi.Features.Console;
 
 namespace CedMod.Addons.Events
 {
-    public class EventManagerPlayerEvents
+    public class EventManagerPlayerEvents: CustomEventsHandler
     {
-        
-        [PluginEvent(ServerEventType.PlayerJoined)]
-        public void OnPlayerJoin(PlayerJoinedEvent ev)
+        public override void OnPlayerJoined(PlayerJoinedEventArgs ev)
         {
             if (CedModMain.Singleton.Config.EventManager.Debug)
-                Log.Debug($"Join {EventManager.CurrentEvent != null}");
+                Logger.Debug($"Join {EventManager.CurrentEvent != null}");
             if (EventManager.CurrentEvent != null)
             {
                 ev.Player.GameObject.AddComponent<HintManager>();

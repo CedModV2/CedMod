@@ -8,10 +8,9 @@ using Exiled.Permissions.Extensions;
 using Exiled.Permissions.Features;
 using GameCore;
 using HarmonyLib;
-using InventorySystem.Items.Firearms.Modules;
+using LabApi.Features.Console;
 using NorthwoodLib.Pools;
 using RemoteAdmin;
-using UnityEngine;
 
 namespace CedMod.Addons.QuerySystem.Patches
 {
@@ -24,7 +23,7 @@ namespace CedMod.Addons.QuerySystem.Patches
             if (!sender.FullPermissions)
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    PluginAPI.Core.Log.Info($"Exiled perms: {sender.GetType().FullName}");
+                    Logger.Info($"Exiled perms: {sender.GetType().FullName}");
                 
                 switch (sender)
                 {
@@ -37,7 +36,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                             __result = CheckPermission(sender.SenderId, permission);
                             return false;
                         }
-                        __result = player == Server.Host || player.CheckPermission(permission);
+                        __result = player.ReferenceHub == ReferenceHub.HostHub || player.CheckPermission(permission);
                         return false;
                     case CmSender _:
                         __result = CheckPermission(sender.SenderId, permission);
@@ -52,13 +51,13 @@ namespace CedMod.Addons.QuerySystem.Patches
         public static bool CheckPermission(string userId, string permission)
         {
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                PluginAPI.Core.Log.Info(userId);
+                Logger.Info(userId);
             if (string.IsNullOrEmpty(permission))
                 return false;
             
             string plyGroupKey = Player.Get(userId) != null ? Player.Get(userId).GroupName : ServerStatic.GetPermissionsHandler()._members.FirstOrDefault(g => g.Key == userId).Value;
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                PluginAPI.Core.Log.Info(plyGroupKey);
+                Logger.Info(plyGroupKey);
             
             if (plyGroupKey is null || !Permissions.Groups.TryGetValue(plyGroupKey, out Group group))
             {
@@ -69,7 +68,7 @@ namespace CedMod.Addons.QuerySystem.Patches
             {
                 foreach (var grp in Exiled.Permissions.Extensions.Permissions.Groups)
                 {
-                    PluginAPI.Core.Log.Info(grp.Key);
+                    Logger.Info(grp.Key);
                 }
             }
 

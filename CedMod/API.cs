@@ -4,21 +4,17 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
 using Footprinting;
 using GameCore;
-using InventorySystem.Items.Firearms;
+using LabApi.Features.Console;
+using LabApi.Features.Wrappers;
 using MEC;
 using Newtonsoft.Json;
 using PlayerStatsSystem;
-using PluginAPI.Core;
-using Console = System.Console;
-using Log = PluginAPI.Core.Log;
 
 namespace CedMod
 {
@@ -38,7 +34,7 @@ namespace CedMod
         {
             if (!VerificationChallenge.CompletedChallenge)
             {
-                Log.Error($"API request failed: Challenge not complete");
+                Logger.Error($"API request failed: Challenge not complete");
                 return null;
             }
             string response = "";  
@@ -49,7 +45,7 @@ namespace CedMod
                 {
                     using (HttpClient client = new HttpClient())
                     {
-                        client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                        client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
                         await VerificationChallenge.AwaitVerification();
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                         resp = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint + arguments);
@@ -61,7 +57,7 @@ namespace CedMod
                 {
                     using (HttpClient client = new HttpClient())
                     {
-                        client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                        client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
                         await VerificationChallenge.AwaitVerification();
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                         resp = await client.DeleteAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint + arguments);
@@ -73,7 +69,7 @@ namespace CedMod
                 {
                     using (HttpClient client = new HttpClient())
                     {
-                        client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                        client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
                         await VerificationChallenge.AwaitVerification();
                         client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
                         resp = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + APIUrl + "/" + endpoint, new StringContent(arguments, Encoding.UTF8, "application/json"));
@@ -88,7 +84,7 @@ namespace CedMod
                         VerificationChallenge.CompletedChallenge = false;
                         VerificationChallenge.ChallengeStarted = false;
                     }
-                    Log.Error($"API request failed: {resp.StatusCode} | {response}");
+                    Logger.Error($"API request failed: {resp.StatusCode} | {response}");
                     return null;
                 }
                 if (!returnstring)
@@ -104,7 +100,7 @@ namespace CedMod
                 {
                     response = await r.ReadToEndAsync();
                 }
-                Log.Error($"API request failed: {response} | {ex.Message}");
+                Logger.Error($"API request failed: {response} | {ex.Message}");
                 return null;
             }
         }
@@ -174,7 +170,7 @@ namespace CedMod
                 });
                 ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>  Timing.RunCoroutine(StrikeBad(player, result.ContainsKey("preformattedmessage") ? result["preformattedmessage"] : $"Failed to execute api request {JsonConvert.SerializeObject(result)}")));
                 if (bc)
-                    Server.SendBroadcast(ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", player.Nickname), (ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), Broadcast.BroadcastFlags.Normal);
+                    Broadcast.Singleton.RpcAddElement(ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", player.Nickname), (ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), Broadcast.BroadcastFlags.Normal);
             }
             else
             {
@@ -226,7 +222,7 @@ namespace CedMod
                     }
 
                     if (bc)
-                        Server.SendBroadcast(ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", player.Nickname), (ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), Broadcast.BroadcastFlags.Normal);
+                        Broadcast.Singleton.RpcAddElement(ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", player.Nickname), (ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), Broadcast.BroadcastFlags.Normal);
                 }
             }
             else
@@ -250,7 +246,7 @@ namespace CedMod
             }
             catch (Exception e)
             {
-                Log.Error($"Failed to kill for kick: {e}");
+                Logger.Error($"Failed to kill for kick: {e}");
             }
             yield return Timing.WaitForSeconds(0.1f);
             int count = 5;

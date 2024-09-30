@@ -22,7 +22,7 @@ namespace CedMod.Addons.Events
         }
         public string eventPrefix;
         public bool BulletHolesAllowed { get; set; }
-        public IEventConfig Config
+        public IEventConfig EventConfig
         {
             get => config;
         }

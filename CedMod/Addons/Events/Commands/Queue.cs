@@ -1,11 +1,7 @@
 ﻿using System;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
-#if !EXILED
-using NWAPIPermissionSystem;
-#else
-using Exiled.Permissions.Extensions;
-#endif
+using LabApi.Features.Permissions;
 
 namespace CedMod.Addons.Events.Commands
 {
@@ -22,7 +18,7 @@ namespace CedMod.Addons.Events.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.CheckPermission("cedmod.events.queue"))
+            if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.HasPermissions("cedmod.events.queue"))
             {
                 response = "No permission";
                 return false;

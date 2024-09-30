@@ -2,6 +2,8 @@
 using CedMod.Addons.Events;
 using CedMod.Addons.Events.Interfaces;
 using HarmonyLib;
+using LabApi.Features.Console;
+using LabApi.Loader.Features.Plugins;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using UnityEngine.XR;
@@ -9,7 +11,7 @@ using EventManager = PluginAPI.Events.EventManager;
 
 namespace CedMod.SampleEvent
 {
-    public class SampleEvent : IEvent
+    public class SampleEvent : Plugin<Config>, IEvent
     {
         public static bool IsRunning = false;
 
@@ -18,30 +20,19 @@ namespace CedMod.SampleEvent
         {
             StopEvent();
         }
-
-        [PluginConfig] 
-        public Config EventConfig;
         
-        [PluginEntryPoint("CedMod-ExampleGameMode", "0.0.1", "Example gamemode for the cedmod gamemode manager", "ced777ric")]
-        public void OnEnabled()
-        {
-            Handler = PluginHandler.Get(this);
-        }
-
-        public PluginHandler Handler;
-
         public string EventName { get; } = "Example Event";
         public string EvenAuthor { get; } = "ced777ric";
         public string EventDescription { get; set; } = "A testing event, you can use this to make your own events";
         public string EventPrefix { get; } = "Sample";
 
-        public IEventConfig Config => EventConfig;
+        public IEventConfig EventConfig => Config;
 
         public void PrepareEvent()
         {
-            Log.Info("SampleEvent is preparing");
+            Logger.Info("SampleEvent is preparing");
             IsRunning = true;
-            Log.Info("SampleEvent is prepared");
+            Logger.Info("SampleEvent is prepared");
             EventManager.RegisterEvents<EventHandler>(this);
         }
 
@@ -50,5 +41,21 @@ namespace CedMod.SampleEvent
             IsRunning = false;
             EventManager.UnregisterEvents<EventHandler>(this);
         }
+
+        public override void Enable()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Disable()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string Name { get; }
+        public override string Description { get; }
+        public override string Author { get; }
+        public override Version Version { get; }
+        public override Version RequiredApiVersion { get; }
     }
 }

@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using LabApi.Features.Console;
 using Newtonsoft.Json;
-using PluginAPI.Core;
-using UnityEngine;
 
 namespace CedMod
 {
@@ -27,7 +26,7 @@ namespace CedMod
                             var dat1 = JsonConvert.DeserializeObject<Dictionary<string, object>>(fileContent);
                             if (!int.TryParse(dat1["BanDuration"].ToString(), out int dat))
                             {
-                                Log.Info($"Fixing broke pending ban");
+                                Logger.Info($"Fixing broke pending ban");
                                 dat1["BanDuration"] = 1440;
                             }
                             else
@@ -40,10 +39,10 @@ namespace CedMod
                             Dictionary<string, string> result = (Dictionary<string, string>) API.APIRequest("Auth/Ban", fileContent, false, "POST").Result;
                             if (result == null)
                             {
-                                Log.Error($"Ban api request still failed, retrying later");
+                                Logger.Error($"Ban api request still failed, retrying later");
                                 continue;
                             }
-                            Log.Info($"Ban api request succeeded");
+                            Logger.Info($"Ban api request succeeded");
                             File.Delete(file);
                         }
                         else if (fileData.Name.StartsWith("tempm-"))
@@ -53,7 +52,7 @@ namespace CedMod
                             var dat1 = JsonConvert.DeserializeObject<Dictionary<string, object>>(fileContent);
                             if (!int.TryParse(dat1["Muteduration"].ToString(), out int dat))
                             {
-                                Log.Info($"Fixing broke pending mute");
+                                Logger.Info($"Fixing broke pending mute");
                                 dat1["Muteduration"] = 1440;
                             }
                             else
@@ -69,10 +68,10 @@ namespace CedMod
                             Dictionary<string, string> result = (Dictionary<string, string>) API.APIRequest($"api/Mute/{dat1["UserId"]}", fileContent, false, "POST").Result;
                             if (result == null)
                             {
-                                Log.Error($"Mute api request still failed, retrying later");
+                                Logger.Error($"Mute api request still failed, retrying later");
                                 continue;
                             }
-                            Log.Info($"Mute api request succeeded");
+                            Logger.Info($"Mute api request succeeded");
                             File.Delete(file);
                         }
                         else if (fileData.Name.StartsWith("tempum-"))
@@ -82,10 +81,10 @@ namespace CedMod
                             Dictionary<string, string> result = (Dictionary<string, string>) API.APIRequest($"api/Mute/{fileContent}", "", false, "DELETE").Result;
                             if (result == null)
                             {
-                                Log.Error($"Unmute api request still failed, retrying later");
+                                Logger.Error($"Unmute api request still failed, retrying later");
                                 continue;
                             }
-                            Log.Info($"Unmute api request succeeded");
+                            Logger.Info($"Unmute api request succeeded");
                             File.Delete(file);
                         }
                         else if (fileData.Name.StartsWith("tempd-"))
@@ -102,7 +101,7 @@ namespace CedMod
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"Failed to process cache: {e}");
+                    Logger.Error($"Failed to process cache: {e}");
                     WaitForSecond(10, (o) => !Shutdown._quitting && CedModMain.Singleton.CacheHandler != null);
                 }
             }

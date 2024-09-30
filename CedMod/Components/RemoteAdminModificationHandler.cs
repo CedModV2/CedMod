@@ -7,12 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
 using CedMod.ApiModals;
-using MEC;
+using LabApi.Features.Wrappers;
 using Newtonsoft.Json;
-using PluginAPI.Core;
-using PluginAPI.Core.Attributes;
 using UnityEngine;
-using UnityEngine.Networking;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace CedMod.Components
 {
@@ -47,14 +45,14 @@ namespace CedMod.Components
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                    client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
                     await VerificationChallenge.AwaitVerification();
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                        Log.Debug($"Updating Report.");
+                        Logger.Debug($"Updating Report.");
                     var response = await client.PutAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Reports/{QuerySystem.QuerySystemKey}?reportId={reportId}&status={status}&userid={user}", new StringContent(reason, Encoding.UTF8, "text/plain"));
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        Log.Error($"Failed to update report {response.StatusCode} | {await response.Content.ReadAsStringAsync()}");
+                        Logger.Error($"Failed to update report {response.StatusCode} | {await response.Content.ReadAsStringAsync()}");
                     }
                     else
                     {
@@ -122,14 +120,14 @@ namespace CedMod.Components
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                    client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
                     await VerificationChallenge.AwaitVerification();
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                        Log.Debug($"Getting Reports.");
+                        Logger.Debug($"Getting Reports.");
                     var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Reports/{QuerySystem.QuerySystemKey}");
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        Log.Error($"Failed to check for reports: {response.StatusCode} | {await response.Content.ReadAsStringAsync()}");
+                        Logger.Error($"Failed to check for reports: {response.StatusCode} | {await response.Content.ReadAsStringAsync()}");
                     }
                     else
                     {
@@ -150,7 +148,7 @@ namespace CedMod.Components
             }
             catch (Exception e)
             {
-                Log.Error($"Error ocurred when trying to load Reports: {e}");
+                Logger.Error($"Error ocurred when trying to load Reports: {e}");
             }
         }
         
@@ -160,14 +158,14 @@ namespace CedMod.Components
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                    client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
                     await VerificationChallenge.AwaitVerification();
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                        Log.Debug($"Getting Watchlist.");
+                        Logger.Debug($"Getting Watchlist.");
                     var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Watchlist/{QuerySystem.QuerySystemKey}");
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        Log.Error($"Failed to check for reports: {response.StatusCode} | {await response.Content.ReadAsStringAsync()}");
+                        Logger.Error($"Failed to check for reports: {response.StatusCode} | {await response.Content.ReadAsStringAsync()}");
                     }
                     else
                     {
@@ -177,11 +175,11 @@ namespace CedMod.Components
                         foreach (var rept in dat.WatchList.List)
                         {
                             if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                                Log.Debug($"Resolving user for {rept.Id}");
+                                Logger.Debug($"Resolving user for {rept.Id}");
                             if (dat.WatchList.IdMap.ContainsKey(rept.Id.ToString()))
                             {
                                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                                    Log.Debug($"Found user in map for {rept.Id} as {dat.WatchList.IdMap[rept.Id.ToString()]} {dat.UserIdMap.Any(s => s.Key == dat.WatchList.IdMap[rept.Id.ToString()])}");
+                                    Logger.Debug($"Found user in map for {rept.Id} as {dat.WatchList.IdMap[rept.Id.ToString()]} {dat.UserIdMap.Any(s => s.Key == dat.WatchList.IdMap[rept.Id.ToString()])}");
                                 rept.Issuer = dat.UserIdMap.FirstOrDefault(s => s.Key == dat.WatchList.IdMap[rept.Id.ToString()]).Value;
                             }
                             watchLists.Add(rept);
@@ -193,11 +191,11 @@ namespace CedMod.Components
                         foreach (var rept in dat.WatchListGroup.List)
                         {
                             if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                                Log.Debug($"Resolving user for {rept.Id}");
+                                Logger.Debug($"Resolving user for {rept.Id}");
                             if (dat.WatchListGroup.IdMap.ContainsKey(rept.Id.ToString()))
                             {
                                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                                    Log.Debug($"Found user in map for {rept.Id} as {dat.WatchListGroup.IdMap[rept.Id.ToString()]} {dat.UserIdMap.Any(s => s.Key == dat.WatchListGroup.IdMap[rept.Id.ToString()])}");
+                                    Logger.Debug($"Found user in map for {rept.Id} as {dat.WatchListGroup.IdMap[rept.Id.ToString()]} {dat.UserIdMap.Any(s => s.Key == dat.WatchListGroup.IdMap[rept.Id.ToString()])}");
                                 rept.Issuer = dat.UserIdMap.FirstOrDefault(s => s.Key == dat.WatchListGroup.IdMap[rept.Id.ToString()]).Value;
                             }
                             watchListGroups.Add(rept);
@@ -209,7 +207,7 @@ namespace CedMod.Components
             }
             catch (Exception e)
             {
-                Log.Error($"Error ocurred when trying to load Watchlist: {e}");
+                Logger.Error($"Error ocurred when trying to load Watchlist: {e}");
             }
         }
         
@@ -218,20 +216,20 @@ namespace CedMod.Components
         public async void ResolvePreferences(Player player, Action callback)
         {
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                Log.Debug($"start get pref 1");
+                Logger.Debug($"start get pref 1");
             if (Requesting.Contains(player.UserId))
                 return; 
             
             Requesting.Add(player.UserId);
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                Log.Debug($"start get pref 2");
+                Logger.Debug($"start get pref 2");
 
            
             try
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                    client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
                     await VerificationChallenge.AwaitVerification();
                     var resp = await client.SendAsync(new HttpRequestMessage(HttpMethod.Options, $"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/GetUserPreferences/{QuerySystem.QuerySystemKey}?id={player.UserId}"));
                     var respString = await resp.Content.ReadAsStringAsync();
@@ -243,13 +241,13 @@ namespace CedMod.Components
                         }
                         else
                         {
-                            Log.Error($"Failed to Request UserPreferences: {resp.StatusCode} | {respString}");
+                            Logger.Error($"Failed to Request UserPreferences: {resp.StatusCode} | {respString}");
                         }
                     }
                     else
                     {
                         if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Log.Debug($"Got preferences: {respString}");
+                            Logger.Debug($"Got preferences: {respString}");
                         IngameUserPreferences cmData = JsonConvert.DeserializeObject<IngameUserPreferences>(respString);
                         if (IngameUserPreferencesMap.ContainsKey(player))
                             IngameUserPreferencesMap[player] = cmData;

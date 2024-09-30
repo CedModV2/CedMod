@@ -2,18 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using CommandSystem;
 using CommandSystem.Commands.RemoteAdmin;
 using Exiled.Events.EventArgs.Player;
 using GameCore;
 using HarmonyLib;
-using PluginAPI.Core;
 using RemoteAdmin;
 using UnityEngine;
 using Utils;
-using Console = System.Console;
-using Player = Exiled.API.Features.Player;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace CedMod.Patches
 {
@@ -150,7 +147,7 @@ namespace CedMod.Patches
 							{
 								if (sender is PlayerCommandSender csender)
 								{
-									var exiledEvent = new BannedEventArgs(Exiled.API.Features.Player.Get(referenceHub), Player.Get(csender.ReferenceHub), new BanDetails()
+									var exiledEvent = new BannedEventArgs(Exiled.API.Features.Player.Get(referenceHub), Exiled.API.Features.Player.Get(csender.ReferenceHub), new BanDetails()
 									{
 										Expires = DateTime.Now.AddSeconds(num).Ticks,
 										IssuanceTime = DateTime.Now.Ticks,
@@ -165,7 +162,7 @@ namespace CedMod.Patches
 							}
 							catch (Exception e)
 							{
-								Console.WriteLine(e);
+								Logger.Error(e);
 							}
 #endif
 							

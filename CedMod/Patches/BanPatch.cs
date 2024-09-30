@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 using HarmonyLib;
-using PluginAPI.Core;
-using UnityEngine;
+using LabApi.Features.Console;
 #if EXILED
 using Exiled.Events.EventArgs.Player;
 using Player = Exiled.API.Features.Player;
@@ -18,7 +16,7 @@ namespace CedMod.Patches
         {
             try
             {
-                Log.Info($"MainGame ban patch: banning user. {duration} {reason} {issuer}");
+                Logger.Info($"MainGame ban patch: banning user. {duration} {reason} {issuer}");
 #if EXILED
                 var exiledEvent = new BannedEventArgs(Player.Get(target), Player.Get(issuer), new BanDetails()
                 {
@@ -43,13 +41,13 @@ namespace CedMod.Patches
                     }
                     catch (Exception ex)
                     {
-                       Log.Error($"MainGame ban patch failed {ex}");
+                       Logger.Error($"MainGame ban patch failed {ex}");
                     }
                 }).Start();
             }
             catch (Exception ex)
             {
-                Log.Error($"MainGame ban patch failed {ex}");
+                Logger.Error($"MainGame ban patch failed {ex}");
             }
 
             return false;

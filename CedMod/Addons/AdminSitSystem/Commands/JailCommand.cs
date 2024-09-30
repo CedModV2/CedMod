@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CedMod.Addons.AdminSitSystem.Commands.Jail;
 using CommandSystem;
-using CommandSystem.Commands.RemoteAdmin;
 using CommandSystem.Commands.RemoteAdmin.Doors;
-using CustomPlayerEffects;
 using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
 using InventorySystem;
@@ -13,11 +11,12 @@ using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
 using InventorySystem.Items.MicroHID;
 using InventorySystem.Items.Radio;
+using LabApi.Features.Wrappers;
 using MEC;
 using Mirror;
 using PlayerRoles;
-using PluginAPI.Core;
 using UnityEngine;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace CedMod.Addons.AdminSitSystem.Commands
 {
@@ -60,7 +59,7 @@ namespace CedMod.Addons.AdminSitSystem.Commands
                 if (lift.Value.WorldspaceBounds.Contains(plr.Position))
                 {
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                        Log.Info($"Player in lift {lift.Key}");
+                        Logger.Info($"Player in lift {lift.Key}");
                     var door = DoorVariant.AllDoors.Where(s => s is not ElevatorDoor).OrderBy(s => Vector3.Distance(s.transform.position, lift.Value.transform.position)).FirstOrDefault();
                     if (door != null)
                     {
@@ -82,10 +81,10 @@ namespace CedMod.Addons.AdminSitSystem.Commands
                 Role = plr.Role,
             };
 
-            foreach (var effect in plr.ReferenceHub.playerEffectsController.AllEffects)
+            foreach (var effect in plr.ActiveEffects)
             {
                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                    Log.Debug($"Saving effect {effect.ToString()} {effect.IsEnabled} {effect.Intensity} {effect.Duration} {effect.TimeLeft}");
+                    Logger.Debug($"Saving effect {effect.ToString()} {effect.IsEnabled} {effect.Intensity} {effect.Duration} {effect.TimeLeft}");
                 sitPlr.Effects.Add(effect.ToString(), new Tuple<bool, byte, float>(effect.IsEnabled, effect.Intensity, effect.Duration != 0.0f ? effect.TimeLeft : 0.0f));
             }
             
@@ -155,11 +154,11 @@ namespace CedMod.Addons.AdminSitSystem.Commands
                     if (!effect.Value.Item1)
                         continue;
                     
-                    Log.Info($"Enabling effect {effect.Key} {effect.Value.Item1} {effect.Value.Item2} {effect.Value.Item3}");
+                    Logger.Info($"Enabling effect {effect.Key} {effect.Value.Item1} {effect.Value.Item2} {effect.Value.Item3}");
 
-                    if (plr.EffectsManager.TryGetEffect(effect.Key, out var effectData))
+                    if (plr.ReferenceHub.playerEffectsController.TryGetEffect(effect.Key, out var effectData))
                     {
-                        Log.Info($"Found effect");
+                        Logger.Info($"Found effect");
                         effectData.ServerSetState(effect.Value.Item2, effect.Value.Item3);
                     }
                 }

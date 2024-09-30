@@ -3,22 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using CentralAuth;
 using CommandSystem;
-using CommandSystem.Commands.RemoteAdmin;
-using GameCore;
-using MapGeneration;
+using LabApi.Features.Permissions;
 using MEC;
 using Mirror;
-#if !EXILED
-using NWAPIPermissionSystem;
-#else
-using Exiled.Permissions.Extensions;
-#endif
 using PlayerRoles;
-using PluginAPI.Core;
 using RemoteAdmin;
 using VoiceChat;
-using Console = System.Console;
-using Log = PluginAPI.Core.Log;
 
 namespace CedMod.Addons.Audio
 {
@@ -42,7 +32,7 @@ namespace CedMod.Addons.Audio
                 return false;
             }
 
-            if (!sender.CheckPermission("cedmod.audio"))
+            if (!sender.HasPermissions("cedmod.audio"))
             {
                 response = "You dont have permission to run this command.";
                 return false;

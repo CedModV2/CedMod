@@ -1,8 +1,6 @@
-﻿using HarmonyLib;
-using Mirror;
+﻿using Mirror;
 using PlayerRoles;
 using PlayerRoles.Visibility;
-using RemoteAdmin;
 
 namespace CedMod.Addons.Sentinal.Patches
 {

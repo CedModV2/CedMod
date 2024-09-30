@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Linq;
 using CommandSystem;
-#if !EXILED
-using NWAPIPermissionSystem;
-#else
-using Exiled.Permissions.Extensions;
-#endif
-using PluginAPI.Core;
+using LabApi.Features.Permissions;
+using LabApi.Features.Wrappers;
 
 namespace CedMod.Commands.Dialog
 {
@@ -24,7 +20,7 @@ namespace CedMod.Commands.Dialog
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            if (!sender.CheckPermission("cedmod.dialog"))
+            if (!sender.HasPermissions("cedmod.dialog"))
             {
                 response = "no permission";
                 return false;
@@ -36,7 +32,7 @@ namespace CedMod.Commands.Dialog
             }
 
             string msg = arguments.Skip(0).Aggregate((current, n) => current + " " + n);
-            foreach (Player ply in Player.GetPlayers()) 
+            foreach (Player ply in Player.List) 
             {
                 ply.SendConsoleMessage("[REPORTING] " + msg + " Press ESC to close", "green");
             }

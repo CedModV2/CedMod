@@ -1,13 +1,9 @@
 ﻿using System;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
+using Exiled.API.Features;
+using LabApi.Features.Permissions;
 using MEC;
-#if !EXILED
-using NWAPIPermissionSystem;
-#else
-using Exiled.Permissions.Extensions;
-#endif
-using PluginAPI.Core;
 
 namespace CedMod.Addons.Events.Commands
 {
@@ -52,7 +48,7 @@ namespace CedMod.Addons.Events.Commands
                 }
             }
 
-            if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.CheckPermission("cedmod.events.disable"))
+            if (sender.IsPanelUser() ? !sender.CheckPermission(PlayerPermissions.FacilityManagement) : !sender.HasPermissions("cedmod.events.disable"))
             {
                 response = "No permission";
                 return false;
@@ -66,7 +62,7 @@ namespace CedMod.Addons.Events.Commands
             }
             else
             {
-                Server.SendBroadcast($"EventManager: {EventManager.CurrentEvent.EventName} is being now disabled, round will restart in 3 seconds", 10);
+                Broadcast.Singleton.RpcAddElement($"EventManager: {EventManager.CurrentEvent.EventName} is being now disabled, round will restart in 3 seconds", 10, Broadcast.BroadcastFlags.Normal);
                 Timing.CallDelayed(3, () =>
                 {
                     Round.Restart(false, false);

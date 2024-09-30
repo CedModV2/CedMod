@@ -1,67 +1,63 @@
 ﻿using System.Collections.Generic;
 using CedMod.Addons.QuerySystem.WS;
-using PluginAPI.Core;
-using PluginAPI.Core.Attributes;
-using PluginAPI.Enums;
-using PluginAPI.Events;
+using LabApi.Events.Arguments.ServerEvents;
+using LabApi.Events.Arguments.WarheadEvents;
+using LabApi.Events.CustomHandlers;
 
 namespace CedMod.Addons.QuerySystem
 {
-    public class QueryMapEvents
+    public class QueryMapEvents: CustomEventsHandler
     {
-        public void OnWarheadDetonation(WarheadDetonationEvent ev)
+        public override void OnWarheadDetonated(WarheadDetonatedEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"Type", nameof(OnWarheadDetonation)},
+                    {"Type", nameof(OnWarheadDetonated)},
                     {"Message", "Warhead has been detonated"}
                 }
             });
         }
 
-        [PluginEvent(ServerEventType.LczDecontaminationAnnouncement)]
-        public void OnDecon(LczDecontaminationAnnouncementEvent ev)
+        public override void OnServerLczDecontaminationAnnounced(LczDecontaminationAnnouncedEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"Type", nameof(OnDecon)},
-                    {"Message", $"Light containment decontamination stage {ev.Id}."}
+                    {"Type", nameof(OnServerLczDecontaminationAnnounced)},
+                    {"Message", $"Light containment decontamination stage {ev.Phase}."}
                 }
             });
         }
 
-        [PluginEvent(ServerEventType.WarheadStart)]
-        public void OnWarheadStart(WarheadStartEvent ev)
+        public override void OnWarheadStarted(WarheadStartedEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"Type", nameof(OnWarheadStart)},
+                    {"Type", nameof(OnWarheadStarted)},
                     {
                         "Message",
-                        string.Format("warhead has been started: {0} seconds", Warhead.DetonationTime)
+                        string.Format("warhead has been started: {0} seconds", 0) //todo implement
                     }
                 }
             });
         }
 
-        [PluginEvent(ServerEventType.WarheadStop)]
-        public void OnWarheadCancelled(WarheadStopEvent ev)
+        public override void OnWarheadStopped(WarheadStoppedEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    {"Type", nameof(OnWarheadCancelled)},
+                    {"Type", nameof(OnWarheadStopped)},
                     {"Message", (ev.Player != null ? ev.Player.Nickname + " - " + ev.Player.UserId : "Server") + " has stopped the detonation."}
                 }
             });

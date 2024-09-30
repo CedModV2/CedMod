@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem;
 using Exiled.API.Interfaces;

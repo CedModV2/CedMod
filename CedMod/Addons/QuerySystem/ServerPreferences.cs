@@ -5,8 +5,8 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using CedMod.ApiModals;
+using LabApi.Features.Console;
 using Newtonsoft.Json;
-using PluginAPI.Core;
 
 namespace CedMod.Addons.QuerySystem
 {
@@ -23,10 +23,10 @@ namespace CedMod.Addons.QuerySystem
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                    client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
                     await VerificationChallenge.AwaitVerification();
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                        Log.Debug($"Getting Prefs.");
+                        Logger.Debug($"Getting Prefs.");
                     var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/ServerPreference/GetServerPreference/{QuerySystem.QuerySystemKey}");
                     if (response.IsSuccessStatusCode)
                     {
@@ -42,7 +42,7 @@ namespace CedMod.Addons.QuerySystem
                             VerificationChallenge.CompletedChallenge = false;
                             VerificationChallenge.ChallengeStarted = false;
                         }
-                        Log.Error($"Failed to resolve server preferences, using file: {response.StatusCode} {await response.Content.ReadAsStringAsync()}");
+                        Logger.Error($"Failed to resolve server preferences, using file: {response.StatusCode} {await response.Content.ReadAsStringAsync()}");
                         if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs.json"))) ;
                         Prefs = JsonConvert.DeserializeObject<ServerPreferenceModel>(File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs.json")));
                         if (loop)
@@ -58,7 +58,7 @@ namespace CedMod.Addons.QuerySystem
             {
                 if (e is TaskCanceledException)
                     return;
-                Log.Error($"Failed to resolve server preferences, using file: {e}");
+                Logger.Error($"Failed to resolve server preferences, using file: {e}");
                 if (loop)
                 {
                     await Task.Delay(1000, CedModMain.CancellationToken);

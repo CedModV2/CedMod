@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text;
 using LiteNetLib.Utils;
-using PluginAPI.Core;
 
 namespace SlProxy
 {
@@ -58,7 +57,7 @@ namespace SlProxy
             }
             catch (Exception e)
             {
-                //Log.Error(e.ToString());
+                //Logger.Error(e.ToString());
             }
 
             return null;

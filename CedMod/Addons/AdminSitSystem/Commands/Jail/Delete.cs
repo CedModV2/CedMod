@@ -1,24 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
-using CedMod.Handlers;
 using CommandSystem;
-using CommandSystem.Commands.RemoteAdmin;
-using InventorySystem;
-using InventorySystem.Items.Firearms;
-using InventorySystem.Items.MicroHID;
-using InventorySystem.Items.Radio;
+using LabApi.Features.Permissions;
 using MEC;
-using Mirror;
-#if !EXILED
-using NWAPIPermissionSystem;
-#else
-using Exiled.Permissions.Extensions;
-#endif
-using PlayerRoles;
-using PluginAPI.Core;
-using Vector3 = UnityEngine.Vector3;
 
 namespace CedMod.Addons.AdminSitSystem.Commands.Jail
 {
@@ -34,7 +18,7 @@ namespace CedMod.Addons.AdminSitSystem.Commands.Jail
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (!sender.CheckPermission("cedmod.jail"))
+            if (!sender.HasPermissions("cedmod.jail"))
             {
                 response = "no permission";
                 return false;

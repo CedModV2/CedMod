@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.Sentinal.Patches;
-using InventorySystem.Items.Firearms.Modules;
 using Newtonsoft.Json;
-using PluginAPI.Core;
 using UnityEngine;
 using Utils.NonAllocLINQ;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace CedMod.Addons.Sentinal
 {
@@ -29,7 +27,7 @@ namespace CedMod.Addons.Sentinal
             
             foreach (var pack in VoicePacketPacket.PacketsSent)
             {
-                //Log.Info($"{Frames} | {pack.Value}");
+                //Logger.Info($"{Frames} | {pack.Value}");
                 bool offSize = false;
                 foreach (var data in pack.Value)
                 {
@@ -72,17 +70,17 @@ namespace CedMod.Addons.Sentinal
                         {
                             using (HttpClient client = new HttpClient())
                             {
-                                client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                                client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
                                 await VerificationChallenge.AwaitVerification();
                                 try
                                 {
                                     var response = await client.PostAsync($"http{(QuerySystem.QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.QuerySystem.CurrentMaster}/Api/Sentinal/ReportV2?key={QuerySystem.QuerySystem.QuerySystemKey}&userid={plr.authManager.UserId}&type=VCExploit4&token={Uri.EscapeDataString(BanSystem.CedModAuthTokens.ContainsKey(plr) ? BanSystem.CedModAuthTokens[plr].Item1 : "unavailable")}&signature={Uri.EscapeDataString(BanSystem.CedModAuthTokens.ContainsKey(plr) ? BanSystem.CedModAuthTokens[plr].Item2 : "unavailable")}", new StringContent(JsonConvert.SerializeObject(userFrames.Value), Encoding.Default, "application/json"));
                                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                        Log.Debug(await response.Content.ReadAsStringAsync());
+                                        Logger.Debug(await response.Content.ReadAsStringAsync());
                                 }
                                 catch (Exception ex)
                                 {
-                                    Log.Error(ex.ToString());
+                                    Logger.Error(ex.ToString());
                                 }
                             }
                         });

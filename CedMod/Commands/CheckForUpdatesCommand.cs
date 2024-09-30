@@ -1,17 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
-using CedMod.Addons.QuerySystem;
 using CedMod.Components;
 using CommandSystem;
-using MEC;
-using Newtonsoft.Json;
-using PluginAPI.Core;
-using RoundRestarting;
-using UnityEngine;
+using LabApi.Features.Console;
 using Object = UnityEngine.Object;
 
 namespace CedMod.Commands
@@ -36,7 +27,7 @@ namespace CedMod.Commands
                 {
                     var data = updater.CheckForUpdates(true);
                     if (data != null)
-                        Log.Info($"As AutoUpdate is disabled in your CedMod plugin configuration this update will not be install automatically, please run the installcedmodupdate command to install this update");
+                        Logger.Info($"As AutoUpdate is disabled in your CedMod plugin configuration this update will not be install automatically, please run the installcedmodupdate command to install this update");
                 });
                 response = "";
                 return true;

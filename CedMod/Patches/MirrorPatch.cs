@@ -1,8 +1,8 @@
 ﻿using System;
 using HarmonyLib;
 using Mirror;
-using PluginAPI.Core;
 using UnityEngine;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace CedMod.Patches
 {
@@ -16,7 +16,7 @@ namespace CedMod.Patches
                 if (!NetworkClient.unbatcher.AddBatch(data))
                 {
                     Debug.LogWarning("NetworkClient: failed to add batch, disconnecting.");
-                    Log.Warning("Skipping Mirror NetworkClient Disconnect call.");
+                    Logger.Warn("Skipping Mirror NetworkClient Disconnect call.");
                     //NetworkClient.connection.Disconnect();
                     return false;
                 }
@@ -30,7 +30,7 @@ namespace CedMod.Patches
                         if (networkReaderPooled.Remaining < 2)
                         {
                             Debug.LogWarning("NetworkClient: received Message was too short (messages should start with message id)");
-                            Log.Warning("Skipping Mirror NetworkClient Disconnect call.");
+                            Logger.Warn("Skipping Mirror NetworkClient Disconnect call.");
                             //NetworkClient.connection.Disconnect();
                             return false;
                         }
@@ -38,7 +38,7 @@ namespace CedMod.Patches
                         if (!NetworkClient.UnpackAndInvoke(networkReaderPooled, channelId))
                         {
                             Debug.LogWarning("NetworkClient: failed to unpack and invoke message. Disconnecting.");
-                            Log.Warning("Skipping Mirror NetworkClient Disconnect call.");
+                            Logger.Warn("Skipping Mirror NetworkClient Disconnect call.");
                             //NetworkClient.connection.Disconnect();
                             return false;
                         }

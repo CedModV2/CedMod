@@ -5,10 +5,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using LabApi.Features.Console;
 using MEC;
-using PluginAPI.Core;
 using SCPSLAudioApi.AudioCore;
-using UnityEngine.Networking;
 using VoiceChat;
 using Random = UnityEngine.Random;
 
@@ -45,12 +44,12 @@ namespace CedMod.Addons.Audio
                 AudioToPlay.Add(CurrentPlay);
             }
             
-            Log.Info($"Loading Audio");
+            Logger.Info($"Loading Audio");
             byte[] respString;
             HttpStatusCode code = HttpStatusCode.OK;
             using (HttpClient client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
                 var t = VerificationChallenge.AwaitVerification();
                 yield return Timing.WaitUntilTrue(() => t.IsCompleted);
                 
@@ -66,7 +65,7 @@ namespace CedMod.Addons.Audio
             int cnt;
             if (code != HttpStatusCode.OK)
             {
-                Log.Error($"Failed to retrieve audio {code} {Encoding.UTF8.GetString(respString)}");
+                Logger.Error($"Failed to retrieve audio {code} {Encoding.UTF8.GetString(respString)}");
                 if (Continue && AudioToPlay.Count >= 1)
                 {
                     yield return Timing.WaitForSeconds(1);
@@ -82,11 +81,11 @@ namespace CedMod.Addons.Audio
             }
             catch (Exception e)
             {
-                Log.Error($"{e} {code} {Encoding.UTF8.GetString(respString)}");
+                Logger.Error($"{e} {code} {Encoding.UTF8.GetString(respString)}");
             }
             
             VorbisReader = new NVorbis.VorbisReader(CurrentPlayStream);
-            Log.Info($"Playing with samplerate of {VorbisReader.SampleRate}");
+            Logger.Info($"Playing with samplerate of {VorbisReader.SampleRate}");
             samplesPerSecond = VoiceChatSettings.SampleRate * VoiceChatSettings.Channels;
             //_samplesPerSecond = VorbisReader.Channels * VorbisReader.SampleRate / 5;
             SendBuffer = new float[samplesPerSecond / 5 + HeadSamples];
@@ -113,7 +112,7 @@ namespace CedMod.Addons.Audio
                     StreamBuffer.Enqueue(ReadBuffer[i]);
                 }
             }
-            Log.Info($"Track Complete.");
+            Logger.Info($"Track Complete.");
 
             if (Continue && AudioToPlay.Count >= 1)
             {

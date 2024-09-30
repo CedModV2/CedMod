@@ -84,6 +84,9 @@
         <Reference Include="Facepunch.Steamworks.Win64, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\Facepunch.Steamworks.Win64.dll</HintPath>
         </Reference>
+        <Reference Include="LabApi">
+          <HintPath>..\References\LabApi.dll</HintPath>
+        </Reference>
         <Reference Include="Mirror, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\References\Mirror.dll</HintPath>
         </Reference>

@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using CedMod.Addons.QuerySystem.WS;
-using CommandSystem;
-using CommandSystem.Commands.RemoteAdmin;
 using HarmonyLib;
-using PluginAPI.Core;
+using LabApi.Features.Console;
 using RemoteAdmin;
-using RemoteAdmin.Communication;
-using RemoteAdmin.Interfaces;
 
 namespace CedMod.Addons.QuerySystem.Patches
 {
@@ -46,7 +41,7 @@ namespace CedMod.Addons.QuerySystem.Patches
             }
             catch (Exception e)
             {
-                Log.Error(e.ToString());
+                Logger.Error(e.ToString());
             }
         }
     }

@@ -1,12 +1,11 @@
 ﻿using System;
 using CommandSystem;
+using LabApi.Features.Permissions;
 #if !EXILED
-using NWAPIPermissionSystem;
 #else
 using Exiled.Permissions.Extensions;
 #endif
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace CedMod.Commands
 {
@@ -23,7 +22,7 @@ namespace CedMod.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            if (!sender.CheckPermission("cedmod.colors"))
+            if (!sender.HasPermissions("cedmod.colors"))
             {
                 response = "no permission";
                 return false;

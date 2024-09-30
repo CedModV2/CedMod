@@ -1,27 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CedMod.Addons.QuerySystem;
 using CedMod.Components;
-using CommandSystem.Commands.RemoteAdmin;
 using HarmonyLib;
 using MEC;
-using Mirror;
-using Newtonsoft.Json;
-using NorthwoodLib.Pools;
-using PlayerRoles;
-using PlayerRoles.FirstPersonControl;
-using PlayerStatsSystem;
-using PluginAPI.Core;
-using PluginAPI.Events;
 using RemoteAdmin;
 using RemoteAdmin.Communication;
-using UnityEngine;
-using UnityEngine.Networking;
 using Utils;
-using VoiceChat;
 
 namespace CedMod.Patches
 {

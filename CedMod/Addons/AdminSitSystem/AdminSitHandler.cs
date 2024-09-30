@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using AdminToys;
 using GameCore;
 using InventorySystem.Items;
+using LabApi.Events.Arguments.PlayerEvents;
 using MEC;
 using PlayerRoles;
-using PluginAPI.Core.Attributes;
-using PluginAPI.Enums;
-using PluginAPI.Events;
 using UnityEngine;
 
 namespace CedMod.Addons.AdminSitSystem
@@ -49,10 +45,19 @@ namespace CedMod.Addons.AdminSitSystem
         public void Start()
         {
             Singleton = this;
+            LabApi.Events.Handlers.PlayerEvents.Joined += OnPlayerJoin;
+            LabApi.Events.Handlers.PlayerEvents.Left += OnPlayerLeft;
+            LabApi.Events.Handlers.ServerEvents.WaitingForPlayers += WaitingForPlayers;
         }
 
-        [PluginEvent(ServerEventType.WaitingForPlayers)]
-        public void WaitingForPlayers(WaitingForPlayersEvent ev)
+        public void OnDestroy()
+        {
+            LabApi.Events.Handlers.PlayerEvents.Joined -= OnPlayerJoin;
+            LabApi.Events.Handlers.PlayerEvents.Left -= OnPlayerLeft;
+            LabApi.Events.Handlers.ServerEvents.WaitingForPlayers -= WaitingForPlayers;
+        }
+        
+        public void WaitingForPlayers()
         {
             Singleton.Sits.Clear();
             foreach (var loc in Singleton.AdminSitLocations)
@@ -60,9 +65,8 @@ namespace CedMod.Addons.AdminSitSystem
                 loc.InUse = false;
             }
         }
-
-        [PluginEvent(ServerEventType.PlayerJoined)]
-        public void OnPlayerJoin(PlayerJoinedEvent ev)
+        
+        public void OnPlayerJoin(PlayerJoinedEventArgs ev)
         {
             var sit = Singleton.Sits.FirstOrDefault(s => s.Players.Any(s => s.UserId == ev.Player.UserId));
             if (sit != null)
@@ -125,9 +129,8 @@ namespace CedMod.Addons.AdminSitSystem
                 });
             }
         }
-
-        [PluginEvent(ServerEventType.PlayerLeft)]
-        public void OnPlayerLeft(PlayerLeftEvent ev)
+        
+        public void OnPlayerLeft(PlayerLeftEventArgs ev)
         {
             var sit = Singleton.Sits.FirstOrDefault(s => s.Players.Any(s => s.UserId == ev.Player.UserId));
             if (sit != null)

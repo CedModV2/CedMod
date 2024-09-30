@@ -1,10 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
-using CedMod.Addons.QuerySystem;
+﻿using CedMod.Addons.QuerySystem;
 using HarmonyLib;
-using Mirror;
-using PluginAPI.Core;
-using UnityEngine;
 
 namespace CedMod.Patches
 {

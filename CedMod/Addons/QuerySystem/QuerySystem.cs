@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
-using CedMod.Addons.QuerySystem.WS;
-using HarmonyLib;
-using MEC;
-using PluginAPI.Core;
-using Object = UnityEngine.Object;
+using LabApi.Features.Console;
 
 namespace CedMod.Addons.QuerySystem
 {
     public class QuerySystem
     {
-        public static QueryMapEvents QueryMapEvents;
-        public static QueryServerEvents QueryServerEvents;
-        public static QueryPlayerEvents QueryPlayerEvents;
         public static List<string> ReservedSlotUserids = new List<string>();
         private static string _querySystemKey;
 
@@ -30,22 +21,22 @@ namespace CedMod.Addons.QuerySystem
                     }
                     if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "QuerySystemSecretKey.txt")))
                     {
-                        File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt"), File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "QuerySystemSecretKey.txt")));
+                        File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{ServerConsole.PortToReport}.txt"), File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "QuerySystemSecretKey.txt")));
                         File.Delete(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "QuerySystemSecretKey.txt"));
                     }
 
-                    if (!File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt")))
+                    if (!File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{ServerConsole.PortToReport}.txt")))
                     {
                         return "";
                     }
-                    _querySystemKey = File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt"));
+                    _querySystemKey = File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{ServerConsole.PortToReport}.txt"));
                     
                     if (_querySystemKey == "")
                     {
                         return "";
                     }
                     
-                    Log.Info("Read QueryKey from persistant storage");
+                    Logger.Info("Read QueryKey from persistant storage");
                 }
                 return _querySystemKey;
             }
@@ -57,12 +48,12 @@ namespace CedMod.Addons.QuerySystem
                 }
                 if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "QuerySystemSecretKey.txt")))
                 {
-                    File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt"), File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "QuerySystemSecretKey.txt")));
+                    File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{ServerConsole.PortToReport}.txt"), File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "QuerySystemSecretKey.txt")));
                     File.Delete(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "QuerySystemSecretKey.txt"));
                 }
-                Log.Info("Saved QueryKey to persistant storage");
+                Logger.Info("Saved QueryKey to persistant storage");
                 _querySystemKey = value;
-                File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{Server.Port}.txt"), _querySystemKey);
+                File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{ServerConsole.PortToReport}.txt"), _querySystemKey);
             }
         }
         

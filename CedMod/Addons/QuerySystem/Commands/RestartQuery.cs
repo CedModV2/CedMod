@@ -2,8 +2,9 @@
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem.WS;
 using CommandSystem;
+using LabApi.Features.Permissions;
 #if !EXILED
-using NWAPIPermissionSystem;
+
 #else
 using Exiled.Permissions.Extensions;
 #endif
@@ -24,7 +25,7 @@ namespace CedMod.Addons.QuerySystem.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            if (!sender.CheckPermission("cedmod.restartquery"))
+            if (!sender.HasPermissions("cedmod.restartquery"))
             {
                 response = "No permission";
                 return false;

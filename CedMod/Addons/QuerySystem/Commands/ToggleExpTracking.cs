@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Linq;
-using CedMod.Addons.QuerySystem.Patches;
 using CedMod.Addons.QuerySystem.WS;
 using CommandSystem;
+using LabApi.Features.Permissions;
 #if !EXILED
-using NWAPIPermissionSystem;
 #else
 using Exiled.Permissions.Extensions;
 #endif
-using RemoteAdmin;
 
 namespace CedMod.Addons.QuerySystem.Commands
 {
@@ -26,7 +23,7 @@ namespace CedMod.Addons.QuerySystem.Commands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender,
             out string response)
         {
-            if (!sender.CheckPermission("cedmod.exptoggle"))
+            if (!sender.HasPermissions("cedmod.exptoggle"))
             {
                 response = "No permission";
                 return false;

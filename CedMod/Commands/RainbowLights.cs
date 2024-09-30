@@ -1,7 +1,7 @@
 ﻿using System;
 using CommandSystem;
+using LabApi.Features.Permissions;
 #if !EXILED
-using NWAPIPermissionSystem;
 #else
 using Exiled.Permissions.Extensions;
 #endif
@@ -21,7 +21,7 @@ namespace CedMod.Commands
         public string Description { get; } = "yes";
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (!sender.CheckPermission("cedmod.rainbowlights"))
+            if (!sender.HasPermissions("cedmod.rainbowlights"))
             {
                 response = "no permission";
                 return false;

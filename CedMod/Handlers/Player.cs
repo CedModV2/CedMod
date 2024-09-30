@@ -1,33 +1,29 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CedMod.Addons.Sentinal.Patches;
+using LabApi.Events.Arguments.PlayerEvents;
+using LabApi.Events.CustomHandlers;
 using MEC;
-using PlayerStatsSystem;
-using PluginAPI.Core.Attributes;
-using PluginAPI.Enums;
-using PluginAPI.Events;
 
 namespace CedMod.Handlers
 {
-    public class Player
+    public class Player: CustomEventsHandler
     {
-        [PluginEvent(ServerEventType.PlayerJoined)]
-        public void OnJoin(PlayerJoinedEvent ev)
+        public override void OnPlayerJoined(PlayerJoinedEventArgs ev)
         {
             Task.Run(async () => { await BanSystem.HandleJoin(ev.Player); });
             Timing.RunCoroutine(Name(ev.Player));
         }
-        
-        [PluginEvent(ServerEventType.PlayerLeft)]
-        public void OnJoin(PlayerLeftEvent ev)
+
+        public override void OnPlayerLeft(PlayerLeftEventArgs ev)
         {
             VoicePacketPacket.Floats.Remove(ev.Player.ReferenceHub.netId);
             VoicePacketPacket.OpusDecoders.Remove(ev.Player.ReferenceHub.netId);
         }
         
-        public IEnumerator<float> Name(PluginAPI.Core.Player player)
+        public IEnumerator<float> Name(LabApi.Features.Wrappers.Player player)
         {
-            foreach (var pp in PluginAPI.Core.Player.GetPlayers())
+            foreach (var pp in LabApi.Features.Wrappers.Player.List)
             {
                 if (pp.UserId == player.UserId) 
                     yield break;
@@ -48,9 +44,8 @@ namespace CedMod.Handlers
                 }
             }
         }
-        
-        [PluginEvent(ServerEventType.PlayerDying)]
-        public void OnDying(PlayerDyingEvent ev)
+
+        public override void OnPlayerDying(PlayerDyingEventArgs ev)
         {
             if (ev.Player == null || ev.Attacker == null)
                 return;

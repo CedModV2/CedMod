@@ -1,27 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem.WS;
 using CentralAuth;
 using Cryptography;
-using Exiled.API.Enums;
-using Exiled.Events.EventArgs.Player;
-using GameCore;
 using HarmonyLib;
+using LabApi.Features.Console;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using Mirror.LiteNetLib4Mirror;
 using Newtonsoft.Json;
-using PluginAPI.Core;
-using PluginAPI.Enums;
-using PluginAPI.Events;
 using SlProxy;
-using UnityEngine;
-using Console = System.Console;
-using Log = PluginAPI.Core.Log;
-using Player = Exiled.Events.Handlers.Player;
 
 namespace CedMod.Addons.QuerySystem.Patches
 {
@@ -146,7 +136,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                         if (preauthdata == null)
                         {
                             if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                                Log.Debug($"Rejected preauth due to null data");
+                                Logger.Debug($"Rejected preauth due to null data");
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Custom);
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Put(
@@ -164,7 +154,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                         if (PlayerAuthenticationManager.OnlineMode && !ECDSA.VerifyBytes($"{preauthdata.UserID};{preauthdata.Flags};{preauthdata.Region};{preauthdata.Expiration}", preauthdata.Signature, ServerConsole.PublicKey))
                         {
                             if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                                Log.Debug($"Rejected preauth due to invalidity\n{preauthdata}");
+                                Logger.Debug($"Rejected preauth due to invalidity\n{preauthdata}");
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Custom);
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Put(
@@ -313,8 +303,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                         return;
                     }
 
-                    if (!CustomLiteNetLib4MirrorTransport.ProcessCancellationData(request, EventManager.ExecuteEvent<PreauthCancellationData>(new PlayerPreauthEvent(null, request.RemoteEndPoint.Address.ToString(), 0, CentralAuthPreauthFlags.None, null, null, request, position))))
-                        return;
+                    //todo preauth event invoke
 
                     request.Accept();
                     CustomLiteNetLib4MirrorTransport.PreauthDisableIdleMode();
@@ -525,8 +514,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 
                     if (shouldLet)
                     {
-                        if (!CustomLiteNetLib4MirrorTransport.ProcessCancellationData(request, EventManager.ExecuteEvent<PreauthCancellationData>(new PlayerPreauthEvent(userId, request.RemoteEndPoint.Address.ToString(), expiration, flags, country, signature, request, position))))
-                            return;
+                        //todo preauth event invoke
 
                         if (CustomLiteNetLib4MirrorTransport.UserIds.ContainsKey(request.RemoteEndPoint)) 
                             CustomLiteNetLib4MirrorTransport.UserIds[request.RemoteEndPoint].SetUserId(userId);
@@ -564,13 +552,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                             else
                                 CustomLiteNetLib4MirrorTransport.RealIpAddresses.Add(netPeer.Id, realIp);
                         }
-
-                        if (Statistics.PeakPlayers.Total < LiteNetLib4MirrorCore.Host.ConnectedPeersCount)
-                        {
-                            Statistics.PeakPlayers =
-                                new Statistics.Peak(LiteNetLib4MirrorCore.Host.ConnectedPeersCount, DateTime.Now);
-                        }
-
+                        
                         ServerConsole.AddLog($"Player {userId} preauthenticated from endpoint {ep}.");
                         ServerLogs.AddLog(ServerLogs.Modules.Networking,
                             $"{userId} preauthenticated from endpoint {ep}.",

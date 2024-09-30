@@ -5,9 +5,10 @@ using CedMod.Addons.Events;
 using CedMod.Addons.Events.Interfaces;
 using Hints;
 using InventorySystem.Disarming;
+using LabApi.Features.Console;
+using LabApi.Features.Wrappers;
 using PlayerRoles;
 using PlayerStatsSystem;
-using PluginAPI.Core;
 using RemoteAdmin;
 
 namespace CedMod
@@ -72,12 +73,12 @@ namespace CedMod
                     {
                         if ((!attackerHasFFImmunity || ignoreImmunity) && s.Value >= threshold)
                         {
-                            Log.Info( $"Player: {attacker.Nickname} {attacker.PlayerId.ToString()} {attacker.UserId} exceeded teamkill limit");
+                            Logger.Info( $"Player: {attacker.Nickname} {attacker.PlayerId.ToString()} {attacker.UserId} exceeded teamkill limit");
                             Task.Run(async () =>
                             {
                                 await API.Ban(attacker, (long) banDuration.TotalSeconds, "Server.Module.FriendlyFireAutoban", banReason, false);
                             });
-                            Server.SendBroadcast($"<size=25><b><color=yellow>user: </color></b><color=red> {attacker.Nickname} </color><color=yellow><b> has been automatically banned for teamkilling</b></color></size>", 20);
+                            Broadcast.Singleton.RpcAddElement($"<size=25><b><color=yellow>user: </color></b><color=red> {attacker.Nickname} </color><color=yellow><b> has been automatically banned for teamkilling</b></color></size>", 20, Broadcast.BroadcastFlags.Normal);
                         }
                     }
                 }

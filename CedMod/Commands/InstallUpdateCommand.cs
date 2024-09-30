@@ -1,17 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
-using CedMod.Addons.QuerySystem;
 using CedMod.Components;
 using CommandSystem;
-using MEC;
-using Newtonsoft.Json;
-using PluginAPI.Core;
-using RoundRestarting;
-using UnityEngine;
+using LabApi.Features.Console;
 using Object = UnityEngine.Object;
 
 namespace CedMod.Commands
@@ -36,7 +27,7 @@ namespace CedMod.Commands
                 {
                     var data = await updater.CheckForUpdates(true);
                     if (data == null)
-                        Log.Error($"There are no updates pending for this version.");
+                        Logger.Error($"There are no updates pending for this version.");
                     else
                     {
                         AutoUpdater.Pending = data;
@@ -56,7 +47,7 @@ namespace CedMod.Commands
             {
                 var data = await updater.CheckForUpdates(true);
                 if (data == null)
-                    Log.Error($"There are no updates pending for this version.");
+                    Logger.Error($"There are no updates pending for this version.");
                 else
                 {
                     AutoUpdater.Pending = data;

@@ -1,26 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.WebSockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using CedMod.Addons.QuerySystem.Patches;
 using CedMod.Addons.QuerySystem.WS;
+using LabApi.Events.Arguments.ServerEvents;
+using LabApi.Events.CustomHandlers;
+using LabApi.Features.Console;
+using LabApi.Features.Wrappers;
 using MEC;
 using Newtonsoft.Json;
-using PluginAPI.Core;
-using PluginAPI.Core.Attributes;
-using PluginAPI.Enums;
-using PluginAPI.Events;
-using Respawning;
-using UnityEngine.XR;
-using Server = CedMod.Handlers.Server;
 
 namespace CedMod.Addons.QuerySystem
 {
-    public class QueryServerEvents
+    public class QueryServerEvents: CustomEventsHandler
     {
         private bool _first = false;
 
@@ -33,17 +27,17 @@ namespace CedMod.Addons.QuerySystem
 
             if (CedModMain.Singleton.Config.QuerySystem.RejectRemoteCommands)
             {
-                Log.Warning("You have RejectRemoteCommands enabled in the CedMod QuerySystem config, features such as RemoteCommands, EventManager, and more will not function correctly");
+                Logger.Warn("You have RejectRemoteCommands enabled in the CedMod QuerySystem config, features such as RemoteCommands, EventManager, and more will not function correctly");
             }
 
             if (QuerySystem.QuerySystemKey != "None")
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Log.Debug("Checking configs");
+                    Logger.Debug("Checking configs");
                 if (CedModMain.Singleton.Config.QuerySystem.EnableExternalLookup)
                 {
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug("Setting lookup mode");
+                        Logger.Debug("Setting lookup mode");
                     ServerConfigSynchronizer.Singleton.NetworkRemoteAdminExternalPlayerLookupMode = "fullauth";
                     ServerConfigSynchronizer.Singleton.NetworkRemoteAdminExternalPlayerLookupURL =
                         $"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentPanel}/Api/v3/Lookup/";
@@ -54,22 +48,22 @@ namespace CedMod.Addons.QuerySystem
                 Task.Run(async () =>
                 {
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug("Checking configs");
+                        Logger.Debug("Checking configs");
                     try
                     {
                         using (HttpClient client = new HttpClient())
                         {
-                            client.DefaultRequestHeaders.Add("X-ServerIp", PluginAPI.Core.Server.ServerIpAddress);
+                            client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
                             await VerificationChallenge.AwaitVerification();
                             if (CedModMain.Singleton.Config.QuerySystem.EnableBanreasonSync)
                             {
                                 ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                                 {
                                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                        Log.Debug("Enabling ban reasons");
+                                        Logger.Debug("Enabling ban reasons");
                                     ServerConfigSynchronizer.Singleton.NetworkEnableRemoteAdminPredefinedBanTemplates = true;
                                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                        Log.Debug("Clearing ban reasons");
+                                        Logger.Debug("Clearing ban reasons");
                                     ServerConfigSynchronizer.Singleton.RemoteAdminPredefinedBanTemplates.Clear();
                                 });
 
@@ -84,17 +78,17 @@ namespace CedMod.Addons.QuerySystem
                                 }
 
                                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                    Log.Debug("Downloading ban reasons");
+                                    Logger.Debug("Downloading ban reasons");
                                 var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/BanReasons/{QuerySystem.QuerySystemKey}");
                                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                    Log.Debug("Addding ban reasons");
+                                    Logger.Debug("Addding ban reasons");
                                 var data = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(await response.Content.ReadAsStringAsync());
                                 ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                                 {
                                     foreach (var dict in data)
                                     {
                                         if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                            Log.Debug($"Addding ban reason {JsonConvert.SerializeObject(dict)}");
+                                            Logger.Debug($"Addding ban reason {JsonConvert.SerializeObject(dict)}");
 
                                         var durationNice = "";
                                         TimeSpan timeSpan = TimeSpan.FromMinutes(double.Parse(dict["Dur"]));
@@ -134,7 +128,7 @@ namespace CedMod.Addons.QuerySystem
                     }
                     catch (Exception e)
                     {
-                        Log.Error(e.ToString());
+                        Logger.Error(e.ToString());
                     }
 
                     new Thread((o =>
@@ -151,8 +145,7 @@ namespace CedMod.Addons.QuerySystem
             }
         }
 
-        [PluginEvent(ServerEventType.WaitingForPlayers)]
-        public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
+        public override void OnServerWaitingForPlayers()
         {
             Timing.RunCoroutine(SyncStart());
 
@@ -170,21 +163,20 @@ namespace CedMod.Addons.QuerySystem
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    { "Type", nameof(OnWaitingForPlayers) },
+                    { "Type", nameof(OnServerWaitingForPlayers) },
                     { "Message", "Server is waiting for players." }
                 }
             });
         }
 
-        [PluginEvent(ServerEventType.RoundStart)]
-        public void OnRoundStart(RoundStartEvent ev)
+        public override void OnServerRoundStarted()
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    { "Type", nameof(OnRoundStart) },
+                    { "Type", nameof(OnServerRoundStarted) },
                     { "Message", "Round is starting." }
                 }
             });
@@ -195,7 +187,7 @@ namespace CedMod.Addons.QuerySystem
                 Timing.CallDelayed(2, () =>
                 {
                     LevelerStore.InitialPlayerRoles.Clear();
-                    foreach (var plr in Player.GetPlayers())
+                    foreach (var plr in Player.List)
                     {
                         LevelerStore.InitialPlayerRoles.Add(plr, plr.Role);
                     }
@@ -203,29 +195,27 @@ namespace CedMod.Addons.QuerySystem
             }
         }
 
-        [PluginEvent(ServerEventType.RoundRestart)]
-        public void OnRoundRestart(RoundRestartEvent ev)
+        public override void OnServerRoundRestarted()
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    { "Type", nameof(OnRoundRestart) },
+                    { "Type", nameof(OnServerRoundRestarted) },
                     { "Message", "Round is restarting." }
                 }
             });
         }
 
-        [PluginEvent(ServerEventType.RoundEnd)]
-        public void OnRoundEnd(RoundEndEvent ev)
+        public override void OnServerRoundEnded(RoundEndedEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    { "Type", nameof(OnRoundEnd) },
+                    { "Type", nameof(OnServerRoundEnded) },
                     { "Message", "Round has ended." }
                 }
             });
@@ -254,15 +244,14 @@ namespace CedMod.Addons.QuerySystem
         }
 
 
-        [PluginEvent(ServerEventType.TeamRespawn)]
-        public void OnRespawn(TeamRespawnEvent ev)
+        public override void OnServerWaveRespawned(WaveRespawnedEventArgs ev)
         {
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
                 {
-                    { "Type", nameof(OnRespawn) },
+                    { "Type", nameof(OnServerWaveRespawned) },
                     { "Message", string.Format("Respawn: {0} as {1}.", "undef", ev.Team) }
                 }
             });

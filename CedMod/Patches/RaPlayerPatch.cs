@@ -4,29 +4,20 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
 using CedMod.Components;
-using CommandSystem.Commands.RemoteAdmin;
 using HarmonyLib;
+using LabApi.Features.Console;
+using LabApi.Features.Permissions;
+using LabApi.Features.Wrappers;
 using MEC;
-using Mirror;
 using Newtonsoft.Json;
 using NorthwoodLib.Pools;
-#if !EXILED
-using NWAPIPermissionSystem;
-#else
-using Exiled.Permissions.Extensions;
-#endif
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PlayerStatsSystem;
-using PluginAPI.Core;
-using PluginAPI.Events;
 using RemoteAdmin;
 using RemoteAdmin.Communication;
-using UnityEngine;
-using UnityEngine.Networking;
 using Utils;
 using VoiceChat;
 
@@ -61,7 +52,7 @@ namespace CedMod.Patches
 			var playerSender = sender as PlayerCommandSender;
 
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                Log.Debug($"Received: {data} : {spData[1]}");
+                Logger.Debug($"Received: {data} : {spData[1]}");
             var cplayer = CedModPlayer.Get(sender.SenderId);
 
             if (spData[1].StartsWith("-1") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.AdminChat))
@@ -277,16 +268,16 @@ namespace CedMod.Patches
 				info.Append("\n<color=#D4AF37>Some fields were hidden. GameplayData permission required.</color>");
 
 			
-            Log.Debug($"Has permissions: {sender.CheckPermission("cedmod.requestdata")}",
+            Logger.Debug($"Has permissions: {sender.HasPermissions("cedmod.requestdata")}",
                 CedModMain.Singleton.Config.QuerySystem.Debug);
-            if (sender.CheckPermission("cedmod.requestdata"))
+            if (sender.HasPermissions("cedmod.requestdata"))
             {
                 sender.RaReply(string.Format("${0} {1}", __instance.DataId, "Loading from CedMod API, please wait..."), true, true, string.Empty);
                 string respString = "";
                 var code = HttpStatusCode.OK;
                 using (HttpClient client = new HttpClient())
                 {
-                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                    client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
                     var t = VerificationChallenge.AwaitVerification();
                     yield return Timing.WaitUntilTrue(() => t.IsCompleted);
                     client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
@@ -303,7 +294,7 @@ namespace CedMod.Patches
                 {
                     if (code != HttpStatusCode.OK)
                     {
-                        Log.Error($"Failed to RequestData CMAPI: {code} | {respString}");
+                        Logger.Error($"Failed to RequestData CMAPI: {code} | {respString}");
                     }
                     else
                     {
@@ -328,7 +319,7 @@ namespace CedMod.Patches
 
                 using (HttpClient client = new HttpClient())
                 {
-                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                    client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
                     var t = VerificationChallenge.AwaitVerification();
                     yield return Timing.WaitUntilTrue(() => t.IsCompleted);
                     client.DefaultRequestHeaders.Add("ApiKey", CedModMain.Singleton.Config.CedMod.CedModApiKey);
@@ -345,7 +336,7 @@ namespace CedMod.Patches
                 {
                     if (code != HttpStatusCode.OK)
                     {
-                        Log.Error(
+                        Logger.Error(
                             $"Failed to RequestData PanelAPI: {code} | {respString}");
                     }
                     else
@@ -407,7 +398,7 @@ namespace CedMod.Patches
                     .ToList();
                 //report handling
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Log.Debug($"Report handle");
+                    Logger.Debug($"Report handle");
                 if (open.Count == 0)
                 {
                     StringBuilder stringBuilder = StringBuilderPool.Shared.Rent($"<color=white>");
@@ -462,7 +453,7 @@ namespace CedMod.Patches
                         if (open.Count == 1)
                         {
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                Log.Debug($"Rept 1");
+                                Logger.Debug($"Rept 1");
                             canBackward = false;
                             canForward = false;
                         }
@@ -470,36 +461,36 @@ namespace CedMod.Patches
                         if (index == 0)
                         {
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                Log.Debug($"Rept 2");
+                                Logger.Debug($"Rept 2");
                             canBackward = false;
                         }
 
                         if (index + 1 == open.Count)
                         {
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                Log.Debug($"Rept 3");
+                                Logger.Debug($"Rept 3");
                             canForward = false;
                         }
 
                         if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Log.Debug($"Rept 4 {index} {targetIndex}");
+                            Logger.Debug($"Rept 4 {index} {targetIndex}");
 
                         if (open.Count > targetIndex)
                         {
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                Log.Debug($"Rept 5 {index} {targetIndex}");
+                                Logger.Debug($"Rept 5 {index} {targetIndex}");
                             if ((source[0] == "1" && canForward) || (source[0] == "0" && canBackward))
                                 report = open[targetIndex];
                         }
 
                         index = open.IndexOf(report);
                         if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Log.Debug($"Rept 8 {index} {targetIndex}");
+                            Logger.Debug($"Rept 8 {index} {targetIndex}");
 
                         if (index == 0)
                         {
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                Log.Debug($"Rept 6");
+                                Logger.Debug($"Rept 6");
                             canBackward = false;
                         }
                         else
@@ -510,7 +501,7 @@ namespace CedMod.Patches
                         if (index + 1 == open.Count)
                         {
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                Log.Debug($"Rept 7");
+                                Logger.Debug($"Rept 7");
                             canForward = false;
                         }
                         else
@@ -547,9 +538,6 @@ namespace CedMod.Patches
                         RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, report.ReporterId);
                     }
 
-                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug($"Checking list {string.Join(", ", Player.PlayersUserIds.Select(s => s.Key))}");
-
                     var reported = CedModPlayer.Get(report.ReportedId);
                     if (reported != null)
                     {
@@ -584,7 +572,7 @@ namespace CedMod.Patches
 
                     stringBuilder.Append("</color>");
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug($"Report handle complete send");
+                        Logger.Debug($"Report handle complete send");
                     sender.RaReply(
                         string.Format("${0} {1}", (object)1,
                             (object)StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, true, string.Empty);
@@ -593,7 +581,7 @@ namespace CedMod.Patches
             }
             catch (Exception e)
             {
-                Log.Error(e.ToString());
+                Logger.Error(e.ToString());
                 sender.RaReply(
                     string.Format("${0} {1}", (object)1,
                         (object)"An Exception occured while trying to display reports"), true, true, string.Empty);
@@ -609,7 +597,7 @@ namespace CedMod.Patches
                 var inProgress = RemoteAdminModificationHandler.ReportsList
                     .Where(s => s.Status == HandleStatus.InProgress).ToList();
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Log.Debug($"Report handle");
+                    Logger.Debug($"Report handle");
                 if (inProgress.Count == 0)
                 {
                     StringBuilder stringBuilder = StringBuilderPool.Shared.Rent($"<color=white>");
@@ -664,7 +652,7 @@ namespace CedMod.Patches
                         if (inProgress.Count == 1)
                         {
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                Log.Debug($"Rept 1");
+                                Logger.Debug($"Rept 1");
                             canBackward = false;
                             canForward = false;
                         }
@@ -672,24 +660,24 @@ namespace CedMod.Patches
                         if (index == 0)
                         {
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                Log.Debug($"Rept 2");
+                                Logger.Debug($"Rept 2");
                             canBackward = false;
                         }
 
                         if (index + 1 == inProgress.Count)
                         {
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                Log.Debug($"Rept 3");
+                                Logger.Debug($"Rept 3");
                             canForward = false;
                         }
 
                         if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Log.Debug($"Rept 4 {index} {targetIndex}");
+                            Logger.Debug($"Rept 4 {index} {targetIndex}");
 
                         if (inProgress.Count > targetIndex)
                         {
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                Log.Debug($"Rept 5 {index} {targetIndex}");
+                                Logger.Debug($"Rept 5 {index} {targetIndex}");
                             if ((source[0] == "1" && canForward) || (source[0] == "0" && canBackward))
                                 report = inProgress[targetIndex];
                         }
@@ -697,12 +685,12 @@ namespace CedMod.Patches
                         index = inProgress.IndexOf(report);
 
                         if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Log.Debug($"Rept 8 {index} {targetIndex}");
+                            Logger.Debug($"Rept 8 {index} {targetIndex}");
 
                         if (index == 0)
                         {
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                Log.Debug($"Rept 6");
+                                Logger.Debug($"Rept 6");
                             canBackward = false;
                         }
                         else
@@ -713,7 +701,7 @@ namespace CedMod.Patches
                         if (index + 1 == inProgress.Count)
                         {
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                Log.Debug($"Rept 7");
+                                Logger.Debug($"Rept 7");
                             canForward = false;
                         }
                         else
@@ -748,9 +736,6 @@ namespace CedMod.Patches
                             $"Reporter: <color=red>(Not Ingame)</color> - {report.ReporterId} <color=green><link=CP_IP>\uF0C5</link></color>");
                         RaClipboard.Send(sender, RaClipboard.RaClipBoardType.Ip, report.ReporterId);
                     }
-
-                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug($"Checking list {string.Join(", ", Player.PlayersUserIds.Select(s => s.Key))}");
 
                     var reported = CedModPlayer.Get(report.ReportedId);
                     if (reported != null)
@@ -809,7 +794,7 @@ namespace CedMod.Patches
 
                     stringBuilder.Append("</color>");
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Log.Debug($"Report handle complete send");
+                        Logger.Debug($"Report handle complete send");
                     sender.RaReply(
                         string.Format("${0} {1}", (object)1,
                             (object)StringBuilderPool.Shared.ToStringReturn(stringBuilder)), true, true, string.Empty);
@@ -818,7 +803,7 @@ namespace CedMod.Patches
             }
             catch (Exception e)
             {
-                Log.Error(e.ToString());
+                Logger.Error(e.ToString());
                 sender.RaReply(
                     string.Format("${0} {1}", (object)1,
                         (object)"An Exception occured while trying to display reports"), true, true, string.Empty);
