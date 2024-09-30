@@ -10,11 +10,12 @@ using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
 using Footprinting;
 using GameCore;
-using LabApi.Features.Console;
 using LabApi.Features.Wrappers;
 using MEC;
 using Newtonsoft.Json;
 using PlayerStatsSystem;
+using UnityEngine;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace CedMod
 {
@@ -242,7 +243,7 @@ namespace CedMod
         {
             try
             {
-                player.ReferenceHub.playerStats.KillPlayer(new DisruptorDamageHandler(new Footprint(player.ReferenceHub), -1));
+                player.ReferenceHub.playerStats.KillPlayer(new DisruptorDamageHandler(null, Vector3.up, -1));
             }
             catch (Exception e)
             {

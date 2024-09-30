@@ -23,6 +23,7 @@ using Exiled.API.Features;
 using Exiled.Loader;
 using HarmonyLib;
 using LabApi.Events.CustomHandlers;
+using LabApi.Features.Permissions;
 using LabApi.Loader;
 using LabApi.Loader.Features.Misc;
 using LabApi.Loader.Features.Paths;
@@ -192,6 +193,7 @@ namespace CedMod
                 _harmony.UnpatchAll(_harmony.Id);
             }
             
+            PermissionsManager.RegisterPermissionProvider<PermissionProvider>();
             CustomHandlersManager.RegisterEventsHandler(PlayerEvents);
             CustomHandlersManager.RegisterEventsHandler(ServerEvents);
 

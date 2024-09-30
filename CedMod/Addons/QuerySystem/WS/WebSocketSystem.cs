@@ -1021,6 +1021,7 @@ namespace CedMod.Addons.QuerySystem.WS
 
                 ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                 {
+                    PermissionProvider.Permissions = permsSlRequest;
                     try
                     {
                         var handler = ServerStatic.GetPermissionsHandler();
@@ -1218,6 +1219,11 @@ namespace CedMod.Addons.QuerySystem.WS
             senderId = userid;
             permissions = group.Permissions;
             fullPermissions = false;
+        }
+
+        public override bool Available()
+        {
+            return true;
         }
 
         public override void Respond(string text, bool success = true)

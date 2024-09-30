@@ -9,6 +9,8 @@ using Interactables.Interobjects.DoorUtils;
 using InventorySystem;
 using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
+using InventorySystem.Items.Firearms.Attachments;
+using InventorySystem.Items.Firearms.Modules;
 using InventorySystem.Items.MicroHID;
 using InventorySystem.Items.Radio;
 using LabApi.Features.Wrappers;
@@ -122,12 +124,20 @@ namespace CedMod.Addons.AdminSitSystem.Commands
                 plr.ClearInventory();
                 foreach (var item in sitPlr.Items)
                 {
-                    var a = plr.ReferenceHub.inventory.ServerAddItem(item.Value.ItemTypeId);
+                    var a = plr.ReferenceHub.inventory.ServerAddItem(item.Value.ItemTypeId, ItemAddReason.AdminCommand);
 
                     if (a is Firearm newFirearm && item.Value is Firearm oldFirearm)
                     {
-                        newFirearm.Status = new FirearmStatus(oldFirearm.Status.Ammo, oldFirearm.Status.Flags,
-                            oldFirearm.Status.Attachments);
+                        foreach (var module in oldFirearm.Modules)
+                        {
+                            foreach (var newModule in newFirearm.Modules)
+                            {
+                                if (module is MagazineModule magazine && newModule is MagazineModule newMagazineModule)
+                                    magazine.AmmoStored = newMagazineModule.AmmoStored;
+                            }
+                        }
+                        
+                        newFirearm.ApplyAttachmentsCode(oldFirearm.GetCurrentAttachmentsCode(), true);
                     }
 
                     if (a is MicroHIDItem microHidItem && item.Value is MicroHIDItem oldMicroHidItem)

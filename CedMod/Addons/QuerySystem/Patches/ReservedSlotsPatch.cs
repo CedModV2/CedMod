@@ -509,7 +509,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                     if (!shouldLet && flags.HasFlagFast(CentralAuthPreauthFlags.ReservedSlot) && ServerStatic.PermissionsHandler.BanTeamSlots)
                         shouldLet = true;
 
-                    if (!shouldLet && ReservedSlot.HasReservedSlot(userId, out bool bypass) && (bypass || LiteNetLib4MirrorCore.Host.ConnectedPeersCount < CustomNetworkManager.slots + CustomNetworkManager.reservedSlots))
+                    if (!shouldLet && ReservedSlot.HasReservedSlot(userId) && (LiteNetLib4MirrorCore.Host.ConnectedPeersCount < CustomNetworkManager.slots + CustomNetworkManager.reservedSlots))
                         shouldLet = true;
 
                     if (shouldLet)

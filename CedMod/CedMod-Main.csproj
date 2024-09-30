@@ -115,6 +115,7 @@
     <Compile Include="Addons\QuerySystem\ServerPreferences.cs" />
     <Compile Include="Addons\QuerySystem\ThreadDispatcher.cs" />
     <Compile Include="Addons\QuerySystem\Verification.cs" />
+    <Compile Include="Addons\QuerySystem\WS\PermissionProvider.cs" />
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
     <Compile Include="Addons\Sentinal\Patches\FpcServerPositionDistributorPatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\PlayerRoleManagerPatch.cs" />
