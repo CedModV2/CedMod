@@ -6,6 +6,8 @@ using CedMod.Addons.QuerySystem.WS;
 using CentralAuth;
 using Cryptography;
 using HarmonyLib;
+using LabApi.Events.Arguments.PlayerEvents;
+using LabApi.Events.Handlers;
 using LabApi.Features.Console;
 using LiteNetLib;
 using LiteNetLib.Utils;
@@ -39,8 +41,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 
                 if (clientType == (byte)CustomLiteNetLib4MirrorTransport.ClientType.VerificationService)
                 {
-                    if (CustomLiteNetLib4MirrorTransport.VerificationChallenge != null && request.Data.TryGetString(out var verChallenge) &&
-                        verChallenge == CustomLiteNetLib4MirrorTransport.VerificationChallenge)
+                    if (CustomLiteNetLib4MirrorTransport.VerificationChallenge != null && request.Data.TryGetString(out var verChallenge) && verChallenge == CustomLiteNetLib4MirrorTransport.VerificationChallenge)
                     {
                         CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                         CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.VerificationAccepted);
@@ -49,7 +50,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 
                         CustomLiteNetLib4MirrorTransport.VerificationChallenge = null;
                         CustomLiteNetLib4MirrorTransport.VerificationResponse = null;
-                        ServerConsole.AddLog("Verification challenge and response have been sent.", ConsoleColor.Green);
+                        ServerConsole.AddLog("Verification challenge and response have been sent.\nThe system has successfully checked your server, a verification response will be printed to your console shortly, please allow up to 5 minutes.", ConsoleColor.Green);
                         return;
                     }
 
@@ -58,8 +59,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                         CustomLiteNetLib4MirrorTransport.SuppressRejections = true;
 
                     if (!CustomLiteNetLib4MirrorTransport.SuppressRejections && CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
-                        ServerConsole.AddLog(
-                            $"Invalid verification challenge has been received from endpoint {request.RemoteEndPoint}.");
+                        ServerConsole.AddLog($"Invalid verification challenge has been received from endpoint {request.RemoteEndPoint}.");
 
                     CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                     CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.VerificationRejected);
@@ -68,10 +68,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                 }
 
                 byte compatibilityRevision = 0;
-                if (!request.Data.TryGetByte(out var major) || !request.Data.TryGetByte(out var minor) ||
-                    !request.Data.TryGetByte(out var revision) ||
-                    !request.Data.TryGetBool(out var backwardCompatibility) || backwardCompatibility &&
-                    !request.Data.TryGetByte(out compatibilityRevision))
+                if (!request.Data.TryGetByte(out var major) || !request.Data.TryGetByte(out var minor) || !request.Data.TryGetByte(out var revision) || !request.Data.TryGetBool(out var backwardCompatibility) || backwardCompatibility && !request.Data.TryGetByte(out compatibilityRevision))
                 {
                     CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                     CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.VersionMismatch);
@@ -79,8 +76,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                     return;
                 }
 
-                if (!GameCore.Version.CompatibilityCheck(GameCore.Version.Major, GameCore.Version.Minor,
-                        GameCore.Version.Revision, major, minor, revision, backwardCompatibility,
+                if (!GameCore.Version.CompatibilityCheck(GameCore.Version.Major, GameCore.Version.Minor, GameCore.Version.Revision, major, minor, revision, backwardCompatibility,
                         compatibilityRevision))
                 {
                     CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
@@ -112,15 +108,13 @@ namespace CedMod.Addons.QuerySystem.Patches
                     if (CustomLiteNetLib4MirrorTransport.DelayVolume < CustomLiteNetLib4MirrorTransport.DelayVolumeThreshold)
                     {
                         if (CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
-                            ServerConsole.AddLog(
-                                $"Delayed connection incoming from endpoint {request.RemoteEndPoint} by {CustomLiteNetLib4MirrorTransport.DelayTime} seconds.");
+                            ServerConsole.AddLog($"Delayed connection incoming from endpoint {request.RemoteEndPoint} by {CustomLiteNetLib4MirrorTransport.DelayTime} seconds.");
                         request.Reject(CustomLiteNetLib4MirrorTransport.RequestWriter);
                     }
                     else
                     {
                         if (CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
-                            ServerConsole.AddLog(
-                                $"Force delayed connection incoming from endpoint {request.RemoteEndPoint} by {CustomLiteNetLib4MirrorTransport.DelayTime} seconds.");
+                            ServerConsole.AddLog($"Force delayed connection incoming from endpoint {request.RemoteEndPoint} by {CustomLiteNetLib4MirrorTransport.DelayTime} seconds.");
                         request.RejectForce(CustomLiteNetLib4MirrorTransport.RequestWriter);
                     }
 
@@ -187,8 +181,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                             request.RejectForce(CustomLiteNetLib4MirrorTransport.RequestWriter);
 
                             if (CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
-                                ServerConsole.AddLog(
-                                    $"Failed to generate ID for challenge for incoming connection from endpoint {request.RemoteEndPoint}.");
+                                ServerConsole.AddLog($"Failed to generate ID for challenge for incoming connection from endpoint {request.RemoteEndPoint}.");
                             return;
                         }
 
@@ -199,8 +192,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                             CustomLiteNetLib4MirrorTransport.SuppressIssued = true;
 
                         if (!CustomLiteNetLib4MirrorTransport.SuppressIssued && CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
-                            ServerConsole.AddLog(
-                                $"Requested challenge for incoming connection from endpoint {request.RemoteEndPoint}.");
+                            ServerConsole.AddLog($"Requested challenge for incoming connection from endpoint {request.RemoteEndPoint}.");
 
                         CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                         CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Challenge);
@@ -247,8 +239,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                                 CustomLiteNetLib4MirrorTransport.SuppressRejections = true;
 
                             if (!CustomLiteNetLib4MirrorTransport.SuppressRejections && CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
-                                ServerConsole.AddLog(
-                                    $"Security challenge response of incoming connection from endpoint {request.RemoteEndPoint} has been CustomLiteNetLib4MirrorTransport.Rejected (invalid Challenge ID).");
+                                ServerConsole.AddLog($"Security challenge response of incoming connection from endpoint {request.RemoteEndPoint} has been REJECTED (invalid Challenge ID).");
 
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.InvalidChallengeKey);
@@ -264,8 +255,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                                 CustomLiteNetLib4MirrorTransport.SuppressRejections = true;
 
                             if (!CustomLiteNetLib4MirrorTransport.SuppressRejections && CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
-                                ServerConsole.AddLog(
-                                    $"Security challenge response of incoming connection from endpoint {request.RemoteEndPoint} has been CustomLiteNetLib4MirrorTransport.Rejected (invalid response).");
+                                ServerConsole.AddLog($"Security challenge response of incoming connection from endpoint {request.RemoteEndPoint} has been REJECTED (invalid response).");
 
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.InvalidChallenge);
@@ -277,8 +267,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                         CustomLiteNetLib4MirrorTransport.PreauthDisableIdleMode();
 
                         if (CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
-                            ServerConsole.AddLog(
-                                $"Security challenge response of incoming connection from endpoint {request.RemoteEndPoint} has been accepted.");
+                            ServerConsole.AddLog($"Security challenge response of incoming connection from endpoint {request.RemoteEndPoint} has been accepted.");
                     }
                 }
                 else if (!CustomLiteNetLib4MirrorTransport.CheckIpRateLimit(request)) return;
@@ -291,8 +280,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                     if (ban.Value != null)
                     {
                         if (CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
-                            ServerConsole.AddLog(
-                                $"Player tried to connect from banned endpoint {request.RemoteEndPoint}.");
+                            ServerConsole.AddLog($"Player tried to connect from banned endpoint {request.RemoteEndPoint}.");
 
                         CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                         CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Banned);
@@ -303,10 +291,44 @@ namespace CedMod.Addons.QuerySystem.Patches
                         return;
                     }
 
-                    //todo preauth event invoke
+                    bool isServerFull = CustomLiteNetLib4MirrorTransport.IsServerFull();
 
-                    request.Accept();
-                    CustomLiteNetLib4MirrorTransport.PreauthDisableIdleMode();
+                    PlayerPreAuthenticatingEventArgs ev = new PlayerPreAuthenticatingEventArgs(!isServerFull, string.Empty, request.RemoteEndPoint.Address.ToString(), 0, CentralAuthPreauthFlags.None, string.Empty, null, request, position);
+                    PlayerEvents.OnPreAuthenticating(ev);
+                    if (!ev.IsAllowed)
+                    {
+                        if (ev.CustomReject != null)
+                        {
+                            if (ev.ForceReject)
+                                request.RejectForce(ev.CustomReject);
+                            else
+                                request.Reject(ev.CustomReject);
+                            return;
+                        }
+
+                        CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
+                        CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Error);
+                        request.RejectForce(CustomLiteNetLib4MirrorTransport.RequestWriter);
+                        return;
+                    }
+
+                    isServerFull = !ev.CanJoin;
+
+                    if (!isServerFull)
+                    {
+                        request.Accept();
+                        CustomLiteNetLib4MirrorTransport.PreauthDisableIdleMode();
+
+                        PlayerEvents.OnPreAuthenticated(new PlayerPreAuthenticatedEventArgs(string.Empty, request.RemoteEndPoint.Address.ToString(), 0, CentralAuthPreauthFlags.None, string.Empty, null, request, position));
+                    }
+                    else
+                    {
+                        CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
+                        CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.ServerFull);
+                        request.Reject(CustomLiteNetLib4MirrorTransport.RequestWriter);
+                        CustomLiteNetLib4MirrorTransport.ResetIdleMode();
+                    }
+
                     return;
                 }
 
@@ -319,8 +341,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                 }
 
                 if (!request.Data.TryGetLong(out var expiration) ||
-                    !request.Data.TryGetByte(out var flagsRaw) || !request.Data.TryGetString(out var country) ||
-                    !request.Data.TryGetBytesWithLength(out var signature))
+                    !request.Data.TryGetByte(out var flagsRaw) || !request.Data.TryGetString(out var country) || !request.Data.TryGetBytesWithLength(out var signature))
                 {
                     CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                     CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Error);
@@ -330,8 +351,7 @@ namespace CedMod.Addons.QuerySystem.Patches
 
                 string ep;
                 string realIp = null;
-                if (!CustomLiteNetLib4MirrorTransport.IpPassthroughEnabled || !CustomLiteNetLib4MirrorTransport.TrustedProxies.Contains(request.RemoteEndPoint.Address) ||
-                    !request.Data.TryGetString(out realIp))
+                if (!CustomLiteNetLib4MirrorTransport.IpPassthroughEnabled || !CustomLiteNetLib4MirrorTransport.TrustedProxies.Contains(request.RemoteEndPoint.Address) || !request.Data.TryGetString(out realIp))
                     ep = request.RemoteEndPoint.ToString();
                 else
                     ep = $"{realIp} [routed via {request.RemoteEndPoint}]";
@@ -340,16 +360,14 @@ namespace CedMod.Addons.QuerySystem.Patches
 
                 try
                 {
-                    if (!ECDSA.VerifyBytes($"{userId};{flagsRaw};{country};{expiration}", signature,
-                            ServerConsole.PublicKey))
+                    if (!ECDSA.VerifyBytes($"{userId};{flagsRaw};{country};{expiration}", signature, ServerConsole.PublicKey))
                     {
                         CustomLiteNetLib4MirrorTransport.Rejected++;
                         if (CustomLiteNetLib4MirrorTransport.Rejected > CustomLiteNetLib4MirrorTransport.RejectionThreshold)
                             CustomLiteNetLib4MirrorTransport.SuppressRejections = true;
 
                         if (!CustomLiteNetLib4MirrorTransport.SuppressRejections && CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
-                            ServerConsole.AddLog(
-                                $"Player from endpoint {ep} sent preauthentication token with invalid digital signature.");
+                            ServerConsole.AddLog($"Player from endpoint {ep} sent preauthentication token with invalid digital signature.");
 
                         CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                         CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.InvalidToken);
@@ -367,8 +385,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                         if (!CustomLiteNetLib4MirrorTransport.SuppressRejections && CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
                         {
                             ServerConsole.AddLog($"Player from endpoint {ep} sent expired preauthentication token.");
-                            ServerConsole.AddLog(
-                                "Make sure that time and timezone set on server is correct. We recommend synchronizing the time.");
+                            ServerConsole.AddLog("Make sure that time and timezone set on server is correct. We recommend synchronizing the time.");
                         }
 
                         CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
@@ -387,8 +404,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                                 CustomLiteNetLib4MirrorTransport.SuppressRejections = true;
 
                             if (!CustomLiteNetLib4MirrorTransport.SuppressRejections && CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
-                                ServerConsole.AddLog(
-                                    $"Incoming connection from {userId} ({ep}) CustomLiteNetLib4MirrorTransport.Rejected due to exceeding the rate limit.");
+                                ServerConsole.AddLog($"Incoming connection from {userId} ({ep}) rejected due to exceeding the rate limit.");
 
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.RateLimit);
@@ -431,8 +447,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                     if (flags.HasFlagFast(CentralAuthPreauthFlags.AuthRejected))
                     {
                         if (CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
-                            ServerConsole.AddLog(
-                                $"Player {userId} ({ep}) kicked due to auth rejection by central server.");
+                            ServerConsole.AddLog($"Player {userId} ({ep}) kicked due to auth rejection by central server.");
 
                         CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                         CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.CentralServerAuthRejected);
@@ -441,8 +456,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                         return;
                     }
 
-                    if (flags.HasFlagFast(CentralAuthPreauthFlags.GloballyBanned) &&
-                        (CustomNetworkManager.IsVerified || CustomLiteNetLib4MirrorTransport.UseGlobalBans))
+                    if (flags.HasFlagFast(CentralAuthPreauthFlags.GloballyBanned) && (CustomNetworkManager.IsVerified || CustomLiteNetLib4MirrorTransport.UseGlobalBans))
                     {
                         if (CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
                             ServerConsole.AddLog($"Player {userId} ({ep}) kicked due to an active global ban.");
@@ -487,8 +501,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                                 CustomLiteNetLib4MirrorTransport.SuppressRejections = true;
 
                             if (!CustomLiteNetLib4MirrorTransport.SuppressRejections && CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
-                                ServerConsole.AddLog(
-                                    $"Player {userId} ({ep}) tried joined from blocked country {country}.");
+                                ServerConsole.AddLog($"Player {userId} ({ep}) tried joined from blocked country {country}.");
 
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                             CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Geoblocked);
@@ -500,26 +513,40 @@ namespace CedMod.Addons.QuerySystem.Patches
 
                     if (CustomLiteNetLib4MirrorTransport.UserIdFastReload.Contains(userId))
                         CustomLiteNetLib4MirrorTransport.UserIdFastReload.Remove(userId);
-                    
-                    bool shouldLet = LiteNetLib4MirrorCore.Host.ConnectedPeersCount < CustomNetworkManager.slots;
 
-                    if (!shouldLet && QuerySystem.ReservedSlotUserids.Contains(userId)) //todo. feature to allow users to join if the server is full due to a user with a reserved slot
-                        shouldLet = true;
+                    bool isServerFull = CustomLiteNetLib4MirrorTransport.IsServerFull(userId, flags);
 
-                    if (!shouldLet && flags.HasFlagFast(CentralAuthPreauthFlags.ReservedSlot) && ServerStatic.PermissionsHandler.BanTeamSlots)
-                        shouldLet = true;
-
-                    if (!shouldLet && ReservedSlot.HasReservedSlot(userId) && (LiteNetLib4MirrorCore.Host.ConnectedPeersCount < CustomNetworkManager.slots + CustomNetworkManager.reservedSlots))
-                        shouldLet = true;
-
-                    if (shouldLet)
+                    if (!isServerFull && QuerySystem.ReservedSlotUserids.Contains(userId))
                     {
-                        //todo preauth event invoke
+                        isServerFull = false;
+                    }
 
-                        if (CustomLiteNetLib4MirrorTransport.UserIds.ContainsKey(request.RemoteEndPoint)) 
+                    PlayerPreAuthenticatingEventArgs ev2 = new PlayerPreAuthenticatingEventArgs(!isServerFull, userId, realIp == null ? request.RemoteEndPoint.Address.ToString() : realIp, expiration, flags, country, signature, request, position);
+                    PlayerEvents.OnPreAuthenticating(ev2);
+                    if (!ev2.IsAllowed)
+                    {
+                        if (ev2.CustomReject != null)
+                        {
+                            if (ev2.ForceReject)
+                                request.RejectForce(ev2.CustomReject);
+                            else
+                                request.Reject(ev2.CustomReject);
+                            return;
+                        }
+
+                        CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
+                        CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Error);
+                        request.RejectForce(CustomLiteNetLib4MirrorTransport.RequestWriter);
+                        return;
+                    }
+
+                    isServerFull = !ev2.CanJoin;
+
+                    if (!isServerFull)
+                    {
+                        if (CustomLiteNetLib4MirrorTransport.UserIds.ContainsKey(request.RemoteEndPoint))
                             CustomLiteNetLib4MirrorTransport.UserIds[request.RemoteEndPoint].SetUserId(userId);
-                        else 
-                            CustomLiteNetLib4MirrorTransport.UserIds.Add(request.RemoteEndPoint, new PreauthItem(userId));
+                        else CustomLiteNetLib4MirrorTransport.UserIds.Add(request.RemoteEndPoint, new PreauthItem(userId));
                         
                         Task.Run(async () =>
                         {
@@ -552,12 +579,14 @@ namespace CedMod.Addons.QuerySystem.Patches
                             else
                                 CustomLiteNetLib4MirrorTransport.RealIpAddresses.Add(netPeer.Id, realIp);
                         }
-                        
+
                         ServerConsole.AddLog($"Player {userId} preauthenticated from endpoint {ep}.");
                         ServerLogs.AddLog(ServerLogs.Modules.Networking,
                             $"{userId} preauthenticated from endpoint {ep}.",
                             ServerLogs.ServerLogType.ConnectionUpdate);
                         CustomLiteNetLib4MirrorTransport.PreauthDisableIdleMode();
+
+                        PlayerEvents.OnPreAuthenticated(new PlayerPreAuthenticatedEventArgs(userId, realIp == null ? request.RemoteEndPoint.Address.ToString() : realIp, expiration, flags, country, signature, request, position));
                     }
                     else
                     {
@@ -574,8 +603,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                         CustomLiteNetLib4MirrorTransport.SuppressRejections = true;
 
                     if (!CustomLiteNetLib4MirrorTransport.SuppressRejections && CustomLiteNetLib4MirrorTransport.DisplayPreauthLogs)
-                        ServerConsole.AddLog(
-                            $"Player from endpoint {ep} sent an invalid preauthentication token. {e.Message}");
+                        ServerConsole.AddLog($"Player from endpoint {ep} sent an invalid preauthentication token. {e.Message}");
 
                     CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                     CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.InvalidToken);
@@ -590,8 +618,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                     CustomLiteNetLib4MirrorTransport.SuppressRejections = true;
 
                 if (!CustomLiteNetLib4MirrorTransport.SuppressRejections)
-                    ServerConsole.AddLog(
-                        $"Player from endpoint {request.RemoteEndPoint} failed to preauthenticate: {e.Message}");
+                    ServerConsole.AddLog($"Player from endpoint {request.RemoteEndPoint} failed to preauthenticate: {e.Message}");
 
                 CustomLiteNetLib4MirrorTransport.RequestWriter.Reset();
                 CustomLiteNetLib4MirrorTransport.RequestWriter.Put((byte)RejectionReason.Error);

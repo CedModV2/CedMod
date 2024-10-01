@@ -12,8 +12,10 @@ namespace CedMod
     public sealed class Config
     #endif
     {
+#if EXILED
         [Description("Indicates whether the plugin is enabled or not")]
         public bool IsEnabled { get; set; } = true;
+#endif
 
         public bool Debug { get; set; } = false;
 

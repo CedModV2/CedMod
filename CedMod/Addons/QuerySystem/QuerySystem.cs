@@ -21,15 +21,15 @@ namespace CedMod.Addons.QuerySystem
                     }
                     if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "QuerySystemSecretKey.txt")))
                     {
-                        File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{ServerConsole.PortToReport}.txt"), File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "QuerySystemSecretKey.txt")));
+                        File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{ServerStatic.ServerPort}.txt"), File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "QuerySystemSecretKey.txt")));
                         File.Delete(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "QuerySystemSecretKey.txt"));
                     }
 
-                    if (!File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{ServerConsole.PortToReport}.txt")))
+                    if (!File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{ServerStatic.ServerPort}.txt")))
                     {
                         return "";
                     }
-                    _querySystemKey = File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{ServerConsole.PortToReport}.txt"));
+                    _querySystemKey = File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{ServerStatic.ServerPort}.txt"));
                     
                     if (_querySystemKey == "")
                     {
@@ -48,12 +48,12 @@ namespace CedMod.Addons.QuerySystem
                 }
                 if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "QuerySystemSecretKey.txt")))
                 {
-                    File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{ServerConsole.PortToReport}.txt"), File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "QuerySystemSecretKey.txt")));
+                    File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{ServerStatic.ServerPort}.txt"), File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "QuerySystemSecretKey.txt")));
                     File.Delete(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "QuerySystemSecretKey.txt"));
                 }
                 Logger.Info("Saved QueryKey to persistant storage");
                 _querySystemKey = value;
-                File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{ServerConsole.PortToReport}.txt"), _querySystemKey);
+                File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{ServerStatic.ServerPort}.txt"), _querySystemKey);
             }
         }
         

@@ -13,7 +13,7 @@ namespace CedMod.Commands
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class RedirectCommand : ICommand
     {
-        public string Command { get; } = "redirect";
+        public string Command { get; } = "sendplayer";
 
         public string[] Aliases { get; } = new string[]
         {

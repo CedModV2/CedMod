@@ -109,23 +109,14 @@ namespace CedMod
                 return;
             }
             
-            if (!Config.IsEnabled)
-                return;
             var loadProperty = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(s => s.GetName().Name == "CedModV3").GetType("CedMod.API").GetProperty("HasLoaded");
             bool loaded = (bool)loadProperty.GetValue(null);
             if (loaded)
             {
-                Timing.CallPeriodically(100000, 1, () => Logger.Error("It would appear that the NWApi tried loading CedMod twice, please ensure that you do not have CedMod installed twice"));
+                Timing.CallPeriodically(100000, 1, () => Logger.Error("It would appear that the LabApi tried loading CedMod twice, please ensure that you do not have CedMod installed twice"));
                 return;
             }
             loadProperty.SetValue(null, true);
-            
-            Timing.CallDelayed(5, () =>
-            {
-                if (!AppDomain.CurrentDomain.GetAssemblies().Any(s => s.GetName().Name == "NWAPIPermissionSystem"))
-                    Timing.CallPeriodically(100000, 1, () => Logger.Error("You do not have the NWAPIPermissionSystem Installed, CedMod Requires the NWAPIPermission system in order to operate properly, please download it here: https://github.com/CedModV2/NWAPIPermissionSystem"));
-                return;
-            });
 
             var files = PathManager.Plugins.GetFiles("CedMod*.dll");
             if (files.Length == 0)
@@ -279,7 +270,7 @@ namespace CedMod
 
             Singleton = this;
 
-            if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{ServerConsole.PortToReport}.txt")))
+            if (File.Exists(Path.Combine(PluginConfigFolder, "CedMod", $"QuerySystemSecretKey-{ServerStatic.ServerPort}.txt")))
             {
                 // Start the HTTP server.
                 Task.Run(async () =>
