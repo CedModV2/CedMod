@@ -75,7 +75,10 @@ namespace CedMod
                 {
                     if (info.ContainsKey("token") && info.ContainsKey("signature"))
                     {
-                        CedModAuthTokens[player.ReferenceHub] = new Tuple<string, string>(info["token"], info["signature"]);
+                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                        {
+                            CedModAuthTokens[player.ReferenceHub] = new Tuple<string, string>(info["token"], info["signature"]);
+                        });
                     }
                 }
 
