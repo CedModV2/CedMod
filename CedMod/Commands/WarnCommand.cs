@@ -54,29 +54,34 @@ namespace CedMod.Commands
 
             Task.Run(async () =>
             {
-                using (HttpClient client = new HttpClient())
+                try
                 {
-                    client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
-                    await VerificationChallenge.AwaitVerification();
-                    var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Punishment/IssueWarn/{QuerySystem.QuerySystemKey}?userId={plr.UserId}&issuer={send.UserId}", new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string> { { "Reason", reason } })));
-                    var responseString = await response.Content.ReadAsStringAsync();
-                    if (response.StatusCode == HttpStatusCode.OK)
+                    using (HttpClient client = new HttpClient())
                     {
-                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                        client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                        await VerificationChallenge.AwaitVerification();
+                        var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Punishment/IssueWarn/{QuerySystem.QuerySystemKey}?userId={plr.UserId}&issuer={send.UserId}", new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string> { { "Reason", reason } })));
+                        var responseString = await response.Content.ReadAsStringAsync();
+                        if (response.StatusCode == HttpStatusCode.OK)
                         {
-                            sender.Respond(responseString, true);
-                            StaffInfoHandler.StaffData.ForEach(s => s.Value.Remove(plr.UserId));
-                            StaffInfoHandler.Requested.ForEach(s => s.Value.Remove(plr.UserId));
-                            StaffInfoHandler.Singleton.RequestInfo(send, plr);
-                        });
-                    }
-                    else
-                    {
-                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                            {
+                                sender.Respond(responseString, true);
+                                StaffInfoHandler.StaffData.ForEach(s => s.Value.Remove(plr.UserId));
+                                StaffInfoHandler.Requested.ForEach(s => s.Value.Remove(plr.UserId));
+                                StaffInfoHandler.Singleton.RequestInfo(send, plr);
+                            });
+                        }
+                        else
                         {
-                            sender.Respond($"{response.StatusCode} - {responseString}");
-                        });
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => { sender.Respond($"{response.StatusCode} - {responseString}"); });
+                        }
                     }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => { sender.Respond(e.ToString()); });
                 }
             });
 
