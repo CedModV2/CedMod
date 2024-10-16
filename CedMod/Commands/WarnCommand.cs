@@ -15,6 +15,8 @@ using CedMod.Addons.StaffInfo;
 using CommandSystem;
 using Newtonsoft.Json;
 using PluginAPI.Core;
+using RemoteAdmin;
+using Utils;
 using Utils.NonAllocLINQ;
 
 namespace CedMod.Commands
@@ -47,41 +49,54 @@ namespace CedMod.Commands
                 response = "Missing arguments, warn <player> <reason>\nReason can be multiple words";
                 return false;
             }
+
+            var plrs = RAUtils.ProcessPlayerIdOrNamesList(arguments, 0, out var newgArs);
             
-            Player plr = Player.Get(arguments.At(0));
-            Player send = Player.Get(sender);
             string reason = arguments.Skip(1).Aggregate((current, n) => current + " " + n);
+            string senderId = "";
+
+            if (sender is PlayerCommandSender commandSender)
+                senderId = commandSender.SenderId;
+
+            if (sender is CmSender queryCommandSender)
+                senderId = queryCommandSender.SenderId;
 
             Task.Run(async () =>
             {
-                try
+                foreach (var plr in plrs)
                 {
-                    using (HttpClient client = new HttpClient())
+                    try
                     {
-                        client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
-                        await VerificationChallenge.AwaitVerification();
-                        var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Punishment/IssueWarn/{QuerySystem.QuerySystemKey}?userId={plr.UserId}&issuer={send.UserId}", new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string> { { "Reason", reason } })));
-                        var responseString = await response.Content.ReadAsStringAsync();
-                        if (response.StatusCode == HttpStatusCode.OK)
+                        using (HttpClient client = new HttpClient())
                         {
-                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                            client.DefaultRequestHeaders.Add("X-ServerIp", Server.ServerIpAddress);
+                            await VerificationChallenge.AwaitVerification();
+                            var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Api/v3/Punishment/IssueWarn/{QuerySystem.QuerySystemKey}?userId={plr.authManager.UserId}&issuer={senderId}", new StringContent(JsonConvert.SerializeObject(new Dictionary<string, string> { { "Reason", reason } })));
+                            var responseString = await response.Content.ReadAsStringAsync();
+                            if (response.StatusCode == HttpStatusCode.OK)
                             {
-                                sender.Respond(responseString, true);
-                                StaffInfoHandler.StaffData.ForEach(s => s.Value.Remove(plr.UserId));
-                                StaffInfoHandler.Requested.ForEach(s => s.Value.Remove(plr.UserId));
-                                StaffInfoHandler.Singleton.RequestInfo(send, plr);
-                            });
-                        }
-                        else
-                        {
-                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => { sender.Respond($"{response.StatusCode} - {responseString}"); });
+                                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                                {
+                                    sender.Respond(responseString, true);
+                                    if (CedModMain.Singleton.Config.QuerySystem.StaffInfoSystem)
+                                    {
+                                        StaffInfoHandler.StaffData.ForEach(s => s.Value.Remove(plr.authManager.UserId));
+                                        StaffInfoHandler.Requested.ForEach(s => s.Value.Remove(plr.authManager.UserId));
+                                        StaffInfoHandler.Singleton.RequestInfo(Player.Get(sender), Player.Get(plr));
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => { sender.Respond($"{response.StatusCode} - {responseString}"); });
+                            }
                         }
                     }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => { sender.Respond(e.ToString()); });
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => { sender.Respond(e.ToString()); });
+                    }
                 }
             });
 
