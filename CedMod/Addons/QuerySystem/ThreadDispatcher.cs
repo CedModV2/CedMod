@@ -278,7 +278,10 @@ namespace CedMod.Addons.QuerySystem
                             ScpSlVersion = $"{Version.Major}.{Version.Minor}.{Version.Revision}",
                             FileHash = CedModMain.FileHash,
                             KeyHash = CedModMain.GetHashCode(CedModMain.Singleton.Config.CedMod.CedModApiKey, new MD5CryptoServiceProvider()),
-                            IsVerified = CustomNetworkManager.IsVerified
+                            IsVerified = CustomNetworkManager.IsVerified,
+                            RealTps = Math.Round(1f / Time.smoothDeltaTime),
+                            Tps = Math.Round(1f / Time.smoothDeltaTime) / ServerStatic.ServerTickrate,
+                            FrameTime = Math.Round(1f / Time.deltaTime),
                         })
                     }
                 }
