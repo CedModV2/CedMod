@@ -253,7 +253,7 @@ namespace CedMod.Addons.QuerySystem
                     });
                 }
             }
-            IdleMode.
+            
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "PANEL",
