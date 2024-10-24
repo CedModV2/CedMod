@@ -253,7 +253,7 @@ namespace CedMod.Addons.QuerySystem
                     });
                 }
             }
-            
+            IdleMode.
             WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
             {
                 Recipient = "PANEL",
@@ -280,9 +280,9 @@ namespace CedMod.Addons.QuerySystem
                             KeyHash = CedModMain.GetHashCode(CedModMain.Singleton.Config.CedMod.CedModApiKey, new MD5CryptoServiceProvider()),
                             IsVerified = CustomNetworkManager.IsVerified,
                             RealTps = Math.Round(1f / Time.smoothDeltaTime),
-                            Tps = Math.Round(1f / Time.smoothDeltaTime) / ServerStatic.ServerTickrate,
-                            TargetTps = ServerStatic.ServerTickrate,
-                            FrameTime = Math.Round(1f / Time.deltaTime),
+                            Tps = Math.Round(1f / Time.smoothDeltaTime) / Application.targetFrameRate,
+                            TargetTps = (short)Application.targetFrameRate,
+                            FrameTime = Math.Round(1f / Time.deltaTime) / Application.targetFrameRate,
                         })
                     }
                 }
