@@ -281,6 +281,7 @@ namespace CedMod.Addons.QuerySystem
                             IsVerified = CustomNetworkManager.IsVerified,
                             RealTps = Math.Round(1f / Time.smoothDeltaTime),
                             Tps = Math.Round(1f / Time.smoothDeltaTime) / ServerStatic.ServerTickrate,
+                            TargetTps = ServerStatic.ServerTickrate,
                             FrameTime = Math.Round(1f / Time.deltaTime),
                         })
                     }

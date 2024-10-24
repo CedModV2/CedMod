@@ -19,5 +19,6 @@ namespace CedMod.ApiModals
         public double RealTps { get; set; }
         public double Tps { get; set; }
         public double FrameTime { get; set; }
+        public short TargetTps { get; set; }
     }
 }
