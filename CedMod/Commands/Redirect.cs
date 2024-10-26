@@ -14,10 +14,11 @@ namespace CedMod.Commands
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class RedirectCommand : ICommand
     {
-        public string Command { get; } = "redirect";
+        public string Command { get; } = "redir";
 
         public string[] Aliases { get; } = new string[]
         {
+            "redirect"
         };
 
         public string Description { get; } = "redirects ALL players to the specified port";
