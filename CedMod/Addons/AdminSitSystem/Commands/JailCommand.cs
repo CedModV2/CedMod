@@ -11,6 +11,8 @@ using Interactables.Interobjects.DoorUtils;
 using InventorySystem;
 using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
+using InventorySystem.Items.Firearms.Attachments;
+using InventorySystem.Items.Firearms.Modules;
 using InventorySystem.Items.MicroHID;
 using InventorySystem.Items.Radio;
 using MEC;
@@ -55,13 +57,13 @@ namespace CedMod.Addons.AdminSitSystem.Commands
         public static void AddPlr(Player plr, AdminSit sit)
         {
             Vector3 playerPos = plr.Position;
-            foreach (var lift in ElevatorManager.SpawnedChambers)
+            foreach (var lift in ElevatorChamber.AllChambers)
             {
-                if (lift.Value.WorldspaceBounds.Contains(plr.Position))
+                if (lift.WorldspaceBounds.Contains(plr.Position))
                 {
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                        Log.Info($"Player in lift {lift.Key}");
-                    var door = DoorVariant.AllDoors.Where(s => s is not ElevatorDoor).OrderBy(s => Vector3.Distance(s.transform.position, lift.Value.transform.position)).FirstOrDefault();
+                        PluginAPI.Core.Log.Info($"Player in lift {lift.gameObject.ToString()}");
+                    var door = DoorVariant.AllDoors.Where(s => s is not ElevatorDoor).OrderBy(s => Vector3.Distance(s.transform.position, lift.transform.position)).FirstOrDefault();
                     if (door != null)
                     {
                         var pos = DoorTPCommand.EnsurePositionSafety(door.transform);
@@ -123,12 +125,20 @@ namespace CedMod.Addons.AdminSitSystem.Commands
                 plr.ClearInventory();
                 foreach (var item in sitPlr.Items)
                 {
-                    var a = plr.ReferenceHub.inventory.ServerAddItem(item.Value.ItemTypeId);
+                    var a = plr.ReferenceHub.inventory.ServerAddItem(item.Value.ItemTypeId, ItemAddReason.AdminCommand);
 
                     if (a is Firearm newFirearm && item.Value is Firearm oldFirearm)
                     {
-                        newFirearm.Status = new FirearmStatus(oldFirearm.Status.Ammo, oldFirearm.Status.Flags,
-                            oldFirearm.Status.Attachments);
+                        foreach (var module in oldFirearm.Modules)
+                        {
+                            foreach (var newModule in newFirearm.Modules)
+                            {
+                                if (module is MagazineModule magazine && newModule is MagazineModule newMagazineModule)
+                                    magazine.AmmoStored = newMagazineModule.AmmoStored;
+                            }
+                        }
+                        
+                        newFirearm.ApplyAttachmentsCode(oldFirearm.GetCurrentAttachmentsCode(), true);
                     }
 
                     if (a is MicroHIDItem microHidItem && item.Value is MicroHIDItem oldMicroHidItem)

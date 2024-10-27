@@ -17,6 +17,7 @@ using MEC;
 using Newtonsoft.Json;
 using PlayerStatsSystem;
 using PluginAPI.Core;
+using UnityEngine;
 using Console = System.Console;
 using Log = PluginAPI.Core.Log;
 
@@ -246,7 +247,7 @@ namespace CedMod
         {
             try
             {
-                player.ReferenceHub.playerStats.KillPlayer(new DisruptorDamageHandler(new Footprint(player.ReferenceHub), -1));
+                player.ReferenceHub.playerStats.KillPlayer(new DisruptorDamageHandler(null, Vector3.up, -1));
             }
             catch (Exception e)
             {

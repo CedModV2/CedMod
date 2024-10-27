@@ -1267,6 +1267,11 @@ namespace CedMod.Addons.QuerySystem.WS
             fullPermissions = false;
         }
 
+        public override bool Available()
+        {
+            return true;
+        }
+
         public override void Respond(string text, bool success = true)
         {
             if (CedModMain.Singleton.Config.QuerySystem.Debug)

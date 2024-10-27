@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace CedMod.Addons.Events.Patches
 {
-    [HarmonyPatch(typeof(SeedSynchronizer), nameof(SeedSynchronizer.Start))]
+    [HarmonyPatch(typeof(SeedSynchronizer), nameof(SeedSynchronizer.Awake))]
     public static class SeedGenerationPatch
     {
         private static int _nextSeed = -1;
@@ -30,8 +30,7 @@ namespace CedMod.Addons.Events.Patches
             if (NextSeed == -1)
                 return true;
 
-            __instance.Network_syncSeed = NextSeed;
-            __instance._syncSeed = NextSeed;
+            SeedSynchronizer.Seed= NextSeed;
             return false;
         }
     }
