@@ -1,6 +1,6 @@
-Builds: ![.NET Core](https://github.com/CedModV2/CedMod/workflows/.NET%20Core%20Master/badge.svg?branch=master)
-
-CedMod builds are located on the Releases tab (download is also available on the CedMod Admin panel https://admin.cedmod.nl)
+CedMod builds are located on the Releases tab Please note that there are always 2 releases for each version, one for the NWApi and one for EXILED. Please take note of this when installing.
+The CedMod instance creation guide https://cedmod.nl/Servers/Create will also provide the 2 releases after creating an instance.
+if you already have an instance the "View Setup command" or "Add new QueryServer" button will also provide you with the releases in question.
 
 About CedMod: https://cedmod.nl/About
 
