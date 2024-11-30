@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.Events;
 using CedMod.Addons.QuerySystem.WS;
+using CedMod.Addons.Sentinal.Patches;
 using CentralAuth;
 using CustomPlayerEffects;
 using Interactables.Interobjects;
@@ -67,7 +68,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerActivateGenerator)]
         public void OnActivateGenerator(PlayerActivateGeneratorEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -93,7 +94,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerCancelUsingItem)]
         public void OnCancelItem(PlayerCancelUsingItemEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -119,7 +120,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerChangeItem)]
         public void OnChangeItem(PlayerChangeItemEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -145,7 +146,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerEnterPocketDimension)]
         public void OnPocketEnter(PlayerEnterPocketDimensionEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -170,7 +171,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerExitPocketDimension)]
         public void OnPocketEscape(PlayerExitPocketDimensionEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -197,7 +198,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerInteractDoor)]
         public void OnInteractDoor(PlayerInteractDoorEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -223,7 +224,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerInteractGenerator)]
         public void OnInteractGenerator(PlayerInteractGeneratorEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -249,7 +250,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerInteractLocker)]
         public void OnInteractLocker(PlayerInteractLockerEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -277,7 +278,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerInteractElevator)]
         public void OnElevatorInteraction(PlayerInteractElevatorEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -293,7 +294,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.Scp079UseTesla)]
         public void On079Tesla(Scp079UseTeslaEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -318,7 +319,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerShotWeapon)]
         public void OnPlayerShoot(PlayerShotWeaponEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -344,7 +345,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerChangeRole)]
         public void OnSetClass(PlayerChangeRoleEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -386,7 +387,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerCloseGenerator)]
         public void OnCloseGenerator(PlayerCloseGeneratorEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -418,7 +419,7 @@ namespace CedMod.Addons.QuerySystem
             RoomIdentifier killerRoom = RoomIdUtils.RoomAtPosition(ev.Target.Position);
             if (ev.Player != null)
             {
-                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                WebSocketSystem.Enqueue(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
@@ -453,7 +454,7 @@ namespace CedMod.Addons.QuerySystem
             }
             else
             {
-                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                WebSocketSystem.Enqueue(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
@@ -484,7 +485,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerDeactivatedGenerator)]
         public void OnDeactivateGenerator(PlayerDeactivatedGeneratorEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -627,7 +628,7 @@ namespace CedMod.Addons.QuerySystem
                     }
                 });
 
-                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                WebSocketSystem.Enqueue(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
@@ -663,7 +664,7 @@ namespace CedMod.Addons.QuerySystem
             else
             {
                 RoomIdentifier killerRoom = RoomIdUtils.RoomAtPosition(ev.Player.Position);
-                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                WebSocketSystem.Enqueue(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
@@ -701,7 +702,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerDroppedAmmo)]
         public void OnPlayerDropAmmo(PlayerDroppedAmmoEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -728,7 +729,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerDropedpItem)]
         public void OnPlayerDropItem(PlayerDroppedItemEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -763,7 +764,7 @@ namespace CedMod.Addons.QuerySystem
                 CommandHandler.Synced.Remove(ev.Player.UserId);
             }
 
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -783,10 +784,11 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerLeft)]
         public void OnPlayerLeave(PlayerLeftEvent ev)
         {
+            FpcSyncDataPatch.SyncDatas.Remove(ev.Player.ReferenceHub);
             BanSystem.Authenticating.Remove(ev.Player.ReferenceHub);
             BanSystem.CedModAuthTokens.Remove(ev.Player.ReferenceHub);
             ThreadDispatcher.SendHeartbeatMessage(true);
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -802,7 +804,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerPickupAmmo)]
         public void OnPlayerPickupAmmo(PlayerPickupAmmoEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -828,7 +830,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerPickupArmor)]
         public void OnPlayerPickupArmor(PlayerPickupArmorEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -854,7 +856,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerSearchedPickup)]
         public void OnPlayerPickupItem(PlayerSearchedPickupEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -882,7 +884,7 @@ namespace CedMod.Addons.QuerySystem
             if (statusEffectBase.Hub.authManager.InstanceMode != ClientInstanceMode.ReadyClient)
                 return;
             
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -912,7 +914,7 @@ namespace CedMod.Addons.QuerySystem
             if (statusEffectBase.Hub.authManager.InstanceMode != ClientInstanceMode.ReadyClient)
                 return;
             
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -940,7 +942,7 @@ namespace CedMod.Addons.QuerySystem
             if (statusEffectBase.Hub.authManager.InstanceMode != ClientInstanceMode.ReadyClient)
                 return;
             
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -968,7 +970,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerReloadWeapon)]
         public void OnPlayerReloadWeapon(PlayerReloadWeaponEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -994,7 +996,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerUnlockGenerator)]
         public void OnPlayerUnlockGenerator(PlayerUnlockGeneratorEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -1020,7 +1022,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.RagdollSpawn)]
         public void OnPlayerRagdollSpawn(RagdollSpawnEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -1045,7 +1047,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerRemoveHandcuffs)]
         public void OnPlayerFreed(PlayerRemoveHandcuffsEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -1110,7 +1112,7 @@ namespace CedMod.Addons.QuerySystem
                 }
                 
             });
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -1238,7 +1240,7 @@ namespace CedMod.Addons.QuerySystem
                     }
                 }
             });
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -1267,7 +1269,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerThrowItem)]
         public void OnItemThrown(PlayerThrowItemEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -1293,7 +1295,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerThrowProjectile)]
         public void OnThrowProjectile(PlayerThrowProjectileEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -1319,7 +1321,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerUsedItem)]
         public void OnUsedItem(PlayerUsedItemEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -1346,7 +1348,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerHandcuff)]
         public void OnPlayerHandcuffed(PlayerHandcuffEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -1376,7 +1378,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.PlayerEscape)]
         public void OnEscape(PlayerEscapeEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -1402,7 +1404,7 @@ namespace CedMod.Addons.QuerySystem
 
             if (LevelerStore.TrackingEnabled)
             {
-                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                WebSocketSystem.Enqueue(new QueryCommand()
                 {
                     Recipient = "PANEL",
                     Data = new Dictionary<string, string>()
@@ -1422,7 +1424,7 @@ namespace CedMod.Addons.QuerySystem
                         var disarmer = Player.GetPlayers().FirstOrDefault(s => s.NetworkId == entry.Disarmer);
                         if (disarmer != null)
                         {
-                            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                            WebSocketSystem.Enqueue(new QueryCommand()
                             {
                                 Recipient = "PANEL",
                                 Data = new Dictionary<string, string>()

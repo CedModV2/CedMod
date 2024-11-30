@@ -8,6 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem.Patches;
 using CedMod.Addons.QuerySystem.WS;
+using CedMod.Addons.Sentinal;
+using CedMod.Addons.Sentinal.Patches;
 using MEC;
 using Newtonsoft.Json;
 using PluginAPI.Core;
@@ -164,8 +166,9 @@ namespace CedMod.Addons.QuerySystem
                     await WebSocketSystem.Start();
                 }
             });
-
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            SentinalBehaviour.RoundGuid = Guid.NewGuid().ToString();
+            FpcSyncDataPatch.SyncDatas.Clear();
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -179,7 +182,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.RoundStart)]
         public void OnRoundStart(RoundStartEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -206,7 +209,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.RoundRestart)]
         public void OnRoundRestart(RoundRestartEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -220,7 +223,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.RoundEnd)]
         public void OnRoundEnd(RoundEndEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -236,7 +239,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     if (plr.Key == null || !plr.Key.GameObject == null)
                         continue;
-                    WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                    WebSocketSystem.Enqueue(new QueryCommand()
                     {
                         Recipient = "PANEL",
                         Data = new Dictionary<string, string>()
@@ -257,7 +260,7 @@ namespace CedMod.Addons.QuerySystem
         [PluginEvent(ServerEventType.TeamRespawn)]
         public void OnRespawn(TeamRespawnEvent ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()

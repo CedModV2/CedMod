@@ -106,6 +106,7 @@
     <Compile Include="Addons\QuerySystem\Patches\PreAuthModel.cs" />
     <Compile Include="Addons\QuerySystem\Patches\RefreshExiledPermissions.cs" />
     <Compile Include="Addons\QuerySystem\Patches\RefreshPermissionsHandlerPatch.cs" />
+    <Compile Include="Addons\QuerySystem\Patches\ShootingPatch.cs" />
     <Compile Include="Addons\QuerySystem\QueryMapEvents.cs" />
     <Compile Include="Addons\QuerySystem\Patches\ReservedSlotsPatch.cs" />
     <Compile Include="Addons\QuerySystem\QueryPlayerEvents.cs" />
@@ -117,6 +118,7 @@
     <Compile Include="Addons\QuerySystem\Verification.cs" />
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
     <Compile Include="Addons\Sentinal\Patches\FpcServerPositionDistributorPatch.cs" />
+    <Compile Include="Addons\Sentinal\Patches\FpcSyncDataPatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\PlayerRoleManagerPatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\VoicePacketPacket.cs" />
     <Compile Include="Addons\Sentinal\SentinalBehaviour.cs" />

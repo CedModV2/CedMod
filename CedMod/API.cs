@@ -164,7 +164,7 @@ namespace CedMod
                         { "preformattedmessage", $"You have been banned from this server: {reason}" }
                     };
                 }
-                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                WebSocketSystem.Enqueue(new QueryCommand()
                 {
                     Recipient = "PANEL",
                     Data = new Dictionary<string, string>()
@@ -209,7 +209,7 @@ namespace CedMod
                         { "preformattedmessage", $"You have been banned from this server: {reason}" }
                     };
                 }
-                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()   
+                WebSocketSystem.Enqueue(new QueryCommand()   
                 {                                                      
                     Recipient = "PANEL",                               
                     Data = new Dictionary<string, string>()            

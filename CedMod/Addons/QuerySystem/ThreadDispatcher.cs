@@ -79,7 +79,7 @@ namespace CedMod.Addons.QuerySystem
                     });
                 }
                 
-                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                WebSocketSystem.Enqueue(new QueryCommand()
                 {
                     Recipient = "PANEL",
                     Data = new Dictionary<string, string>()
@@ -254,7 +254,7 @@ namespace CedMod.Addons.QuerySystem
                 }
             }
             
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "PANEL",
                 Data = new Dictionary<string, string>()

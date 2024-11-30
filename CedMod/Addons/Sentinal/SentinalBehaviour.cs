@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using CedMod.Addons.QuerySystem.WS;
 using CedMod.Addons.Sentinal.Patches;
 using InventorySystem.Items.Firearms.Modules;
 using Newtonsoft.Json;
+using PlayerRoles.FirstPersonControl.NetworkMessages;
 using PluginAPI.Core;
 using UnityEngine;
 using Utils.NonAllocLINQ;
@@ -18,10 +21,22 @@ namespace CedMod.Addons.Sentinal
         public float AuthTimer = 1;
         public Dictionary<int, Dictionary<uint, List<(int, float, float)>>> FrameCount = new Dictionary<int, Dictionary<uint, List<(int, float, float)>>>();
         Dictionary<uint, Dictionary<int, List<(int, float, float)>>> UserFrames = new Dictionary<uint, Dictionary<int, List<(int, float, float)>>>();
+        public static ConcurrentQueue<(ReferenceHub hub, FpcSyncData)> DirtyPositions = new ConcurrentQueue<(ReferenceHub hub, FpcSyncData)>();
         public static int Frames = 0;
+        public static ulong UFrames = 0;
+        public static string RoundGuid = Guid.NewGuid().ToString();
+        public List<ReferenceHub> processesPositionPlayers = new List<ReferenceHub>();
+        public static ulong UFrameLastPosSent = UFrames;
+
         
         public void FixedUpdate()
         {
+            
+            if (UFrames == ulong.MaxValue) //precaution
+                UFrames = 0;
+            
+            UFrames++;
+            
             if (Frames == int.MaxValue) //precaution
                 Frames = 0;
             
@@ -43,7 +58,31 @@ namespace CedMod.Addons.Sentinal
                     FrameCount[Frames].TryAdd(pack.Key, pack.Value);
                 }
             }
-            
+
+            if (UFrames - UFrameLastPosSent >= 25)
+            {
+                processesPositionPlayers.Clear();
+                while (DirtyPositions.TryDequeue(out var pos))
+                {
+                    if (processesPositionPlayers.Contains(pos.hub))
+                        continue;
+                    processesPositionPlayers.Add(pos.hub);
+                    WebSocketSystem.Enqueue(new QueryCommand()
+                    {
+                        Recipient = "PANEL",
+                        Data = new Dictionary<string, string>()
+                        {
+                            {"Type", "OnPlayerMove"},
+                            {"UserId", pos.hub.authManager.UserId},
+                            {"Pos", pos.Item2._position.Position.ToString()},
+                            {"rotH", pos.Item2._rotH.ToString()},
+                            {"rotV", pos.Item2._rotV.ToString()},
+                        }
+                    });
+                }
+
+                UFrameLastPosSent = UFrames;
+            }
             
             AuthTimer -= UnityEngine.Time.fixedDeltaTime;
 

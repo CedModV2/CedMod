@@ -162,7 +162,7 @@ namespace CedMod.Addons.StaffInfo
         public void RequestInfo(Player staff, Player player)
         {
             Requested[staff.UserId][player.UserId] = DateTime.UtcNow;
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "PANEL",
                 Data = new Dictionary<string, string>()

@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CedMod.Addons.Events.Commands;
 using CedMod.Addons.QuerySystem.Commands;
+using CedMod.Addons.Sentinal;
 using CedMod.Addons.StaffInfo;
 using CedMod.ApiModals;
 using CedMod.Components;
@@ -60,6 +61,17 @@ namespace CedMod.Addons.QuerySystem.WS
         public static DateTime LastConnection = DateTime.UtcNow;
         public static bool SuppressLog { get; set; } = false;
         public static DateTime LastServerConnection { get; set; }
+
+        public static void Enqueue(QueryCommand cmd)
+        {
+            if (!cmd.Data.ContainsKey("UFrame"))
+                cmd.Data["UFrame"] = SentinalBehaviour.UFrames.ToString();
+            
+            if (!cmd.Data.ContainsKey("RoundId"))
+                cmd.Data["RoundId"] = SentinalBehaviour.RoundGuid;
+            
+            WebSocketSystem.SendQueue.Enqueue(cmd);
+        }
 
         public static async Task Stop()
         {
@@ -1235,7 +1247,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 IEnumerable<string> chunks = Enumerable.Range(0, text.Length / chunksize).Select(i => text.Substring(i * chunksize, chunksize));
                 foreach (var str in chunks) //WS becomes unstable if we send a large chunk of text
                 {
-                    WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                    WebSocketSystem.Enqueue(new QueryCommand()
                     {
                         Recipient = Ses,
                         Data = new Dictionary<string, string>()
@@ -1247,7 +1259,7 @@ namespace CedMod.Addons.QuerySystem.WS
             }
             else*/
             {
-                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                WebSocketSystem.Enqueue(new QueryCommand()
                 {
                     Recipient = Ses,
                     Data = new Dictionary<string, string>()
