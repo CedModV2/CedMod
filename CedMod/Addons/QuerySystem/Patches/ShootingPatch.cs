@@ -31,7 +31,6 @@ namespace CedMod.Addons.QuerySystem.Patches
                 Vector3 lookDirection = lookRotation * Vector3.forward;
                 
                 float angle = Vector3.Angle(lookDirection, shotDirection);
-                Log.Info($"Shot: PlayerPos={pos}, HorLook={horLook}, VerLook={verLook}, ShotDir={shotDirection}, LookDir={lookDirection}, AngleDeviation={angle}°");
                 
                 try
                 {
