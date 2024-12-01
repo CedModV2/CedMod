@@ -20,20 +20,20 @@ namespace CedMod.Addons.QuerySystem.Patches
     {
         public static void Postfix(HitscanHitregModuleBase __instance, Ray targetRay, float targetDamage)
         {
-            var player = __instance.Owner;
-            if (player.roleManager.CurrentRole is IFpcRole role)
+            try
             {
-                var horLook = role.FpcModule.MouseLook.CurrentHorizontal;
-                var verLook = role.FpcModule.MouseLook.CurrentVertical;
-                var pos = player.transform.position;
-                var shotDirection = targetRay.direction.normalized;
-                Quaternion lookRotation = Quaternion.Euler(-verLook, horLook, 0);
-                Vector3 lookDirection = lookRotation * Vector3.forward;
-                
-                float angle = Vector3.Angle(lookDirection, shotDirection);
-                
-                try
+                var player = __instance.Owner;
+                if (player != null && player.roleManager != null && player.roleManager.CurrentRole is IFpcRole role)
                 {
+                    var horLook = role.FpcModule.MouseLook.CurrentHorizontal;
+                    var verLook = role.FpcModule.MouseLook.CurrentVertical;
+                    var pos = player.transform.position;
+                    var shotDirection = targetRay.direction.normalized;
+                    Quaternion lookRotation = Quaternion.Euler(-verLook, horLook, 0);
+                    Vector3 lookDirection = lookRotation * Vector3.forward;
+                
+                    float angle = Vector3.Angle(lookDirection, shotDirection);
+                
                     var plr = Player.Get(player);
                     WebSocketSystem.Enqueue(new QueryCommand()
                     {
@@ -61,10 +61,10 @@ namespace CedMod.Addons.QuerySystem.Patches
                         }
                     });
                 }
-                catch (Exception e)
-                {
-                    Log.Error(e.ToString());
-                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.ToString());
             }
         }
     }
