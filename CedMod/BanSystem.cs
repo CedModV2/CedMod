@@ -27,10 +27,9 @@ namespace CedMod
                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                     Log.Debug("Join");
 
-                if (player.ReferenceHub.authManager.AuthenticationResponse.AuthToken != null && player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.BypassBans || player.ReferenceHub.isLocalPlayer)
-                    return;
+                var immune = (player.ReferenceHub.authManager.AuthenticationResponse.AuthToken != null && player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.BypassBans) || player.ReferenceHub.isLocalPlayer;
                 
-                if (attempt <= 0)
+                if (attempt <= 0 && !immune)
                     ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Authenticating.Add(player.ReferenceHub));
                 
                 ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
@@ -138,7 +137,8 @@ namespace CedMod
                 {
                     reason = info["reason"];
                     Log.Info($"user: {player.UserId} attempted connection with blocked ASN/IP/VPN/Hosting service");
-                    ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Timing.RunCoroutine(API.NormalDisconnect(player, reason)));
+                    if (!immune)
+                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Timing.RunCoroutine(API.NormalDisconnect(player, reason)));
                 }
                 else
                 {
@@ -146,7 +146,8 @@ namespace CedMod
                     {
                         reason = info["preformattedmessage"];
                         Log.Info($"user: {player.UserId} attempted connection with active ban disconnecting");
-                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Timing.RunCoroutine(API.NormalDisconnect(player, reason + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage)));
+                        if (!immune)
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Timing.RunCoroutine(API.NormalDisconnect(player, reason + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage)));
                     }
                     else
                     {
