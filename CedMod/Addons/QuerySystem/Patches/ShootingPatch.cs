@@ -46,6 +46,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                             {"RayAngle", angle.ToString()},
                             {"RayPos", targetRay.direction.ToString()},
                             {"PlrPos", plr.Position.ToString()},
+                            {"plrRot", plr.Rotation.ToString()},
                             {"Type", "OnPlayerShoot"},
                             {
                                 "Message", string.Format(
