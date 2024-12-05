@@ -21,12 +21,12 @@ namespace CedMod.Addons.Sentinal
         public float AuthTimer = 1;
         public Dictionary<int, Dictionary<uint, List<(int, float, float)>>> FrameCount = new Dictionary<int, Dictionary<uint, List<(int, float, float)>>>();
         Dictionary<uint, Dictionary<int, List<(int, float, float)>>> UserFrames = new Dictionary<uint, Dictionary<int, List<(int, float, float)>>>();
-        public static ConcurrentQueue<(ReferenceHub hub, FpcSyncData)> DirtyPositions = new ConcurrentQueue<(ReferenceHub hub, FpcSyncData)>();
+        public static ConcurrentQueue<(ReferenceHub hub, FpcSyncData __instance, ulong UFrames)> DirtyPositions = new ConcurrentQueue<(ReferenceHub hub, FpcSyncData __instance, ulong UFrames)>();
         public static int Frames = 0;
         public static ulong UFrames = 0;
         public static string RoundGuid = Guid.NewGuid().ToString();
-        public List<ReferenceHub> processesPositionPlayers = new List<ReferenceHub>();
         public static ulong UFrameLastPosSent = UFrames;
+        private Dictionary<ReferenceHub, List<(ReferenceHub hub, FpcSyncData __instance, ulong UFrames)>> _moveFrames = new Dictionary<ReferenceHub, List<(ReferenceHub hub, FpcSyncData __instance, ulong UFrames)>>();
 
         
         public void FixedUpdate()
@@ -61,22 +61,23 @@ namespace CedMod.Addons.Sentinal
 
             if (UFrames - UFrameLastPosSent >= 25)
             {
-                processesPositionPlayers.Clear();
+                _moveFrames.Clear();
                 while (DirtyPositions.TryDequeue(out var pos))
                 {
-                    if (processesPositionPlayers.Contains(pos.hub))
-                        continue;
-                    processesPositionPlayers.Add(pos.hub);
+                    _moveFrames[pos.hub] = _moveFrames.ContainsKey(pos.hub) ? _moveFrames[pos.hub] : new List<(ReferenceHub hub, FpcSyncData __instance, ulong UFrames)>();
+                    _moveFrames[pos.hub].Add(pos);
+                }
+
+                foreach (var frame in _moveFrames)
+                {
                     WebSocketSystem.Enqueue(new QueryCommand()
                     {
                         Recipient = "PANEL",
                         Data = new Dictionary<string, string>()
                         {
-                            {"Type", "OnPlayerMove"},
-                            {"UserId", pos.hub.authManager.UserId},
-                            {"Pos", pos.Item2._position.Position.ToString()},
-                            {"rotH", pos.Item2._rotH.ToString()},
-                            {"rotV", pos.Item2._rotV.ToString()},
+                            {"Type", "OnPlayerMoveBatch"},
+                            {"UserId", frame.Key.authManager.UserId},
+                            {"Frames", JsonConvert.SerializeObject(frame.Value)}
                         }
                     });
                 }
