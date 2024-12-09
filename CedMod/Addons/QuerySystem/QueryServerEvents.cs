@@ -10,6 +10,7 @@ using CedMod.Addons.QuerySystem.Patches;
 using CedMod.Addons.QuerySystem.WS;
 using CedMod.Addons.Sentinal;
 using CedMod.Addons.Sentinal.Patches;
+using MapGeneration;
 using MEC;
 using Newtonsoft.Json;
 using PluginAPI.Core;
@@ -25,6 +26,26 @@ namespace CedMod.Addons.QuerySystem
     public class QueryServerEvents
     {
         private bool _first = false;
+
+        public static void CreateMapLayout()
+        {
+            WebSocketSystem.SentMap = true;
+            List<(FacilityZone zone, string name, string pos, string rot)> rooms = new List<(FacilityZone zone, string name, string pos, string rot)>();
+            foreach (var roomIdentifier in RoomIdentifier.AllRoomIdentifiers)
+            {
+                rooms.Add((roomIdentifier.Zone, roomIdentifier.name, roomIdentifier.transform.position.ToString(), roomIdentifier.transform.rotation.eulerAngles.ToString()));
+            }
+            
+            WebSocketSystem.Enqueue(new QueryCommand()
+            {
+                Recipient = "ALL",
+                Data = new Dictionary<string, string>()
+                {
+                    { "Type", nameof(CreateMapLayout) },
+                    { "Layout", JsonConvert.SerializeObject(rooms) }
+                }
+            });
+        }
 
         public IEnumerator<float> SyncStart(bool wait = true)
         {
@@ -174,10 +195,10 @@ namespace CedMod.Addons.QuerySystem
                 Data = new Dictionary<string, string>()
                 {
                     { "Type", nameof(OnWaitingForPlayers) },
-                    { "Seed", MapGeneration.SeedSynchronizer.Seed.ToString() },
                     { "Message", "Server is waiting for players." }
                 }
             });
+            CreateMapLayout();
         }
 
         [PluginEvent(ServerEventType.RoundStart)]

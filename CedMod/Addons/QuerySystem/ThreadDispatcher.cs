@@ -14,6 +14,7 @@ using CedMod.Addons.QuerySystem.WS;
 using CedMod.ApiModals;
 using CentralAuth;
 using Exiled.Loader;
+using MapGeneration;
 using Newtonsoft.Json;
 using PluginAPI.Core;
 using SCPSLAudioApi.AudioCore;
@@ -212,6 +213,9 @@ namespace CedMod.Addons.QuerySystem
                     });
                 }
             }
+            
+            if (!WebSocketSystem.SentMap && SeedSynchronizer.MapGenerated)
+                QueryServerEvents.CreateMapLayout();
 
             if (WebSocketSystem.HelloMessage.SendStats)
             {

@@ -61,6 +61,7 @@ namespace CedMod.Addons.QuerySystem.WS
         public static DateTime LastConnection = DateTime.UtcNow;
         public static bool SuppressLog { get; set; } = false;
         public static DateTime LastServerConnection { get; set; }
+        public static bool SentMap = false;
 
         public static void Enqueue(QueryCommand cmd)
         {
@@ -93,6 +94,7 @@ namespace CedMod.Addons.QuerySystem.WS
 
             Socket = null;
             SendThread = null;
+            SentMap = false;
         }
 
         public static async Task Start()
@@ -122,6 +124,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     if (resp.StatusCode != HttpStatusCode.OK)
                     {
                         Reconnect = false;
+                        SentMap = false;
                         Log.Error($"Failed to retrieve panel location, API rejected request: {data1}, Retrying");
                         await Task.Delay(2000, CedModMain.CancellationToken);
                         await Start(); //retry until we succeed or the thread gets aborted.
@@ -140,6 +143,7 @@ namespace CedMod.Addons.QuerySystem.WS
             catch (Exception e)
             {
                 Reconnect = false;
+                SentMap = false;
                 Log.Error($"Failed to retrieve server location\n{e}");
                 await Task.Delay(1000, CedModMain.CancellationToken);
                 await Start(); //retry until we succeed or the thread gets aborted.
@@ -247,6 +251,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     }
                 }
 
+                SentMap = false;
                 if (Socket.State == WebSocketState.Open)
                     await Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "End", CedModMain.CancellationToken);
             }
@@ -271,6 +276,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 else if (e is WebSocketException e4 && e4.WebSocketErrorCode == WebSocketError.ConnectionClosedPrematurely)
                     SuppressLog = true;
 
+                SentMap = false;
                 WebSocketSystem.Reconnect = false;
                 await Task.Delay(delay, CedModMain.CancellationToken);
                 await Start(); //retry until we succeed or the thread gets aborted.
