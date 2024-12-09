@@ -26,7 +26,7 @@ namespace CedMod.Addons.Sentinal
         public static ulong UFrames = 0;
         public static string RoundGuid = Guid.NewGuid().ToString();
         public static ulong UFrameLastPosSent = UFrames;
-        private Dictionary<ReferenceHub, List<(ReferenceHub hub, FpcSyncData __instance, ulong UFrames)>> _moveFrames = new Dictionary<ReferenceHub, List<(ReferenceHub hub, FpcSyncData __instance, ulong UFrames)>>();
+        private Dictionary<ReferenceHub, List<(string userid, FpcSyncData __instance, ulong UFrames)>> _moveFrames = new Dictionary<ReferenceHub, List<(string userid, FpcSyncData __instance, ulong UFrames)>>();
 
         
         public void FixedUpdate()
@@ -64,8 +64,11 @@ namespace CedMod.Addons.Sentinal
                 _moveFrames.Clear();
                 while (DirtyPositions.TryDequeue(out var pos))
                 {
-                    _moveFrames[pos.hub] = _moveFrames.ContainsKey(pos.hub) ? _moveFrames[pos.hub] : new List<(ReferenceHub hub, FpcSyncData __instance, ulong UFrames)>();
-                    _moveFrames[pos.hub].Add(pos);
+                    _moveFrames[pos.hub] = _moveFrames.ContainsKey(pos.hub) ? _moveFrames[pos.hub] : new List<(string userid, FpcSyncData __instance, ulong UFrames)>();
+                    if (pos.hub.authManager == null || string.IsNullOrEmpty(pos.hub.authManager.UserId))
+                        continue;
+                    
+                    _moveFrames[pos.hub].Add((pos.hub.authManager.UserId, pos.__instance, pos.UFrames));
                 }
 
                 foreach (var frame in _moveFrames)
