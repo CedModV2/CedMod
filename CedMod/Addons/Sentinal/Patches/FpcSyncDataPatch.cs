@@ -26,7 +26,7 @@ namespace CedMod.Addons.Sentinal.Patches
                     return;
                 SyncDatas[hub] = __instance;
                 
-                SentinalBehaviour.DirtyPositions.Enqueue((hub, __instance, SentinalBehaviour.UFrames));
+                SentinalBehaviour.DirtyPositions.Enqueue((hub, hub.transform.eulerAngles, hub.transform.position, SentinalBehaviour.UFrames));
             }
             catch (Exception e)
             {

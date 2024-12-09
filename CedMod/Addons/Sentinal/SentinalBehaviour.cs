@@ -21,12 +21,12 @@ namespace CedMod.Addons.Sentinal
         public float AuthTimer = 1;
         public Dictionary<int, Dictionary<uint, List<(int, float, float)>>> FrameCount = new Dictionary<int, Dictionary<uint, List<(int, float, float)>>>();
         Dictionary<uint, Dictionary<int, List<(int, float, float)>>> UserFrames = new Dictionary<uint, Dictionary<int, List<(int, float, float)>>>();
-        public static ConcurrentQueue<(ReferenceHub hub, FpcSyncData __instance, ulong UFrames)> DirtyPositions = new ConcurrentQueue<(ReferenceHub hub, FpcSyncData __instance, ulong UFrames)>();
+        public static ConcurrentQueue<(ReferenceHub hub, Vector3 eulerAngles, Vector3 position, ulong UFrames)> DirtyPositions = new ConcurrentQueue<(ReferenceHub hub, Vector3 eulerAngles, Vector3 position, ulong UFrames)>();
         public static int Frames = 0;
         public static ulong UFrames = 0;
         public static string RoundGuid = Guid.NewGuid().ToString();
         public static ulong UFrameLastPosSent = UFrames;
-        private Dictionary<ReferenceHub, List<(string userid, FpcSyncData __instance, ulong UFrames)>> _moveFrames = new Dictionary<ReferenceHub, List<(string userid, FpcSyncData __instance, ulong UFrames)>>();
+        private Dictionary<ReferenceHub, List<(string userid, Vector3 rotation, Vector3 position, ulong UFrames)>> _moveFrames = new Dictionary<ReferenceHub, List<(string userid, Vector3 rotation, Vector3 position, ulong UFrames)>>();
 
         
         public void FixedUpdate()
@@ -64,11 +64,11 @@ namespace CedMod.Addons.Sentinal
                 _moveFrames.Clear();
                 while (DirtyPositions.TryDequeue(out var pos))
                 {
-                    _moveFrames[pos.hub] = _moveFrames.ContainsKey(pos.hub) ? _moveFrames[pos.hub] : new List<(string userid, FpcSyncData __instance, ulong UFrames)>();
+                    _moveFrames[pos.hub] = _moveFrames.ContainsKey(pos.hub) ? _moveFrames[pos.hub] : new List<(string userid, Vector3 rotation, Vector3 position, ulong UFrames)>();
                     if (pos.hub.authManager == null || string.IsNullOrEmpty(pos.hub.authManager.UserId))
                         continue;
                     
-                    _moveFrames[pos.hub].Add((pos.hub.authManager.UserId, pos.__instance, pos.UFrames));
+                    _moveFrames[pos.hub].Add((pos.hub.authManager.UserId, pos.eulerAngles, pos.position, pos.UFrames));
                 }
 
                 foreach (var frame in _moveFrames)
