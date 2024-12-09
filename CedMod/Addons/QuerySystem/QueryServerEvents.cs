@@ -174,6 +174,7 @@ namespace CedMod.Addons.QuerySystem
                 Data = new Dictionary<string, string>()
                 {
                     { "Type", nameof(OnWaitingForPlayers) },
+                    { "Seed", MapGeneration.SeedSynchronizer.Seed.ToString() },
                     { "Message", "Server is waiting for players." }
                 }
             });
