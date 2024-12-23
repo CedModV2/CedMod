@@ -14,6 +14,7 @@ using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Firearms.Attachments;
 using InventorySystem.Items.Firearms.Modules;
 using InventorySystem.Items.MicroHID;
+using InventorySystem.Items.MicroHID.Modules;
 using InventorySystem.Items.Radio;
 using MEC;
 using Mirror;
@@ -143,7 +144,7 @@ namespace CedMod.Addons.AdminSitSystem.Commands
 
                     if (a is MicroHIDItem microHidItem && item.Value is MicroHIDItem oldMicroHidItem)
                     {
-                        microHidItem.RemainingEnergy = oldMicroHidItem.RemainingEnergy;
+                        EnergyManagerModule.SyncEnergy[microHidItem.ItemSerial] = oldMicroHidItem.EnergyManager.Energy;
                     }
 
                     if (a is RadioItem radioItem && item.Value is RadioItem oldRadioItem)
