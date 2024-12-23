@@ -162,13 +162,21 @@ namespace CedMod.Addons.QuerySystem
 
                     new Thread((o =>
                     {
-                        if (!_first)
+                        try
                         {
-                            WebSocketSystem.ApplyRa(false);
-                            _first = true;
-                        }
+                            if (!_first)
+                            {
+                                WebSocketSystem.ApplyRa(false);
+                                _first = true;
+                            }
 
-                        WebSocketSystem.ApplyRa(true);
+                            WebSocketSystem.ApplyRa(true);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                            Log.Error(e.ToString());
+                        }
                     })).Start(true);
                 });
             }

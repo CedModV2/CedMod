@@ -32,6 +32,7 @@ using NWAPIPermissionSystem.Models;
 using PluginAPI.Core;
 using RemoteAdmin;
 using Serialization;
+using UnityEngine;
 using UnityEngine.Networking;
 using Utils;
 using Utils.NonAllocLINQ;
@@ -758,7 +759,18 @@ namespace CedMod.Addons.QuerySystem.WS
                             break;
                         case "ApplyRA":
                             //Log.Info($"Panel requested AutoSlPerms reload: {jsonData["reason"]}");
-                            new Thread(ApplyRa).Start(true);
+                            new Thread(() =>
+                            {
+                                try
+                                {
+                                    ApplyRa(true);
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e);
+                                    Log.Error(e.ToString());
+                                }
+                            }).Start(true);
                             break;
                         case "FetchApiKey":
                             Log.Info($"Panel requested refresh of api key: {jsonData["Reason"]}");
@@ -896,6 +908,8 @@ namespace CedMod.Addons.QuerySystem.WS
                 state = true;
 
             bool request = (bool)state;
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Log.Debug("Attempting to get permissions");
 
             lock (LockObj)
             {
@@ -982,6 +996,9 @@ namespace CedMod.Addons.QuerySystem.WS
 
                         if (!request)
                             throw new Exception("Request is false");
+                        
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug("Attempting to send permission request");
 
                         var responsePerms = client.SendAsync(new HttpRequestMessage()
                         {
@@ -1008,11 +1025,15 @@ namespace CedMod.Addons.QuerySystem.WS
                             responsePerms.EnsureSuccessStatusCode();
                         }
 
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug("Got permissions");
                         permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(responsePerms.Content.ReadAsStringAsync().Result);
                     }
 
                     if (permsSlRequest.PermissionEntries.Count == 0)
                     {
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug("Permission request contained no permissions");
                         if (!UseRa)
                             ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
                         UseRa = true;
@@ -1049,11 +1070,16 @@ namespace CedMod.Addons.QuerySystem.WS
                         return;
                     }
                 }
+                
+                if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                    Log.Debug("Attempting to invoke thread dispatacher");
 
                 ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                 {
                     try
                     {
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug("Permission thread dispatched");
                         var handler = ServerStatic.GetPermissionsHandler();
                         var oldMembers = new Dictionary<string, string>(handler._members);
                         var oldGroups = new Dictionary<string, UserGroup>(handler._groups);
@@ -1064,6 +1090,9 @@ namespace CedMod.Addons.QuerySystem.WS
                             ClearNWApiPermissions();
                             HandleDefault(permsSlRequest.DefaultPermissions);
                         }
+                        
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug("Cleared groups and attempting to set exiled perms if applicable");
 #if EXILED
                         Permissions.Groups.Clear();
                         var epGroup = new Exiled.Permissions.Features.Group();
@@ -1073,8 +1102,12 @@ namespace CedMod.Addons.QuerySystem.WS
                         epGroup.IsDefault = true;
                         Permissions.Groups.Add("default", epGroup);
 #endif
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug("Attempting to add groups");
                         foreach (var perm in permsSlRequest.PermissionEntries)
                         {
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Log.Debug($"Attempting to add {perm.Name}");
                             handler._groups.Add(perm.Name, new UserGroup()
                             {
                                 BadgeColor = string.IsNullOrEmpty(perm.BadgeColor) ? "none" : perm.BadgeColor,
@@ -1102,8 +1135,13 @@ namespace CedMod.Addons.QuerySystem.WS
 #endif
                         }
 
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug("Attempting to add members");
                         foreach (var member in permsSlRequest.MembersList)
                         {
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Log.Debug($"Attempting to add {member.UserId} - {member.Group}");
+                            
                             if (member.ReservedSlot && !QuerySystem.ReservedSlotUserids.Contains(member.UserId))
                                 QuerySystem.ReservedSlotUserids.Add(member.UserId);
                             handler._members.Add(member.UserId, member.Group);
@@ -1134,6 +1172,9 @@ namespace CedMod.Addons.QuerySystem.WS
                                 Log.Error($"Failed to apply permission at realtime for {player.UserId} - {player.Nickname}");
                             }
                         }
+                        
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug("Attempting to process old members");
 
                         foreach (var member in oldMembers)
                         {
@@ -1152,7 +1193,8 @@ namespace CedMod.Addons.QuerySystem.WS
                                 }
                             }
                         }
-                        //Log.Info($"Successfully applied {permsSlRequest.PermissionEntries.Count} Groups and {permsSlRequest.MembersList.Count} members for AutoSlPerms");
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Log.Debug($"Successfully applied {permsSlRequest.PermissionEntries.Count} Groups and {permsSlRequest.MembersList.Count} members for AutoSlPerms");
                     }
                     catch (Exception e)
                     {

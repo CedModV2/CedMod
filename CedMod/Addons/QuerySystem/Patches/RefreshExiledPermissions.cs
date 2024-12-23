@@ -7,6 +7,7 @@ using Exiled.Permissions;
 using HarmonyLib;
 using InventorySystem.Items.Firearms.Modules;
 using NWAPIPermissionSystem;
+using PluginAPI.Core;
 using UnityEngine;
 
 namespace CedMod.Addons.QuerySystem.Patches
@@ -19,7 +20,18 @@ namespace CedMod.Addons.QuerySystem.Patches
         {
             if (!WebSocketSystem.UseRa)
             {
-                Task.Run(() => { WebSocketSystem.ApplyRa(true); });
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        WebSocketSystem.ApplyRa(true);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        Log.Error(e.ToString());
+                    }
+                });
                 return false;
             }
 
@@ -34,7 +46,18 @@ namespace CedMod.Addons.QuerySystem.Patches
         {
             if (!WebSocketSystem.UseRa)
             {
-                new Thread(() => { WebSocketSystem.ApplyRa(true); }).Start();
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        WebSocketSystem.ApplyRa(true);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        Log.Error(e.ToString());
+                    }
+                });
                 return false;
             }
 
