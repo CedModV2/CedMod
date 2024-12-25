@@ -13,6 +13,7 @@ using CedMod.Addons.QuerySystem.WS;
 using Footprinting;
 using GameCore;
 using InventorySystem.Items.Firearms;
+using InventorySystem.Items.Firearms.Modules;
 using MEC;
 using Newtonsoft.Json;
 using PlayerStatsSystem;
@@ -247,7 +248,9 @@ namespace CedMod
         {
             try
             {
-                player.ReferenceHub.playerStats.KillPlayer(new DisruptorDamageHandler(null, Vector3.up, -1));
+                var damage = new DisruptorDamageHandler(null, Vector3.up, -1);
+                damage.FiringState = DisruptorActionModule.FiringState.FiringSingle
+                player.ReferenceHub.playerStats.KillPlayer(damage);
             }
             catch (Exception e)
             {

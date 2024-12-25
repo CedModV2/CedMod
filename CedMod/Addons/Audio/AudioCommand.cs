@@ -91,6 +91,16 @@ namespace CedMod.Addons.Audio
                         });
                     }
                     break;
+                case "attach":
+                {
+                    int id = int.Parse(arguments.At(1));
+                    FakeConnectionsIds.Add(id, ReferenceHub.AllHubs.Where(s => s.PlayerId == id).FirstOrDefault());
+                    if (FakeConnectionsIds.TryGetValue(id, out ReferenceHub hub))
+                    {
+                        var audioPlayer = CustomAudioPlayer.Get(hub);
+                    }
+                }
+                    break;
                 case "enqueue":
                 {
                     int id = int.Parse(arguments.At(1));
@@ -129,6 +139,16 @@ namespace CedMod.Addons.Audio
                     {
                         var audioPlayer = CustomAudioPlayer.Get(hub);
                         audioPlayer.Volume = Convert.ToInt32(arguments.At(2));
+                    }
+                } 
+                    break;
+                case "loop":
+                {
+                    int id = int.Parse(arguments.At(1));
+                    if (FakeConnectionsIds.TryGetValue(id, out ReferenceHub hub))
+                    {
+                        var audioPlayer = CustomAudioPlayer.Get(hub);
+                        audioPlayer.Loop = !audioPlayer.Loop;
                     }
                 } 
                     break;
