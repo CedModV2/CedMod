@@ -249,7 +249,7 @@ namespace CedMod
             try
             {
                 var damage = new DisruptorDamageHandler(null, Vector3.up, -1);
-                damage.FiringState = DisruptorActionModule.FiringState.FiringSingle
+                damage.FiringState = DisruptorActionModule.FiringState.FiringSingle;
                 player.ReferenceHub.playerStats.KillPlayer(damage);
             }
             catch (Exception e)
