@@ -22,12 +22,18 @@ namespace CedMod.Addons.Sentinal.Patches
         {
             try
             {
+                if (SyncDatas.TryGetValue(hub, out FpcSyncData data) && __instance == data)
+                    return true;
+                
+                if (AuthorizedLunge.TryGetValue(hub, out Stopwatch authorizedLunge) && authorizedLunge.Elapsed.TotalSeconds > 5)
+                    AuthorizedLunge.Remove(hub);
+                
                 if (hub.roleManager.CurrentRole is Scp939Role scp939Role && scp939Role.SubroutineModule.TryGetSubroutine(out Scp939LungeAbility lungeAbility) && scp939Role.SubroutineModule.TryGetSubroutine(out Scp939FocusAbility focusAbility))
                 {
                     //lunge prepare
                     if (lungeAbility._movementModule.Motor.Speed == 0)
                     {
-                        if (!AuthorizedLunge.TryGetValue(hub, out Stopwatch stopwatch) || stopwatch.Elapsed.TotalSeconds >= 7)
+                        if (!AuthorizedLunge.TryGetValue(hub, out Stopwatch stopwatch) || stopwatch.Elapsed.TotalSeconds >= 5)
                         {
                             WebSocketSystem.Enqueue(new QueryCommand()
                             {
@@ -39,44 +45,22 @@ namespace CedMod.Addons.Sentinal.Patches
                                     {"Pos", __instance._position.Position.ToString()}
                                 }
                             });
-                            Log.Warning($"SCP939 is trying to walk while lunging, this is likely a cheater");
+                            Log.Warning($"SCP939 is trying to walk while lunging, this is likely a cheater {lungeAbility.State} {lungeAbility._movementModule.Motor.Speed}");
                             return false;
                         }
                     }
                     
-                    if (lungeAbility.State != Scp939LungeState.None && !lungeAbility._movementModule.Motor.IsJumping)
+                    if (lungeAbility.State == Scp939LungeState.None)
                     {
-                        if (!AuthorizedLunge.TryGetValue(hub, out Stopwatch stopwatch) || stopwatch.Elapsed.TotalSeconds >= 7)
-                        {
-                            WebSocketSystem.Enqueue(new QueryCommand()
-                            {
-                                Recipient = "PANEL",
-                                Data = new Dictionary<string, string>()
-                                {
-                                    {"SentinalType", "SCP939LungeExploit"},
-                                    {"UserId", hub.authManager.UserId},
-                                    {"Pos", __instance._position.Position.ToString()}
-                                }
-                            });
-                            Log.Warning($"SCP939 is trying to walk while lunging, this is likely a cheater");
-                            return false;
-                        }
+                        if (!AuthorizedLunge.TryGetValue(hub, out Stopwatch stopwatch))
+                            AuthorizedLunge[hub] = new Stopwatch();
+                        AuthorizedLunge[hub].Restart();
                     }
-                    else if (!AuthorizedLunge.ContainsKey(hub))
-                    {
-                        AuthorizedLunge[hub] = Stopwatch.StartNew();
-                    }
-
-                    if (AuthorizedLunge.TryGetValue(hub, out Stopwatch authorizedLunge) && authorizedLunge.Elapsed.TotalSeconds > 7)
-                        AuthorizedLunge.Remove(hub);
                 }
                 
+                SyncDatas[hub] = __instance;
                 if (WebSocketSystem.HelloMessage == null || !WebSocketSystem.HelloMessage.SentinalPositions)
                     return true;
-                
-                if (SyncDatas.TryGetValue(hub, out FpcSyncData data) && __instance == data)
-                    return true;
-                SyncDatas[hub] = __instance;
                 
                 SentinalBehaviour.DirtyPositions.Enqueue((hub, hub.transform.eulerAngles, hub.transform.position, SentinalBehaviour.UFrames));
             }
