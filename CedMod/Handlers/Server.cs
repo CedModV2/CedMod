@@ -24,6 +24,7 @@ namespace CedMod.Handlers
         [PluginEvent(ServerEventType.RoundRestart)]
         public void OnRoundRestart(RoundRestartEvent ev)
         {
+            FpcSyncDataPatch.AuthorizedLunge.Clear();
             FriendlyFireAutoban.Teamkillers.Clear();
             FriendlyFireAutoban.AdminDisabled = false;
             foreach (var fake in AudioCommand.FakeConnections)

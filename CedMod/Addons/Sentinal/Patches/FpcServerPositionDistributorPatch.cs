@@ -3,12 +3,16 @@ using Mirror;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PlayerRoles.FirstPersonControl.NetworkMessages;
+using PlayerRoles.PlayableScps.Scp049;
+using PlayerRoles.PlayableScps.Scp079;
+using PlayerRoles.Subroutines;
 using PlayerRoles.Visibility;
+using UnityEngine;
 
 namespace CedMod.Addons.Sentinal.Patches
 {
     //patch responsible for hiding and showing users when in and out of range
-    //[HarmonyPatch(typeof(FpcServerPositionDistributor), nameof(FpcServerPositionDistributor.WriteAll))]
+    [HarmonyPatch(typeof(FpcServerPositionDistributor), nameof(FpcServerPositionDistributor.WriteAll))]
     public static class FpcServerPositionDistributorPatch
     {
         public static bool Prefix(ReferenceHub receiver, NetworkWriter writer)
@@ -49,6 +53,12 @@ namespace CedMod.Addons.Sentinal.Patches
                     RoleTypeId toSend = hub.roleManager.CurrentRole.RoleTypeId;
                     if (hub.roleManager.CurrentRole is IObfuscatedRole ior)
                         toSend = ior.GetRoleForUser(receiver);
+                    
+                    if (hub.roleManager.CurrentRole is Scp079Role scp079Role)
+                    {
+                        if (Vector3.Distance(scp079Role.CameraPosition, receiver.transform.position) <= 30)
+                            toSend = hub.roleManager.CurrentRole.RoleTypeId;
+                    }
 
                     if (!hub.roleManager.PreviouslySentRole.TryGetValue(receiver.netId, out RoleTypeId prev) || prev != toSend)
                         SendRole(receiver, hub, toSend);
@@ -58,6 +68,12 @@ namespace CedMod.Addons.Sentinal.Patches
                     var toSend = RoleTypeId.Filmmaker;
                     if (PermissionsHandler.IsPermitted(receiver.serverRoles.Permissions, PlayerPermissions.GameplayData) || receiver.roleManager.CurrentRole.Team == Team.SCPs)
                         toSend = hub.roleManager.CurrentRole.RoleTypeId;
+
+                    if (hub.roleManager.CurrentRole is Scp079Role scp079Role)
+                    {
+                        if (Vector3.Distance(scp079Role.CameraPosition, receiver.transform.position) <= 30)
+                            toSend = hub.roleManager.CurrentRole.RoleTypeId;
+                    }
                     
                     if (hub.roleManager.CurrentRole is IObfuscatedRole ior)
                         toSend = ior.GetRoleForUser(receiver);
@@ -88,6 +104,14 @@ namespace CedMod.Addons.Sentinal.Patches
             NetworkConnection conn = receiver.connectionToClient;
             conn.Send(new RoleSyncInfo(hub, toSend, receiver));
             hub.roleManager.PreviouslySentRole[receiver.netId] = toSend;
+
+            if (toSend == hub.roleManager.CurrentRole.RoleTypeId && hub.roleManager.CurrentRole is ISubroutinedRole subroutinedRole)
+            {
+                foreach (var routine in subroutinedRole.SubroutineModule.AllSubroutines)
+                {
+                    routine.ServerSendRpc(receiver);
+                }
+            }
         }
     }
 }
