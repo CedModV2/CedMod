@@ -770,7 +770,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                     Console.WriteLine(e);
                                     Log.Error(e.ToString());
                                 }
-                            }).Start(true);
+                            }).Start();
                             break;
                         case "FetchApiKey":
                             Log.Info($"Panel requested refresh of api key: {jsonData["Reason"]}");
