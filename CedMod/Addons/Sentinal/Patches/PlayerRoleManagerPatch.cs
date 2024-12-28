@@ -58,6 +58,9 @@ namespace CedMod.Addons.Sentinal.Patches
                         toSend = __instance.CurrentRole.RoleTypeId;
                 }
                 
+                if (receiver == __instance.Hub)
+                    toSend = __instance.CurrentRole.RoleTypeId;
+                
                 if (__instance.PreviouslySentRole.TryGetValue(receiver.netId, out RoleTypeId prev) && prev == toSend)
                     continue;
 

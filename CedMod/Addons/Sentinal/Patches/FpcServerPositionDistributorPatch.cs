@@ -103,7 +103,10 @@ namespace CedMod.Addons.Sentinal.Patches
         }
 
         public static void SendRole(ReferenceHub receiver, ReferenceHub hub, RoleTypeId toSend)
-        {
+        { 
+            if (receiver == hub)
+                toSend = hub.roleManager.CurrentRole.RoleTypeId;
+            
             NetworkConnection conn = receiver.connectionToClient;
             conn.Send(new RoleSyncInfo(hub, toSend, receiver));
             hub.roleManager.PreviouslySentRole[receiver.netId] = toSend;
