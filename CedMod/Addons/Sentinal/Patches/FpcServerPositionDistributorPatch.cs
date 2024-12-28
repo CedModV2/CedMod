@@ -17,6 +17,9 @@ namespace CedMod.Addons.Sentinal.Patches
     {
         public static bool Prefix(ReferenceHub receiver, NetworkWriter writer)
         {
+            if (CedModMain.Singleton.Config.CedMod.DisableFakeSyncing)
+                return true;
+            
             ushort count = 0;
 
             bool hasVisCtrl;

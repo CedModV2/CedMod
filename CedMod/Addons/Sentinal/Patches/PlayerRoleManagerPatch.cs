@@ -14,6 +14,9 @@ namespace CedMod.Addons.Sentinal.Patches
     {
         public static bool Prefix(PlayerRoleManager __instance)
         {
+            if (CedModMain.Singleton.Config.CedMod.DisableFakeSyncing)
+                return true;
+            
             if (!NetworkServer.active || !__instance._sendNextFrame)
                 return false;
 
