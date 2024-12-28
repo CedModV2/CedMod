@@ -35,17 +35,17 @@ namespace CedMod.Addons.Sentinal.Patches
                     {
                         if (!AuthorizedLunge.TryGetValue(hub, out Stopwatch stopwatch) || stopwatch.Elapsed.TotalSeconds >= 5)
                         {
-                            WebSocketSystem.Enqueue(new QueryCommand()
-                            {
-                                Recipient = "PANEL",
-                                Data = new Dictionary<string, string>()
-                                {
-                                    {"SentinalType", "SCP939LungeExploit"},
-                                    {"UserId", hub.authManager.UserId},
-                                    {"Pos", __instance._position.Position.ToString()}
-                                }
-                            });
-                            Log.Warning($"SCP939 is trying to walk while lunging, this is likely a cheater {lungeAbility.State} {lungeAbility._movementModule.Motor.Speed}");
+                            // WebSocketSystem.Enqueue(new QueryCommand()
+                            // {
+                            //     Recipient = "PANEL",
+                            //     Data = new Dictionary<string, string>()
+                            //     {
+                            //         {"SentinalType", "SCP939LungeExploit"},
+                            //         {"UserId", hub.authManager.UserId},
+                            //         {"Pos", __instance._position.Position.ToString()}
+                            //     }
+                            // });
+                            //Log.Warning($"SCP939 is trying to walk while lunging, this is likely a cheater {lungeAbility.State} {lungeAbility._movementModule.Motor.Speed}");
                             return false;
                         }
                     }
