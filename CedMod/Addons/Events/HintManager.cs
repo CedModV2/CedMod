@@ -43,11 +43,14 @@ namespace CedMod.Addons.Events
                     hintAddition += callback.Invoke(player);
                 }
 
-                if (!string.IsNullOrEmpty(hintAddition))
-                    currentHint = hintAddition;
+                if (HintProcessed.Count >= 1)
+                {
+                    if (!string.IsNullOrEmpty(hintAddition))
+                        currentHint = hintAddition;
 
-                if (string.IsNullOrEmpty(hintAddition))
-                    currentHint = "";
+                    if (string.IsNullOrEmpty(hintAddition))
+                        currentHint = "";
+                }
                 
                 if (CedModMain.Singleton.Config.EventManager.Debug)
                     Log.Debug($"Hint display: {currentHint}");
