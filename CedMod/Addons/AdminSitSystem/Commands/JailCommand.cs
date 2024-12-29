@@ -16,6 +16,7 @@ using InventorySystem.Items.Firearms.Modules;
 using InventorySystem.Items.MicroHID;
 using InventorySystem.Items.MicroHID.Modules;
 using InventorySystem.Items.Radio;
+using InventorySystem.Items.Usables.Scp330;
 using MEC;
 using Mirror;
 using PlayerRoles;
@@ -139,12 +140,19 @@ namespace CedMod.Addons.AdminSitSystem.Commands
                             }
                         }
                         
-                        newFirearm.ApplyAttachmentsCode(oldFirearm.GetCurrentAttachmentsCode(), true);
+                        newFirearm.ApplyAttachmentsCode(oldFirearm.GetCurrentAttachmentsCode(), true);  
+                    }
+
+                    if (a is Scp330Bag candyBag && item.Value is Scp330Bag oldScp330Bag)
+                    {
+                        candyBag.Candies = oldScp330Bag.Candies;
+                        candyBag.ServerRefreshBag();
                     }
 
                     if (a is MicroHIDItem microHidItem && item.Value is MicroHIDItem oldMicroHidItem)
                     {
-                        EnergyManagerModule.SyncEnergy[microHidItem.ItemSerial] = oldMicroHidItem.EnergyManager.Energy;
+                        microHidItem.EnergyManager.ServerSetEnergy(microHidItem.ItemSerial, oldMicroHidItem.EnergyManager.Energy);
+                        microHidItem.BrokenSync.ServerSetBroken(microHidItem.ItemSerial, oldMicroHidItem.BrokenSync.Broken);
                     }
 
                     if (a is RadioItem radioItem && item.Value is RadioItem oldRadioItem)
