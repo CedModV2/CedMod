@@ -287,6 +287,7 @@ namespace CedMod.Addons.QuerySystem
                             Tps = Math.Round(1f / Time.smoothDeltaTime) / Application.targetFrameRate,
                             TargetTps = (short)Application.targetFrameRate,
                             FrameTime = Math.Round(1f / Time.deltaTime) / Application.targetFrameRate,
+                            CurrentSeed = SeedSynchronizer.Seed
                         })
                     }
                 }

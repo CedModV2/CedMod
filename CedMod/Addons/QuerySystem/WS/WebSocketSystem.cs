@@ -872,6 +872,9 @@ namespace CedMod.Addons.QuerySystem.WS
                         case "requestHeartbeat":
                             ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => { ThreadDispatcher.SendHeartbeatMessage(true); });
                             break;
+                        case "requestMap":
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => { QueryServerEvents.CreateMapLayout(); });
+                            break;
                     }
                 }
             }

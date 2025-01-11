@@ -38,11 +38,12 @@ namespace CedMod.Addons.QuerySystem
             
             WebSocketSystem.Enqueue(new QueryCommand()
             {
-                Recipient = "ALL",
+                Recipient = "PANEL",
                 Data = new Dictionary<string, string>()
                 {
                     { "Type", nameof(CreateMapLayout) },
-                    { "Layout", JsonConvert.SerializeObject(rooms) }
+                    { "Layout", JsonConvert.SerializeObject(rooms) },
+                    { "Seed", SeedSynchronizer.Seed.ToString() }
                 }
             });
         }
@@ -248,6 +249,7 @@ namespace CedMod.Addons.QuerySystem
                     { "Message", "Round is restarting." }
                 }
             });
+            WebSocketSystem.SentMap = false;
         }
 
         [PluginEvent(ServerEventType.RoundEnd)]
