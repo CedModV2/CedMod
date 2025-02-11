@@ -72,7 +72,7 @@ namespace CedMod.Addons.Sentinal.Patches
                 Log.Error(e.ToString());
             }
 
-            if (msg.Channel == VoiceChatChannel.Radio)
+            if (msg.Channel == VoiceChatChannel.Radio || msg.Channel == VoiceChatChannel.Intercom)
                 Radio.Add(conn.identity.netId);
             return true;
         }

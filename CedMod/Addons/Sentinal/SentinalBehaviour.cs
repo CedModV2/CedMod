@@ -93,6 +93,7 @@ namespace CedMod.Addons.Sentinal
             //process detections after the check
             if (AuthTimer <= 0)
             {
+                VoicePacketPacket.Radio.Clear();
                 VoicePacketPacket.Tracker.Clear();
                 AuthTimer = 1;
                 
