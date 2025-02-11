@@ -6,6 +6,7 @@ using HarmonyLib;
 using Mirror;
 using PluginAPI.Core;
 using UnityEngine;
+using VoiceChat;
 using VoiceChat.Codec;
 using VoiceChat.Networking;
 
@@ -18,6 +19,7 @@ namespace CedMod.Addons.Sentinal.Patches
         public static Dictionary<uint, int> Tracker = new Dictionary<uint, int>();
         public static Dictionary<uint, OpusDecoder> OpusDecoders = new Dictionary<uint, OpusDecoder>();
         public static Dictionary<uint, float[]> Floats = new Dictionary<uint, float[]>();
+        public static HashSet<uint> Radio = new HashSet<uint>();
 
         public static bool Prefix(NetworkConnection conn, VoiceMessage msg)
         {
@@ -70,6 +72,8 @@ namespace CedMod.Addons.Sentinal.Patches
                 Log.Error(e.ToString());
             }
 
+            if (msg.Channel == VoiceChatChannel.Radio)
+                Radio.Add(conn.identity.netId);
             return true;
         }
     }

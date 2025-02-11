@@ -1,4 +1,8 @@
-﻿using HarmonyLib;
+﻿using System.Collections.Generic;
+using CommandSystem.Commands.RemoteAdmin;
+using HarmonyLib;
+using InventorySystem.Items.Radio;
+using InventorySystem.Items.Usables;
 using Mirror;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
@@ -7,6 +11,7 @@ using PlayerRoles.PlayableScps.Scp049;
 using PlayerRoles.PlayableScps.Scp079;
 using PlayerRoles.Subroutines;
 using PlayerRoles.Visibility;
+using PlayerRoles.Voice;
 using UnityEngine;
 
 namespace CedMod.Addons.Sentinal.Patches
@@ -15,6 +20,21 @@ namespace CedMod.Addons.Sentinal.Patches
     [HarmonyPatch(typeof(FpcServerPositionDistributor), nameof(FpcServerPositionDistributor.WriteAll))]
     public static class FpcServerPositionDistributorPatch
     {
+        public static List<RoleTypeId> RandomRoles = new List<RoleTypeId>()
+        {
+            RoleTypeId.Filmmaker,
+            RoleTypeId.Scientist,
+            RoleTypeId.ClassD,
+            RoleTypeId.ChaosMarauder,
+            RoleTypeId.NtfCaptain,
+            RoleTypeId.NtfSpecialist,
+            RoleTypeId.Overwatch,
+            RoleTypeId.Filmmaker,
+            RoleTypeId.FacilityGuard,
+            RoleTypeId.NtfSpecialist,
+            RoleTypeId.Tutorial
+        };
+        
         public static bool Prefix(ReferenceHub receiver, NetworkWriter writer)
         {
             if (CedModMain.Singleton.Config.CedMod.DisableFakeSyncing)
@@ -34,6 +54,13 @@ namespace CedMod.Addons.Sentinal.Patches
             {
                 hasVisCtrl = false;
                 visCtrl = null;
+            }
+
+            bool hasRadio = false;
+            foreach (var it in receiver.inventory.UserInventory.Items)
+            {
+                if (it.Value is RadioItem radioItem && radioItem.IsUsable)
+                    hasRadio = true;
             }
 
             foreach (ReferenceHub hub in ReferenceHub.AllHubs)
@@ -77,6 +104,18 @@ namespace CedMod.Addons.Sentinal.Patches
                         if (Vector3.Distance(scp079Role.CameraPosition, receiver.transform.position) <= 30)
                             toSend = hub.roleManager.CurrentRole.RoleTypeId;
                     }
+
+                    if (Intercom._singleton != null)
+                    {
+                        if (Intercom._singleton._curSpeaker != null && (Intercom._singleton._curSpeaker == hub || Intercom._singleton._adminOverrides.Contains(hub)))
+                            toSend = hub.roleManager.CurrentRole.RoleTypeId;
+                    }
+                    
+                    if (hub.inventory.CurInstance != null && hub.inventory.CurInstance is Scp1853Item scp1853Item && scp1853Item.IsUsing)
+                        toSend = hub.roleManager.CurrentRole.RoleTypeId;
+                    
+                    if (hasRadio && VoicePacketPacket.Radio.Contains(hub.netId))
+                        toSend = hub.roleManager.CurrentRole.RoleTypeId;
                     
                     if (hub.roleManager.CurrentRole is IObfuscatedRole ior)
                         toSend = ior.GetRoleForUser(receiver);
@@ -111,6 +150,8 @@ namespace CedMod.Addons.Sentinal.Patches
             conn.Send(new RoleSyncInfo(hub, toSend, receiver));
             hub.roleManager.PreviouslySentRole[receiver.netId] = toSend;
 
+            if (toSend == RoleTypeId.Filmmaker)
+                toSend = RandomRoles.RandomItem();
             if (toSend == hub.roleManager.CurrentRole.RoleTypeId && hub.roleManager.CurrentRole is ISubroutinedRole subroutinedRole)
             {
                 foreach (var routine in subroutinedRole.SubroutineModule.AllSubroutines)
