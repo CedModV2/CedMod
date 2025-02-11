@@ -123,11 +123,12 @@ namespace CedMod.Addons.Sentinal.Patches
                     if (hub.roleManager.CurrentRole is IObfuscatedRole ior)
                         toSend = ior.GetRoleForUser(receiver);
 
+                    FpcServerPositionDistributor._bufferPlayerIDs[count] = hub.PlayerId;
+                    FpcServerPositionDistributor._bufferSyncData[count] = new FpcSyncData();
+                    count++;
+                    
                     if (!hub.roleManager.PreviouslySentRole.TryGetValue(receiver.netId, out RoleTypeId prev) || prev != toSend)
                     {
-                        FpcServerPositionDistributor._bufferPlayerIDs[count] = hub.PlayerId;
-                        FpcServerPositionDistributor._bufferSyncData[count] = new FpcSyncData();
-                        count++;
                         SendRole(receiver, hub, toSend);
                     }
                 }
