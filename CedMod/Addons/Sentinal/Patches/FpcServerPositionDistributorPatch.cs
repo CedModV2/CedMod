@@ -99,6 +99,9 @@ namespace CedMod.Addons.Sentinal.Patches
                     if (PermissionsHandler.IsPermitted(receiver.serverRoles.Permissions, PlayerPermissions.GameplayData) || receiver.roleManager.CurrentRole.Team == Team.SCPs)
                         toSend = hub.roleManager.CurrentRole.RoleTypeId;
 
+                    if (hub.roleManager.CurrentRole.Team == Team.SCPs)
+                        toSend = RoleTypeId.Scp939;
+
                     if (hub.roleManager.CurrentRole is Scp079Role scp079Role)
                     {
                         if (Vector3.Distance(scp079Role.CameraPosition, receiver.transform.position) <= 30)
