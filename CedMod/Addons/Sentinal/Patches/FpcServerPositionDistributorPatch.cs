@@ -153,9 +153,7 @@ namespace CedMod.Addons.Sentinal.Patches
             NetworkConnection conn = receiver.connectionToClient;
             conn.Send(new RoleSyncInfo(hub, toSend, receiver));
             hub.roleManager.PreviouslySentRole[receiver.netId] = toSend;
-
-            if (toSend == RoleTypeId.Filmmaker)
-                toSend = RandomRoles.RandomItem();
+            
             if (toSend == hub.roleManager.CurrentRole.RoleTypeId && hub.roleManager.CurrentRole is ISubroutinedRole subroutinedRole)
             {
                 foreach (var routine in subroutinedRole.SubroutineModule.AllSubroutines)
