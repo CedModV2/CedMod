@@ -48,7 +48,7 @@ namespace CedMod.Addons.Sentinal.Patches
                 }
                 
                 bool invisible = hasVisCtrl && !visCtrl.ValidateVisibility(__instance._hub) && !PermissionsHandler.IsPermitted(receiver.serverRoles.Permissions, PlayerPermissions.GameplayData) && receiver.roleManager.CurrentRole.Team != Team.SCPs;
-                if (invisible)
+                if (invisible && __instance.CurrentRole.Team != Team.SCPs)
                     //toSend = FpcServerPositionDistributorPatch.RandomRoles.RandomItem();
                     toSend = RoleTypeId.Filmmaker;
                 
