@@ -16,5 +16,10 @@ namespace CedMod.ApiModals
         public string CedModVersionIdentifier { get; set; }
         public string KeyHash { get; set; }
         public bool IsVerified { get; set; }
+        public double RealTps { get; set; }
+        public double Tps { get; set; }
+        public double FrameTime { get; set; }
+        public short TargetTps { get; set; }
+        public int CurrentSeed { get; set; }
     }
 }

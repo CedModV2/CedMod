@@ -11,6 +11,7 @@ using CedMod.Addons.QuerySystem.WS;
 using CedMod.ApiModals;
 using CentralAuth;
 using Exiled.Loader;
+using MapGeneration;
 using Newtonsoft.Json;
 using SCPSLAudioApi.AudioCore;
 using UnityEngine;
@@ -76,7 +77,7 @@ namespace CedMod.Addons.QuerySystem
                     });
                 }
                 
-                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                WebSocketSystem.Enqueue(new QueryCommand()
                 {
                     Recipient = "PANEL",
                     Data = new Dictionary<string, string>()
@@ -209,6 +210,9 @@ namespace CedMod.Addons.QuerySystem
                     });
                 }
             }
+            
+            if (!WebSocketSystem.SentMap && SeedSynchronizer.MapGenerated)
+                QueryServerEvents.CreateMapLayout();
 
             if (WebSocketSystem.HelloMessage.SendStats)
             {
@@ -251,7 +255,7 @@ namespace CedMod.Addons.QuerySystem
                 }
             }
             
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "PANEL",
                 Data = new Dictionary<string, string>()
@@ -275,7 +279,12 @@ namespace CedMod.Addons.QuerySystem
                             ScpSlVersion = $"{Version.Major}.{Version.Minor}.{Version.Revision}",
                             FileHash = CedModMain.FileHash,
                             KeyHash = CedModMain.GetHashCode(CedModMain.Singleton.Config.CedMod.CedModApiKey, new MD5CryptoServiceProvider()),
-                            IsVerified = CustomNetworkManager.IsVerified
+                            IsVerified = CustomNetworkManager.IsVerified,
+                            RealTps = Math.Round(1f / Time.smoothDeltaTime),
+                            Tps = Math.Round(1f / Time.smoothDeltaTime) / Application.targetFrameRate,
+                            TargetTps = (short)Application.targetFrameRate,
+                            FrameTime = Math.Round(1f / Time.deltaTime) / Application.targetFrameRate,
+                            CurrentSeed = SeedSynchronizer.Seed
                         })
                     }
                 }

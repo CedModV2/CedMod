@@ -19,7 +19,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                    return;
                 }
                 
-                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                WebSocketSystem.Enqueue(new QueryCommand()
                 {
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()

@@ -73,6 +73,9 @@ namespace CedMod
         
         [Description("If EnableIngameReports is set to false this message will be shown to the user.")]
         public string IngameReportDisabledMessage { get; set; } = "Ingame reporting is disabled on this server.";
-        
+
+        [Description("Disables the fakesyncing used to confuse cheater's playerlist by showing players that are out of range as Filmmaker")]
+        public bool DisableFakeSyncing { get; set; } = false;
+
     }
 }

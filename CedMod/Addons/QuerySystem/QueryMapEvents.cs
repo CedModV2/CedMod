@@ -10,7 +10,7 @@ namespace CedMod.Addons.QuerySystem
     {
         public override void OnWarheadDetonated(WarheadDetonatedEventArgs ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -23,7 +23,7 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnServerLczDecontaminationAnnounced(LczDecontaminationAnnouncedEventArgs ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -36,7 +36,7 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnWarheadStarted(WarheadStartedEventArgs ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -52,7 +52,7 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnWarheadStopped(WarheadStoppedEventArgs ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()

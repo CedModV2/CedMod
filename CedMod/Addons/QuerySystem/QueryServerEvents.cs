@@ -9,6 +9,9 @@ using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Events.CustomHandlers;
 using LabApi.Features.Console;
 using LabApi.Features.Wrappers;
+using CedMod.Addons.Sentinal;
+using CedMod.Addons.Sentinal.Patches;
+using MapGeneration;
 using MEC;
 using Newtonsoft.Json;
 
@@ -17,6 +20,27 @@ namespace CedMod.Addons.QuerySystem
     public class QueryServerEvents: CustomEventsHandler
     {
         private bool _first = false;
+
+        public static void CreateMapLayout()
+        {
+            WebSocketSystem.SentMap = true;
+            List<(FacilityZone zone, string name, string pos, string rot)> rooms = new List<(FacilityZone zone, string name, string pos, string rot)>();
+            foreach (var roomIdentifier in RoomIdentifier.AllRoomIdentifiers)
+            {
+                rooms.Add((roomIdentifier.Zone, roomIdentifier.name, roomIdentifier.transform.position.ToString(), roomIdentifier.transform.rotation.eulerAngles.ToString()));
+            }
+            
+            WebSocketSystem.Enqueue(new QueryCommand()
+            {
+                Recipient = "PANEL",
+                Data = new Dictionary<string, string>()
+                {
+                    { "Type", nameof(CreateMapLayout) },
+                    { "Layout", JsonConvert.SerializeObject(rooms) },
+                    { "Seed", SeedSynchronizer.Seed.ToString() }
+                }
+            });
+        }
 
         public IEnumerator<float> SyncStart(bool wait = true)
         {
@@ -133,13 +157,21 @@ namespace CedMod.Addons.QuerySystem
 
                     new Thread((o =>
                     {
-                        if (!_first)
+                        try
                         {
-                            WebSocketSystem.ApplyRa(false);
-                            _first = true;
-                        }
+                            if (!_first)
+                            {
+                                WebSocketSystem.ApplyRa(false);
+                                _first = true;
+                            }
 
-                        WebSocketSystem.ApplyRa(true);
+                            WebSocketSystem.ApplyRa(true);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                            Log.Error(e.ToString());
+                        }
                     })).Start(true);
                 });
             }
@@ -157,8 +189,9 @@ namespace CedMod.Addons.QuerySystem
                     await WebSocketSystem.Start();
                 }
             });
-
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            SentinalBehaviour.RoundGuid = Guid.NewGuid().ToString();
+            FpcSyncDataPatch.SyncDatas.Clear();
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -167,11 +200,12 @@ namespace CedMod.Addons.QuerySystem
                     { "Message", "Server is waiting for players." }
                 }
             });
+            CreateMapLayout();
         }
 
         public override void OnServerRoundStarted()
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -197,7 +231,7 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnServerRoundRestarted()
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -206,11 +240,12 @@ namespace CedMod.Addons.QuerySystem
                     { "Message", "Round is restarting." }
                 }
             });
+            WebSocketSystem.SentMap = false;
         }
 
         public override void OnServerRoundEnded(RoundEndedEventArgs ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()
@@ -226,7 +261,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     if (plr.Key == null || !plr.Key.GameObject == null)
                         continue;
-                    WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                    WebSocketSystem.Enqueue(new QueryCommand()
                     {
                         Recipient = "PANEL",
                         Data = new Dictionary<string, string>()
@@ -246,7 +281,7 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnServerWaveRespawned(WaveRespawnedEventArgs ev)
         {
-            WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+            WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
                 Data = new Dictionary<string, string>()

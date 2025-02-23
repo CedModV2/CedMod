@@ -12,8 +12,10 @@ using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Firearms.Attachments;
 using InventorySystem.Items.Firearms.Modules;
 using InventorySystem.Items.MicroHID;
+using InventorySystem.Items.MicroHID.Modules;
 using InventorySystem.Items.Radio;
 using LabApi.Features.Wrappers;
+using InventorySystem.Items.Usables.Scp330;
 using MEC;
 using Mirror;
 using PlayerRoles;
@@ -56,12 +58,12 @@ namespace CedMod.Addons.AdminSitSystem.Commands
         public static void AddPlr(Player plr, AdminSit sit)
         {
             Vector3 playerPos = plr.Position;
-            foreach (var lift in ElevatorManager.SpawnedChambers)
+            foreach (var lift in ElevatorChamber.AllChambers)
             {
-                if (lift.Value.WorldspaceBounds.Contains(plr.Position))
+                if (lift.WorldspaceBounds.Contains(plr.Position))
                 {
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                        Logger.Info($"Player in lift {lift.Key}");
+                        Logger.Info($"Player in lift {lift.gameObject.name.ToString()}");
                     var door = DoorVariant.AllDoors.Where(s => s is not ElevatorDoor).OrderBy(s => Vector3.Distance(s.transform.position, lift.Value.transform.position)).FirstOrDefault();
                     if (door != null)
                     {
@@ -137,12 +139,19 @@ namespace CedMod.Addons.AdminSitSystem.Commands
                             }
                         }
                         
-                        newFirearm.ApplyAttachmentsCode(oldFirearm.GetCurrentAttachmentsCode(), true);
+                        newFirearm.ApplyAttachmentsCode(oldFirearm.GetCurrentAttachmentsCode(), true);  
+                    }
+
+                    if (a is Scp330Bag candyBag && item.Value is Scp330Bag oldScp330Bag)
+                    {
+                        candyBag.Candies = oldScp330Bag.Candies;
+                        candyBag.ServerRefreshBag();
                     }
 
                     if (a is MicroHIDItem microHidItem && item.Value is MicroHIDItem oldMicroHidItem)
                     {
-                        microHidItem.RemainingEnergy = oldMicroHidItem.RemainingEnergy;
+                        microHidItem.EnergyManager.ServerSetEnergy(microHidItem.ItemSerial, oldMicroHidItem.EnergyManager.Energy);
+                        microHidItem.BrokenSync.ServerSetBroken(microHidItem.ItemSerial, oldMicroHidItem.BrokenSync.Broken);
                     }
 
                     if (a is RadioItem radioItem && item.Value is RadioItem oldRadioItem)

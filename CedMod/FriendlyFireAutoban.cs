@@ -87,7 +87,7 @@ namespace CedMod
 
         public static bool IsTeamKill(Player player, Player attacker, DamageHandlerBase damageHandler)
         {
-            if (!RoundSummary.RoundInProgress())
+            if (!RoundSummary.RoundInProgress() || RoundSummary.singleton._roundEnded)
                 return false;
             
             if (EventManager.CurrentEvent != null && EventManager.CurrentEvent is IFriendlyFireAutoBanBehaviour fireAutoBanBehaviour)

@@ -4,6 +4,8 @@ using CedMod.Addons.QuerySystem;
 using HarmonyLib;
 using LabApi.Features.Console;
 using Mirror;
+using UnityEngine;
+using VoiceChat;
 using VoiceChat.Codec;
 using VoiceChat.Networking;
 
@@ -16,6 +18,7 @@ namespace CedMod.Addons.Sentinal.Patches
         public static Dictionary<uint, int> Tracker = new Dictionary<uint, int>();
         public static Dictionary<uint, OpusDecoder> OpusDecoders = new Dictionary<uint, OpusDecoder>();
         public static Dictionary<uint, float[]> Floats = new Dictionary<uint, float[]>();
+        public static HashSet<uint> Radio = new HashSet<uint>();
 
         public static bool Prefix(NetworkConnection conn, VoiceMessage msg)
         {
@@ -42,7 +45,7 @@ namespace CedMod.Addons.Sentinal.Patches
                     OpusDecoders.Add(conn.identity.netId, new OpusDecoder());
                 
                 if (!Floats.ContainsKey(conn.identity.netId)) 
-                    Floats[conn.identity.netId] = new float[24000];
+                    Floats[conn.identity.netId] = new float[480];
                 
                 var len = OpusDecoders[conn.identity.netId].Decode(msg.Data, msg.DataLength,  Floats[conn.identity.netId]);
                 float highest = 0;
@@ -68,6 +71,8 @@ namespace CedMod.Addons.Sentinal.Patches
                 Logger.Error(e.ToString());
             }
 
+            if (msg.Channel == VoiceChatChannel.Radio || msg.Channel == VoiceChatChannel.Intercom)
+                Radio.Add(conn.identity.netId);
             return true;
         }
     }

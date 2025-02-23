@@ -6,5 +6,6 @@
         public bool SendEvents { get; set; }
         public bool ExpEnabled { get; set; }
         public string Identity { get; set; }
+        public bool SentinalPositions { get; set; }
     }
 }

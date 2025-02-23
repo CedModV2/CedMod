@@ -11,11 +11,13 @@ using CedMod.Addons.QuerySystem.WS;
 using Footprinting;
 using GameCore;
 using LabApi.Features.Wrappers;
+using InventorySystem.Items.Firearms;
+using InventorySystem.Items.Firearms.Modules;
 using MEC;
 using Newtonsoft.Json;
 using PlayerStatsSystem;
 using UnityEngine;
-using Logger = LabApi.Features.Console.Logger;
+using Console = System.Console;
 
 namespace CedMod
 {
@@ -160,7 +162,7 @@ namespace CedMod
                         { "preformattedmessage", $"You have been banned from this server: {reason}" }
                     };
                 }
-                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                WebSocketSystem.Enqueue(new QueryCommand()
                 {
                     Recipient = "PANEL",
                     Data = new Dictionary<string, string>()
@@ -205,7 +207,7 @@ namespace CedMod
                         { "preformattedmessage", $"You have been banned from this server: {reason}" }
                     };
                 }
-                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()   
+                WebSocketSystem.Enqueue(new QueryCommand()   
                 {                                                      
                     Recipient = "PANEL",                               
                     Data = new Dictionary<string, string>()            
@@ -243,7 +245,9 @@ namespace CedMod
         {
             try
             {
-                player.ReferenceHub.playerStats.KillPlayer(new DisruptorDamageHandler(null, Vector3.up, -1));
+                var damage = new DisruptorDamageHandler(null, Vector3.up, -1);
+                damage.FiringState = DisruptorActionModule.FiringState.FiringSingle;
+                player.ReferenceHub.playerStats.KillPlayer(damage);
             }
             catch (Exception e)
             {

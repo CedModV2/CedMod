@@ -13,7 +13,18 @@ namespace CedMod.Addons.QuerySystem.Patches
         {
             if (!WebSocketSystem.UseRa)
             {
-                new Thread(() => { WebSocketSystem.ApplyRa(true); }).Start();
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        WebSocketSystem.ApplyRa(true);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        Log.Error(e.ToString());
+                    }
+                });
                 return false;
             }
 

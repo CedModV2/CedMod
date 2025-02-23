@@ -9,6 +9,9 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using CedMod.Addons.Events.Commands;
+using CedMod.Addons.QuerySystem.Commands;
+using CedMod.Addons.Sentinal;
 using CedMod.Addons.StaffInfo;
 using CedMod.ApiModals;
 using CedMod.Components;
@@ -19,6 +22,10 @@ using MEC;
 using Newtonsoft.Json;
 using RemoteAdmin;
 using Serialization;
+using UnityEngine;
+using UnityEngine.Networking;
+using Utils;
+using Utils.NonAllocLINQ;
 using VoiceChat;
 
 namespace CedMod.Addons.QuerySystem.WS
@@ -45,6 +52,18 @@ namespace CedMod.Addons.QuerySystem.WS
         public static DateTime LastConnection = DateTime.UtcNow;
         public static bool SuppressLog { get; set; } = false;
         public static DateTime LastServerConnection { get; set; }
+        public static bool SentMap = false;
+
+        public static void Enqueue(QueryCommand cmd)
+        {
+            if (!cmd.Data.ContainsKey("UFrame"))
+                cmd.Data["UFrame"] = SentinalBehaviour.UFrames.ToString();
+            
+            if (!cmd.Data.ContainsKey("RoundId"))
+                cmd.Data["RoundId"] = SentinalBehaviour.RoundGuid;
+            
+            WebSocketSystem.SendQueue.Enqueue(cmd);
+        }
 
         public static async Task Stop()
         {
@@ -66,6 +85,7 @@ namespace CedMod.Addons.QuerySystem.WS
 
             Socket = null;
             SendThread = null;
+            SentMap = false;
         }
 
         public static async Task Start()
@@ -95,6 +115,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     if (resp.StatusCode != HttpStatusCode.OK)
                     {
                         Reconnect = false;
+                        SentMap = false;
                         Logger.Error($"Failed to retrieve panel location, API rejected request: {data1}, Retrying");
                         await Task.Delay(2000, CedModMain.CancellationToken);
                         await Start(); //retry until we succeed or the thread gets aborted.
@@ -113,6 +134,7 @@ namespace CedMod.Addons.QuerySystem.WS
             catch (Exception e)
             {
                 Reconnect = false;
+                SentMap = false;
                 Logger.Error($"Failed to retrieve server location\n{e}");
                 await Task.Delay(1000, CedModMain.CancellationToken);
                 await Start(); //retry until we succeed or the thread gets aborted.
@@ -220,6 +242,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     }
                 }
 
+                SentMap = false;
                 if (Socket.State == WebSocketState.Open)
                     await Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "End", CedModMain.CancellationToken);
             }
@@ -244,6 +267,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 else if (e is WebSocketException e4 && e4.WebSocketErrorCode == WebSocketError.ConnectionClosedPrematurely)
                     SuppressLog = true;
 
+                SentMap = false;
                 WebSocketSystem.Reconnect = false;
                 await Task.Delay(delay, CedModMain.CancellationToken);
                 await Start(); //retry until we succeed or the thread gets aborted.
@@ -726,6 +750,19 @@ namespace CedMod.Addons.QuerySystem.WS
                         case "ApplyRA":
                             //Logger.Info($"Panel requested AutoSlPerms reload: {jsonData["reason"]}");
                             new Thread(ApplyRa).Start(true);
+                            //Logger.Info($"Panel requested AutoSlPerms reload: {jsonData["reason"]}");
+                            new Thread(() =>
+                            {
+                                try
+                                {
+                                    ApplyRa(true);
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e);
+                                    Logger.Error(e.ToString());
+                                }
+                            }).Start();
                             break;
                         case "FetchApiKey":
                             Logger.Info($"Panel requested refresh of api key: {jsonData["Reason"]}");
@@ -829,6 +866,9 @@ namespace CedMod.Addons.QuerySystem.WS
                         case "requestHeartbeat":
                             ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => { ThreadDispatcher.SendHeartbeatMessage(true); });
                             break;
+                        case "requestMap":
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => { QueryServerEvents.CreateMapLayout(); });
+                            break;
                     }
                 }
             }
@@ -865,6 +905,8 @@ namespace CedMod.Addons.QuerySystem.WS
                 state = true;
 
             bool request = (bool)state;
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Logger.Debug("Attempting to get permissions");
 
             lock (LockObj)
             {
@@ -951,6 +993,9 @@ namespace CedMod.Addons.QuerySystem.WS
 
                         if (!request)
                             throw new Exception("Request is false");
+                        
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Logger.Debug("Attempting to send permission request");
 
                         var responsePerms = client.SendAsync(new HttpRequestMessage()
                         {
@@ -977,11 +1022,15 @@ namespace CedMod.Addons.QuerySystem.WS
                             responsePerms.EnsureSuccessStatusCode();
                         }
 
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Logger.Debug("Got permissions");
                         permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(responsePerms.Content.ReadAsStringAsync().Result);
                     }
 
                     if (permsSlRequest.PermissionEntries.Count == 0)
                     {
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Logger.Debug("Permission request contained no permissions");
                         if (!UseRa)
                             ServerStatic.PermissionsHandler = new PermissionsHandler(ref ServerStatic.RolesConfig, ref ServerStatic.SharedGroupsConfig, ref ServerStatic.SharedGroupsMembersConfig);
                         UseRa = true;
@@ -1018,12 +1067,17 @@ namespace CedMod.Addons.QuerySystem.WS
                         return;
                     }
                 }
+                
+                if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                    Logger.Debug("Attempting to invoke thread dispatacher");
 
                 ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                 {
                     PermissionProvider.Permissions = permsSlRequest;
                     try
                     {
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Logger.Debug("Permission thread dispatched");
                         var handler = ServerStatic.GetPermissionsHandler();
                         var oldMembers = new Dictionary<string, string>(handler._members);
                         var oldGroups = new Dictionary<string, UserGroup>(handler._groups);
@@ -1038,8 +1092,12 @@ namespace CedMod.Addons.QuerySystem.WS
                         epGroup.IsDefault = true;
                         Permissions.Groups.Add("default", epGroup);
 #endif
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Logger.Debug("Attempting to add groups");
                         foreach (var perm in permsSlRequest.PermissionEntries)
                         {
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Logger.Debug($"Attempting to add {perm.Name}");
                             handler._groups.Add(perm.Name, new UserGroup()
                             {
                                 BadgeColor = string.IsNullOrEmpty(perm.BadgeColor) ? "none" : perm.BadgeColor,
@@ -1062,8 +1120,13 @@ namespace CedMod.Addons.QuerySystem.WS
 #endif
                         }
 
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Logger.Debug("Attempting to add members");
                         foreach (var member in permsSlRequest.MembersList)
                         {
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Logger.Debug($"Attempting to add {member.UserId} - {member.Group}");
+                            
                             if (member.ReservedSlot && !QuerySystem.ReservedSlotUserids.Contains(member.UserId))
                                 QuerySystem.ReservedSlotUserids.Add(member.UserId);
                             handler._members.Add(member.UserId, member.Group);
@@ -1094,6 +1157,9 @@ namespace CedMod.Addons.QuerySystem.WS
                                 Logger.Error($"Failed to apply permission at realtime for {player.UserId} - {player.Nickname}");
                             }
                         }
+                        
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Logger.Debug("Attempting to process old members");
 
                         foreach (var member in oldMembers)
                         {
@@ -1113,6 +1179,8 @@ namespace CedMod.Addons.QuerySystem.WS
                             }
                         }
                         //Logger.Info($"Successfully applied {permsSlRequest.PermissionEntries.Count} Groups and {permsSlRequest.MembersList.Count} members for AutoSlPerms");
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Logger.Debug($"Successfully applied {permsSlRequest.PermissionEntries.Count} Groups and {permsSlRequest.MembersList.Count} members for AutoSlPerms");
                     }
                     catch (Exception e)
                     {
@@ -1189,7 +1257,7 @@ namespace CedMod.Addons.QuerySystem.WS
                 IEnumerable<string> chunks = Enumerable.Range(0, text.Length / chunksize).Select(i => text.Substring(i * chunksize, chunksize));
                 foreach (var str in chunks) //WS becomes unstable if we send a large chunk of text
                 {
-                    WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                    WebSocketSystem.Enqueue(new QueryCommand()
                     {
                         Recipient = Ses,
                         Data = new Dictionary<string, string>()
@@ -1201,7 +1269,7 @@ namespace CedMod.Addons.QuerySystem.WS
             }
             else*/
             {
-                WebSocketSystem.SendQueue.Enqueue(new QueryCommand()
+                WebSocketSystem.Enqueue(new QueryCommand()
                 {
                     Recipient = Ses,
                     Data = new Dictionary<string, string>()
