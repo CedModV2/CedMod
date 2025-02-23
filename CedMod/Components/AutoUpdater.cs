@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
 using CedMod.ApiModals;
 using Exiled.Loader;
+using GameCore;
 using LabApi.Events.Arguments.ServerEvents;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -114,6 +115,8 @@ namespace CedMod.Components
 
         public async Task<CedModVersion> CheckForUpdates(bool b = false)
         {
+            Logger.Info("Autoupdater temporarily disabled.");
+            return null;
             try
             {
                 using (HttpClient client = new HttpClient())
