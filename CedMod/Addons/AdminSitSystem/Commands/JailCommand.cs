@@ -20,7 +20,10 @@ using MEC;
 using Mirror;
 using PlayerRoles;
 using UnityEngine;
+using ElevatorDoor = Interactables.Interobjects.ElevatorDoor;
 using Logger = LabApi.Features.Console.Logger;
+using MicroHIDItem = InventorySystem.Items.MicroHID.MicroHIDItem;
+using RadioItem = InventorySystem.Items.Radio.RadioItem;
 
 namespace CedMod.Addons.AdminSitSystem.Commands
 {
@@ -64,7 +67,7 @@ namespace CedMod.Addons.AdminSitSystem.Commands
                 {
                     if (CedModMain.Singleton.Config.CedMod.ShowDebug)
                         Logger.Info($"Player in lift {lift.gameObject.name.ToString()}");
-                    var door = DoorVariant.AllDoors.Where(s => s is not ElevatorDoor).OrderBy(s => Vector3.Distance(s.transform.position, lift.Value.transform.position)).FirstOrDefault();
+                    var door = DoorVariant.AllDoors.Where(s => s is not ElevatorDoor).OrderBy(s => Vector3.Distance(s.transform.position, lift.transform.position)).FirstOrDefault();
                     if (door != null)
                     {
                         var pos = DoorTPCommand.EnsurePositionSafety(door.transform);

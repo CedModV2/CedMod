@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem;
+using CedMod.Addons.QuerySystem.WS;
 using CedMod.Addons.StaffInfo;
 using CommandSystem;
 using LabApi.Features.Wrappers;
@@ -56,7 +57,7 @@ namespace CedMod.Commands
                 senderId = queryCommandSender.SenderId;
 
             Task.Run(async () =>
-            { );
+            {
                 foreach (var plr in plrs)
                 {
                     try

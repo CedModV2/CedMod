@@ -8,6 +8,7 @@ using UnityEngine;
 using VoiceChat;
 using VoiceChat.Codec;
 using VoiceChat.Networking;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace CedMod.Addons.Sentinal.Patches
 {
@@ -36,7 +37,7 @@ namespace CedMod.Addons.Sentinal.Patches
                 if (!Tracker.ContainsKey(conn.identity.netId))
                 {
                     if (BanSystem.Authenticating.Contains(msg.Speaker)) //hint is removed by authenticator
-                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => plr.ReceiveHint("Muted: Awaiting CedMod Authentication", 2));
+                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => plr.SendHint("Muted: Awaiting CedMod Authentication", 2));
                     
                     Tracker.Add(conn.identity.netId, 0);
                 }

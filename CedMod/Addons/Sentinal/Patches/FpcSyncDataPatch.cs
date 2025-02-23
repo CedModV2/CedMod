@@ -9,7 +9,6 @@ using PlayerRoles.FirstPersonControl;
 using PlayerRoles.FirstPersonControl.NetworkMessages;
 using PlayerRoles.PlayableScps.Scp939;
 using PlayerRoles.Visibility;
-using PluginAPI.Core;
 namespace CedMod.Addons.Sentinal.Patches
 {
     [HarmonyPatch(typeof(FpcSyncData), nameof(FpcSyncData.TryApply))] //todo implement when there is a need for it
@@ -66,7 +65,7 @@ namespace CedMod.Addons.Sentinal.Patches
             }
             catch (Exception e)
             {
-                Log.Error(e.ToString());
+                LabApi.Features.Console.Logger.Error(e.ToString());
             }
 
             return true;

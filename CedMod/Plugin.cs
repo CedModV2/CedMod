@@ -184,7 +184,7 @@ namespace CedMod
                 _harmony.UnpatchAll(_harmony.Id);
             }
             
-            PermissionsManager.RegisterPermissionProvider<PermissionProvider>();
+            PermissionsManager.RegisterProvider<PermissionProvider>();
             CustomHandlersManager.RegisterEventsHandler(PlayerEvents);
             CustomHandlersManager.RegisterEventsHandler(ServerEvents);
 

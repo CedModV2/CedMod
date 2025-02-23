@@ -27,6 +27,7 @@ using UnityEngine.Networking;
 using Utils;
 using Utils.NonAllocLINQ;
 using VoiceChat;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace CedMod.Addons.QuerySystem.WS
 {
@@ -591,11 +592,11 @@ namespace CedMod.Addons.QuerySystem.WS
 
                                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                     Logger.Debug("CustomCommandCheckPerm");
-                                if (ServerStatic.PermissionsHandler._members.ContainsKey(jsonData["user"]))
+                                if (ServerStatic.PermissionsHandler.Members.ContainsKey(jsonData["user"]))
                                 {
                                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                         Logger.Debug("CustomCommandPermGood");
-                                    string name = ServerStatic.PermissionsHandler._members[jsonData["user"]];
+                                    string name = ServerStatic.PermissionsHandler.Members[jsonData["user"]];
                                     UserGroup ugroup = ServerStatic.PermissionsHandler.GetGroup(name);
                                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                         Logger.Debug("CustomCommandPermGood, dispatching");
@@ -716,7 +717,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                             {
                                 List<SLPermissionEntry> Groups = new List<SLPermissionEntry>();
-                                foreach (var group in ServerStatic.GetPermissionsHandler()._groups)
+                                foreach (var group in ServerStatic.PermissionsHandler.Groups)
                                 {
                                     //var perms = Permissions.Groups.FirstOrDefault(s => s.Key == group.Key);
                                     Groups.Add(new SLPermissionEntry()
@@ -807,7 +808,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                     return;
                                 IsCheckingToken = true;
 
-                                var delay = !ServerConsole._serverName.Contains("CedModVerification");
+                                var delay = !ServerConsole.ServerName.Contains("CedModVerification");
 
                                 Verification.ServerId = Convert.ToInt32(jsonData["ServerId"]);
                                 ServerConsole.ReloadServerName();
@@ -1078,11 +1079,11 @@ namespace CedMod.Addons.QuerySystem.WS
                     {
                         if (CedModMain.Singleton.Config.QuerySystem.Debug)
                             Logger.Debug("Permission thread dispatched");
-                        var handler = ServerStatic.GetPermissionsHandler();
-                        var oldMembers = new Dictionary<string, string>(handler._members);
-                        var oldGroups = new Dictionary<string, UserGroup>(handler._groups);
-                        handler._groups.Clear();
-                        handler._members.Clear();
+                        var handler = ServerStatic.PermissionsHandler;
+                        var oldMembers = new Dictionary<string, string>(handler.Members);
+                        var oldGroups = new Dictionary<string, UserGroup>(handler.Groups);
+                        handler.Groups.Clear();
+                        handler.Members.Clear();
 #if EXILED
                         Permissions.Groups.Clear();
                         var epGroup = new Exiled.Permissions.Features.Group();
@@ -1098,7 +1099,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         {
                             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                                 Logger.Debug($"Attempting to add {perm.Name}");
-                            handler._groups.Add(perm.Name, new UserGroup()
+                            handler.Groups.Add(perm.Name, new UserGroup()
                             {
                                 BadgeColor = string.IsNullOrEmpty(perm.BadgeColor) ? "none" : perm.BadgeColor,
                                 BadgeText = perm.BadgeText,
@@ -1129,7 +1130,7 @@ namespace CedMod.Addons.QuerySystem.WS
                             
                             if (member.ReservedSlot && !QuerySystem.ReservedSlotUserids.Contains(member.UserId))
                                 QuerySystem.ReservedSlotUserids.Add(member.UserId);
-                            handler._members.Add(member.UserId, member.Group);
+                            handler.Members.Add(member.UserId, member.Group);
 
                             var player = CedModPlayer.Get(member.UserId);
                             try
@@ -1146,7 +1147,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                         if (group == null || oldMembers[member.UserId] != member.Group || group.Permissions != (ulong)newGroup.Permissions || group.BadgeText != newGroup.BadgeText || group.BadgeColor != newGroup.BadgeColor || group.KickPower != newGroup.KickPower || group.RequiredKickPower != newGroup.RequiredKickPower || group.Cover != newGroup.Cover || group.HiddenByDefault != newGroup.Hidden)
                                         {
                                             var hidden = !string.IsNullOrEmpty(player.ReferenceHub.serverRoles.HiddenBadge);
-                                            player.ReferenceHub.serverRoles.SetGroup(handler._groups[member.Group], false, !hidden);
+                                            player.ReferenceHub.serverRoles.SetGroup(handler.Groups[member.Group], false, !hidden);
                                             Logger.Info($"Refreshed Permissions from {member.UserId} with hidden value: {hidden} as they were present and had changes in the AutoSlPerms response while ingame");
                                         }
                                     }

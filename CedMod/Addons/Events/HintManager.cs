@@ -56,7 +56,7 @@ namespace CedMod.Addons.Events
                     LabApi.Features.Console.Logger.Debug($"Hint display: {currentHint}");
                 
                 if (!string.IsNullOrEmpty(currentHint))
-                    player.ReceiveHint(currentHint, hintRefreshRate);
+                    player.SendHint(currentHint, hintRefreshRate);
             }
         }
     }

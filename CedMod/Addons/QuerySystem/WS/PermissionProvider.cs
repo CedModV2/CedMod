@@ -9,10 +9,29 @@ using Utils.NonAllocLINQ;
 
 namespace CedMod.Addons.QuerySystem.WS
 {
-    public class PermissionProvider: IPermissionProvider
+    public class PermissionProvider: IPermissionsProvider
     {
         public static AutoSlPermsSlRequest Permissions { get; set; }
-        
+
+        public string[] GetPermissions(Player player)
+        {
+            string group = GetGroup(player.UserId);
+            List<string> perms = new List<string>();
+            
+            if (string.IsNullOrEmpty(group))
+            {
+                perms = Permissions.DefaultPermissions;
+            }
+            else if (Permissions.PermissionEntries.Any(s => s.Name == group))
+            {
+                var groupObject = Permissions.PermissionEntries.FirstOrDefault(s => s.Name == group);
+                if (groupObject != null)
+                    perms.AddRange(groupObject.ExiledPermissions);
+            }
+
+            return perms.ToArray();
+        }
+
         public bool HasPermissions(Player player, params string[] permissions)
         {
             if (player.IsHost)
@@ -82,9 +101,9 @@ namespace CedMod.Addons.QuerySystem.WS
         {
             
             string group = "";
-            if (ServerStatic.PermissionsHandler._members.ContainsKey(userId))
+            if (ServerStatic.PermissionsHandler.Members.ContainsKey(userId))
             {
-                group = ServerStatic.PermissionsHandler._members[userId];
+                group = ServerStatic.PermissionsHandler.Members[userId];
                 
                 if (CedModMain.Singleton.Config.Debug)
                     Logger.Debug($"Found in RA config {group}");
@@ -97,7 +116,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     Logger.Debug($"Found hubs {hub.PlayerId}");
                 
                 UserGroup playerGroup = hub.serverRoles.Group;
-                group = playerGroup != null ? ServerStatic.GetPermissionsHandler()._groups.FirstOrDefault(g => g.Value.EqualsTo(playerGroup)).Key : null;
+                group = playerGroup != null ? ServerStatic.PermissionsHandler.Groups.FirstOrDefault(g => g.Value.EqualsTo(playerGroup)).Key : null;
             }
 
             return group;

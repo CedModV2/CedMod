@@ -150,7 +150,7 @@ namespace CedMod.Addons.StaffInfo
                 {
                     case RoleTypeId.Overwatch when prefs.ShowModerationInfoOverwatch && currentlySpectating != null && StaffData[staff.UserId].ContainsKey(currentlySpectating.UserId) && StaffData[staff.UserId][currentlySpectating.UserId].Item1 != "":
                     case RoleTypeId.Spectator when prefs.ShowModerationInfoSpectator && currentlySpectating != null && StaffData[staff.UserId].ContainsKey(currentlySpectating.UserId) && StaffData[staff.UserId][currentlySpectating.UserId].Item1 != "":
-                        staff.ReceiveHint("<align=right><size=25>" + StaffData[staff.UserId][currentlySpectating.UserId].Item1 + "</size>", 1.2f);
+                        staff.SendHint("<align=right><size=25>" + StaffData[staff.UserId][currentlySpectating.UserId].Item1 + "</size>", 1.2f);
                         break;
                 }
             }

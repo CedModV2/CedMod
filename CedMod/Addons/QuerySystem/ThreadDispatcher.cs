@@ -228,10 +228,10 @@ namespace CedMod.Addons.QuerySystem
                         continue;
                     bool staff = false;
 
-                    var data = ServerStatic.GetPermissionsHandler();
-                    if (player.authManager.UserId != null && data._members.ContainsKey(player.authManager.UserId))
+                    var data = ServerStatic.PermissionsHandler;
+                    if (player.authManager.UserId != null && data.Members.ContainsKey(player.authManager.UserId))
                     {
-                        var group = data.GetGroup(data._members[player.authManager.UserId]);
+                        var group = data.GetGroup(data.Members[player.authManager.UserId]);
                         if (group != null)
                         {
                             staff = PermissionsHandler.IsPermitted(group.Permissions, new PlayerPermissions[3] { PlayerPermissions.KickingAndShortTermBanning, PlayerPermissions.BanningUpToDay, PlayerPermissions.LongTermBanning });

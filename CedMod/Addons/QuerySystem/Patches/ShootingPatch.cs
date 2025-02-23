@@ -6,10 +6,9 @@ using HarmonyLib;
 using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Firearms.Modules;
 using InventorySystem.Items.Firearms.Modules.Misc;
+using LabApi.Features.Wrappers;
 using Mirror;
-using NWAPIPermissionSystem;
 using PlayerRoles.FirstPersonControl;
-using PluginAPI.Core;
 using RelativePositioning;
 using UnityEngine;
 
@@ -40,7 +39,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                         Recipient = "ALL",
                         Data = new Dictionary<string, string>()
                         {
-                            {"ItemType", plr.CurrentItem.ItemTypeId.ToString()},
+                            {"ItemType", plr.CurrentItem.Type.ToString()},
                             {"UserId", plr.UserId},
                             {"UserName", plr.Nickname},
                             {"RayAngle", angle.ToString()},
@@ -56,7 +55,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                                         plr.UserId,
                                         Misc.ToHex(player.roleManager.CurrentRole.RoleColor),
                                         plr.Role,
-                                        plr.CurrentItem.ItemTypeId
+                                        plr.CurrentItem.Type
                                     })
                             }
                         }
@@ -65,7 +64,7 @@ namespace CedMod.Addons.QuerySystem.Patches
             }
             catch (Exception e)
             {
-                Log.Error(e.ToString());
+                LabApi.Features.Console.Logger.Error(e.ToString());
             }
         }
     }

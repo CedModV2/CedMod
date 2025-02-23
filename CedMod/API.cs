@@ -18,6 +18,7 @@ using Newtonsoft.Json;
 using PlayerStatsSystem;
 using UnityEngine;
 using Console = System.Console;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace CedMod
 {
@@ -37,7 +38,7 @@ namespace CedMod
         {
             if (!VerificationChallenge.CompletedChallenge)
             {
-                Logger.Error($"API request failed: Challenge not complete");
+                LabApi.Features.Console.Logger.Error($"API request failed: Challenge not complete");
                 return null;
             }
             string response = "";  
@@ -87,7 +88,7 @@ namespace CedMod
                         VerificationChallenge.CompletedChallenge = false;
                         VerificationChallenge.ChallengeStarted = false;
                     }
-                    Logger.Error($"API request failed: {resp.StatusCode} | {response}");
+                    LabApi.Features.Console.Logger.Error($"API request failed: {resp.StatusCode} | {response}");
                     return null;
                 }
                 if (!returnstring)
@@ -103,7 +104,7 @@ namespace CedMod
                 {
                     response = await r.ReadToEndAsync();
                 }
-                Logger.Error($"API request failed: {response} | {ex.Message}");
+                LabApi.Features.Console.Logger.Error($"API request failed: {response} | {ex.Message}");
                 return null;
             }
         }

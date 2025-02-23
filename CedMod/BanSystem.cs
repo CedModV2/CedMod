@@ -196,7 +196,7 @@ namespace CedMod
                 
                 ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                 {
-                    player.ReceiveHint("", 1); //clear authenticator hint
+                    player.SendHint("", 1); //clear authenticator hint
                     Authenticating.Remove(player.ReferenceHub);
                 });
             }
@@ -205,7 +205,7 @@ namespace CedMod
                 ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                 {
                     Authenticating.Remove(player.ReferenceHub);
-                    player.ReceiveHint("", 1); //clear authenticator hint
+                    player.SendHint("", 1); //clear authenticator hint
                 });
                 Logger.Error(ex.ToString());
 

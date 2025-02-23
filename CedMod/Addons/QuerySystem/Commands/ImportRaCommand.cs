@@ -24,7 +24,7 @@ namespace CedMod.Commands
             ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
             {
                 List<SLPermissionEntry> Groups = new List<SLPermissionEntry>();
-                foreach (var group in ServerStatic.GetPermissionsHandler()._groups)
+                foreach (var group in ServerStatic.PermissionsHandler.Groups)
                 {
                     //var perms = Permissions.Groups.FirstOrDefault(s => s.Key == group.Key);
                     Groups.Add(new SLPermissionEntry()

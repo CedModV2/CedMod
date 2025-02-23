@@ -252,8 +252,8 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
-                                ev.Locker.netId,
-                                ev.Locker.Chambers.IndexOf(ev.Chamber),
+                                ev.Locker.Base.netId,
+                                ev.Locker.Chambers.ToList().IndexOf(ev.Chamber),
                             })
                     }
                 }
@@ -318,7 +318,7 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
-                                ev.Player.CurrentItem.ItemTypeId
+                                ev.Player.CurrentItem.Type
                             })
                     }
                 }
@@ -696,7 +696,7 @@ namespace CedMod.Addons.QuerySystem
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
                                 ev.Amount,
-                                ev.Pickup.ItemPickupBase.NetworkInfo.ItemId
+                                ev.Pickup.Base.NetworkInfo.ItemId
                             })
                     }
                 }
@@ -721,7 +721,7 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
-                                ev.Pickup.ItemPickupBase.NetworkInfo.ItemId
+                                ev.Pickup.Base.NetworkInfo.ItemId
                             })
                     }
                 }
@@ -733,8 +733,8 @@ namespace CedMod.Addons.QuerySystem
             ThreadDispatcher.SendHeartbeatMessage(true);
             if (CommandHandler.Synced.ContainsKey(ev.Player.UserId))
             {
-                if (ServerStatic.GetPermissionsHandler()._members.ContainsKey(ev.Player.UserId) && CommandHandler.Synced[ev.Player.UserId] == ServerStatic.GetPermissionsHandler()._members[ev.Player.UserId])
-                    ServerStatic.GetPermissionsHandler()._members.Remove(ev.Player.UserId);
+                if (ServerStatic.PermissionsHandler.Members.ContainsKey(ev.Player.UserId) && CommandHandler.Synced[ev.Player.UserId] == ServerStatic.PermissionsHandler.Members[ev.Player.UserId])
+                    if (ServerStatic.PermissionsHandler.Members.Remove(ev.Player.UserId));
                 ev.Player.ReferenceHub.serverRoles.RefreshPermissions();
                 CommandHandler.Synced.Remove(ev.Player.UserId);
             }
@@ -793,7 +793,7 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
-                                ev.Pickup?.ItemPickupBase.NetworkInfo.ItemId
+                                ev.Pickup?.Base.NetworkInfo.ItemId
                             })
                     }
                 }
@@ -1257,7 +1257,7 @@ namespace CedMod.Addons.QuerySystem
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
-                                ev.Pickup.ItemPickupBase.NetworkInfo.ItemId
+                                ev.Pickup.Base.NetworkInfo.ItemId
                             })
                     }
                 }
