@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using CedMod.ApiModals;
-using Exiled.API.Extensions;
 using LabApi.Features.Console;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
@@ -116,7 +115,7 @@ namespace CedMod.Addons.QuerySystem.WS
                     Logger.Debug($"Found hubs {hub.PlayerId}");
                 
                 UserGroup playerGroup = hub.serverRoles.Group;
-                group = playerGroup != null ? ServerStatic.PermissionsHandler.Groups.FirstOrDefault(g => g.Value.EqualsTo(playerGroup)).Key : null;
+                group = playerGroup.Name;
             }
 
             return group;

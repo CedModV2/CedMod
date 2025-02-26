@@ -1,8 +1,8 @@
 ﻿using System;
 using CedMod.Addons.QuerySystem;
 using CommandSystem;
-using Exiled.API.Features;
 using LabApi.Features.Permissions;
+using LabApi.Features.Wrappers;
 using MEC;
 
 namespace CedMod.Addons.Events.Commands
