@@ -38,7 +38,7 @@ namespace CedMod.Addons.QuerySystem.Patches
             Logger.Debug($"UserID: {player.UserId} | PlayerId: {player.Id}", Exiled.Permissions.Permissions.Instance.Config.ShouldDebugBeShown);
             Logger.Debug($"Permission string: {permission}", Exiled.Permissions.Permissions.Instance.Config.ShouldDebugBeShown);
 
-            string plyGroupKey = player.Group is not null ? (string.IsNullOrEmpty(player.GroupName) ? ServerStatic.GetPermissionsHandler()._groups.FirstOrDefault(g => g.Value.EqualsTo(player.Group)).Key : ServerStatic.GetPermissionsHandler()._groups.FirstOrDefault(g => g.Key == player.GroupName).Key) : null;
+            string plyGroupKey = player.Group is not null ? (string.IsNullOrEmpty(player.GroupName) ? ServerStatic.PermissionsHandler.Groups.FirstOrDefault(g => g.Value.EqualsTo(player.Group)).Key : ServerStatic.PermissionsHandler.Groups.FirstOrDefault(g => g.Key == player.GroupName).Key) : null;
             Logger.Debug($"GroupKey: {plyGroupKey ?? "(null)"}", Exiled.Permissions.Permissions.Instance.Config.ShouldDebugBeShown);
 
             if (plyGroupKey is null || !Permissions.Groups.TryGetValue(plyGroupKey, out Group group))

@@ -396,7 +396,8 @@ namespace CedMod.Addons.QuerySystem
             if (ev.Target == null)
                 return;
 
-            RoomIdentifier killerRoom = RoomIdUtils.RoomAtPosition(ev.Target.Position);
+            RoomIdentifier killerRoom = null;
+            RoomUtils.TryGetRoom(ev.Target.Position, out killerRoom);
             if (ev.Player != null)
             {
                 WebSocketSystem.Enqueue(new QueryCommand()
@@ -498,8 +499,10 @@ namespace CedMod.Addons.QuerySystem
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Logger.Debug("istk");
                 TeamkillData data = new TeamkillData();
-                RoomIdentifier killerRoom = RoomIdUtils.RoomAtPosition(ev.Attacker.Position);
-                RoomIdentifier targetRoom = RoomIdUtils.RoomAtPosition(ev.Player.Position);
+                RoomIdentifier killerRoom = null;
+                RoomIdentifier targetRoom = null;
+                RoomUtils.TryGetRoom(ev.Attacker.Position, out killerRoom);
+                RoomUtils.TryGetRoom(ev.Player.Position, out targetRoom);
                 data.PlayersOnScene.Add(new UsersOnScene()
                 {
                     CurrentHealth = ev.Attacker.Health,
@@ -554,7 +557,8 @@ namespace CedMod.Addons.QuerySystem
                         Logger.Debug($"Checking distance on killer {distance} from {ev.Attacker.Nickname} to {bystanders.Nickname} {data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId)}");
                     if (distance <= 60 && data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId))
                     {
-                        RoomIdentifier bystanderRoom = RoomIdUtils.RoomAtPosition(bystanders.Position);
+                        RoomIdentifier bystanderRoom = null;
+                        RoomUtils.TryGetRoom(bystanders.Position, out bystanderRoom);
                         if (bystanderRoom != null && !data.RoomsInvolved.Any(s => s.RoomType == bystanderRoom.Name.ToString() && s.Position == bystanderRoom.transform.position.ToString()))
                         {
                             data.RoomsInvolved.Add(new RoomsInvolved()
@@ -641,7 +645,9 @@ namespace CedMod.Addons.QuerySystem
             }
             else
             {
-                RoomIdentifier killerRoom = RoomIdUtils.RoomAtPosition(ev.Player.Position);
+                RoomIdentifier killerRoom = null;
+                RoomUtils.TryGetRoom(ev.Player.Position, out killerRoom);
+                
                 WebSocketSystem.Enqueue(new QueryCommand()
                 {
                     Recipient = "ALL",

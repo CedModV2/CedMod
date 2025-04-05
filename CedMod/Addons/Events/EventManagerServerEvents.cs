@@ -4,6 +4,9 @@ using System.Linq;
 using CedMod.Addons.Events.Interfaces;
 using CedMod.Addons.Events.Patches;
 using CedMod.Addons.QuerySystem;
+#if EXILED
+using Exiled.API.Features;
+#endif
 using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Events.CustomHandlers;
 using LabApi.Features.Console;

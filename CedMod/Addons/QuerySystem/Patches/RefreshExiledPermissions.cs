@@ -1,7 +1,9 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem.WS;
 using HarmonyLib;
+using LabApi.Features.Console;
 
 namespace CedMod.Addons.QuerySystem.Patches
 {
@@ -22,7 +24,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                     catch (Exception e)
                     {
                         Console.WriteLine(e);
-                        Log.Error(e.ToString());
+                        Logger.Error(e.ToString());
                     }
                 });
                 return false;

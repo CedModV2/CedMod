@@ -326,26 +326,23 @@ namespace CedMod
                     if (PluginLoader.Plugins.ContainsValue(assembly)) 
                         continue;
                     
-                    foreach (Type type in types)
+                    try
                     {
-                        try
-                        {
-                            if (!type.IsSubclassOf(typeof(Plugin)))
-                                continue;
-
-                            if (Activator.CreateInstance(type) is not Plugin plugin)
-                                continue;
-
-                            LabApiPluginGamemodes.Add(assembly, plugin);
-                            LabApiPluginGamemodesPaths[plugin] = file;
-                            Logger.Info($"[CedModEvents-LabApi] Successfully loaded {plugin.Name}");
-                            successes++;
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Info($"Failed to load {entryType.FullName}.\n{e}");
+                        if (!entryType.IsSubclassOf(typeof(Plugin)))
                             continue;
-                        }
+
+                        if (Activator.CreateInstance(entryType) is not Plugin plugin)
+                            continue;
+
+                        LabApiPluginGamemodes.Add(assembly, plugin);
+                        LabApiPluginGamemodesPaths[plugin] = file;
+                        Logger.Info($"[CedModEvents-LabApi] Successfully loaded {plugin.Name}");
+                        successes++;
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Info($"Failed to load {entryType.FullName}.\n{e}");
+                        continue;
                     }
                 }
             }

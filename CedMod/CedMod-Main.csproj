@@ -223,26 +223,26 @@
     <Reference Include="dnlib, Version=3.3.2.0, Culture=neutral, PublicKeyToken=50e96378b6e77999">
       <HintPath>..\References\dnlib.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.API, Version=8.3.1.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.8.3.1\lib\net48\Exiled.API.dll</HintPath>
+    <Reference Include="Exiled.API, Version=9.6.0.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\ExMod.Exiled.9.6.0-beta4\lib\net48\Exiled.API.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.CreditTags, Version=8.3.1.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.8.3.1\lib\net48\Exiled.CreditTags.dll</HintPath>
+    <Reference Include="Exiled.CreditTags, Version=9.6.0.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\ExMod.Exiled.9.6.0-beta4\lib\net48\Exiled.CreditTags.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.CustomItems, Version=8.3.1.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.8.3.1\lib\net48\Exiled.CustomItems.dll</HintPath>
+    <Reference Include="Exiled.CustomItems, Version=9.6.0.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\ExMod.Exiled.9.6.0-beta4\lib\net48\Exiled.CustomItems.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.CustomRoles, Version=8.3.1.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.8.3.1\lib\net48\Exiled.CustomRoles.dll</HintPath>
+    <Reference Include="Exiled.CustomRoles, Version=9.6.0.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\ExMod.Exiled.9.6.0-beta4\lib\net48\Exiled.CustomRoles.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.Events, Version=8.3.1.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.8.3.1\lib\net48\Exiled.Events.dll</HintPath>
+    <Reference Include="Exiled.Events, Version=9.6.0.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\ExMod.Exiled.9.6.0-beta4\lib\net48\Exiled.Events.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.Loader, Version=8.3.1.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.8.3.1\lib\net48\Exiled.Loader.dll</HintPath>
+    <Reference Include="Exiled.Loader, Version=9.6.0.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\ExMod.Exiled.9.6.0-beta4\lib\net48\Exiled.Loader.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.Permissions, Version=8.3.1.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.8.3.1\lib\net48\Exiled.Permissions.dll</HintPath>
+    <Reference Include="Exiled.Permissions, Version=9.6.0.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\ExMod.Exiled.9.6.0-beta4\lib\net48\Exiled.Permissions.dll</HintPath>
     </Reference>
     <Reference Include="Facepunch.Steamworks.Win64, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\Facepunch.Steamworks.Win64.dll</HintPath>

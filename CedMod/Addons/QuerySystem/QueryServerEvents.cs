@@ -288,7 +288,7 @@ namespace CedMod.Addons.QuerySystem
                 Data = new Dictionary<string, string>()
                 {
                     { "Type", nameof(OnServerWaveRespawned) },
-                    { "Message", string.Format("Respawn: {0} as {1}.", ev.Players.Count.ToString(), ev.Team.ToString()) }
+                    { "Message", string.Format("Respawn: {0} as {1}.", ev.Players.Count.ToString(), ev.Wave.Faction.ToString()) }
                 }
             });
         }

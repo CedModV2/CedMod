@@ -55,7 +55,7 @@ namespace CedMod.Addons.QuerySystem.Patches
             if (string.IsNullOrEmpty(permission))
                 return false;
             
-            string plyGroupKey = Player.Get(userId) != null ? Player.Get(userId).GroupName : ServerStatic.GetPermissionsHandler()._members.FirstOrDefault(g => g.Key == userId).Value;
+            string plyGroupKey = Player.Get(userId) != null ? Player.Get(userId).GroupName : ServerStatic.PermissionsHandler.Members.FirstOrDefault(g => g.Key == userId).Value;
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Logger.Info(plyGroupKey);
             
