@@ -117,14 +117,8 @@ namespace CedMod
                 return;
             }
             loadProperty.SetValue(null, true);
-
-            var files = PathManager.Plugins.GetFiles("CedMod*.dll");
-            if (files.Length == 0)
-            {
-                Timing.CallPeriodically(100000, 1, () => Logger.Error("Failed to load CedMod, CedMod path is empty, please contact cedmod support."));
-                return;
-            }
-            PluginLocation = files.FirstOrDefault().FullName;
+            
+            PluginLocation = FilePath;
             PluginConfigFolder = this.GetConfigDirectory().FullName;
 #else
             var loadProperty = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(s => s.GetName().Name == "CedModV3").GetType("CedMod.API").GetProperty("HasLoaded");
