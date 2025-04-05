@@ -58,7 +58,7 @@ namespace CedMod
         public static CancellationToken CancellationToken;
         public CancellationTokenSource CancellationTokenSource;
 
-        public const string PluginVersion = "3.4.20";
+        public const string PluginVersion = "3.4.21";
 
         public override string Name { get; } = "CedMod";
         public override string Author { get; } = "ced777ric#8321";
