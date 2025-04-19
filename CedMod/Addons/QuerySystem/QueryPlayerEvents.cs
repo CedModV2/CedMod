@@ -196,12 +196,13 @@ namespace CedMod.Addons.QuerySystem
                     {"Type", nameof(OnPlayerInteractedDoor)},
                     {
                         "Message", string.Format(
-                            "{0} - {1} (<color={2}>{3}</color>) has interacted with door {4}", new object[]
+                            "{0} - {1} (<color={2}>{3}</color>) has {4} door {5}", new object[]
                             {
                                 ev.Player.Nickname,
                                 ev.Player.UserId,
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
+                                ev.Door.IsOpened ? "Opened" : "Closed",
                                 ev.Door.Base.netId + (DoorNametagExtension.NamedDoors.Any(s => s.Value.TargetDoor == ev.Door.Base) ? $" {DoorNametagExtension.NamedDoors.FirstOrDefault(s => s.Value.TargetDoor == ev.Door.Base).Key}" : "") 
                             })
                     }
