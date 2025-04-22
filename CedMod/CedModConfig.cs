@@ -21,20 +21,20 @@ namespace CedMod
         public int AutobanDuration { get; set; } = 4320;
 
         [Description("The Hint (message) the teamkilling victim will receive")]
-        public int AutobanVictimHint { get; set; } = "<size=25><b><color=yellow>You have been teamkilled by: </color></b></size><color=red><size=25> {attackerName} ({attackerID} {attackerRole} You were a {playerRole}</size></color>\n<size=25><b><color=yellow> Use this as a screenshot as evidence for a report</color></b>\n{AutobanExtraMessage}\n</size><size=25><i><color=yellow> Note: if they continues to teamkill the server will ban them</color></i></size>";
+        public string AutobanVictimHint { get; set; } = "<size=25><b><color=yellow>You have been teamkilled by: </color></b></size><color=red><size=25> {attackerName} ({attackerID} {attackerRole} You were a {playerRole}</size></color>\n<size=25><b><color=yellow> Use this as a screenshot as evidence for a report</color></b>\n{AutobanExtraMessage}\n</size><size=25><i><color=yellow> Note: if they continues to teamkill the server will ban them</color></i></size>";
         
         [Description("The Hint (message) the teamkilling perpetrator will receive")]
-        public int AutobanPerpetratorHint { get; set; } = "<color=yellow><b> If you continue teamkilling it will result in a ban</b></color>";
+        public string AutobanPerpetratorHint { get; set; } = "<color=yellow><b> If you continue teamkilling it will result in a ban</b></color>";
         
         [Description("The Hint (message) the teamkilling perpetrator will receive (displaying the user)")]
-        public int AutobanPerpetratorHintUser { get; set; } = "<b><color=yellow>You teamkilled: </color></b><color=red> {playerName} </color>";
+        public string AutobanPerpetratorHintUser { get; set; } = "<b><color=yellow>You teamkilled: </color></b><color=red> {playerName} </color>";
 
 
         [Description("The Hint (message) the teamkilling perpetrator will receive if he has FriendlyFire immunity ")]
-        public int AutobanPerpetratorHintImmunity { get; set; } = "<color=#49E1E9><b> You have Friendly Fire Ban Immunity.</b></color>";
+        public string AutobanPerpetratorHintImmunity { get; set; } = "<color=#49E1E9><b> You have Friendly Fire Ban Immunity.</b></color>";
 
         [Description("The Broadcast that will be displayed upon the player getting autobanned")]
-        public int AutobanBroadcastMesage { get; set; } = "<size=25><b><color=yellow>user: </color></b><color=red> {attackerName} </color><color=yellow><b> has been automatically banned for teamkilling</b></color></size>";
+        public string AutobanBroadcastMesage { get; set; } = "<size=25><b><color=yellow>user: </color></b><color=red> {attackerName} </color><color=yellow><b> has been automatically banned for teamkilling</b></color></size>";
         
         [Description("The ban reason of the ban a user gets if the autoban is triggered")]
         public string AutobanReason { get; set; } = "You have been automatically banned for teamkilling";
