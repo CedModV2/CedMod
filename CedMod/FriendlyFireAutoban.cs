@@ -43,16 +43,17 @@ namespace CedMod
             attacker.SendConsoleMessage(ffaTextKiller, "white");
             Dictionary<string, string> autobanReplaceMap = new()
             {
-                {"attackerName", attacker.Nickname},
-                {"attackerID", attacker.UserId},
-                {"attackerRole", attacker.Role},
-                {"playerRole", player.Role},
-                {"AutobanExtraMessage", CedModMain.Singleton.Config.CedMod.AutobanExtraMessage},
-            }
+                { "attackerName", attacker.Nickname },
+                { "attackerID", attacker.UserId },
+                { "attackerRole", attacker.Role },
+                { "playerRole", player.Role },
+                { "AutobanExtraMessage", CedModMain.Singleton.Config.CedMod.AutobanExtraMessage },
+            };
 
             string ffaTextVictim = CedModMain.Singleton.Config.CedMod.AutobanVictimHint;
-            foreach (var key in autobanReplaceMap.Keys) {
-                ffaTextVictim = ffaTextVictim.Replace(key, autobanReplaceMap[key])
+            foreach (var key in autobanReplaceMap.Keys)
+            {
+                ffaTextVictim = ffaTextVictim.Replace(key, autobanReplaceMap[key]);
             }
 
             if (attacker.DoNotTrack)
