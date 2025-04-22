@@ -26,7 +26,6 @@ namespace CedMod
         [Description("The Hint (message) the teamkilling perpetrator will receive")]
         public int AutobanPerpetratorHint { get; set; } = "<color=yellow><b> If you continue teamkilling it will result in a ban</b></color>";
         
-        
         [Description("The Hint (message) the teamkilling perpetrator will receive (displaying the user)")]
         public int AutobanPerpetratorHintUser { get; set; } = "<b><color=yellow>You teamkilled: </color></b><color=red> {playerName} </color>";
 
@@ -36,8 +35,6 @@ namespace CedMod
 
         [Description("The Broadcast that will be displayed upon the player getting autobanned")]
         public int AutobanBroadcastMesage { get; set; } = "<size=25><b><color=yellow>user: </color></b><color=red> {attackerName} </color><color=yellow><b> has been automatically banned for teamkilling</b></color></size>";
-
-
         
         [Description("The ban reason of the ban a user gets if the autoban is triggered")]
         public string AutobanReason { get; set; } = "You have been automatically banned for teamkilling";
