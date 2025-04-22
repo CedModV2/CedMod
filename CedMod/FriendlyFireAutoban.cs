@@ -31,7 +31,7 @@ namespace CedMod
             });
 
             string resultOfTK = attackerHasFFImmunity ? CedModMain.Singleton.Config.CedMod.AutobanPerpetratorHintImmunity : CedModMain.Singleton.Config.CedMod.AutobanPerpetratorHint;
-            string ffaTextKiller = $"<size=25>{CedModMain.Singleton.Config.CedMod.AutobanPerpetratorHintUser.Replace("playerName", player.Nickname)}\n{resultOfTK}</size>";
+            string ffaTextKiller = $"<size=25>{CedModMain.Singleton.Config.CedMod.AutobanPerpetratorHintUser.Replace("{playerName}", player.Nickname)}\n{resultOfTK}</size>";
             if (behaviour != null)
             {
                 var msg = behaviour.KillerMessage(player, attacker, damageHandler);
@@ -43,11 +43,11 @@ namespace CedMod
             attacker.SendConsoleMessage(ffaTextKiller, "white");
             Dictionary<string, string> autobanReplaceMap = new()
             {
-                { "attackerName", attacker.Nickname },
-                { "attackerID", attacker.UserId },
-                { "attackerRole", attacker.Role },
-                { "playerRole", player.Role },
-                { "AutobanExtraMessage", CedModMain.Singleton.Config.CedMod.AutobanExtraMessage },
+                { "{attackerName}", attacker.Nickname },
+                { "{attackerID}", attacker.UserId },
+                { "{attackerRole}", attacker.Role },
+                { "{playerRole}", player.Role },
+                { "{AutobanExtraMessage}", CedModMain.Singleton.Config.CedMod.AutobanExtraMessage },
             };
 
             string ffaTextVictim = CedModMain.Singleton.Config.CedMod.AutobanVictimHint;
@@ -91,7 +91,7 @@ namespace CedMod
                             {
                                 await API.Ban(attacker, (long) banDuration.TotalSeconds, "Server.Module.FriendlyFireAutoban", banReason, false);
                             });
-                            Server.SendBroadcast(CedModMain.Singleton.Config.CedMod.AutobanBroadcastMesage.Replace("attackerName", attacker.Nickname), 20);
+                            Server.SendBroadcast(CedModMain.Singleton.Config.CedMod.AutobanBroadcastMesage.Replace("{attackerName}", attacker.Nickname), 20);
                         }
                     }
                 }
