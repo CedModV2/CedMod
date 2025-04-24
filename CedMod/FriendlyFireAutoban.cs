@@ -45,8 +45,8 @@ namespace CedMod
             {
                 { "{attackerName}", attacker.Nickname },
                 { "{attackerID}", attacker.UserId },
-                { "{attackerRole}", attacker.Role },
-                { "{playerRole}", player.Role },
+                { "{attackerRole}", attacker.Role.ToString() },
+                { "{playerRole}", player.Role.ToString() },
                 { "{AutobanExtraMessage}", CedModMain.Singleton.Config.CedMod.AutobanExtraMessage },
             };
 
