@@ -14,10 +14,10 @@ using UnityEngine;
 
 namespace CedMod.Addons.QuerySystem.Patches
 {
-    [HarmonyPatch(typeof(HitscanHitregModuleBase), nameof(HitscanHitregModuleBase.ServerPerformHitscan))]
+    [HarmonyPatch(typeof(HitscanHitregModuleBase), nameof(HitscanHitregModuleBase.ServerAppendPrescan))]
     public static class DoubleActionShootPatch
     {
-        public static void Postfix(HitscanHitregModuleBase __instance, Ray targetRay, float targetDamage)
+        public static void Postfix(HitscanHitregModuleBase __instance, Ray targetRay, HitscanResult toAppend)
         {
             try
             {
