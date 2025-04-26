@@ -355,7 +355,7 @@ namespace CedMod.Addons.QuerySystem
                 if (ev.ChangeReason != RoleChangeReason.Escaped)
                     LevelerStore.InitialPlayerRoles.Remove(plr);
                 else
-                    LevelerStore.InitialPlayerRoles[plr] = ev.NewRole;
+                    LevelerStore.InitialPlayerRoles[plr] = ev.NewRole.RoleTypeId;
             }
         }
         
@@ -394,11 +394,11 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnPlayerHurt(PlayerHurtEventArgs ev)
         {
-            if (ev.Target == null)
+            if (ev.Attacker == null)
                 return;
 
             RoomIdentifier killerRoom = null;
-            RoomUtils.TryGetRoom(ev.Target.Position, out killerRoom);
+            RoomUtils.TryGetRoom(ev.Attacker.Position, out killerRoom);
             if (ev.Player != null)
             {
                 WebSocketSystem.Enqueue(new QueryCommand()
@@ -406,12 +406,12 @@ namespace CedMod.Addons.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
-                        {"UserId", ev.Target.UserId},
-                        {"UserName", ev.Target.Nickname},
-                        {"Class", ev.Target.Role.ToString()},
-                        {"AttackerClass", ev.Player.Role.ToString()},
-                        {"AttackerId", ev.Player.UserId},
-                        {"AttackerName", ev.Player.Nickname},
+                        {"UserId", ev.Player.UserId},
+                        {"UserName", ev.Player.Nickname},
+                        {"Class", ev.Player.Role.ToString()},
+                        {"AttackerClass", ev.Attacker.Role.ToString()},
+                        {"AttackerId", ev.Attacker.UserId},
+                        {"AttackerName", ev.Attacker.Nickname},
                         {"Weapon", ev.DamageHandler.ToString()},
                         {"Type", nameof(OnPlayerHurt)},
                         {
@@ -419,14 +419,14 @@ namespace CedMod.Addons.QuerySystem
                                 "{0} - {1} (<color={2}>{3}</color>) hurt {4} - {5} (<color={6}>{7}</color>) with {8} in {9}.",
                                 new object[]
                                 {
+                                    ev.Attacker.Nickname,
+                                    ev.Attacker.UserId,
+                                    Misc.ToHex(ev.Attacker.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                    ev.Attacker.Role,
                                     ev.Player.Nickname,
                                     ev.Player.UserId,
                                     Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                     ev.Player.Role,
-                                    ev.Target.Nickname,
-                                    ev.Target.UserId,
-                                    Misc.ToHex(ev.Target.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                    ev.Target.Role,
                                     ev.DamageHandler.ToString(),
                                     killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
                                 })
@@ -441,9 +441,9 @@ namespace CedMod.Addons.QuerySystem
                     Recipient = "ALL",
                     Data = new Dictionary<string, string>()
                     {
-                        {"UserId", ev.Target.UserId},
-                        {"UserName", ev.Target.Nickname},
-                        {"Class", ev.Target.Role.ToString()},
+                        {"UserId", ev.Player.UserId},
+                        {"UserName", ev.Player.Nickname},
+                        {"Class", ev.Player.Role.ToString()},
                         {"Weapon", ev.DamageHandler.ToString()},
                         {"Type", nameof(OnPlayerHurt)},
                         {
@@ -451,10 +451,10 @@ namespace CedMod.Addons.QuerySystem
                                 "Server - () hurt {0} - {1} (<color={2}>{3}</color>) with {4} in {5}.",
                                 new object[]
                                 {
-                                    ev.Target.Nickname,
-                                    ev.Target.UserId,
-                                    Misc.ToHex(ev.Target.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                    ev.Target.Role,
+                                    ev.Player.Nickname,
+                                    ev.Player.UserId,
+                                    Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                    ev.Player.Role,
                                     ev.DamageHandler.ToString(),
                                     killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
                                 })

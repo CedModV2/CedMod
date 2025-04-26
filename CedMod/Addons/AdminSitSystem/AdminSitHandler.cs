@@ -148,7 +148,7 @@ namespace CedMod.Addons.AdminSitSystem
                     if (plr.Player == null)
                         plr.Player = CedModPlayer.Get(plr.UserId);
 
-                    if (RoundSummary.RoundInProgress() && !RoundSummary.singleton._roundEnded && RoundStart.RoundLength.TotalSeconds >= 10 && plr.Player == null && plr.PlayerType == AdminSitPlayerType.Offender && sit.Type == AdminSitType.BanOffenderOnLeave)
+                    if (RoundSummary.RoundInProgress() && !RoundSummary.singleton.IsRoundEnded && RoundStart.RoundLength.TotalSeconds >= 10 && plr.Player == null && plr.PlayerType == AdminSitPlayerType.Offender && sit.Type == AdminSitType.BanOffenderOnLeave)
                     {
                         if (!BannedUserIds.Contains(plr.UserId))
                         {

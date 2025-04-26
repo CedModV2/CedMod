@@ -92,7 +92,7 @@ namespace CedMod
                             {
                                 await API.Ban(attacker, (long) banDuration.TotalSeconds, "Server.Module.FriendlyFireAutoban", banReason, false);
                             });
-                            Broadcast.Singleton.RpcAddElement(CedModMain.Singleton.Config.CedMod.AutobanBroadcastMesage.Replace("{attackerName}", attacker.Nickname), 20);
+                            Broadcast.Singleton.RpcAddElement(CedModMain.Singleton.Config.CedMod.AutobanBroadcastMesage.Replace("{attackerName}", attacker.Nickname), 20, Broadcast.BroadcastFlags.Normal);
                         }
                     }
                 }
@@ -101,7 +101,7 @@ namespace CedMod
 
         public static bool IsTeamKill(Player player, Player attacker, DamageHandlerBase damageHandler)
         {
-            if (!RoundSummary.RoundInProgress() || RoundSummary.singleton._roundEnded)
+            if (!RoundSummary.RoundInProgress() || RoundSummary.singleton.IsRoundEnded)
                 return false;
             
             if (EventManager.CurrentEvent != null && EventManager.CurrentEvent is IFriendlyFireAutoBanBehaviour fireAutoBanBehaviour)
