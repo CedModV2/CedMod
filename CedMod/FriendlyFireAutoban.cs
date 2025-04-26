@@ -30,8 +30,8 @@ namespace CedMod
                 PlayerPermissions.FriendlyFireDetectorImmunity
             });
 
-            string resultOfTK = attackerHasFFImmunity ? "<color=#49E1E9><b> You have Friendly Fire Ban Immunity.</b></color>" : "<color=yellow><b> If you continue teamkilling it will result in a ban</b></color>";
-            string ffaTextKiller = $"<size=25><b><color=yellow>You teamkilled: </color></b><color=red> {player.Nickname} </color>\n{resultOfTK}</size>";
+            string resultOfTK = attackerHasFFImmunity ? CedModMain.Singleton.Config.CedMod.AutobanPerpetratorHintImmunity : CedModMain.Singleton.Config.CedMod.AutobanPerpetratorHint;
+            string ffaTextKiller = $"<size=25>{CedModMain.Singleton.Config.CedMod.AutobanPerpetratorHintUser.Replace("{playerName}", player.Nickname)}\n{resultOfTK}</size>";
             if (behaviour != null)
             {
                 var msg = behaviour.KillerMessage(player, attacker, damageHandler);
@@ -41,7 +41,21 @@ namespace CedMod
                 
             attacker.ReferenceHub.hints.Show(new TextHint(ffaTextKiller, new HintParameter[] {new StringHintParameter("")}, null, 20f));
             attacker.SendConsoleMessage(ffaTextKiller, "white");
-            string ffaTextVictim = $"<size=25><b><color=yellow>You have been teamkilled by: </color></b></size><color=red><size=25> {attacker.Nickname} ({attacker.UserId} {attacker.Role} You were a {player.Role}</size></color>\n<size=25><b><color=yellow> Use this as a screenshot as evidence for a report</color></b>\n{CedModMain.Singleton.Config.CedMod.AutobanExtraMessage}\n</size><size=25><i><color=yellow> Note: if they continues to teamkill the server will ban them</color></i></size>";
+            Dictionary<string, string> autobanReplaceMap = new()
+            {
+                { "{attackerName}", attacker.Nickname },
+                { "{attackerID}", attacker.UserId },
+                { "{attackerRole}", attacker.Role.ToString() },
+                { "{playerRole}", player.Role.ToString() },
+                { "{AutobanExtraMessage}", CedModMain.Singleton.Config.CedMod.AutobanExtraMessage },
+            };
+
+            string ffaTextVictim = CedModMain.Singleton.Config.CedMod.AutobanVictimHint;
+            foreach (var key in autobanReplaceMap.Keys)
+            {
+                ffaTextVictim = ffaTextVictim.Replace(key, autobanReplaceMap[key]);
+            }
+
             if (attacker.DoNotTrack)
                 ffaTextVictim = ffaTextVictim.Replace(attacker.UserId, "DNT");
             
@@ -77,7 +91,7 @@ namespace CedMod
                             {
                                 await API.Ban(attacker, (long) banDuration.TotalSeconds, "Server.Module.FriendlyFireAutoban", banReason, false);
                             });
-                            Server.SendBroadcast($"<size=25><b><color=yellow>user: </color></b><color=red> {attacker.Nickname} </color><color=yellow><b> has been automatically banned for teamkilling</b></color></size>", 20);
+                            Server.SendBroadcast(CedModMain.Singleton.Config.CedMod.AutobanBroadcastMesage.Replace("{attackerName}", attacker.Nickname), 20);
                         }
                     }
                 }
