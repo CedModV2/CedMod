@@ -15,6 +15,8 @@ namespace CedMod.Addons.QuerySystem.WS
         public string[] GetPermissions(Player player)
         {
             string group = GetGroup(player.UserId);
+            if (string.IsNullOrEmpty(group))
+                return new string[0];
             List<string> perms = new List<string>();
             
             if (string.IsNullOrEmpty(group))
@@ -37,6 +39,8 @@ namespace CedMod.Addons.QuerySystem.WS
                 return true;
             
             string group = GetGroup(player.UserId);
+            if (string.IsNullOrEmpty(group))
+                return false;
             List<string> perms = new List<string>();
             
             if (string.IsNullOrEmpty(group))
@@ -65,6 +69,9 @@ namespace CedMod.Addons.QuerySystem.WS
                 return true;
             
             string group = GetGroup(player.UserId);
+            if (string.IsNullOrEmpty(group))
+                return false;
+            
             List<string> perms = new List<string>();
             
             if (string.IsNullOrEmpty(group))
@@ -113,6 +120,8 @@ namespace CedMod.Addons.QuerySystem.WS
                 
                 if (CedModMain.Singleton.Config.Debug)
                     Logger.Debug($"Found hubs {hub.PlayerId}");
+                if (hub.serverRoles == null || hub.serverRoles.Group == null)
+                    return null;
                 
                 UserGroup playerGroup = hub.serverRoles.Group;
                 group = playerGroup.Name;

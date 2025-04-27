@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem.WS;
 using HarmonyLib;
@@ -8,6 +9,7 @@ using InventorySystem.Items.Firearms.Modules;
 using InventorySystem.Items.Firearms.Modules.Misc;
 using LabApi.Features.Wrappers;
 using Mirror;
+using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using RelativePositioning;
 using UnityEngine;
@@ -26,10 +28,18 @@ namespace CedMod.Addons.QuerySystem.Patches
                 {
                     var horLook = role.FpcModule.MouseLook.CurrentHorizontal;
                     var verLook = role.FpcModule.MouseLook.CurrentVertical;
-                    var pos = player.transform.position;
                     var shotDirection = targetRay.direction.normalized;
                     Quaternion lookRotation = Quaternion.Euler(-verLook, horLook, 0);
                     Vector3 lookDirection = lookRotation * Vector3.forward;
+
+                    int targetId = -1;
+                    foreach (var destructible in toAppend.Destructibles)
+                    {
+                        if (destructible.Destructible is HitboxIdentity hitboxIdentity && !hitboxIdentity.TargetHub.IsAlive())
+                        {
+                            targetId = hitboxIdentity.TargetHub.PlayerId;
+                        }
+                    }
                 
                     float angle = Vector3.Angle(lookDirection, shotDirection);
                 
@@ -40,6 +50,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                         Data = new Dictionary<string, string>()
                         {
                             {"ItemType", plr.CurrentItem.Type.ToString()},
+                            {"TargetPlayer", targetId.ToString()},
                             {"UserId", plr.UserId},
                             {"UserName", plr.Nickname},
                             {"RayAngle", angle.ToString()},
