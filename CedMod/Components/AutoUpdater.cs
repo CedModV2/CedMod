@@ -115,8 +115,6 @@ namespace CedMod.Components
 
         public async Task<CedModVersion> CheckForUpdates(bool b = false)
         {
-            Logger.Info("Autoupdater temporarily disabled.");
-            return null;
             try
             {
                 using (HttpClient client = new HttpClient())
