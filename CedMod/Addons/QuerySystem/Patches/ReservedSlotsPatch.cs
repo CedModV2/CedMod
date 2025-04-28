@@ -515,8 +515,8 @@ namespace CedMod.Addons.QuerySystem.Patches
                         CustomLiteNetLib4MirrorTransport.UserIdFastReload.Remove(userId);
 
                     bool isServerFull = CustomLiteNetLib4MirrorTransport.IsServerFull(userId, flags);
-
-                    if (!isServerFull && QuerySystem.ReservedSlotUserids.Contains(userId))
+                    
+                    if (isServerFull && QuerySystem.ReservedSlotUserids.Contains(userId))
                     {
                         isServerFull = false;
                     }
