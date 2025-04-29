@@ -14,6 +14,9 @@ namespace CedMod.Addons.QuerySystem.WS
 
         public string[] GetPermissions(Player player)
         {
+            if (Permissions == null || Permissions.PermissionEntries == null)
+                return new string[0];
+            
             string group = GetGroup(player.UserId);
             if (string.IsNullOrEmpty(group))
                 return new string[0];
@@ -35,6 +38,9 @@ namespace CedMod.Addons.QuerySystem.WS
 
         public bool HasPermissions(Player player, params string[] permissions)
         {
+            if (Permissions == null || Permissions.PermissionEntries == null)
+                return false;
+            
             if (player.IsHost)
                 return true;
             
@@ -65,6 +71,9 @@ namespace CedMod.Addons.QuerySystem.WS
 
         public bool HasAnyPermission(Player player, params string[] permissions)
         {
+            if (Permissions == null || Permissions.PermissionEntries == null)
+                return false;
+            
             if (player.IsHost)
                 return true;
             
