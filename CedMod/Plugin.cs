@@ -517,7 +517,7 @@ namespace CedMod
                 if (type?.IsGenericType ?? false)
                 {
                     Type genericDef = type.GetGenericTypeDefinition();
-                    if (genericDef == typeof(LabApi.Loader.Features.Plugins.Plugin<>) || genericDef == typeof(Plugin<,>))
+                    if (genericDef == typeof(Exiled.API.Features.Plugin<>) || genericDef == typeof(Plugin<,>))
                         return true;
                 }
             }
