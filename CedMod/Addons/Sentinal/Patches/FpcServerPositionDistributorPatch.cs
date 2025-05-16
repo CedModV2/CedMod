@@ -3,6 +3,7 @@ using CommandSystem.Commands.RemoteAdmin;
 using HarmonyLib;
 using InventorySystem.Items.Radio;
 using InventorySystem.Items.Usables;
+using LabApi.Events.Arguments.PlayerEvents;
 using Mirror;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
@@ -73,6 +74,9 @@ namespace CedMod.Addons.Sentinal.Patches
 
                 bool invisible = hasVisCtrl && !visCtrl.ValidateVisibility(hub);
                 FpcSyncData data = FpcServerPositionDistributor.GetNewSyncData(receiver, hub, fpc.FpcModule, invisible);
+                PlayerValidatedVisibilityEventArgs ev = new PlayerValidatedVisibilityEventArgs(receiver, hub, !invisible);
+                LabApi.Events.Handlers.PlayerEvents.OnValidatedVisibility(ev);
+                invisible = !ev.IsVisible;
 
                 if (!invisible)
                 {
