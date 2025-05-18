@@ -546,7 +546,6 @@ namespace CedMod
             
             CustomHandlersManager.UnregisterEventsHandler(EventManagerPlayerEvents);
             CustomHandlersManager.UnregisterEventsHandler(EventManagerServerEvents);
-            
             Shutdown.OnQuit -= OnQuit;
             
             Singleton = null;

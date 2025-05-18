@@ -186,6 +186,9 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnPlayerInteractedDoor(PlayerInteractedDoorEventArgs ev)
         {
+            if (ev.Door.Base == null)
+                return;
+            
             WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
@@ -686,6 +689,9 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnPlayerDroppedAmmo(PlayerDroppedAmmoEventArgs ev)
         {
+            if (ev.AmmoPickup.Base == null)
+                return;
+            
             WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
@@ -703,7 +709,7 @@ namespace CedMod.Addons.QuerySystem
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
                                 ev.Amount,
-                                ev.Pickup.Base.NetworkInfo.ItemId
+                                ev.AmmoPickup.Base.NetworkInfo.ItemId
                             })
                     }
                 }
@@ -712,6 +718,9 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnPlayerDroppedItem(PlayerDroppedItemEventArgs ev)
         {
+            if (ev.Pickup.Base == null)
+                return;
+            
             WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",
