@@ -186,7 +186,7 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnPlayerInteractedDoor(PlayerInteractedDoorEventArgs ev)
         {
-            if (ev.Door.Base == null)
+            if (ev.Door.Base == null || DoorNametagExtension.NamedDoors == null)
                 return;
             
             WebSocketSystem.Enqueue(new QueryCommand()
@@ -206,7 +206,7 @@ namespace CedMod.Addons.QuerySystem
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
                                 ev.Door.IsOpened ? "Opened" : "Closed",
-                                ev.Door.Base.netId + (DoorNametagExtension.NamedDoors.Any(s => s.Value.TargetDoor == ev.Door.Base) ? $" {DoorNametagExtension.NamedDoors.FirstOrDefault(s => s.Value.TargetDoor == ev.Door.Base).Key}" : "") 
+                                ev.Door.Base.netId + (DoorNametagExtension.NamedDoors.Any(s => s.Value.TargetDoor != null && ev.Door.Base != null &&  s.Value.TargetDoor == ev.Door.Base) ? $" {DoorNametagExtension.NamedDoors.FirstOrDefault(s => s.Value.TargetDoor != null && ev.Door.Base != null &&  s.Value.TargetDoor == ev.Door.Base).Key}" : "") 
                             })
                     }
                 }
