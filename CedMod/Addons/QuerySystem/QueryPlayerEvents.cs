@@ -206,7 +206,7 @@ namespace CedMod.Addons.QuerySystem
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
                                 ev.Player.Role,
                                 ev.Door.IsOpened ? "Opened" : "Closed",
-                                ev.Door.Base.netId + (DoorNametagExtension.NamedDoors.Any(s => s.Value.TargetDoor != null && ev.Door.Base != null &&  s.Value.TargetDoor == ev.Door.Base) ? $" {DoorNametagExtension.NamedDoors.FirstOrDefault(s => s.Value.TargetDoor != null && ev.Door.Base != null &&  s.Value.TargetDoor == ev.Door.Base).Key}" : "") 
+                                ev.Door.Base.netId + (DoorNametagExtension.NamedDoors.Any(s => s.Value != null && s.Value.TargetDoor != null && ev.Door.Base != null && s.Key != null && s.Value.TargetDoor == ev.Door.Base) ? $" {DoorNametagExtension.NamedDoors.FirstOrDefault(s => s.Value.TargetDoor != null && ev.Door.Base != null &&  s.Value.TargetDoor == ev.Door.Base && s.Value != null && s.Key != null).Key}" : "") 
                             })
                     }
                 }
