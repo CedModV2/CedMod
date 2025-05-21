@@ -366,6 +366,8 @@ namespace CedMod.Addons.QuerySystem
         public IEnumerator<float> RemoveFromReportList(ReferenceHub target)
         {
             yield return Timing.WaitForSeconds(60f);
+            if (target == null)
+                yield break;
             CedMod.Handlers.Server.reported.Remove(target);
         }
 
