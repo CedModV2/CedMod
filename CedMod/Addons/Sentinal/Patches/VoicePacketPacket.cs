@@ -37,7 +37,12 @@ namespace CedMod.Addons.Sentinal.Patches
                 if (!Tracker.ContainsKey(conn.identity.netId))
                 {
                     if (BanSystem.Authenticating.Contains(msg.Speaker)) //hint is removed by authenticator
-                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => plr.SendHint("Muted: Awaiting CedMod Authentication", 2));
+                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                        {
+                            if (plr == null || plr.ReferenceHub == null)
+                                return;
+                            plr.SendHint("Muted: Awaiting CedMod Authentication", 2);
+                        });
                     
                     Tracker.Add(conn.identity.netId, 0);
                 }

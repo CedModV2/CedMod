@@ -22,6 +22,8 @@ namespace CedMod
         public static readonly object Banlock = new object();
         public static async Task HandleJoin(Player player, int attempt = 0)
         {
+            if (player == null || player.ReferenceHub == null)
+                return;
             try
             {
                 if (CedModMain.Singleton.Config.CedMod.ShowDebug)
@@ -30,12 +32,19 @@ namespace CedMod
                 var immune = (player.ReferenceHub.authManager.AuthenticationResponse.AuthToken != null && player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.BypassBans) || player.ReferenceHub.isLocalPlayer;
                 
                 if (attempt <= 0 && !immune)
-                    ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Authenticating.Add(player.ReferenceHub));
+                    ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                    {
+                        if (player == null || player.ReferenceHub == null)
+                            return;
+                        Authenticating.Add(player.ReferenceHub);
+                    });
                 
                 ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                 {
                     Timing.CallDelayed(8f, () =>
                     {
+                        if (player == null || player.ReferenceHub == null)
+                            return;
                         Authenticating.Remove(player.ReferenceHub);
                     });
                 });
@@ -171,11 +180,15 @@ namespace CedMod
 
                     ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                     {
+                        if (player == null || player.ReferenceHub == null)
+                            return;
                         player.SendConsoleMessage(CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", info["muteduration"]).Replace("{reason}", info["mutereason"]), "red");
                         Broadcast.Singleton.TargetAddElement(player.Connection, CedModMain.Singleton.Config.CedMod.MuteMessage.Replace("{type}", muteType.ToString()).Replace("{duration}", info["muteduration"]).Replace("{reason}", info["mutereason"]), 5, Broadcast.BroadcastFlags.Normal);
                         
                         Timing.CallDelayed(0.1f, () =>
                         {
+                            if (player == null || player.ReferenceHub == null)
+                                return;
                             if (muteType == MuteType.Global)
                             {
                                 VoiceChatMutes.SetFlags(player.ReferenceHub, VcMuteFlags.LocalRegular);
@@ -190,12 +203,19 @@ namespace CedMod
 
                     if (!string.IsNullOrEmpty(CedModMain.Singleton.Config.CedMod.MuteCustomInfo))
                     {
-                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => player.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString()));
+                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                        {
+                            if (player == null || player.ReferenceHub == null)
+                                return;
+                            player.CustomInfo = CedModMain.Singleton.Config.CedMod.MuteCustomInfo.Replace("{type}", muteType.ToString());
+                        });
                     }
                 }
                 
                 ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                 {
+                    if (player == null || player.ReferenceHub == null)
+                        return;
                     player.SendHint("", 1); //clear authenticator hint
                     Authenticating.Remove(player.ReferenceHub);
                 });
@@ -204,6 +224,8 @@ namespace CedMod
             {
                 ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                 {
+                    if (player == null || player.ReferenceHub == null)
+                        return;
                     Authenticating.Remove(player.ReferenceHub);
                     player.SendHint("", 1); //clear authenticator hint
                 });
