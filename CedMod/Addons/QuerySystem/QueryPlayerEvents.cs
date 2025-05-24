@@ -494,7 +494,7 @@ namespace CedMod.Addons.QuerySystem
             });
         }
 
-        public override void OnPlayerDeath(PlayerDeathEventArgs ev)
+        public override void OnPlayerDying(PlayerDyingEventArgs ev)
         {
             if (ev.Player == null || ev.Attacker == null)
                 return;
