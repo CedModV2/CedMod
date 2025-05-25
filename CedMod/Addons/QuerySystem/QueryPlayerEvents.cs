@@ -36,21 +36,21 @@ namespace CedMod.Addons.QuerySystem
         public bool Bystander;
         public string Room;
     }
-    
+
     public class RoomsInvolved
     {
         public string Position;
         public string RoomType; //todo roomtype??
         public string Rotation;
     }
-    
+
     public class TeamkillData
     {
         public List<UsersOnScene> PlayersOnScene = new List<UsersOnScene>();
         public List<RoomsInvolved> RoomsInvolved = new List<RoomsInvolved>();
     }
 
-    public class QueryPlayerEvents: CustomEventsHandler
+    public class QueryPlayerEvents : CustomEventsHandler
     {
         public QueryPlayerEvents()
         {
@@ -361,8 +361,8 @@ namespace CedMod.Addons.QuerySystem
                     LevelerStore.InitialPlayerRoles[plr] = ev.NewRole.RoleTypeId;
             }
         }
-        
-        
+
+
         public IEnumerator<float> RemoveFromReportList(ReferenceHub target)
         {
             yield return Timing.WaitForSeconds(60f);
@@ -496,197 +496,188 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnPlayerDying(PlayerDyingEventArgs ev)
         {
-            if (ev.Player == null || ev.Attacker == null)
-                return;
-            if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                Logger.Debug("plrdeath");
-            if (FriendlyFireAutoban.IsTeamKill(ev.Player, ev.Attacker, ev.DamageHandler))
+            //some actual autism to prevent doing stuff for a cancelled event as onplayerdeath does not preserve the original class
+            Timing.CallDelayed(0, Segment.FixedUpdate, () =>
             {
-                if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Logger.Debug("istk");
-                TeamkillData data = new TeamkillData();
-                RoomIdentifier killerRoom = null;
-                RoomIdentifier targetRoom = null;
-                RoomUtils.TryGetRoom(ev.Attacker.Position, out killerRoom);
-                RoomUtils.TryGetRoom(ev.Player.Position, out targetRoom);
-                data.PlayersOnScene.Add(new UsersOnScene()
+                try
                 {
-                    CurrentHealth = ev.Attacker.Health,
-                    Distance = 0,
-                    Position = ev.Attacker.Position.ToString(),
-                    RoleType = ev.Attacker.Role,
-                    UserId = ev.Attacker.UserId,
-                    Killer = true,
-                    Room = killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
-                });
-
-                data.PlayersOnScene.Add(new UsersOnScene()
-                {
-                    CurrentHealth = ev.Player.Health,
-                    Distance = Vector3.Distance(ev.Player.Position, ev.Player.Position),
-                    Position = ev.Player.Position.ToString(),
-                    RoleType = ev.Player.Role,
-                    UserId = ev.Player.UserId,
-                    Victim = true,
-                    Room = targetRoom == null ? "Unknown" : targetRoom.Zone.ToString()
-                });
-
-                if (targetRoom != null && !data.RoomsInvolved.Any(s => s.RoomType == targetRoom.Name.ToString() && s.Position == targetRoom.transform.position.ToString()))
-                {
-                    data.RoomsInvolved.Add(new RoomsInvolved()
-                    {
-                        Position = targetRoom.transform.position.ToString(),
-                        Rotation = targetRoom.transform.rotation.ToString(),
-                        RoomType = targetRoom.Name.ToString()
-                    });
-                }
-                
-                if (killerRoom != null && !data.RoomsInvolved.Any(s => s.RoomType == killerRoom.Name.ToString() && s.Position == killerRoom.transform.position.ToString()))
-                {
-                    data.RoomsInvolved.Add(new RoomsInvolved()
-                    {
-                        Position = killerRoom.transform.position.ToString(),
-                        Rotation = killerRoom.transform.rotation.ToString(),
-                        RoomType = killerRoom.Name.ToString()
-                    });
-                }
-
-                if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Logger.Debug("resolving on scene players");
-                foreach (var bystanders in Player.List)
-                {
-                    if (bystanders.Role == RoleTypeId.Spectator || ev.Attacker.Role == RoleTypeId.Overwatch || ev.Attacker.Role == RoleTypeId.None)
-                        continue;
-
-                    var distance = Vector3.Distance(ev.Attacker.Position, bystanders.Position);
+                    if (ev.Player == null || ev.Attacker == null || !ev.IsAllowed)
+                        return;
+                    
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Logger.Debug($"Checking distance on killer {distance} from {ev.Attacker.Nickname} to {bystanders.Nickname} {data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId)}");
-                    if (distance <= 60 && data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId))
+                        Logger.Debug("plrdeath");
+                    if (FriendlyFireAutoban.IsTeamKill(ev.Player, ev.Attacker, ev.DamageHandler))
                     {
-                        RoomIdentifier bystanderRoom = null;
-                        RoomUtils.TryGetRoom(bystanders.Position, out bystanderRoom);
-                        if (bystanderRoom != null && !data.RoomsInvolved.Any(s => s.RoomType == bystanderRoom.Name.ToString() && s.Position == bystanderRoom.transform.position.ToString()))
-                        {
-                            data.RoomsInvolved.Add(new RoomsInvolved()
-                            {
-                                Position = bystanderRoom.transform.position.ToString(),
-                                Rotation = bystanderRoom.transform.rotation.ToString(),
-                                RoomType = bystanderRoom.name
-                            });
-                        }
-                        
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Logger.Debug("istk");
+                        TeamkillData data = new TeamkillData();
+                        RoomIdentifier killerRoom = null;
+                        RoomIdentifier targetRoom = null;
+                        RoomUtils.TryGetRoom(ev.Attacker.Position, out killerRoom);
+                        RoomUtils.TryGetRoom(ev.Player.Position, out targetRoom);
                         data.PlayersOnScene.Add(new UsersOnScene()
                         {
-                            CurrentHealth = bystanders.Health,
-                            Distance = Vector3.Distance(ev.Attacker.Position, bystanders.Position),
-                            Position = bystanders.Position.ToString(),
-                            RoleType = bystanders.Role,
-                            UserId = bystanders.UserId,
-                            Bystander = true,
-                            Room = bystanderRoom == null ? "Unknown" : bystanderRoom.Zone.ToString()
+                            CurrentHealth = ev.Attacker.Health,
+                            Distance = 0,
+                            Position = ev.Attacker.Position.ToString(),
+                            RoleType = ev.Attacker.Role,
+                            UserId = ev.Attacker.UserId,
+                            Killer = true,
+                            Room = killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
+                        });
+
+                        data.PlayersOnScene.Add(new UsersOnScene()
+                        {
+                            CurrentHealth = ev.Player.Health,
+                            Distance = Vector3.Distance(ev.Player.Position, ev.Player.Position),
+                            Position = ev.Player.Position.ToString(),
+                            RoleType = ev.Player.Role,
+                            UserId = ev.Player.UserId,
+                            Victim = true,
+                            Room = targetRoom == null ? "Unknown" : targetRoom.Zone.ToString()
+                        });
+
+                        if (targetRoom != null && !data.RoomsInvolved.Any(s => s.RoomType == targetRoom.Name.ToString() && s.Position == targetRoom.transform.position.ToString()))
+                        {
+                            data.RoomsInvolved.Add(new RoomsInvolved() { Position = targetRoom.transform.position.ToString(), Rotation = targetRoom.transform.rotation.ToString(), RoomType = targetRoom.Name.ToString() });
+                        }
+
+                        if (killerRoom != null && !data.RoomsInvolved.Any(s => s.RoomType == killerRoom.Name.ToString() && s.Position == killerRoom.transform.position.ToString()))
+                        {
+                            data.RoomsInvolved.Add(new RoomsInvolved() { Position = killerRoom.transform.position.ToString(), Rotation = killerRoom.transform.rotation.ToString(), RoomType = killerRoom.Name.ToString() });
+                        }
+
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Logger.Debug("resolving on scene players");
+                        foreach (var bystanders in Player.List)
+                        {
+                            if (bystanders.Role == RoleTypeId.Spectator || ev.Attacker.Role == RoleTypeId.Overwatch || ev.Attacker.Role == RoleTypeId.None)
+                                continue;
+
+                            var distance = Vector3.Distance(ev.Attacker.Position, bystanders.Position);
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Logger.Debug($"Checking distance on killer {distance} from {ev.Attacker.Nickname} to {bystanders.Nickname} {data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId)}");
+                            if (distance <= 60 && data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId))
+                            {
+                                RoomIdentifier bystanderRoom = null;
+                                RoomUtils.TryGetRoom(bystanders.Position, out bystanderRoom);
+                                if (bystanderRoom != null && !data.RoomsInvolved.Any(s => s.RoomType == bystanderRoom.Name.ToString() && s.Position == bystanderRoom.transform.position.ToString()))
+                                {
+                                    data.RoomsInvolved.Add(new RoomsInvolved() { Position = bystanderRoom.transform.position.ToString(), Rotation = bystanderRoom.transform.rotation.ToString(), RoomType = bystanderRoom.name });
+                                }
+
+                                data.PlayersOnScene.Add(new UsersOnScene()
+                                {
+                                    CurrentHealth = bystanders.Health,
+                                    Distance = Vector3.Distance(ev.Attacker.Position, bystanders.Position),
+                                    Position = bystanders.Position.ToString(),
+                                    RoleType = bystanders.Role,
+                                    UserId = bystanders.UserId,
+                                    Bystander = true,
+                                    Room = bystanderRoom == null ? "Unknown" : bystanderRoom.Zone.ToString()
+                                });
+                            }
+                        }
+
+
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Logger.Debug("sending WR");
+                        Task.Run(async () =>
+                        {
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Logger.Debug("Thread send");
+                            if (QuerySystem.QuerySystemKey == "None")
+                                return;
+                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                Logger.Debug("sending WR");
+                            using (HttpClient client = new HttpClient())
+                            {
+                                client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
+                                await VerificationChallenge.AwaitVerification();
+                                try
+                                {
+                                    var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/Teamkill/{QuerySystem.QuerySystemKey}?v=2", new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json"));
+                                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                                        Logger.Debug(await response.Content.ReadAsStringAsync());
+                                }
+                                catch (Exception ex)
+                                {
+                                    Logger.Error(ex.ToString());
+                                }
+                            }
+                        });
+
+                        WebSocketSystem.Enqueue(new QueryCommand()
+                        {
+                            Recipient = "ALL",
+                            Data = new Dictionary<string, string>()
+                            {
+                                { "UserId", ev.Player.UserId },
+                                { "UserName", ev.Player.Nickname },
+                                { "Class", ev.Player.Role.ToString() },
+                                { "AttackerClass", ev.Attacker.Role.ToString() },
+                                { "AttackerId", ev.Attacker.UserId },
+                                { "AttackerName", ev.Attacker.Nickname },
+                                { "Weapon", ev.DamageHandler.ToString() },
+                                { "Type", nameof(OnPlayerDeath) },
+                                { "Message", 
+                                    string.Format("Teamkill ⚠: {0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8} in {9}.",
+                                        new object[]
+                                        {
+                                            ev.Attacker.Nickname, 
+                                            ev.Attacker.UserId, 
+                                            Misc.ToHex(ev.Attacker.ReferenceHub.roleManager.CurrentRole.RoleColor), 
+                                            ev.Attacker.Role,
+                                            ev.Player.Nickname, 
+                                            ev.Player.UserId, 
+                                            Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor), 
+                                            ev.Player.Role, ev.DamageHandler.ToString(), 
+                                            killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
+                                        }) }
+                            }
+                        });
+                    }
+                    else
+                    {
+                        RoomIdentifier killerRoom = null;
+                        RoomUtils.TryGetRoom(ev.Player.Position, out killerRoom);
+
+                        WebSocketSystem.Enqueue(new QueryCommand()
+                        {
+                            Recipient = "ALL",
+                            Data = new Dictionary<string, string>()
+                            {
+                                { "UserId", ev.Player.UserId },
+                                { "UserName", ev.Player.Nickname },
+                                { "Class", ev.Player.Role.ToString() },
+                                { "AttackerClass", ev.Attacker.Role.ToString() },
+                                { "AttackerId", ev.Attacker.UserId },
+                                { "AttackerName", ev.Attacker.Nickname },
+                                { "Weapon", ev.DamageHandler.ToString() },
+                                { "Type", nameof(OnPlayerDeath) },
+                                { "Message", string.Format("{0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8} In {9}.", 
+                                    new object[]
+                                    {
+                                        ev.Attacker.Nickname,
+                                        ev.Attacker.UserId,
+                                        Misc.ToHex(ev.Attacker.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                        ev.Attacker.Role, 
+                                        ev.Player.Nickname, 
+                                        ev.Player.UserId, 
+                                        Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                        ev.Player.Role, 
+                                        ev.DamageHandler.ToString(), 
+                                        killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
+                                    }) }
+                            }
                         });
                     }
                 }
-                
-
-                if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Logger.Debug("sending WR");
-                Task.Run(async () =>
+                catch (Exception e)
                 {
-                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Logger.Debug("Thread send");
-                    if (QuerySystem.QuerySystemKey == "None")
-                        return;
-                    if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Logger.Debug("sending WR");
-                    using (HttpClient client = new HttpClient())
-                    {
-                        client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
-                        await VerificationChallenge.AwaitVerification();
-                        try
-                        {
-                            var response = await client.PostAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://{QuerySystem.CurrentMaster}/Api/v3/Teamkill/{QuerySystem.QuerySystemKey}?v=2", new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json"));
-                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                Logger.Debug(await response.Content.ReadAsStringAsync());
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Error(ex.ToString());
-                        }
-                    }
-                });
-
-                WebSocketSystem.Enqueue(new QueryCommand()
-                {
-                    Recipient = "ALL",
-                    Data = new Dictionary<string, string>()
-                    {
-                        {"UserId", ev.Player.UserId},
-                        {"UserName", ev.Player.Nickname},
-                        {"Class", ev.Player.Role.ToString()},
-                        {"AttackerClass", ev.Attacker.Role.ToString()},
-                        {"AttackerId", ev.Attacker.UserId},
-                        {"AttackerName", ev.Attacker.Nickname},
-                        {"Weapon", ev.DamageHandler.ToString()},
-                        {"Type", nameof(OnPlayerDeath)},
-                        {
-                            "Message", string.Format(
-                                "Teamkill ⚠: {0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8} in {9}.",
-                                new object[]
-                                {
-                                    ev.Attacker.Nickname,
-                                    ev.Attacker.UserId,
-                                    Misc.ToHex(ev.Attacker.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                    ev.Attacker.Role,
-                                    ev.Player.Nickname,
-                                    ev.Player.UserId,
-                                    Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                    ev.Player.Role,
-                                    ev.DamageHandler.ToString(),
-                                    killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
-                                })
-                        }
-                    }
-                });
-            }
-            else
-            {
-                RoomIdentifier killerRoom = null;
-                RoomUtils.TryGetRoom(ev.Player.Position, out killerRoom);
-                
-                WebSocketSystem.Enqueue(new QueryCommand()
-                {
-                    Recipient = "ALL",
-                    Data = new Dictionary<string, string>()
-                    {
-                        {"UserId", ev.Player.UserId},
-                        {"UserName", ev.Player.Nickname},
-                        {"Class", ev.Player.Role.ToString()},
-                        {"AttackerClass", ev.Attacker.Role.ToString()},
-                        {"AttackerId", ev.Attacker.UserId},
-                        {"AttackerName", ev.Attacker.Nickname},
-                        {"Weapon", ev.DamageHandler.ToString()},
-                        {"Type", nameof(OnPlayerDeath)},
-                        {
-                            "Message", string.Format(
-                                "{0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8} In {9}.",
-                                new object[]
-                                {
-                                    ev.Attacker.Nickname,
-                                    ev.Attacker.UserId,
-                                    Misc.ToHex(ev.Attacker.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                    ev.Attacker.Role,
-                                    ev.Player.Nickname,
-                                    ev.Player.UserId,
-                                    Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                    ev.Player.Role,
-                                    ev.DamageHandler.ToString(),
-                                    killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
-                                })
-                        }
-                    }
-                });
-            }
+                    Logger.Error(e.ToString());
+                }
+            });
         }
 
         public override void OnPlayerDroppedAmmo(PlayerDroppedAmmoEventArgs ev)
@@ -867,7 +858,7 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
         }
-        
+
         public void OnPlayerReceiveEffect(StatusEffectBase statusEffectBase)
         {
             if (statusEffectBase.Hub.authManager.InstanceMode != ClientInstanceMode.ReadyClient)
@@ -897,7 +888,7 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
         }
-        
+
         public void OnPlayerDisableEffect(StatusEffectBase statusEffectBase)
         {
             if (statusEffectBase.Hub.authManager.InstanceMode != ClientInstanceMode.ReadyClient)
@@ -925,7 +916,7 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
         }
-        
+
         public void OnPlayerReceiveEffectIntensity(StatusEffectBase statusEffectBase, byte b, byte arg3)
         {
             if (statusEffectBase.Hub.authManager.InstanceMode != ClientInstanceMode.ReadyClient)
@@ -1094,7 +1085,6 @@ namespace CedMod.Addons.QuerySystem
                         Logger.Error(ex.ToString());
                     }
                 }
-                
             });
             WebSocketSystem.Enqueue(new QueryCommand()
             {
@@ -1137,46 +1127,51 @@ namespace CedMod.Addons.QuerySystem
                     return;
                 }
             }
+
             if (CedModMain.Singleton.Config.QuerySystem.ReportBlacklist.Contains(ev.Player.UserId))
             {
                 ev.Player.SendConsoleMessage($"[REPORTING] You are blacklisted from ingame reporting", "green");
                 ev.IsAllowed = false;
                 return;
             }
+
             if (ev.Player.UserId == ev.Target.UserId)
             {
                 ev.Player.SendConsoleMessage($"[REPORTING] You can't report yourself", "green");
                 ev.IsAllowed = false;
                 return;
             }
+
             if (CedMod.Handlers.Server.reported.ContainsKey(ev.Target.ReferenceHub))
             {
                 ev.Player.SendConsoleMessage($"[REPORTING] {ev.Target.Nickname} ({(ev.Target.DoNotTrack ? "DNT" : ev.Target.UserId)}) has already been reported by {CedModPlayer.Get(CedMod.Handlers.Server.reported[ev.Target.ReferenceHub]).Nickname}", "green");
                 ev.IsAllowed = false;
                 return;
             }
+
             if (ev.Target.RemoteAdminAccess && !CedModMain.Singleton.Config.QuerySystem.StaffReportAllowed)
             {
                 ev.Player.SendConsoleMessage($"[REPORTING] " + CedModMain.Singleton.Config.QuerySystem.StaffReportMessage, "green");
                 ev.IsAllowed = false;
                 return;
             }
+
             if (ev.Reason.IsEmpty())
             {
                 ev.Player.SendConsoleMessage($"[REPORTING] You have to enter a reason", "green");
                 ev.IsAllowed = false;
                 return;
             }
-            
+
             CedMod.Handlers.Server.reported.Add(ev.Target.ReferenceHub, ev.Player.ReferenceHub);
             Timing.RunCoroutine(RemoveFromReportList(ev.Target.ReferenceHub));
-            
+
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Logger.Debug("sending report WR");
             Task.Run(async () =>
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                    Logger.Debug("Thread report send");    
+                    Logger.Debug("Thread report send");
                 if (QuerySystem.QuerySystemKey == "None")
                     return;
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
@@ -1202,18 +1197,12 @@ namespace CedMod.Addons.QuerySystem
                                     "application/json"));
                         if (response.IsSuccessStatusCode)
                         {
-                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
-                            {
-                                ev.Player.SendConsoleMessage($"[REPORTING] {CedModMain.Singleton.Config.QuerySystem.ReportSuccessMessage}", "green");
-                            });
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => { ev.Player.SendConsoleMessage($"[REPORTING] {CedModMain.Singleton.Config.QuerySystem.ReportSuccessMessage}", "green"); });
                         }
                         else
                         {
                             string textResponse = await response.Content.ReadAsStringAsync();
-                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
-                            {
-                                ev.Player.SendConsoleMessage($"[REPORTING] Failed to send report, please let server staff know: {textResponse}", "green");
-                            });
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => { ev.Player.SendConsoleMessage($"[REPORTING] Failed to send report, please let server staff know: {textResponse}", "green"); });
                             Logger.Error($"Failed to send report: {textResponse}");
                         }
 
@@ -1222,10 +1211,7 @@ namespace CedMod.Addons.QuerySystem
                     }
                     catch (Exception ex)
                     {
-                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
-                        {
-                            ev.Player.SendConsoleMessage($"[REPORTING] Failed to send report, please let server staff know: {ex}", "green");
-                        });
+                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => { ev.Player.SendConsoleMessage($"[REPORTING] Failed to send report, please let server staff know: {ex}", "green"); });
                         Logger.Error(ex.ToString());
                     }
                 }
