@@ -497,89 +497,123 @@ namespace CedMod.Addons.QuerySystem
         public override void OnPlayerDying(PlayerDyingEventArgs ev)
         {
             //some actual autism to prevent doing stuff for a cancelled event as onplayerdeath does not preserve the original class
-            Timing.CallDelayed(0, Segment.FixedUpdate, () =>
-            {
-                try
-                {
-                    if (ev.Player == null || ev.Attacker == null || !ev.IsAllowed)
-                        return;
+            if (ev.Player == null || ev.Attacker == null || !ev.IsAllowed)
+                return;
+            
+            if (ev.Player == null || ev.Attacker == null || !ev.IsAllowed)
+                return;
                     
+            if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                Logger.Debug("plrdeath");
+            if (FriendlyFireAutoban.IsTeamKill(ev.Player, ev.Attacker, ev.DamageHandler))
+            {
+                if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                    Logger.Debug("istk");
+                TeamkillData data = new TeamkillData();
+                RoomIdentifier killerRoom = null;
+                RoomIdentifier targetRoom = null;
+                RoomUtils.TryGetRoom(ev.Attacker.Position, out killerRoom);
+                RoomUtils.TryGetRoom(ev.Player.Position, out targetRoom);
+                data.PlayersOnScene.Add(new UsersOnScene()
+                {
+                    CurrentHealth = ev.Attacker.Health,
+                    Distance = 0,
+                    Position = ev.Attacker.Position.ToString(),
+                    RoleType = ev.Attacker.Role,
+                    UserId = ev.Attacker.UserId,
+                    Killer = true,
+                    Room = killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
+                });
+
+                data.PlayersOnScene.Add(new UsersOnScene()
+                {
+                    CurrentHealth = ev.Player.Health,
+                    Distance = Vector3.Distance(ev.Player.Position, ev.Player.Position),
+                    Position = ev.Player.Position.ToString(),
+                    RoleType = ev.Player.Role,
+                    UserId = ev.Player.UserId,
+                    Victim = true,
+                    Room = targetRoom == null ? "Unknown" : targetRoom.Zone.ToString()
+                });
+
+                if (targetRoom != null && !data.RoomsInvolved.Any(s => s.RoomType == targetRoom.Name.ToString() && s.Position == targetRoom.transform.position.ToString()))
+                {
+                    data.RoomsInvolved.Add(new RoomsInvolved() { Position = targetRoom.transform.position.ToString(), Rotation = targetRoom.transform.rotation.ToString(), RoomType = targetRoom.Name.ToString() });
+                }
+
+                if (killerRoom != null && !data.RoomsInvolved.Any(s => s.RoomType == killerRoom.Name.ToString() && s.Position == killerRoom.transform.position.ToString()))
+                {
+                    data.RoomsInvolved.Add(new RoomsInvolved() { Position = killerRoom.transform.position.ToString(), Rotation = killerRoom.transform.rotation.ToString(), RoomType = killerRoom.Name.ToString() });
+                }
+
+                if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                    Logger.Debug("resolving on scene players");
+                foreach (var bystanders in Player.List)
+                {
+                    if (bystanders.Role == RoleTypeId.Spectator || ev.Attacker.Role == RoleTypeId.Overwatch || ev.Attacker.Role == RoleTypeId.None)
+                        continue;
+
+                    var distance = Vector3.Distance(ev.Attacker.Position, bystanders.Position);
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                        Logger.Debug("plrdeath");
-                    if (FriendlyFireAutoban.IsTeamKill(ev.Player, ev.Attacker, ev.DamageHandler))
+                        Logger.Debug($"Checking distance on killer {distance} from {ev.Attacker.Nickname} to {bystanders.Nickname} {data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId)}");
+                    if (distance <= 60 && data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId))
                     {
-                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Logger.Debug("istk");
-                        TeamkillData data = new TeamkillData();
-                        RoomIdentifier killerRoom = null;
-                        RoomIdentifier targetRoom = null;
-                        RoomUtils.TryGetRoom(ev.Attacker.Position, out killerRoom);
-                        RoomUtils.TryGetRoom(ev.Player.Position, out targetRoom);
-                        data.PlayersOnScene.Add(new UsersOnScene()
+                        RoomIdentifier bystanderRoom = null;
+                        RoomUtils.TryGetRoom(bystanders.Position, out bystanderRoom);
+                        if (bystanderRoom != null && !data.RoomsInvolved.Any(s => s.RoomType == bystanderRoom.Name.ToString() && s.Position == bystanderRoom.transform.position.ToString()))
                         {
-                            CurrentHealth = ev.Attacker.Health,
-                            Distance = 0,
-                            Position = ev.Attacker.Position.ToString(),
-                            RoleType = ev.Attacker.Role,
-                            UserId = ev.Attacker.UserId,
-                            Killer = true,
-                            Room = killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
-                        });
+                            data.RoomsInvolved.Add(new RoomsInvolved() { Position = bystanderRoom.transform.position.ToString(), Rotation = bystanderRoom.transform.rotation.ToString(), RoomType = bystanderRoom.name });
+                        }
 
                         data.PlayersOnScene.Add(new UsersOnScene()
                         {
-                            CurrentHealth = ev.Player.Health,
-                            Distance = Vector3.Distance(ev.Player.Position, ev.Player.Position),
-                            Position = ev.Player.Position.ToString(),
-                            RoleType = ev.Player.Role,
-                            UserId = ev.Player.UserId,
-                            Victim = true,
-                            Room = targetRoom == null ? "Unknown" : targetRoom.Zone.ToString()
+                            CurrentHealth = bystanders.Health,
+                            Distance = Vector3.Distance(ev.Attacker.Position, bystanders.Position),
+                            Position = bystanders.Position.ToString(),
+                            RoleType = bystanders.Role,
+                            UserId = bystanders.UserId,
+                            Bystander = true,
+                            Room = bystanderRoom == null ? "Unknown" : bystanderRoom.Zone.ToString()
                         });
-
-                        if (targetRoom != null && !data.RoomsInvolved.Any(s => s.RoomType == targetRoom.Name.ToString() && s.Position == targetRoom.transform.position.ToString()))
-                        {
-                            data.RoomsInvolved.Add(new RoomsInvolved() { Position = targetRoom.transform.position.ToString(), Rotation = targetRoom.transform.rotation.ToString(), RoomType = targetRoom.Name.ToString() });
-                        }
-
-                        if (killerRoom != null && !data.RoomsInvolved.Any(s => s.RoomType == killerRoom.Name.ToString() && s.Position == killerRoom.transform.position.ToString()))
-                        {
-                            data.RoomsInvolved.Add(new RoomsInvolved() { Position = killerRoom.transform.position.ToString(), Rotation = killerRoom.transform.rotation.ToString(), RoomType = killerRoom.Name.ToString() });
-                        }
-
-                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                            Logger.Debug("resolving on scene players");
-                        foreach (var bystanders in Player.List)
-                        {
-                            if (bystanders.Role == RoleTypeId.Spectator || ev.Attacker.Role == RoleTypeId.Overwatch || ev.Attacker.Role == RoleTypeId.None)
-                                continue;
-
-                            var distance = Vector3.Distance(ev.Attacker.Position, bystanders.Position);
-                            if (CedModMain.Singleton.Config.QuerySystem.Debug)
-                                Logger.Debug($"Checking distance on killer {distance} from {ev.Attacker.Nickname} to {bystanders.Nickname} {data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId)}");
-                            if (distance <= 60 && data.PlayersOnScene.All(plrs => plrs.UserId != bystanders.UserId))
-                            {
-                                RoomIdentifier bystanderRoom = null;
-                                RoomUtils.TryGetRoom(bystanders.Position, out bystanderRoom);
-                                if (bystanderRoom != null && !data.RoomsInvolved.Any(s => s.RoomType == bystanderRoom.Name.ToString() && s.Position == bystanderRoom.transform.position.ToString()))
+                    }
+                }
+                
+                var cmd = new QueryCommand()
+                {
+                    Recipient = "ALL",
+                    Data = new Dictionary<string, string>()
+                    {
+                        { "UserId", ev.Player.UserId },
+                        { "UserName", ev.Player.Nickname },
+                        { "Class", ev.Player.Role.ToString() },
+                        { "AttackerClass", ev.Attacker.Role.ToString() },
+                        { "AttackerId", ev.Attacker.UserId },
+                        { "AttackerName", ev.Attacker.Nickname },
+                        { "Weapon", ev.DamageHandler.ToString() },
+                        { "Type", nameof(OnPlayerDeath) },
+                        { "Message", 
+                            string.Format("Teamkill ⚠: {0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8} in {9}.",
+                                new object[]
                                 {
-                                    data.RoomsInvolved.Add(new RoomsInvolved() { Position = bystanderRoom.transform.position.ToString(), Rotation = bystanderRoom.transform.rotation.ToString(), RoomType = bystanderRoom.name });
-                                }
-
-                                data.PlayersOnScene.Add(new UsersOnScene()
-                                {
-                                    CurrentHealth = bystanders.Health,
-                                    Distance = Vector3.Distance(ev.Attacker.Position, bystanders.Position),
-                                    Position = bystanders.Position.ToString(),
-                                    RoleType = bystanders.Role,
-                                    UserId = bystanders.UserId,
-                                    Bystander = true,
-                                    Room = bystanderRoom == null ? "Unknown" : bystanderRoom.Zone.ToString()
-                                });
-                            }
-                        }
-
-
+                                    ev.Attacker.Nickname, 
+                                    ev.Attacker.UserId, 
+                                    Misc.ToHex(ev.Attacker.ReferenceHub.roleManager.CurrentRole.RoleColor), 
+                                    ev.Attacker.Role,
+                                    ev.Player.Nickname, 
+                                    ev.Player.UserId, 
+                                    Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor), 
+                                    ev.Player.Role, ev.DamageHandler.ToString(), 
+                                    killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
+                                }) }
+                    }
+                };
+                Timing.CallDelayed(0, Segment.FixedUpdate, () =>
+                {
+                    try
+                    {
+                        if (!ev.IsAllowed)
+                            return;
+                        
                         if (CedModMain.Singleton.Config.QuerySystem.Debug)
                             Logger.Debug("sending WR");
                         Task.Run(async () =>
@@ -606,78 +640,65 @@ namespace CedMod.Addons.QuerySystem
                                 }
                             }
                         });
-
-                        WebSocketSystem.Enqueue(new QueryCommand()
-                        {
-                            Recipient = "ALL",
-                            Data = new Dictionary<string, string>()
-                            {
-                                { "UserId", ev.Player.UserId },
-                                { "UserName", ev.Player.Nickname },
-                                { "Class", ev.Player.Role.ToString() },
-                                { "AttackerClass", ev.Attacker.Role.ToString() },
-                                { "AttackerId", ev.Attacker.UserId },
-                                { "AttackerName", ev.Attacker.Nickname },
-                                { "Weapon", ev.DamageHandler.ToString() },
-                                { "Type", nameof(OnPlayerDeath) },
-                                { "Message", 
-                                    string.Format("Teamkill ⚠: {0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8} in {9}.",
-                                        new object[]
-                                        {
-                                            ev.Attacker.Nickname, 
-                                            ev.Attacker.UserId, 
-                                            Misc.ToHex(ev.Attacker.ReferenceHub.roleManager.CurrentRole.RoleColor), 
-                                            ev.Attacker.Role,
-                                            ev.Player.Nickname, 
-                                            ev.Player.UserId, 
-                                            Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor), 
-                                            ev.Player.Role, ev.DamageHandler.ToString(), 
-                                            killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
-                                        }) }
-                            }
-                        });
+                        
+                        WebSocketSystem.Enqueue(cmd);
                     }
-                    else
+                    catch (Exception e)
                     {
-                        RoomIdentifier killerRoom = null;
-                        RoomUtils.TryGetRoom(ev.Player.Position, out killerRoom);
-
-                        WebSocketSystem.Enqueue(new QueryCommand()
-                        {
-                            Recipient = "ALL",
-                            Data = new Dictionary<string, string>()
-                            {
-                                { "UserId", ev.Player.UserId },
-                                { "UserName", ev.Player.Nickname },
-                                { "Class", ev.Player.Role.ToString() },
-                                { "AttackerClass", ev.Attacker.Role.ToString() },
-                                { "AttackerId", ev.Attacker.UserId },
-                                { "AttackerName", ev.Attacker.Nickname },
-                                { "Weapon", ev.DamageHandler.ToString() },
-                                { "Type", nameof(OnPlayerDeath) },
-                                { "Message", string.Format("{0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8} In {9}.", 
-                                    new object[]
-                                    {
-                                        ev.Attacker.Nickname,
-                                        ev.Attacker.UserId,
-                                        Misc.ToHex(ev.Attacker.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                        ev.Attacker.Role, 
-                                        ev.Player.Nickname, 
-                                        ev.Player.UserId, 
-                                        Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                        ev.Player.Role, 
-                                        ev.DamageHandler.ToString(), 
-                                        killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
-                                    }) }
-                            }
-                        });
+                        Logger.Error(e.ToString());
                     }
-                }
-                catch (Exception e)
+                });
+            }
+            else
+            {
+                RoomIdentifier killerRoom = null;
+                RoomUtils.TryGetRoom(ev.Player.Position, out killerRoom);
+
+                var cmd = new QueryCommand()
                 {
-                    Logger.Error(e.ToString());
-                }
-            });
+                    Recipient = "ALL",
+                    Data = new Dictionary<string, string>()
+                    {
+                        { "UserId", ev.Player.UserId },
+                        { "UserName", ev.Player.Nickname },
+                        { "Class", ev.Player.Role.ToString() },
+                        { "AttackerClass", ev.Attacker.Role.ToString() },
+                        { "AttackerId", ev.Attacker.UserId },
+                        { "AttackerName", ev.Attacker.Nickname },
+                        { "Weapon", ev.DamageHandler.ToString() },
+                        { "Type", nameof(OnPlayerDeath) },
+                        { "Message", string.Format("{0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8} In {9}.", 
+                            new object[]
+                            {
+                                ev.Attacker.Nickname,
+                                ev.Attacker.UserId,
+                                Misc.ToHex(ev.Attacker.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Attacker.Role, 
+                                ev.Player.Nickname, 
+                                ev.Player.UserId, 
+                                Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Player.Role, 
+                                ev.DamageHandler.ToString(), 
+                                killerRoom == null ? "Unknown" : killerRoom.Zone.ToString()
+                            }) }
+                    }
+                };
+                
+                Timing.CallDelayed(0, Segment.FixedUpdate, () =>
+                {
+                    try
+                    {
+                        if (!ev.IsAllowed)
+                            return;
+                        
+                        WebSocketSystem.Enqueue(cmd);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Error(e.ToString());
+                    }
+                });
+            }
         }
 
         public override void OnPlayerDroppedAmmo(PlayerDroppedAmmoEventArgs ev)
