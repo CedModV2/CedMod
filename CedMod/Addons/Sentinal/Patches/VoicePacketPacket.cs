@@ -39,7 +39,7 @@ namespace CedMod.Addons.Sentinal.Patches
                     if (BanSystem.Authenticating.Contains(msg.Speaker)) //hint is removed by authenticator
                         ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                         {
-                            if (plr == null || plr.GameObject == null || plr.ReferenceHub == null)
+                            if (plr == null || plr.ReferenceHub == null || plr.GameObject == null)
                                 return;
                             plr.SendHint("Muted: Awaiting CedMod Authentication", 2);
                         });
