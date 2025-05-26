@@ -14,6 +14,7 @@ namespace CedMod.Handlers
 
         public override void OnServerRoundRestarted()
         {
+            Scp939LungePatch.LungeTime.Clear();
             FriendlyFireAutoban.Teamkillers.Clear();
             FriendlyFireAutoban.AdminDisabled = false;
             foreach (var fake in AudioCommand.FakeConnections)
