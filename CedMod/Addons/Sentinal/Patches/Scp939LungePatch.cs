@@ -7,6 +7,8 @@ using LabApi.Features.Console;
 using Mirror;
 using PlayerRoles.FirstPersonControl;
 using PlayerRoles.PlayableScps.Scp939;
+using RelativePositioning;
+using Utils.Networking;
 
 namespace CedMod.Addons.Sentinal.Patches
 {
@@ -20,20 +22,33 @@ namespace CedMod.Addons.Sentinal.Patches
             try
             {
                 if (__instance.State == Scp939LungeState.Triggered)
+                {
                     return true;
+                }
 
                 if (!LungeTime.ContainsKey(__instance.Owner.netId) || LungeTime[__instance.Owner.netId].Elapsed.TotalSeconds >= 2)
                     LungeTime[__instance.Owner.netId] = Stopwatch.StartNew();
                 else
+                {
+                    reader.ReadRelativePosition();
+                    reader.ReadReferenceHub();
+                    reader.ReadRelativePosition();
                     return false;
-
+                }
+                
                 WebSocketSystem.Enqueue(new QueryCommand() { Recipient = "PANEL", Data = new Dictionary<string, string>() { { "SentinalType", "SCP939LungeExploit" }, { "UserId", __instance.Owner.authManager.UserId }, { "State", __instance.State.ToString() }, { "Pos", __instance.Owner.GetPosition().ToString() } } });
+                
+                reader.ReadRelativePosition();
+                reader.ReadReferenceHub();
+                reader.ReadRelativePosition();
                 return false;
             }
             catch (Exception e)
             {
                 Logger.Error($"Failed to invoke 939 exploit patch: {e.ToString()}");
             }
+
+            return true;
         }
     }
 }
