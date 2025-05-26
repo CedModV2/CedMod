@@ -191,7 +191,6 @@ namespace CedMod.Addons.QuerySystem
                 }
             });
             SentinalBehaviour.RoundGuid = Guid.NewGuid().ToString();
-            FpcSyncDataPatch.SyncDatas.Clear();
             WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "ALL",

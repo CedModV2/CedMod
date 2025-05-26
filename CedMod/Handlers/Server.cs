@@ -14,7 +14,6 @@ namespace CedMod.Handlers
 
         public override void OnServerRoundRestarted()
         {
-            FpcSyncDataPatch.AuthorizedLunge.Clear();
             FriendlyFireAutoban.Teamkillers.Clear();
             FriendlyFireAutoban.AdminDisabled = false;
             foreach (var fake in AudioCommand.FakeConnections)

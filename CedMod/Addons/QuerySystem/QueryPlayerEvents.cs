@@ -788,7 +788,6 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnPlayerLeft(PlayerLeftEventArgs ev)
         {
-            FpcSyncDataPatch.SyncDatas.Remove(ev.Player.ReferenceHub);
             BanSystem.Authenticating.Remove(ev.Player.ReferenceHub);
             BanSystem.CedModAuthTokens.Remove(ev.Player.ReferenceHub);
             ThreadDispatcher.SendHeartbeatMessage(true);
