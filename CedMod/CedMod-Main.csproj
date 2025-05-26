@@ -119,6 +119,7 @@
     <Compile Include="Addons\QuerySystem\WS\PermissionProvider.cs" />
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
     <Compile Include="Addons\Sentinal\Patches\FpcServerPositionDistributorPatch.cs" />
+    <Compile Include="Addons\Sentinal\Patches\FpcSyncDataPatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\PlayerRoleManagerPatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\Scp939LungePatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\VoicePacketPacket.cs" />
