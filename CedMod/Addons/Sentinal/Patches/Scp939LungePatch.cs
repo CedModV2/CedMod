@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using CedMod.Addons.QuerySystem.WS;
 using HarmonyLib;
+using InventorySystem.Items.Firearms.Modules.Misc;
 using Mirror;
 using PlayerRoles.PlayableScps.Scp939;
 
