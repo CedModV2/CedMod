@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using CedMod.Addons.QuerySystem.WS;
+using CommandSystem.Commands.RemoteAdmin;
 using HarmonyLib;
 using LabApi.Features.Console;
 using Mirror;
+using Mirror.LiteNetLib4Mirror;
 using PlayerRoles.FirstPersonControl;
 using PlayerRoles.PlayableScps.Scp939;
 using RelativePositioning;
@@ -36,7 +38,18 @@ namespace CedMod.Addons.Sentinal.Patches
                     return false;
                 }
                 
-                WebSocketSystem.Enqueue(new QueryCommand() { Recipient = "PANEL", Data = new Dictionary<string, string>() { { "SentinalType", "SCP939LungeExploit" }, { "UserId", __instance.Owner.authManager.UserId }, { "State", __instance.State.ToString() }, { "Pos", __instance.Owner.GetPosition().ToString() } } });
+                WebSocketSystem.Enqueue(new QueryCommand()
+                {
+                    Recipient = "PANEL",
+                    Data = new Dictionary<string, string>()
+                    {
+                        { "SentinalType", "SCP939LungeExploit" }, 
+                        { "UserId", __instance.Owner.authManager.UserId },
+                        { "State", __instance.State.ToString() }, 
+                        { "Pos", __instance.Owner.GetPosition().ToString() },
+                        { "Ping" , (LiteNetLib4MirrorServer.Peers[__instance.Owner.connectionToClient.connectionId].Ping * 2).ToString()}
+                    }
+                });
                 
                 reader.ReadRelativePosition();
                 reader.ReadReferenceHub();
