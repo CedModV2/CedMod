@@ -262,7 +262,7 @@ namespace CedMod.Addons.QuerySystem
             {
                 foreach (var plr in LevelerStore.InitialPlayerRoles)
                 {
-                    if (plr.Key == null || !plr.Key.GameObject == null)
+                    if (plr.Key == null || plr.Key.ReferenceHub == null || !plr.Key.GameObject == null)
                         continue;
                     WebSocketSystem.Enqueue(new QueryCommand()
                     {
