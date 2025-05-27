@@ -788,6 +788,7 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnPlayerLeft(PlayerLeftEventArgs ev)
         {
+            Scp939LungePatch.LungeTime.Remove(ev.Player.ReferenceHub.netId);
             FpcSyncDataPatch.SyncDatas.Remove(ev.Player.ReferenceHub);
             BanSystem.Authenticating.Remove(ev.Player.ReferenceHub);
             BanSystem.CedModAuthTokens.Remove(ev.Player.ReferenceHub);
