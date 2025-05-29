@@ -12,12 +12,14 @@ using System.Threading.Tasks;
 using CedMod.Addons.Events.Commands;
 using CedMod.Addons.QuerySystem.Commands;
 using CedMod.Addons.Sentinal;
+using CedMod.Addons.Sentinal.Patches;
 using CedMod.Addons.StaffInfo;
 using CedMod.ApiModals;
 using CedMod.Components;
 using Exiled.Loader;
 using Exiled.Permissions.Extensions;
 using LabApi.Features.Console;
+using LabApi.Features.Wrappers;
 using MEC;
 using Newtonsoft.Json;
 using RemoteAdmin;
@@ -869,6 +871,19 @@ namespace CedMod.Addons.QuerySystem.WS
                             break;
                         case "requestMap":
                             ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => { QueryServerEvents.CreateMapLayout(); });
+                            break;
+                        case "sentinalteslakill":
+                            ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
+                            {
+                                var plrKill = Player.Get(jsonData["UserId"]);
+                                if (plrKill == null)
+                                    return;
+                            
+                                if (!TeslaGateHandler.TeslaKills.ContainsKey(plrKill.UserId) || (DateTime.UtcNow - TeslaGateHandler.TeslaKills[plrKill.UserId].time).TotalSeconds >= 10)
+                                    return;
+                            
+                                TeslaGateController.ServerReceiveMessage(plrKill.Connection, new TeslaHitMsg(TeslaGateHandler.TeslaKills[plrKill.UserId].gate));
+                            });
                             break;
                     }
                 }

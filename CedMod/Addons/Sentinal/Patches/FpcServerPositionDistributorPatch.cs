@@ -1,41 +1,33 @@
 using System.Collections.Generic;
+using System.Linq;
 using CommandSystem.Commands.RemoteAdmin;
 using HarmonyLib;
-using InventorySystem.Items.Radio;
-using InventorySystem.Items.Usables;
 using LabApi.Events.Arguments.PlayerEvents;
+using LabApi.Features.Wrappers;
+using MapGeneration;
 using Mirror;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PlayerRoles.FirstPersonControl.NetworkMessages;
+using PlayerRoles.FirstPersonControl.Thirdperson.Subcontrollers;
 using PlayerRoles.PlayableScps.Scp049;
 using PlayerRoles.PlayableScps.Scp079;
+using PlayerRoles.PlayableScps.Scp106;
 using PlayerRoles.Subroutines;
 using PlayerRoles.Visibility;
 using PlayerRoles.Voice;
+using RelativePositioning;
 using UnityEngine;
+using Utils.NonAllocLINQ;
+using Logger = LabApi.Features.Console.Logger;
+using RadioItem = InventorySystem.Items.Radio.RadioItem;
+using Scp1853Item = InventorySystem.Items.Usables.Scp1853Item;
 
 namespace CedMod.Addons.Sentinal.Patches
 {
-    //patch responsible for hiding and showing users when in and out of range
     [HarmonyPatch(typeof(FpcServerPositionDistributor), nameof(FpcServerPositionDistributor.WriteAll))]
     public static class FpcServerPositionDistributorPatch
     {
-        public static List<RoleTypeId> RandomRoles = new List<RoleTypeId>()
-        {
-            RoleTypeId.Filmmaker,
-            RoleTypeId.Scientist,
-            RoleTypeId.ClassD,
-            RoleTypeId.ChaosMarauder,
-            RoleTypeId.NtfCaptain,
-            RoleTypeId.NtfSpecialist,
-            RoleTypeId.Overwatch,
-            RoleTypeId.Filmmaker,
-            RoleTypeId.FacilityGuard,
-            RoleTypeId.NtfSpecialist,
-            RoleTypeId.Tutorial
-        };
-        
         public static bool Prefix(ReferenceHub receiver, NetworkWriter writer)
         {
             if (CedModMain.Singleton.Config.CedMod.DisableFakeSyncing)
@@ -63,7 +55,9 @@ namespace CedMod.Addons.Sentinal.Patches
                 if (it.Value is RadioItem radioItem && radioItem.IsUsable)
                     hasRadio = true;
             }
-
+            
+            var randomFarPlayer = ReferenceHub.AllHubs.OrderByDescending(s => Vector3.Distance(s.transform.position, receiver.transform.position)).FirstOrDefault();
+            
             foreach (ReferenceHub hub in ReferenceHub.AllHubs)
             {
                 if (hub.netId == receiver.netId)
@@ -74,10 +68,18 @@ namespace CedMod.Addons.Sentinal.Patches
 
                 bool invisible = hasVisCtrl && !visCtrl.ValidateVisibility(hub);
                 FpcSyncData data = FpcServerPositionDistributor.GetNewSyncData(receiver, hub, fpc.FpcModule, invisible);
+                
+                if (!invisible && receiver.roleManager.CurrentRole.RoleTypeId == RoleTypeId.Scp106 && receiver.roleManager.CurrentRole is Scp106Role scp106Role && scp106Role.SubroutineModule.TryGetSubroutine(out Scp106StalkVisibilityController stalkVisibilityController))
+                {
+                    if (hub.roleManager.CurrentRole is FpcStandardRoleBase fpcStandardRoleBase && !stalkVisibilityController.GetVisibilityForPlayer(hub, fpcStandardRoleBase))
+                        invisible = false;
+                }
+                
+                
                 PlayerValidatedVisibilityEventArgs ev = new PlayerValidatedVisibilityEventArgs(receiver, hub, !invisible);
                 LabApi.Events.Handlers.PlayerEvents.OnValidatedVisibility(ev);
                 invisible = !ev.IsVisible;
-
+                
                 if (!invisible)
                 {
                     FpcServerPositionDistributor._bufferPlayerIDs[count] = hub.PlayerId;
@@ -99,7 +101,7 @@ namespace CedMod.Addons.Sentinal.Patches
                 }
                 else
                 { 
-                    var toSend = hub.roleManager.CurrentRole.Team == Team.SCPs ? hub.roleManager.CurrentRole.RoleTypeId : RoleTypeId.Filmmaker;
+                    var toSend = hub.roleManager.CurrentRole.Team == Team.SCPs ? hub.roleManager.CurrentRole.RoleTypeId : RoleTypeId.Spectator;
                     if (PermissionsHandler.IsPermitted(receiver.serverRoles.Permissions, PlayerPermissions.GameplayData) || receiver.roleManager.CurrentRole.Team == Team.SCPs)
                         toSend = hub.roleManager.CurrentRole.RoleTypeId;
                     
@@ -126,9 +128,14 @@ namespace CedMod.Addons.Sentinal.Patches
                     
                     if (!hub.roleManager.PreviouslySentRole.TryGetValue(receiver.netId, out RoleTypeId prev) || prev != toSend)
                     {
+                        var sync = new FpcSyncData();
+                        if (randomFarPlayer)
+                        {
+                            sync = FpcServerPositionDistributor.GetNewSyncData(receiver, hub, fpc.FpcModule, false);
+                        }
+                        
                         FpcServerPositionDistributor._bufferPlayerIDs[count] = hub.PlayerId;
-                        FpcServerPositionDistributor._bufferSyncData[count] = new FpcSyncData();
-                        count++;
+                        FpcServerPositionDistributor._bufferSyncData[count] = sync; 
                         SendRole(receiver, hub, toSend);
                     }
                 }
@@ -151,7 +158,14 @@ namespace CedMod.Addons.Sentinal.Patches
                 toSend = hub.roleManager.CurrentRole.RoleTypeId;
             
             NetworkConnection conn = receiver.connectionToClient;
-            conn.Send(new RoleSyncInfo(hub, toSend, receiver));
+            bool funny = false;
+            if ((toSend == RoleTypeId.Spectator) && Player.Count >= 6 && Random.Range(0, 500) >= 250)
+            {
+                Logger.Info($"Logging random OW to plr {receiver.PlayerId}");
+                funny = true;
+            }
+            
+            conn.Send(new RoleSyncInfo(hub, funny ? RoleTypeId.Overwatch : toSend, receiver));
             hub.roleManager.PreviouslySentRole[receiver.netId] = toSend;
             
             if (toSend == hub.roleManager.CurrentRole.RoleTypeId && hub.roleManager.CurrentRole is ISubroutinedRole subroutinedRole)

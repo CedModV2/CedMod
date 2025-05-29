@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using CedMod.Addons.QuerySystem;
 using HarmonyLib;
+using InventorySystem;
+using InventorySystem.Items.Radio;
 using LabApi.Features.Console;
 using Mirror;
+using PlayerRoles.FirstPersonControl;
+using PlayerRoles.Voice;
 using UnityEngine;
 using VoiceChat;
 using VoiceChat.Codec;
@@ -76,7 +80,7 @@ namespace CedMod.Addons.Sentinal.Patches
             {
                 Logger.Error(e.ToString());
             }
-
+            
             if (msg.Channel == VoiceChatChannel.Radio || msg.Channel == VoiceChatChannel.Intercom)
                 Radio.Add(conn.identity.netId);
             return true;

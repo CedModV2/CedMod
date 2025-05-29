@@ -15,6 +15,7 @@ using CedMod.Addons.Events.Interfaces;
 using CedMod.Addons.QuerySystem;
 using CedMod.Addons.QuerySystem.WS;
 using CedMod.Addons.Sentinal;
+using CedMod.Addons.Sentinal.Patches;
 using CedMod.Addons.StaffInfo;
 using CedMod.Components;
 using CentralAuth;
@@ -92,9 +93,12 @@ namespace CedMod
         public QueryServerEvents QueryServerEvents = new QueryServerEvents();
         public EventManagerPlayerEvents EventManagerPlayerEvents = new EventManagerPlayerEvents();
         public EventManagerServerEvents EventManagerServerEvents = new EventManagerServerEvents();
+        public TeslaGateHandler SentinalTeslaGateHandler = new TeslaGateHandler();
+        public ItemPickupHandler SentinalItemPickupHandler = new ItemPickupHandler();
         public AutoUpdater AutoUpdater = null;
         public AdminSitHandler AdminSitHandlerEvents = null;
         public StaffInfoHandler StaffInfoHandler = null;
+        
         public string GameModeDirectory { get; set; }
         Dictionary<Assembly, Plugin> LabApiPluginGamemodes = new Dictionary<Assembly, Plugin>();
         Dictionary<Plugin, string> LabApiPluginGamemodesPaths = new Dictionary<Plugin, string>();
@@ -188,6 +192,9 @@ namespace CedMod
             
             CustomHandlersManager.RegisterEventsHandler(EventManagerPlayerEvents);
             CustomHandlersManager.RegisterEventsHandler(EventManagerServerEvents);
+            
+            CustomHandlersManager.RegisterEventsHandler(SentinalTeslaGateHandler);
+            CustomHandlersManager.RegisterEventsHandler(SentinalItemPickupHandler);
             
             ThreadDispatcher dispatcher = Object.FindObjectOfType<ThreadDispatcher>();
             if (dispatcher == null)
@@ -546,6 +553,9 @@ namespace CedMod
             
             CustomHandlersManager.UnregisterEventsHandler(EventManagerPlayerEvents);
             CustomHandlersManager.UnregisterEventsHandler(EventManagerServerEvents);
+            
+            CustomHandlersManager.UnregisterEventsHandler(SentinalTeslaGateHandler);
+            CustomHandlersManager.UnregisterEventsHandler(SentinalItemPickupHandler);
             Shutdown.OnQuit -= OnQuit;
             
             Singleton = null;
