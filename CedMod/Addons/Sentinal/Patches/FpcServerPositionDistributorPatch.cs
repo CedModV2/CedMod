@@ -161,7 +161,7 @@ namespace CedMod.Addons.Sentinal.Patches
             bool funny = false;
             if ((toSend == RoleTypeId.Spectator) && Player.Count >= 6 && Random.Range(0, 500) >= 250)
             {
-                Logger.Info($"Logging random OW to plr {receiver.PlayerId}");
+                //Logger.Info($"Logging random OW to plr {receiver.PlayerId}");
                 funny = true;
             }
             
