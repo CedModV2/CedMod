@@ -56,8 +56,6 @@ namespace CedMod.Addons.Sentinal.Patches
                     hasRadio = true;
             }
             
-            var randomFarPlayer = ReferenceHub.AllHubs.OrderByDescending(s => Vector3.Distance(s.transform.position, receiver.transform.position)).FirstOrDefault();
-            
             foreach (ReferenceHub hub in ReferenceHub.AllHubs)
             {
                 if (hub.netId == receiver.netId)
