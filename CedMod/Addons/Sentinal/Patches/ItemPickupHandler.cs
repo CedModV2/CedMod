@@ -11,6 +11,7 @@ using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.CustomHandlers;
 using MapGeneration.Distributors;
 using Mirror.LiteNetLib4Mirror;
+using Newtonsoft.Json;
 using UnityEngine;
 using Logger = LabApi.Features.Console.Logger;
 
@@ -39,7 +40,9 @@ namespace CedMod.Addons.Sentinal.Patches
             bool nothingFound = true;
             int totalRays = raycastVectors.Count;
             int raysMissed = 0;
+            var plrRoom = ev.Player.Room;
 
+            List<object> metaData = new List<object>();
             foreach (var vector in raycastVectors)
             {
                 var dir = (vector - ev.Player.ReferenceHub.PlayerCameraReference.position).normalized;
@@ -81,6 +84,17 @@ namespace CedMod.Addons.Sentinal.Patches
                     {
                         raysMissed++;
                     }
+                    
+                    metaData.Add(new
+                    {
+                        HitDist = hitDist,
+                        EstDist = estPos,
+                        HitObject = hit.collider.name,
+                        HitPost = hit.point.ToString(),
+                        TargetPost = vector.ToString(),
+                        LocalHit = plrRoom != null ? plrRoom.Transform.InverseTransformPoint(hit.point).ToString() : "",
+                        LocalVector =  plrRoom != null ? plrRoom.Transform.InverseTransformPoint(vector).ToString() : ""
+                    });
                     //Logger.Info($"Hit: {hit.collider.name} {hit.point.ToString()} dist {hitDist} est was {estPos} {canSee} {nothingFound}");
                     break;
                 }
@@ -96,12 +110,17 @@ namespace CedMod.Addons.Sentinal.Patches
                         { "SentinalType", "PickupViolation" }, 
                         { "UserId", ev.Player.UserId },
                         { "ItemType", ev.Pickup.Base.ItemId.ToString()},
+                        { "Room", plrRoom != null ? plrRoom.Base.name : "" },
                         { "ItemPos", ev.Pickup.Transform.position.ToString() },
+                        { "LocalItemPos", plrRoom != null ? plrRoom.Transform.InverseTransformPoint(ev.Pickup.Transform.position).ToString() : "" },
                         { "CamPos", ev.Player.ReferenceHub.PlayerCameraReference.position.ToString() },
+                        { "LocalCamPos", plrRoom != null ? plrRoom.Transform.InverseTransformPoint(ev.Player.ReferenceHub.PlayerCameraReference.position).ToString() : "" },
                         { "RaysMissed", raysMissed.ToString() },
                         { "TotalRays", totalRays.ToString() },
-                        { "Ping", (LiteNetLib4MirrorServer.Peers[ev.Player.ReferenceHub.connectionToClient.connectionId].Ping * 2).ToString() }
+                        { "Ping", (LiteNetLib4MirrorServer.Peers[ev.Player.ReferenceHub.connectionToClient.connectionId].Ping * 2).ToString() },
+                        { "Meta", JsonConvert.SerializeObject(metaData) }
                     }
+                    
                 });
                 ev.IsAllowed = false;
             }
