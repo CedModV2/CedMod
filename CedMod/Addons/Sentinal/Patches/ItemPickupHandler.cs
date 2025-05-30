@@ -9,27 +9,63 @@ using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Searching;
 using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.CustomHandlers;
-using MapGeneration.Distributors;
+using LabApi.Features.Wrappers;
 using Mirror.LiteNetLib4Mirror;
 using Newtonsoft.Json;
 using UnityEngine;
+using Locker = MapGeneration.Distributors.Locker;
+using LockerChamber = MapGeneration.Distributors.LockerChamber;
 using Logger = LabApi.Features.Console.Logger;
+using PrimitiveObjectToy = AdminToys.PrimitiveObjectToy;
 
 namespace CedMod.Addons.Sentinal.Patches
 {
     public class ItemPickupHandler: CustomEventsHandler
     {
         static RaycastHit[] raycastHits = new RaycastHit[50];
+        public override void OnPlayerPickingUpItem(PlayerPickingUpItemEventArgs ev)
+        {
+            if (!RaycastPickup(ev.Player, ev.Pickup))
+            {
+                ev.IsAllowed = false;
+                var info = ev.Pickup.Base.NetworkInfo;
+                info.InUse = false;
+                ev.Pickup.Base.NetworkInfo = info;
+            }
+        }
         
-        public override void OnPlayerSearchingPickup(PlayerSearchingPickupEventArgs ev)
+        public override void OnPlayerPickingUpAmmo(PlayerPickingUpAmmoEventArgs ev)
+        {
+            if (!RaycastPickup(ev.Player, ev.AmmoPickup))
+            {
+                ev.IsAllowed = false;
+                var info = ev.AmmoPickup.Base.NetworkInfo;
+                info.InUse = false;
+                ev.AmmoPickup.Base.NetworkInfo = info;
+            }
+        }
+        
+        public override void OnPlayerPickingUpArmor(PlayerPickingUpArmorEventArgs ev)
+        {
+            if (!RaycastPickup(ev.Player, ev.BodyArmorPickup))
+            {
+                ev.IsAllowed = false;
+                var info = ev.BodyArmorPickup.Base.NetworkInfo;
+                info.InUse = false;
+                ev.BodyArmorPickup.Base.NetworkInfo = info;
+            }
+        }
+        
+
+        public bool RaycastPickup(Player plr, Pickup pickup)
         {
             //Logger.Info("Testing pickup event");
-            if (ev.Player.IsNoclipEnabled || ev.Pickup.Base.transform.localScale != Vector3.one)
-                return;
+            if (plr.IsNoclipEnabled || pickup.Base.transform.localScale != Vector3.one)
+                return true;
             
             //Logger.Info("Tested pickup event");
 
-            var colls = ev.Pickup.GameObject.GetComponentsInChildren<Renderer>();
+            var colls = pickup.GameObject.GetComponentsInChildren<Renderer>();
             List<Vector3> raycastVectors = new List<Vector3>();
             foreach (var coll in colls)
             {
@@ -40,13 +76,13 @@ namespace CedMod.Addons.Sentinal.Patches
             bool nothingFound = true;
             int totalRays = raycastVectors.Count;
             int raysMissed = 0;
-            var plrRoom = ev.Player.Room;
+            var plrRoom = plr.Room;
 
             List<object> metaData = new List<object>();
             foreach (var vector in raycastVectors)
             {
-                var dir = (vector - ev.Player.ReferenceHub.PlayerCameraReference.position).normalized;
-                var origin = ev.Player.ReferenceHub.PlayerCameraReference.position - dir * 0.2f;
+                var dir = (vector - plr.ReferenceHub.PlayerCameraReference.position).normalized;
+                var origin = plr.ReferenceHub.PlayerCameraReference.position - dir * 0.2f;
                 //DrawableLines.IsDebugModeEnabled = true;
                 //Logger.Info("Casting");
                 var estPos = Vector3.Distance(origin, vector);
@@ -74,6 +110,8 @@ namespace CedMod.Addons.Sentinal.Patches
                     var locker = hit.collider.GetComponentInParent<Locker>();
                     if (locker != null && locker.Chambers.Any(s => s.WasEverOpened))
                         canSee = true;
+                    
+                    
 
                     var hitDist = Vector3.Distance(origin, hit.point);
                     if (hitDist + 0.2f >= estPos)
@@ -108,22 +146,24 @@ namespace CedMod.Addons.Sentinal.Patches
                     Data = new Dictionary<string, string>()
                     {
                         { "SentinalType", "PickupViolation" }, 
-                        { "UserId", ev.Player.UserId },
-                        { "ItemType", ev.Pickup.Base.ItemId.ToString()},
+                        { "UserId", plr.UserId },
+                        { "ItemType", pickup.Base.ItemId.ToString()},
                         { "Room", plrRoom != null ? plrRoom.Base.name : "" },
-                        { "ItemPos", ev.Pickup.Transform.position.ToString() },
-                        { "LocalItemPos", plrRoom != null ? plrRoom.Transform.InverseTransformPoint(ev.Pickup.Transform.position).ToString() : "" },
-                        { "CamPos", ev.Player.ReferenceHub.PlayerCameraReference.position.ToString() },
-                        { "LocalCamPos", plrRoom != null ? plrRoom.Transform.InverseTransformPoint(ev.Player.ReferenceHub.PlayerCameraReference.position).ToString() : "" },
+                        { "ItemPos", pickup.Transform.position.ToString() },
+                        { "LocalItemPos", plrRoom != null ? plrRoom.Transform.InverseTransformPoint(pickup.Transform.position).ToString() : "" },
+                        { "CamPos", plr.ReferenceHub.PlayerCameraReference.position.ToString() },
+                        { "LocalCamPos", plrRoom != null ? plrRoom.Transform.InverseTransformPoint(plr.ReferenceHub.PlayerCameraReference.position).ToString() : "" },
                         { "RaysMissed", raysMissed.ToString() },
                         { "TotalRays", totalRays.ToString() },
-                        { "Ping", (LiteNetLib4MirrorServer.Peers[ev.Player.ReferenceHub.connectionToClient.connectionId].Ping * 2).ToString() },
+                        { "Ping", (LiteNetLib4MirrorServer.Peers[plr.ReferenceHub.connectionToClient.connectionId].Ping * 2).ToString() },
                         { "Meta", JsonConvert.SerializeObject(metaData) }
                     }
                     
                 });
-                ev.IsAllowed = false;
+                return false;
             }
+
+            return true;
         }
 
         public IEnumerable<Vector3> GetBoundPoints(Bounds bounds)
