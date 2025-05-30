@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using AdminToys;
 using CedMod.Addons.QuerySystem.WS;
 using DrawableLine;
@@ -8,6 +9,7 @@ using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Searching;
 using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.CustomHandlers;
+using MapGeneration.Distributors;
 using Mirror.LiteNetLib4Mirror;
 using UnityEngine;
 using Logger = LabApi.Features.Console.Logger;
@@ -44,8 +46,11 @@ namespace CedMod.Addons.Sentinal.Patches
                 var origin = ev.Player.ReferenceHub.PlayerCameraReference.position - dir * 0.2f;
                 //DrawableLines.IsDebugModeEnabled = true;
                 //Logger.Info("Casting");
-                //DrawableLines.GenerateLine(10f, Color.blue, new []{ origin, vector });
                 var estPos = Vector3.Distance(origin, vector);
+                if (estPos >= 10)
+                    continue;
+                
+                //DrawableLines.GenerateLine(10f, Color.blue, new []{ origin, vector });
                 int size = Physics.RaycastNonAlloc(new Ray(origin, dir), raycastHits, estPos, LayerMask.GetMask("Door", "Glass", "Default"));
                 if (nothingFound)
                     nothingFound = size == 0;
@@ -57,6 +62,15 @@ namespace CedMod.Addons.Sentinal.Patches
                     var prim = hit.collider.GetComponentInParent<PrimitiveObjectToy>();
                     if (prim != null && !prim.NetworkPrimitiveFlags.HasFlag(PrimitiveFlags.Collidable))
                         continue;
+                    
+                    //we ignore lockers as they cant pickup items through locked lockers anyway unless someone was kind enough to open a locker and close it back up again
+                    var chamber = hit.collider.GetComponentInParent<LockerChamber>();
+                    if (chamber != null && chamber.WasEverOpened)
+                        canSee = true;
+                    
+                    var locker = hit.collider.GetComponentInParent<Locker>();
+                    if (locker != null && locker.Chambers.Any(s => s.WasEverOpened))
+                        canSee = true;
 
                     var hitDist = Vector3.Distance(origin, hit.point);
                     if (hitDist + 0.2f >= estPos)
