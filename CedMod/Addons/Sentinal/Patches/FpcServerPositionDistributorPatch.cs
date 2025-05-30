@@ -128,14 +128,8 @@ namespace CedMod.Addons.Sentinal.Patches
                     
                     if (!hub.roleManager.PreviouslySentRole.TryGetValue(receiver.netId, out RoleTypeId prev) || prev != toSend)
                     {
-                        var sync = new FpcSyncData();
-                        if (randomFarPlayer)
-                        {
-                            sync = FpcServerPositionDistributor.GetNewSyncData(receiver, hub, fpc.FpcModule, false);
-                        }
-                        
                         FpcServerPositionDistributor._bufferPlayerIDs[count] = hub.PlayerId;
-                        FpcServerPositionDistributor._bufferSyncData[count] = sync; 
+                        FpcServerPositionDistributor._bufferSyncData[count] = new FpcSyncData(); 
                         SendRole(receiver, hub, toSend);
                     }
                 }
