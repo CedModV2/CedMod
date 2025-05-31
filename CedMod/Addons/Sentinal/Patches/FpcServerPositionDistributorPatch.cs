@@ -48,13 +48,6 @@ namespace CedMod.Addons.Sentinal.Patches
                 hasVisCtrl = false;
                 visCtrl = null;
             }
-
-            bool hasRadio = false;
-            foreach (var it in receiver.inventory.UserInventory.Items)
-            {
-                if (it.Value is RadioItem radioItem && radioItem.IsUsable)
-                    hasRadio = true;
-            }
             
             foreach (ReferenceHub hub in ReferenceHub.AllHubs)
             {
@@ -109,7 +102,7 @@ namespace CedMod.Addons.Sentinal.Patches
                             toSend = hub.roleManager.CurrentRole.RoleTypeId;
                     }
 
-                    if (Intercom._singleton != null)
+                    if (Intercom._singleton != null && Intercom.State == IntercomState.InUse)
                     {
                         if (Intercom._singleton._curSpeaker != null && (Intercom._singleton._curSpeaker == hub || Intercom._singleton._adminOverrides.Contains(hub)))
                             toSend = hub.roleManager.CurrentRole.RoleTypeId;
@@ -118,7 +111,7 @@ namespace CedMod.Addons.Sentinal.Patches
                     if (hub.inventory.CurInstance != null && hub.inventory.CurInstance is Scp1853Item scp1853Item && scp1853Item.IsUsing)
                         toSend = hub.roleManager.CurrentRole.RoleTypeId;
                     
-                    if (hasRadio && VoicePacketPacket.Radio.Contains(hub.netId))
+                    if (VoicePacketPacket.Radio.Contains(hub.netId))
                         toSend = hub.roleManager.CurrentRole.RoleTypeId;
                     
                     if (hub.roleManager.CurrentRole is IObfuscatedRole ior)
