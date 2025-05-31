@@ -23,9 +23,16 @@ namespace CedMod.Addons.Sentinal.Patches
     public class ItemPickupHandler: CustomEventsHandler
     {
         static RaycastHit[] raycastHits = new RaycastHit[50];
+        Dictionary<Player, (float, Pickup)> Pickups = new Dictionary<Player, (float, Pickup)>();
         public override void OnPlayerPickingUpItem(PlayerPickingUpItemEventArgs ev)
         {
-            if (!RaycastPickup(ev.Player, ev.Pickup))
+            if (Pickups.TryGetValue(ev.Player, out var pickup) && pickup.Item1 > Time.time && pickup.Item2 == ev.Pickup)
+            {
+                Pickups.Remove(ev.Player);
+                return;
+            }
+            
+            if (!RaycastPickup(ev.Player, ev.Pickup, true))
             {
                 ev.IsAllowed = false;
                 var info = ev.Pickup.Base.NetworkInfo;
@@ -36,7 +43,13 @@ namespace CedMod.Addons.Sentinal.Patches
         
         public override void OnPlayerPickingUpAmmo(PlayerPickingUpAmmoEventArgs ev)
         {
-            if (!RaycastPickup(ev.Player, ev.AmmoPickup))
+            if (Pickups.TryGetValue(ev.Player, out var pickup) && pickup.Item1 > Time.time && pickup.Item2 == ev.AmmoPickup)
+            {
+                Pickups.Remove(ev.Player);
+                return;
+            }
+            
+            if (!RaycastPickup(ev.Player, ev.AmmoPickup,true))
             {
                 ev.IsAllowed = false;
                 var info = ev.AmmoPickup.Base.NetworkInfo;
@@ -47,7 +60,13 @@ namespace CedMod.Addons.Sentinal.Patches
         
         public override void OnPlayerPickingUpArmor(PlayerPickingUpArmorEventArgs ev)
         {
-            if (!RaycastPickup(ev.Player, ev.BodyArmorPickup))
+            if (Pickups.TryGetValue(ev.Player, out var pickup) && pickup.Item1 > Time.time && pickup.Item2 == ev.BodyArmorPickup)
+            {
+                Pickups.Remove(ev.Player);
+                return;
+            }
+            
+            if (!RaycastPickup(ev.Player, ev.BodyArmorPickup, true))
             {
                 ev.IsAllowed = false;
                 var info = ev.BodyArmorPickup.Base.NetworkInfo;
@@ -55,9 +74,16 @@ namespace CedMod.Addons.Sentinal.Patches
                 ev.BodyArmorPickup.Base.NetworkInfo = info;
             }
         }
-        
 
-        public bool RaycastPickup(Player plr, Pickup pickup)
+        public override void OnPlayerSearchingPickup(PlayerSearchingPickupEventArgs ev)
+        {
+            if (RaycastPickup(ev.Player, ev.Pickup, false))
+            {
+                Pickups[ev.Player] = (Time.time + ev.Pickup.Base.SearchTimeForPlayer(ev.Player.ReferenceHub) + 0.5f, ev.Pickup);
+            }
+        }
+
+        public bool RaycastPickup(Player plr, Pickup pickup, bool report)
         {
             //Logger.Info("Testing pickup event");
             if (plr.IsNoclipEnabled || pickup.Base.transform.localScale != Vector3.one)
@@ -172,27 +198,31 @@ namespace CedMod.Addons.Sentinal.Patches
 
             if (!canSee && !nothingFound)
             {
-                WebSocketSystem.Enqueue(new QueryCommand()
+                if (report)
                 {
-                    Recipient = "PANEL",
-                    Data = new Dictionary<string, string>()
+                    WebSocketSystem.Enqueue(new QueryCommand()
                     {
-                        { "SentinalType", "PickupViolation" }, 
-                        { "UserId", plr.UserId },
-                        { "ItemType", pickup.Base.ItemId.ToString()},
-                        { "Room", plrRoom != null ? plrRoom.Base.name : "" },
-                        { "RoomRotation", plrRoom != null ? plrRoom.Rotation.ToString() : "" },
-                        { "ItemPos", pickup.Transform.position.ToString() },
-                        { "LocalItemPos", plrRoom != null ? plrRoom.Transform.InverseTransformPoint(pickup.Transform.position).ToString() : "" },
-                        { "CamPos", plr.ReferenceHub.PlayerCameraReference.position.ToString() },
-                        { "LocalCamPos", plrRoom != null ? plrRoom.Transform.InverseTransformPoint(plr.ReferenceHub.PlayerCameraReference.position).ToString() : "" },
-                        { "RaysMissed", raysMissed.ToString() },
-                        { "TotalRays", totalRays.ToString() },
-                        { "Ping", (LiteNetLib4MirrorServer.Peers[plr.ReferenceHub.connectionToClient.connectionId].Ping * 2).ToString() },
-                        { "Meta", JsonConvert.SerializeObject(metaData) }
-                    }
+                        Recipient = "PANEL",
+                        Data = new Dictionary<string, string>()
+                        {
+                            { "SentinalType", "PickupViolation" }, 
+                            { "UserId", plr.UserId },
+                            { "ItemType", pickup.Base.ItemId.ToString()},
+                            { "Room", plrRoom != null ? plrRoom.Base.name : "" },
+                            { "RoomRotation", plrRoom != null ? plrRoom.Rotation.ToString() : "" },
+                            { "ItemPos", pickup.Transform.position.ToString() },
+                            { "LocalItemPos", plrRoom != null ? plrRoom.Transform.InverseTransformPoint(pickup.Transform.position).ToString() : "" },
+                            { "CamPos", plr.ReferenceHub.PlayerCameraReference.position.ToString() },
+                            { "LocalCamPos", plrRoom != null ? plrRoom.Transform.InverseTransformPoint(plr.ReferenceHub.PlayerCameraReference.position).ToString() : "" },
+                            { "RaysMissed", raysMissed.ToString() },
+                            { "TotalRays", totalRays.ToString() },
+                            { "Ping", (LiteNetLib4MirrorServer.Peers[plr.ReferenceHub.connectionToClient.connectionId].Ping * 2).ToString() },
+                            { "Meta", JsonConvert.SerializeObject(metaData) }
+                        }
                     
-                });
+                    });
+                }
+                
                 return false;
             }
 
