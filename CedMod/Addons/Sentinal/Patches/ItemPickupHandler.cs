@@ -136,6 +136,27 @@ namespace CedMod.Addons.Sentinal.Patches
                     //Logger.Info($"Hit: {hit.collider.name} {hit.point.ToString()} dist {hitDist} est was {estPos} {canSee} {nothingFound}");
                     break;
                 }
+
+                if (!canSee && !nothingFound)
+                {
+                    var raisedItem = pickup.Transform.position + Vector3.up * 0.2f;
+                    var raisedCam = plr.ReferenceHub.PlayerCameraReference.position + Vector3.up;
+
+                    if (Physics.Linecast(raisedItem, raisedCam, out var hit, LayerMask.GetMask("Door", "Glass", "Default"), QueryTriggerInteraction.Ignore))
+                    {
+                        var backupRay = Vector3.Distance(raisedCam, raisedItem);
+                        var backupRayHit = Vector3.Distance(raisedCam, hit.point);
+                        if (backupRayHit + 0.2f >= backupRay)
+                        {
+                            canSee = true;
+                        }
+                        //Logger.Info($"Hit: {hit.collider.name} {hit.point.ToString()} dist {backupRayHit} est was {backupRay} {canSee} {nothingFound}");
+                    }
+                    else
+                    {
+                        canSee = true;
+                    }
+                }
             }
 
             if (!canSee && !nothingFound)
