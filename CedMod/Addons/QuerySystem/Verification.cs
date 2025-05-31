@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using CedMod.Patches;
 using LabApi.Features.Console;
 
 namespace CedMod.Addons.QuerySystem
@@ -35,7 +36,7 @@ namespace CedMod.Addons.QuerySystem
                     AmountErrored = 0;
                     ServerConsole.ReloadServerName();
                     ServerConsole.Update = true;
-                    await ConfirmId();
+                    await ConfirmId(true, true);
                 }
                 else
                 {
@@ -50,14 +51,18 @@ namespace CedMod.Addons.QuerySystem
                 }
             }
         }
-        
-        public static async Task<string> ConfirmId(bool loop = true)
+
+        public static async Task<string> ConfirmId(bool loop = true, bool exitOnSuccess = true)
         {
             bool first = true;
             while (!Shutdown._quitting)
             {
+                bool wasHidden = ReloadServerNamePatch.IncludeString;
+                ReloadServerNamePatch.IncludeString = true;
+                ServerConsole.ReloadServerName();
+                ServerConsole.Update = true;
                 if (loop)
-                    await ServerPreferences.WaitForSecond(first ? 45000 : 15000, CedModMain.CancellationToken, (o) => !Shutdown._quitting && CedModMain.Singleton.CacheHandler != null);
+                    await ServerPreferences.WaitForSecond(first || wasHidden ? 45000 : 15000, CedModMain.CancellationToken, (o) => !Shutdown._quitting && CedModMain.Singleton.CacheHandler != null);
                 first = false;
                 using (HttpClient client = new HttpClient())
                 {
@@ -71,7 +76,12 @@ namespace CedMod.Addons.QuerySystem
                     {
                         ServerId = int.Parse(responseString);
                         AmountErrored = 0;
-                        if (!loop)
+
+                        ReloadServerNamePatch.IncludeString = false;
+                        ServerConsole.ReloadServerName();
+                        ServerConsole.Update = true;
+                        
+                        if (!loop || exitOnSuccess)
                             return "";
                     }
                     else
