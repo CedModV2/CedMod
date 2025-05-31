@@ -97,7 +97,7 @@ namespace CedMod.Addons.Sentinal.Patches
                 for (int i = 0; i < size; i++)
                 {
                     var hit = raycastHits[i];
-                    //DrawableLines.GenerateSphere(hit.point, 0.5f, 10f, Color.red);
+                    //DrawableLines.GenerateSphere(hit.point, 0.1f, 10f, Color.red);
                     var prim = hit.collider.GetComponentInParent<PrimitiveObjectToy>();
                     if (prim != null && !prim.NetworkPrimitiveFlags.HasFlag(PrimitiveFlags.Collidable))
                         continue;
@@ -114,7 +114,7 @@ namespace CedMod.Addons.Sentinal.Patches
                     
 
                     var hitDist = Vector3.Distance(origin, hit.point);
-                    if (hitDist + 0.2f >= estPos)
+                    if (hitDist + 0.25f >= estPos)
                     {
                         canSee = true;
                     }
@@ -136,26 +136,37 @@ namespace CedMod.Addons.Sentinal.Patches
                     //Logger.Info($"Hit: {hit.collider.name} {hit.point.ToString()} dist {hitDist} est was {estPos} {canSee} {nothingFound}");
                     break;
                 }
+            }
+            
+            if (!canSee && !nothingFound)
+            {
+                var raisedItem = pickup.Transform.position + Vector3.up * 0.2f;
+                var raisedCam = plr.ReferenceHub.PlayerCameraReference.position + Vector3.up;
 
-                if (!canSee && !nothingFound)
+                if (Physics.Linecast(raisedItem, raisedCam, out var hit, LayerMask.GetMask("Door", "Glass", "Default"), QueryTriggerInteraction.Ignore))
                 {
-                    var raisedItem = pickup.Transform.position + Vector3.up * 0.2f;
-                    var raisedCam = plr.ReferenceHub.PlayerCameraReference.position + Vector3.up;
-
-                    if (Physics.Linecast(raisedItem, raisedCam, out var hit, LayerMask.GetMask("Door", "Glass", "Default"), QueryTriggerInteraction.Ignore))
-                    {
-                        var backupRay = Vector3.Distance(raisedCam, raisedItem);
-                        var backupRayHit = Vector3.Distance(raisedCam, hit.point);
-                        if (backupRayHit + 0.2f >= backupRay)
-                        {
-                            canSee = true;
-                        }
-                        //Logger.Info($"Hit: {hit.collider.name} {hit.point.ToString()} dist {backupRayHit} est was {backupRay} {canSee} {nothingFound}");
-                    }
-                    else
+                    var backupRay = Vector3.Distance(raisedCam, raisedItem);
+                    var backupRayHit = Vector3.Distance(raisedCam, hit.point);
+                    if (backupRayHit + 0.25f >= backupRay)
                     {
                         canSee = true;
                     }
+                    //Logger.Info($"Hit: {hit.collider.name} {hit.point.ToString()} dist {backupRayHit} est was {backupRay} {canSee} {nothingFound}");
+                }
+                else
+                {
+                    canSee = true;
+                }
+            }
+
+            if (!canSee && !nothingFound)
+            {
+                if (Physics.Raycast(plr.ReferenceHub.PlayerCameraReference.position + (plr.ReferenceHub.PlayerCameraReference.forward * 0.1f), plr.ReferenceHub.PlayerCameraReference.forward, out RaycastHit hit, 3f, plr.ReferenceHub.playerInteract.mask, QueryTriggerInteraction.Ignore))
+                {
+                    //Logger.Info($"Ray hit {hit.collider.name}");
+                    ISearchable target = hit.transform.GetComponentInParent<ISearchable>();
+                    if (target != null && target.netIdentity.netId == pickup.NetworkIdentity.netId)
+                        canSee = true;
                 }
             }
 
