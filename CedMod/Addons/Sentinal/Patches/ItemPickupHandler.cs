@@ -90,7 +90,7 @@ namespace CedMod.Addons.Sentinal.Patches
                     continue;
                 
                 //DrawableLines.GenerateLine(10f, Color.blue, new []{ origin, vector });
-                int size = Physics.RaycastNonAlloc(new Ray(origin, dir), raycastHits, estPos, LayerMask.GetMask("Door", "Glass", "Default"));
+                int size = Physics.RaycastNonAlloc(new Ray(origin, dir), raycastHits, estPos, LayerMask.GetMask("Door", "Glass", "Default"), QueryTriggerInteraction.Ignore);
                 if (nothingFound)
                     nothingFound = size == 0;
                 Array.Sort(raycastHits, 0, size, new HitDistanceComparer());
@@ -149,6 +149,7 @@ namespace CedMod.Addons.Sentinal.Patches
                         { "UserId", plr.UserId },
                         { "ItemType", pickup.Base.ItemId.ToString()},
                         { "Room", plrRoom != null ? plrRoom.Base.name : "" },
+                        { "RoomRotation", plrRoom != null ? plrRoom.Rotation.ToString() : "" },
                         { "ItemPos", pickup.Transform.position.ToString() },
                         { "LocalItemPos", plrRoom != null ? plrRoom.Transform.InverseTransformPoint(pickup.Transform.position).ToString() : "" },
                         { "CamPos", plr.ReferenceHub.PlayerCameraReference.position.ToString() },

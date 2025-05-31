@@ -95,6 +95,7 @@ namespace CedMod
         public EventManagerServerEvents EventManagerServerEvents = new EventManagerServerEvents();
         public TeslaGateHandler SentinalTeslaGateHandler = new TeslaGateHandler();
         public ItemPickupHandler SentinalItemPickupHandler = new ItemPickupHandler();
+        public VoiceChatEvents SentinalVoicechatEvents = new VoiceChatEvents();
         public AutoUpdater AutoUpdater = null;
         public AdminSitHandler AdminSitHandlerEvents = null;
         public StaffInfoHandler StaffInfoHandler = null;
@@ -195,6 +196,7 @@ namespace CedMod
             
             CustomHandlersManager.RegisterEventsHandler(SentinalTeslaGateHandler);
             CustomHandlersManager.RegisterEventsHandler(SentinalItemPickupHandler);
+            CustomHandlersManager.RegisterEventsHandler(SentinalVoicechatEvents);
             
             ThreadDispatcher dispatcher = Object.FindObjectOfType<ThreadDispatcher>();
             if (dispatcher == null)
@@ -556,6 +558,7 @@ namespace CedMod
             
             CustomHandlersManager.UnregisterEventsHandler(SentinalTeslaGateHandler);
             CustomHandlersManager.UnregisterEventsHandler(SentinalItemPickupHandler);
+            CustomHandlersManager.UnregisterEventsHandler(SentinalVoicechatEvents);
             Shutdown.OnQuit -= OnQuit;
             
             Singleton = null;

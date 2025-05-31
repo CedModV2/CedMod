@@ -4,8 +4,11 @@ using CedMod.Addons.QuerySystem;
 using HarmonyLib;
 using InventorySystem;
 using InventorySystem.Items.Radio;
+using LabApi.Events.Arguments.PlayerEvents;
+using LabApi.Events.CustomHandlers;
 using LabApi.Features.Console;
 using Mirror;
+using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PlayerRoles.Voice;
 using UnityEngine;
@@ -16,6 +19,19 @@ using Logger = LabApi.Features.Console.Logger;
 
 namespace CedMod.Addons.Sentinal.Patches
 {
+    public class VoiceChatEvents: CustomEventsHandler
+    {
+        public override void OnPlayerReceivingVoiceMessage(PlayerReceivingVoiceMessageEventArgs ev)
+        {
+            if (CedModMain.Singleton == null || CedModMain.Singleton.Config == null || CedModMain.Singleton.Config.CedMod.DisableFakeSyncing)
+                return;
+
+            var prevSync = ev.Player.ReferenceHub.roleManager.PreviouslySentRole;
+            if (prevSync.TryGetValue(ev.Message.Speaker.netId, out var role) && role.GetTeam() == Team.Dead && ev.Message.Speaker.GetTeam() != Team.Dead && ev.Player.Team != Team.Dead)
+                ev.IsAllowed = false;
+        }
+    }
+    
     [HarmonyPatch(typeof(VoiceTransceiver), nameof(VoiceTransceiver.ServerReceiveMessage))]
     public static class VoicePacketPacket
     {
