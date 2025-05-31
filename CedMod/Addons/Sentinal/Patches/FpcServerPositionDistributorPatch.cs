@@ -21,6 +21,7 @@ using UnityEngine;
 using Utils.NonAllocLINQ;
 using Logger = LabApi.Features.Console.Logger;
 using RadioItem = InventorySystem.Items.Radio.RadioItem;
+using Scp1576Item = InventorySystem.Items.Usables.Scp1576.Scp1576Item;
 using Scp1853Item = InventorySystem.Items.Usables.Scp1853Item;
 
 namespace CedMod.Addons.Sentinal.Patches
@@ -108,7 +109,7 @@ namespace CedMod.Addons.Sentinal.Patches
                             toSend = hub.roleManager.CurrentRole.RoleTypeId;
                     }
                     
-                    if (hub.inventory.CurInstance != null && hub.inventory.CurInstance is Scp1853Item scp1853Item && scp1853Item.IsUsing)
+                    if (hub.inventory.CurInstance != null && hub.inventory.CurInstance is Scp1576Item scp1576Item && scp1576Item.IsUsing)
                         toSend = hub.roleManager.CurrentRole.RoleTypeId;
                     
                     if (VoicePacketPacket.Radio.Contains(hub.netId))
