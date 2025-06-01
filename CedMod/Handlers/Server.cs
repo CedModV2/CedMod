@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CedMod.Addons.Audio;
+using CedMod.Addons.Sentinal;
 using CedMod.Addons.Sentinal.Patches;
 using CedMod.Components;
 using LabApi.Events.CustomHandlers;
@@ -14,6 +15,7 @@ namespace CedMod.Handlers
 
         public override void OnServerRoundRestarted()
         {
+            SentinalBehaviour.Stalking106.Clear();
             Scp939LungePatch.LungeTime.Clear();
             FriendlyFireAutoban.Teamkillers.Clear();
             FriendlyFireAutoban.AdminDisabled = false;

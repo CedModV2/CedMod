@@ -38,7 +38,7 @@ namespace CedMod.Addons.Sentinal.Patches
                 if (SyncDatas.TryGetValue(hub, out FpcSyncData data) && __instance == data)
                     return true;
                 
-                if (hub.roleManager.CurrentRole is Scp106Role scp106Role && scp106Role.SubroutineModule.TryGetSubroutine(out Scp106StalkAbility stalkAbility) && stalkAbility._sinkhole.IsDuringAnimation) //no movement during animation
+                if (hub.roleManager.CurrentRole is Scp106Role scp106Role && scp106Role.SubroutineModule.TryGetSubroutine(out Scp106StalkAbility stalkAbility) && stalkAbility._sinkhole.IsDuringAnimation && SentinalBehaviour.Stalking106.TryGetValue(hub.netId, out var stalk) && stalk + stalkAbility.SubmergeTime > Time.time) //no movement during animation
                     disallowMovement = true;
                 
                 if (hub.roleManager.CurrentRole is Scp049Role scp049Role && scp049Role.SubroutineModule.TryGetSubroutine(out Scp049ResurrectAbility resurrectAbility) && resurrectAbility.IsInProgress) //no movement during reviving
@@ -74,7 +74,7 @@ namespace CedMod.Addons.Sentinal.Patches
                     if (!MovementViolations[hub.netId].ContainsKey(SentinalBehaviour.UFrames))
                         MovementViolations[hub.netId][SentinalBehaviour.UFrames] = new List<(string position, int ping)>();
                 
-                    MovementViolations[hub.netId][SentinalBehaviour.UFrames].Add((hub.GetPosition().ToString(), LiteNetLib4MirrorServer.Peers[hub.connectionToClient.connectionId].Ping * 2));
+                    MovementViolations[hub.netId][SentinalBehaviour.UFrames].Add((__instance._position.Position.ToString(), LiteNetLib4MirrorServer.Peers[hub.connectionToClient.connectionId].Ping * 2));
                     return false;
                 }
 
@@ -82,6 +82,8 @@ namespace CedMod.Addons.Sentinal.Patches
                     PingTolerance.Remove(hub.netId);
                 
                 SyncDatas[hub] = __instance;
+                if (!disallowMovement && SentinalBehaviour.Stalking106.ContainsKey(hub.netId))
+                    SentinalBehaviour.Stalking106.Remove(hub.netId);
                 if (WebSocketSystem.HelloMessage == null || !WebSocketSystem.HelloMessage.SentinalPositions)
                     return true;
                 

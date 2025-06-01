@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using CedMod.Addons.QuerySystem.WS;
 using CedMod.Addons.Sentinal.Patches;
+using LabApi.Events.Arguments.Scp106Events;
 using Newtonsoft.Json;
 using PlayerRoles.FirstPersonControl.NetworkMessages;
 using UnityEngine;
@@ -16,6 +18,7 @@ namespace CedMod.Addons.Sentinal
 {
     public class SentinalBehaviour: MonoBehaviour
     {
+        public static Dictionary<uint, float> Stalking106 = new Dictionary<uint, float>();
         public float AuthTimer = 1;
         public Dictionary<int, Dictionary<uint, List<(int, float, float)>>> FrameCount = new Dictionary<int, Dictionary<uint, List<(int, float, float)>>>();
         Dictionary<uint, Dictionary<int, List<(int, float, float)>>> UserFrames = new Dictionary<uint, Dictionary<int, List<(int, float, float)>>>();
@@ -26,7 +29,21 @@ namespace CedMod.Addons.Sentinal
         public static ulong UFrameLastPosSent = UFrames;
         private Dictionary<ReferenceHub, List<(string userid, string rotation, string position, ulong UFrames)>> _moveFrames = new Dictionary<ReferenceHub, List<(string userid, string rotation, string position, ulong UFrames)>>();
 
-        
+        public void Start()
+        {
+            LabApi.Events.Handlers.Scp106Events.ChangedStalkMode += StalkChanged;
+        }
+
+        private void StalkChanged(Scp106ChangedStalkModeEventArgs ev)
+        {
+            Stalking106[ev.Player.NetworkId] = Time.time;
+        }
+
+        public void OnDestroy()
+        {
+            LabApi.Events.Handlers.Scp106Events.ChangedStalkMode -= StalkChanged;
+        }
+
         public void FixedUpdate()
         {
             
@@ -152,7 +169,7 @@ namespace CedMod.Addons.Sentinal
                 foreach (var lunge in FpcSyncDataPatch.MovementViolations)
                 {
                     var plr = ReferenceHub.AllHubs.FirstOrDefault(s => s.netId == lunge.Key, null);
-                    if (plr == null)
+                    if (plr == null || lunge.Value.Sum(s => s.Value.Count) <= 5)
                         continue;
                     
                     WebSocketSystem.Enqueue(new QueryCommand()

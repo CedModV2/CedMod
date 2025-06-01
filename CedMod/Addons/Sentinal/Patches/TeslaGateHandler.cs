@@ -150,7 +150,7 @@ namespace CedMod.Addons.Sentinal.Patches
         private static IEnumerator<float> EvaluatePlayer(TeslaGate teslaGate, Player plr)
         {
             yield return Timing.WaitForSeconds(0.10f + (LiteNetLib4MirrorServer.Peers[plr.ReferenceHub.connectionToClient.connectionId].Ping * 2 / 100f));
-            if (TeslaHits.ContainsKey(plr.NetworkId) && TeslaHits[plr.NetworkId].Elapsed.TotalMilliseconds <= 500)
+            if (TeslaHits.ContainsKey(plr.NetworkId) && TeslaHits[plr.NetworkId].Elapsed.TotalMilliseconds <= 1500 + Mathf.Min(0.5f, (LiteNetLib4MirrorServer.Peers[plr.ReferenceHub.connectionToClient.connectionId].Ping * 1.75f) / 1000))
             {
                 TeslaHits.Remove(plr.NetworkId);
                 yield break;
