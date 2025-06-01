@@ -48,8 +48,8 @@ namespace CedMod.Addons.Sentinal.Patches
                     disallowMovement = true;
                 
                 //todo: when the sl movement system doesnt think people are behind walls
-                //if (hub.searchCoordinator.SessionPipe.Status != SearchSessionPipe.Activity.Idle) //no movement during pickup
-                //    disallowMovement = true;
+                if (hub.searchCoordinator.SessionPipe.Status != SearchSessionPipe.Activity.Idle) //no movement during pickup
+                    disallowMovement = true;
 
                 if (disallowMovement && PingTolerance.TryGetValue(hub.netId, out float tolerance) && tolerance >= Time.time)
                 {
@@ -62,24 +62,28 @@ namespace CedMod.Addons.Sentinal.Patches
                     PingTolerance[hub.netId] = Time.time + Mathf.Min(0.5f, (LiteNetLib4MirrorServer.Peers[hub.connectionToClient.connectionId].Ping * 2f) / 1000);
                 }
                 
-                if (disallowMovement && !tempBypass)
+                if (disallowMovement && !tempBypass && __instance._bitPosition)
                 {
-                    if (Vector3.Distance(hub.GetPosition(), __instance._position.Position) >= 1)
-                        hub.TryOverridePosition(hub.GetPosition());
-                    
-                    if (!MovementViolations.ContainsKey(hub.netId))
+                    if (Vector3.Distance(hub.GetPosition(), __instance._position.Position) >= 0.03f)
                     {
-                        MovementViolations[hub.netId] = new Dictionary<ulong, List<(string position, int ping)>>();
-                    }
+                        if (Vector3.Distance(hub.GetPosition(), __instance._position.Position) >= 1)
+                            hub.TryOverridePosition(hub.GetPosition());
+                    
+                        if (!MovementViolations.ContainsKey(hub.netId))
+                        {
+                            MovementViolations[hub.netId] = new Dictionary<ulong, List<(string position, int ping)>>();
+                        }
 
-                    if (!MovementViolations[hub.netId].ContainsKey(SentinalBehaviour.UFrames))
-                        MovementViolations[hub.netId][SentinalBehaviour.UFrames] = new List<(string position, int ping)>();
+                        if (!MovementViolations[hub.netId].ContainsKey(SentinalBehaviour.UFrames))
+                            MovementViolations[hub.netId][SentinalBehaviour.UFrames] = new List<(string position, int ping)>();
                 
-                    MovementViolations[hub.netId][SentinalBehaviour.UFrames].Add((__instance._position.Position.ToString(), LiteNetLib4MirrorServer.Peers[hub.connectionToClient.connectionId].Ping * 2));
+                        MovementViolations[hub.netId][SentinalBehaviour.UFrames].Add((__instance._position.Position.ToString(), LiteNetLib4MirrorServer.Peers[hub.connectionToClient.connectionId].Ping * 2));
+                    }
+                    
                     return false;
                 }
 
-                if (!disallowMovement && PingTolerance.ContainsKey(hub.netId))
+                if (!disallowMovement && PingTolerance.ContainsKey(hub.netId) && __instance._bitPosition)
                     PingTolerance.Remove(hub.netId);
                 
                 SyncDatas[hub] = __instance;

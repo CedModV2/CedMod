@@ -169,7 +169,7 @@ namespace CedMod.Addons.Sentinal
                 foreach (var lunge in FpcSyncDataPatch.MovementViolations)
                 {
                     var plr = ReferenceHub.AllHubs.FirstOrDefault(s => s.netId == lunge.Key, null);
-                    if (plr == null || lunge.Value.Sum(s => s.Value.Count) <= 5)
+                    if (plr == null)
                         continue;
                     
                     WebSocketSystem.Enqueue(new QueryCommand()
