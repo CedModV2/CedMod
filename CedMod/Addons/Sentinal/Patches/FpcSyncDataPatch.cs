@@ -47,8 +47,9 @@ namespace CedMod.Addons.Sentinal.Patches
                 if (hub.roleManager.CurrentRole is ZombieRole zombieRole && zombieRole.SubroutineModule.TryGetSubroutine(out ZombieConsumeAbility consumeAbility) && consumeAbility.IsInProgress) //no movement during consuming
                     disallowMovement = true;
                 
-                if (hub.searchCoordinator.SessionPipe.Status != SearchSessionPipe.Activity.Idle) //no movement during pickup
-                    disallowMovement = true;
+                //todo: when the sl movement system doesnt think people are behind walls
+                //if (hub.searchCoordinator.SessionPipe.Status != SearchSessionPipe.Activity.Idle) //no movement during pickup
+                //    disallowMovement = true;
 
                 if (disallowMovement && PingTolerance.TryGetValue(hub.netId, out float tolerance) && tolerance >= Time.time)
                 {
