@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using CedMod.Addons.QuerySystem.WS;
 using CustomPlayerEffects;
-using Dissonance;
 using HarmonyLib;
 using InventorySystem.Searching;
 using Mirror;
