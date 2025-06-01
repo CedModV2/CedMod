@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using CedMod.Addons.QuerySystem.WS;
+using HarmonyLib;
 using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.CustomHandlers;
 using LabApi.Features.Wrappers;
 using MEC;
+using Mirror;
 using Mirror.LiteNetLib4Mirror;
 using Newtonsoft.Json;
 using PlayerStatsSystem;
@@ -14,6 +16,19 @@ using Utils.NonAllocLINQ;
 
 namespace CedMod.Addons.Sentinal.Patches
 {
+    [HarmonyPatch(typeof(TeslaGateController), nameof(TeslaGateController.ServerReceiveMessage))]
+    public static class TeslaPatch
+    {
+        public static void Prefix(NetworkConnection conn, TeslaHitMsg msg)
+        {
+            ReferenceHub hub;
+            if (!ReferenceHub.TryGetHubNetID(conn.identity.netId, out hub) || msg.Gate == null || Vector3.Distance(msg.Gate.Position, hub.transform.position) > (msg.Gate.sizeOfTrigger * 2.200000047683716))
+                return;
+            
+            TeslaGateHandler.TeslaHits[hub.netId] = Stopwatch.StartNew();
+        }
+    }
+    
     public class TeslaGateHandler: CustomEventsHandler
     {
         public TeslaGateHandler()
@@ -25,12 +40,6 @@ namespace CedMod.Addons.Sentinal.Patches
         public static Dictionary<uint, Stopwatch> TeslaHits = new Dictionary<uint, Stopwatch>();
         public static Dictionary<string, (TeslaGate gate, DateTime time)> TeslaKills = new Dictionary<string, (TeslaGate gate, DateTime time)>();
         
-        public override void OnPlayerHurting(PlayerHurtingEventArgs ev)
-        {
-            if (ev.DamageHandler is UniversalDamageHandler universalDamageHandler && universalDamageHandler.TranslationId == DeathTranslations.Tesla.Id)
-                TeslaHits[ev.Player.NetworkId] = Stopwatch.StartNew();
-        }
-
         public override void OnPlayerLeft(PlayerLeftEventArgs ev)
         {
             TeslaHits.Remove(ev.Player.NetworkId);
@@ -99,7 +108,7 @@ namespace CedMod.Addons.Sentinal.Patches
 
         public static IEnumerator<float> DedicateCheck(Player plr1, TeslaGate teslaGate, List<Player> players)
         {
-            yield return Timing.WaitForSeconds((LiteNetLib4MirrorServer.Peers[plr1.ReferenceHub.connectionToClient.connectionId].Ping * 1.75f) / 1000);
+            yield return Timing.WaitForSeconds(Mathf.Min(0.5f, (LiteNetLib4MirrorServer.Peers[plr1.ReferenceHub.connectionToClient.connectionId].Ping * 1.75f) / 1000));
             yield return Timing.WaitForSeconds(0.25f);
             players.Remove(plr1);
             foreach (var killer in teslaGate.killers)

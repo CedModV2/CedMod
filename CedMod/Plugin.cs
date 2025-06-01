@@ -23,6 +23,7 @@ using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.Loader;
 using HarmonyLib;
+using Interactables.Interobjects.DoorUtils;
 using LabApi.Events.CustomHandlers;
 using LabApi.Features.Permissions;
 using LabApi.Loader;
@@ -197,6 +198,8 @@ namespace CedMod
             CustomHandlersManager.RegisterEventsHandler(SentinalTeslaGateHandler);
             CustomHandlersManager.RegisterEventsHandler(SentinalItemPickupHandler);
             CustomHandlersManager.RegisterEventsHandler(SentinalVoicechatEvents);
+            DoorVariant.OnInstanceCreated += SentinalItemPickupHandler.DoorCreated;
+            DoorVariant.OnInstanceRemoved += SentinalItemPickupHandler.DoorRemoved;
             
             ThreadDispatcher dispatcher = Object.FindObjectOfType<ThreadDispatcher>();
             if (dispatcher == null)
@@ -559,6 +562,8 @@ namespace CedMod
             CustomHandlersManager.UnregisterEventsHandler(SentinalTeslaGateHandler);
             CustomHandlersManager.UnregisterEventsHandler(SentinalItemPickupHandler);
             CustomHandlersManager.UnregisterEventsHandler(SentinalVoicechatEvents);
+            DoorVariant.OnInstanceCreated -= SentinalItemPickupHandler.DoorCreated;
+            DoorVariant.OnInstanceRemoved -= SentinalItemPickupHandler.DoorRemoved;
             Shutdown.OnQuit -= OnQuit;
             
             Singleton = null;

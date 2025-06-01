@@ -22,8 +22,31 @@ namespace CedMod.Addons.Sentinal.Patches
 {
     public class ItemPickupHandler: CustomEventsHandler
     {
+        public static Dictionary<DoorVariant, float> DoorMovetimes = new Dictionary<DoorVariant, float>();
+        public static Dictionary<DoorVariant, Action> DoorActors = new Dictionary<DoorVariant, Action>();
+        
+        
         static RaycastHit[] raycastHits = new RaycastHit[50];
         Dictionary<Player, (float, Pickup)> Pickups = new Dictionary<Player, (float, Pickup)>();
+        
+        public void DoorCreated(DoorVariant obj)
+        {
+            var func = new Action(() =>
+            {
+                DoorMovetimes[obj] = Time.time;
+            });
+            obj.OnStateChanged += func;
+            DoorActors[obj] = func;
+        }
+        
+        public void DoorRemoved(DoorVariant obj)
+        {
+            if (DoorActors.ContainsKey(obj))
+                obj.OnStateChanged -= DoorActors[obj];
+            DoorMovetimes.Remove(obj);
+            DoorActors.Remove(obj);
+        }
+        
         public override void OnPlayerPickingUpItem(PlayerPickingUpItemEventArgs ev)
         {
             if (Pickups.TryGetValue(ev.Player, out var pickup) && pickup.Item1 > Time.time && pickup.Item2 == ev.Pickup)
@@ -137,8 +160,11 @@ namespace CedMod.Addons.Sentinal.Patches
                     if (locker != null && locker.Chambers.Any(s => s.WasEverOpened))
                         canSee = true;
                     
+                    //slight tolerance for moving doors
+                    var door = hit.collider.GetComponentInParent<DoorVariant>();
+                    if (door != null && door.RequiredPermissions.RequiredPermissions != 0 && (door.IsMoving || (DoorMovetimes.TryGetValue(door, out var time) && time + pickup.Base.SearchTimeForPlayer(plr.ReferenceHub) > Time.time)))
+                        canSee = true;
                     
-
                     var hitDist = Vector3.Distance(origin, hit.point);
                     if (hitDist + 0.25f >= estPos)
                     {
@@ -212,6 +238,9 @@ namespace CedMod.Addons.Sentinal.Patches
                         canSee = true;
                 }
             }
+
+            if (plrRoom == null) //primitive structures not supported for now, as i cant recreate the detection.
+                return true;
             
             if (!canSee && !nothingFound)
             {

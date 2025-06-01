@@ -590,7 +590,7 @@ namespace CedMod.Addons.QuerySystem
                         { "AttackerId", ev.Attacker.UserId },
                         { "AttackerName", ev.Attacker.Nickname },
                         { "Weapon", ev.DamageHandler.ToString() },
-                        { "Type", nameof(OnPlayerDeath) },
+                        { "Type", nameof(OnPlayerDying) },
                         { "Message", 
                             string.Format("Teamkill ⚠: {0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8} in {9}.",
                                 new object[]
@@ -666,7 +666,7 @@ namespace CedMod.Addons.QuerySystem
                         { "AttackerId", ev.Attacker.UserId },
                         { "AttackerName", ev.Attacker.Nickname },
                         { "Weapon", ev.DamageHandler.ToString() },
-                        { "Type", nameof(OnPlayerDeath) },
+                        { "Type", nameof(OnPlayerDying) },
                         { "Message", string.Format("{0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8} In {9}.", 
                             new object[]
                             {

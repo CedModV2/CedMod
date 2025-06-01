@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CommandSystem.Commands.RemoteAdmin;
@@ -21,6 +22,7 @@ using UnityEngine;
 using Utils.NonAllocLINQ;
 using Logger = LabApi.Features.Console.Logger;
 using RadioItem = InventorySystem.Items.Radio.RadioItem;
+using Random = UnityEngine.Random;
 using Scp1576Item = InventorySystem.Items.Usables.Scp1576.Scp1576Item;
 using Scp1853Item = InventorySystem.Items.Usables.Scp1853Item;
 
@@ -29,6 +31,7 @@ namespace CedMod.Addons.Sentinal.Patches
     [HarmonyPatch(typeof(FpcServerPositionDistributor), nameof(FpcServerPositionDistributor.WriteAll))]
     public static class FpcServerPositionDistributorPatch
     {
+        public static event Func<ReferenceHub, ReferenceHub, RoleTypeId, RoleTypeId> RoleSync; 
         public static bool Prefix(ReferenceHub receiver, NetworkWriter writer)
         {
             if (CedModMain.Singleton.Config.CedMod.DisableFakeSyncing)
@@ -88,6 +91,10 @@ namespace CedMod.Addons.Sentinal.Patches
                             toSend = hub.roleManager.CurrentRole.RoleTypeId;
                     }
 
+                    var send = RoleSync?.Invoke(hub, receiver, toSend);
+                    if (send != null)
+                        toSend = send.Value;
+
                     if (!hub.roleManager.PreviouslySentRole.TryGetValue(receiver.netId, out RoleTypeId prev) || prev != toSend)
                         SendRole(receiver, hub, toSend);
                 }
@@ -117,6 +124,10 @@ namespace CedMod.Addons.Sentinal.Patches
                     
                     if (hub.roleManager.CurrentRole is IObfuscatedRole ior)
                         toSend = ior.GetRoleForUser(receiver);
+                    
+                    var send = RoleSync?.Invoke(hub, receiver, toSend);
+                    if (send != null)
+                        toSend = send.Value;
                     
                     if (!hub.roleManager.PreviouslySentRole.TryGetValue(receiver.netId, out RoleTypeId prev) || prev != toSend)
                     {

@@ -149,6 +149,26 @@ namespace CedMod.Addons.Sentinal
                     });
                 }
                 
+                foreach (var lunge in FpcSyncDataPatch.MovementViolations)
+                {
+                    var plr = ReferenceHub.AllHubs.FirstOrDefault(s => s.netId == lunge.Key, null);
+                    if (plr == null)
+                        continue;
+                    
+                    WebSocketSystem.Enqueue(new QueryCommand()
+                    {
+                        Recipient = "PANEL",
+                        Data = new Dictionary<string, string>()
+                        {
+                            { "SentinalType", "MovementViolation" }, 
+                            { "UserId", plr.authManager.UserId },
+                            { "Data", JsonConvert.SerializeObject(lunge.Value) },
+                            { "Pos", plr.transform.position.ToString() }
+                        }
+                    });
+                }
+                
+                FpcSyncDataPatch.MovementViolations.Clear();
                 Scp939LungePatch.LungeTime.Clear();
                 UserFrames.Clear();
                 FrameCount.Clear(); //clear array as we have reported.
