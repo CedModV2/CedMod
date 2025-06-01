@@ -187,7 +187,24 @@ namespace CedMod.Addons.Sentinal.Patches
 
             if (!canSee && !nothingFound)
             {
-                if (Physics.Raycast(plr.ReferenceHub.PlayerCameraReference.position + (plr.ReferenceHub.PlayerCameraReference.forward * 0.1f), plr.ReferenceHub.PlayerCameraReference.forward, out RaycastHit hit, 3f, plr.ReferenceHub.playerInteract.mask, QueryTriggerInteraction.Ignore))
+                var canPoint = plr.ReferenceHub.PlayerCameraReference.position + (plr.ReferenceHub.PlayerCameraReference.forward * 0.1f);
+                if (Physics.Raycast(canPoint, plr.ReferenceHub.PlayerCameraReference.forward, out RaycastHit hit, 3f, plr.ReferenceHub.playerInteract.mask, QueryTriggerInteraction.Ignore))
+                {
+                    //Logger.Info($"Ray hit {hit.collider.name}");
+                    ISearchable target = hit.transform.GetComponentInParent<ISearchable>();
+                    if (target != null && target.netIdentity.netId == pickup.NetworkIdentity.netId)
+                        canSee = true;
+                }
+                
+                if (!canSee && Physics.Raycast(canPoint + (plr.ReferenceHub.PlayerCameraReference.right * 0.1f), plr.ReferenceHub.PlayerCameraReference.forward, out hit, 3f, plr.ReferenceHub.playerInteract.mask, QueryTriggerInteraction.Ignore))
+                {
+                    //Logger.Info($"Ray hit {hit.collider.name}");
+                    ISearchable target = hit.transform.GetComponentInParent<ISearchable>();
+                    if (target != null && target.netIdentity.netId == pickup.NetworkIdentity.netId)
+                        canSee = true;
+                }
+                
+                if (!canSee && Physics.Raycast(canPoint + (-plr.ReferenceHub.PlayerCameraReference.right * 0.1f), plr.ReferenceHub.PlayerCameraReference.forward, out hit, 3f, plr.ReferenceHub.playerInteract.mask, QueryTriggerInteraction.Ignore))
                 {
                     //Logger.Info($"Ray hit {hit.collider.name}");
                     ISearchable target = hit.transform.GetComponentInParent<ISearchable>();
@@ -195,7 +212,7 @@ namespace CedMod.Addons.Sentinal.Patches
                         canSee = true;
                 }
             }
-
+            
             if (!canSee && !nothingFound)
             {
                 if (report)
