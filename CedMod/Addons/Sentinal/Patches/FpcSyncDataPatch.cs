@@ -64,10 +64,9 @@ namespace CedMod.Addons.Sentinal.Patches
                 
                 if (disallowMovement && !tempBypass && __instance._bitPosition)
                 {
-                    if (Vector3.Distance(hub.GetPosition(), __instance._position.Position) >= 0.03f)
+                    if (Vector3.Distance(hub.GetPosition(), __instance._position.Position) >= 1f)
                     {
-                        if (Vector3.Distance(hub.GetPosition(), __instance._position.Position) >= 1)
-                            hub.TryOverridePosition(hub.GetPosition());
+                        hub.TryOverridePosition(hub.GetPosition());
                     
                         if (!MovementViolations.ContainsKey(hub.netId))
                         {
