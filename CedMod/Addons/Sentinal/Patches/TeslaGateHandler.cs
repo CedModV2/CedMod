@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using PlayerStatsSystem;
 using UnityEngine;
 using Utils.NonAllocLINQ;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace CedMod.Addons.Sentinal.Patches
 {
@@ -38,7 +39,8 @@ namespace CedMod.Addons.Sentinal.Patches
         
         readonly static Collider[] hitColliders = new Collider[70];
         public static Dictionary<uint, Stopwatch> TeslaHits = new Dictionary<uint, Stopwatch>();
-        public static Dictionary<string, (TeslaGate gate, DateTime time)> TeslaKills = new Dictionary<string, (TeslaGate gate, DateTime time)>();
+        public static Dictionary<string, (TeslaGate gate, DateTime time, int amount)> TeslaKills = new Dictionary<string, (TeslaGate gate, DateTime time, int amount)>();
+        public static List<Player> CastList = new List<Player>();
         
         public override void OnPlayerLeft(PlayerLeftEventArgs ev)
         {
@@ -52,65 +54,34 @@ namespace CedMod.Addons.Sentinal.Patches
 
         private static IEnumerator<float> TeslaGateBurst(TeslaGate teslaGate)
         {
-            List<Player> players = new List<Player>();
+            Dictionary<Player, int> players = new Dictionary<Player, int>();
+            Logger.Info("Tesla burdt");
 
+            TeslaCast(teslaGate, players);
             yield return Timing.WaitForSeconds(0.25f);
-            foreach (var killer in teslaGate.killers)
-            {
-                if (killer == null)
-                    continue;
-
-                var size = Physics.OverlapBoxNonAlloc(killer.transform.position + Vector3.up * (teslaGate.sizeOfKiller.y / 2), teslaGate.sizeOfKiller / 2, hitColliders, new Quaternion(), teslaGate.killerMask);
-
-                for (int i = 0; i < size; i++)
-                {
-                    var plr = Player.Get(hitColliders[i].gameObject);
-                    if (plr == null)
-                        continue;
-                    
-                    players.Add(plr);
-                }
-            }
-            
+            TeslaCast(teslaGate, players);
             yield return Timing.WaitForSeconds(0.25f);
-            foreach (var killer in teslaGate.killers)
-            {
-                if (killer == null)
-                    continue;
-
-                var size = Physics.OverlapBoxNonAlloc(killer.transform.position + Vector3.up * (teslaGate.sizeOfKiller.y / 2), teslaGate.sizeOfKiller / 2, hitColliders, new Quaternion(), teslaGate.killerMask);
-
-                for (int i = 0; i < size; i++)
-                {
-                    var plr = Player.Get(hitColliders[i].gameObject);
-                    if (plr == null || players.Contains(plr))
-                        continue;
-                    
-                    players.Add(plr);
-                }
-            }
+            TeslaCast(teslaGate, players);
 
             List<CoroutineHandle> coroutineHandles = new List<CoroutineHandle>();
             foreach (var plr in players)
             {
-                if (LiteNetLib4MirrorServer.Peers[plr.ReferenceHub.connectionToClient.connectionId].Ping * 2 >= 150)
+                if (LiteNetLib4MirrorServer.Peers[plr.Key.ReferenceHub.connectionToClient.connectionId].Ping * 2 >= 150)
                 {
-                    coroutineHandles.Add(Timing.RunCoroutine(DedicateCheck(plr, teslaGate, players)));
+                    coroutineHandles.Add(Timing.RunCoroutine(DedicateCheck(plr.Key, teslaGate, players)));
                 }
             }
 
-            yield return Timing.WaitUntilTrue(() => coroutineHandles.All(s => s.IsRunning));
+            yield return Timing.WaitUntilTrue(() => coroutineHandles.All(s => !s.IsRunning));
             foreach (var plr in players)
             {
                 Timing.RunCoroutine(EvaluatePlayer(teslaGate, plr));
             }
         }
 
-        public static IEnumerator<float> DedicateCheck(Player plr1, TeslaGate teslaGate, List<Player> players)
+        public static void TeslaCast(TeslaGate teslaGate, Dictionary<Player, int> players, Player plr1 = null)
         {
-            yield return Timing.WaitForSeconds(Mathf.Min(0.5f, (LiteNetLib4MirrorServer.Peers[plr1.ReferenceHub.connectionToClient.connectionId].Ping * 1.75f) / 1000));
-            yield return Timing.WaitForSeconds(0.25f);
-            players.Remove(plr1);
+            CastList.Clear();
             foreach (var killer in teslaGate.killers)
             {
                 if (killer == null)
@@ -121,38 +92,37 @@ namespace CedMod.Addons.Sentinal.Patches
                 for (int i = 0; i < size; i++)
                 {
                     var plr = Player.Get(hitColliders[i].gameObject);
-                    if (plr == null || plr != plr1)
+                    if (plr == null || (plr1 != null && plr1 != plr) || CastList.Contains(plr))
                         continue;
                     
-                    players.Add(plr);
-                }
-            }
-            
-            yield return Timing.WaitForSeconds(0.25f);
-            foreach (var killer in teslaGate.killers)
-            {
-                if (killer == null)
-                    continue;
-
-                var size = Physics.OverlapBoxNonAlloc(killer.transform.position + Vector3.up * (teslaGate.sizeOfKiller.y / 2), teslaGate.sizeOfKiller / 2, hitColliders, new Quaternion(), teslaGate.killerMask);
-
-                for (int i = 0; i < size; i++)
-                {
-                    var plr = Player.Get(hitColliders[i].gameObject);
-                    if (plr == null || plr != plr1)
-                        continue;
+                    if (!players.ContainsKey(plr))
+                        players.Add(plr, 0);
                     
-                    players.Add(plr);
+                    CastList.Add(plr);
+                    players[plr]++;
                 }
             }
         }
-
-        private static IEnumerator<float> EvaluatePlayer(TeslaGate teslaGate, Player plr)
+        
+        public static IEnumerator<float> DedicateCheck(Player plr1, TeslaGate teslaGate, Dictionary<Player, int> players)
         {
-            yield return Timing.WaitForSeconds(0.10f + (LiteNetLib4MirrorServer.Peers[plr.ReferenceHub.connectionToClient.connectionId].Ping * 2 / 100f));
-            if (TeslaHits.ContainsKey(plr.NetworkId) && TeslaHits[plr.NetworkId].Elapsed.TotalMilliseconds <= 1500 + Mathf.Min(0.5f, (LiteNetLib4MirrorServer.Peers[plr.ReferenceHub.connectionToClient.connectionId].Ping * 1.75f) / 1000))
+            yield return Timing.WaitForSeconds(Mathf.Min(0.5f, (LiteNetLib4MirrorServer.Peers[plr1.ReferenceHub.connectionToClient.connectionId].Ping * 1.75f) / 1000));
+            players.Remove(plr1);
+            
+            TeslaCast(teslaGate, players, plr1);
+            yield return Timing.WaitForSeconds(0.25f);
+            TeslaCast(teslaGate, players, plr1);
+            yield return Timing.WaitForSeconds(0.25f);
+            TeslaCast(teslaGate, players, plr1);
+        }
+
+        private static IEnumerator<float> EvaluatePlayer(TeslaGate teslaGate, KeyValuePair<Player, int> plr)
+        {
+            yield return Timing.WaitForSeconds(0.10f + (LiteNetLib4MirrorServer.Peers[plr.Key.ReferenceHub.connectionToClient.connectionId].Ping * 2 / 100f));
+            if (TeslaHits.ContainsKey(plr.Key.NetworkId) && TeslaHits[plr.Key.NetworkId].Elapsed.TotalMilliseconds <= 1500 + Mathf.Min(0.5f, (LiteNetLib4MirrorServer.Peers[plr.Key.ReferenceHub.connectionToClient.connectionId].Ping * 1.75f) / 1000))
             {
-                TeslaHits.Remove(plr.NetworkId);
+                yield return Timing.WaitForSeconds(teslaGate.cooldownTime);
+                TeslaHits.Remove(plr.Key.NetworkId);
                 yield break;
             }
             
@@ -162,12 +132,12 @@ namespace CedMod.Addons.Sentinal.Patches
                 Data = new Dictionary<string, string>()
                 {
                     { "SentinalType", "HarmlessTesla" }, 
-                    { "UserId", plr.UserId },
+                    { "UserId", plr.Key.UserId },
                     { "Tesla", teslaGate.netId.ToString()},
-                    { "Ping", (LiteNetLib4MirrorServer.Peers[plr.ReferenceHub.connectionToClient.connectionId].Ping * 2).ToString() }
+                    { "Ping", (LiteNetLib4MirrorServer.Peers[plr.Key.ReferenceHub.connectionToClient.connectionId].Ping * 2).ToString() }
                 }
             });
-            TeslaKills[plr.UserId] = (teslaGate, DateTime.UtcNow);
+            TeslaKills[plr.Key.UserId] = (teslaGate, DateTime.UtcNow, plr.Value);
             //TeslaGateController.ServerReceiveMessage(plr.Connection, new TeslaHitMsg(teslaGate));
         }
     }

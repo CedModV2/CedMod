@@ -881,8 +881,13 @@ namespace CedMod.Addons.QuerySystem.WS
                             
                                 if (!TeslaGateHandler.TeslaKills.ContainsKey(plrKill.UserId) || (DateTime.UtcNow - TeslaGateHandler.TeslaKills[plrKill.UserId].time).TotalSeconds >= 10)
                                     return;
-                            
-                                TeslaGateController.ServerReceiveMessage(plrKill.Connection, new TeslaHitMsg(TeslaGateHandler.TeslaKills[plrKill.UserId].gate));
+
+                                int count = TeslaGateHandler.TeslaKills[plrKill.UserId].amount;
+                                while (count > 0)
+                                {
+                                    count--;
+                                    TeslaGateController.ServerReceiveMessage(plrKill.Connection, new TeslaHitMsg(TeslaGateHandler.TeslaKills[plrKill.UserId].gate));
+                                }
                             });
                             break;
                     }

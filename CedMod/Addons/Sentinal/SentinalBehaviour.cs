@@ -28,6 +28,7 @@ namespace CedMod.Addons.Sentinal
         public static string RoundGuid = Guid.NewGuid().ToString();
         public static ulong UFrameLastPosSent = UFrames;
         private Dictionary<ReferenceHub, List<(string userid, string rotation, string position, ulong UFrames)>> _moveFrames = new Dictionary<ReferenceHub, List<(string userid, string rotation, string position, ulong UFrames)>>();
+        private static List<uint> toRemoveUints = new List<uint>();
 
         public void Start()
         {
@@ -108,7 +109,19 @@ namespace CedMod.Addons.Sentinal
             //process detections after the check
             if (AuthTimer <= 0)
             {
-                VoicePacketPacket.Radio.Clear();
+                toRemoveUints.Clear();
+                foreach (var rad in VoicePacketPacket.Radio)
+                {
+                    if (rad.Value < Time.time)
+                        toRemoveUints.Add(rad.Key);
+                }
+
+                foreach (var rem in toRemoveUints)
+                {
+                    VoicePacketPacket.Radio.Remove(rem);
+                }
+                toRemoveUints.Clear();
+                
                 VoicePacketPacket.Tracker.Clear();
                 AuthTimer = 1;
                 

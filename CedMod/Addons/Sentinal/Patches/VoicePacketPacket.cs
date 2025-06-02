@@ -26,9 +26,11 @@ namespace CedMod.Addons.Sentinal.Patches
             if (CedModMain.Singleton == null || CedModMain.Singleton.Config == null || CedModMain.Singleton.Config.CedMod.DisableFakeSyncing)
                 return;
 
-            var prevSync = ev.Player.ReferenceHub.roleManager.PreviouslySentRole;
-            if (prevSync.TryGetValue(ev.Message.Speaker.netId, out var role) && role.GetTeam() == Team.Dead && ev.Message.Speaker.GetTeam() != Team.Dead && ev.Player.Team != Team.Dead)
+            var prevSync = ev.Message.Speaker.roleManager.PreviouslySentRole;
+            if (prevSync.TryGetValue(ev.Player.NetworkId, out var role) && role.GetTeam() == Team.Dead && ev.Message.Speaker.GetTeam() != Team.Dead && ev.Player.Team != Team.Dead)
+            {
                 ev.IsAllowed = false;
+            }
         }
     }
     
@@ -39,7 +41,7 @@ namespace CedMod.Addons.Sentinal.Patches
         public static Dictionary<uint, int> Tracker = new Dictionary<uint, int>();
         public static Dictionary<uint, OpusDecoder> OpusDecoders = new Dictionary<uint, OpusDecoder>();
         public static Dictionary<uint, float[]> Floats = new Dictionary<uint, float[]>();
-        public static HashSet<uint> Radio = new HashSet<uint>();
+        public static Dictionary<uint, float> Radio = new Dictionary<uint, float>();
 
         public static bool Prefix(NetworkConnection conn, VoiceMessage msg)
         {
@@ -96,9 +98,11 @@ namespace CedMod.Addons.Sentinal.Patches
             {
                 Logger.Error(e.ToString());
             }
-            
+
             if (msg.Channel == VoiceChatChannel.Radio || msg.Channel == VoiceChatChannel.Intercom)
-                Radio.Add(conn.identity.netId);
+            {
+                Radio[conn.identity.netId] = Time.time + 1.5f;
+            }
             return true;
         }
     }

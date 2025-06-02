@@ -101,7 +101,7 @@ namespace CedMod.Addons.Sentinal.Patches
                 else
                 { 
                     var toSend = hub.roleManager.CurrentRole.Team == Team.SCPs ? hub.roleManager.CurrentRole.RoleTypeId : RoleTypeId.Spectator;
-                    if (PermissionsHandler.IsPermitted(receiver.serverRoles.Permissions, PlayerPermissions.GameplayData) || receiver.roleManager.CurrentRole.Team == Team.SCPs)
+                    if ((PermissionsHandler.IsPermitted(receiver.serverRoles.Permissions, PlayerPermissions.GameplayData) && !QuerySystem.QuerySystem.IsDev) || receiver.roleManager.CurrentRole.Team == Team.SCPs)
                         toSend = hub.roleManager.CurrentRole.RoleTypeId;
                     
                     if (hub.roleManager.CurrentRole is Scp079Role scp079Role)
@@ -119,7 +119,7 @@ namespace CedMod.Addons.Sentinal.Patches
                     if (hub.inventory.CurInstance != null && hub.inventory.CurInstance is Scp1576Item scp1576Item && scp1576Item.IsUsing)
                         toSend = hub.roleManager.CurrentRole.RoleTypeId;
                     
-                    if (VoicePacketPacket.Radio.Contains(hub.netId))
+                    if (VoicePacketPacket.Radio.TryGetValue(hub.netId, out var val) && val >= Time.time)
                         toSend = hub.roleManager.CurrentRole.RoleTypeId;
                     
                     if (hub.roleManager.CurrentRole is IObfuscatedRole ior)
