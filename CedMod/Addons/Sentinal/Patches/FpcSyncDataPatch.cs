@@ -54,11 +54,11 @@ namespace CedMod.Addons.Sentinal.Patches
                 if (disallowMovement && PingTolerance.TryGetValue(hub.netId, out float tolerance) && tolerance >= Time.time)
                 {
                     tempBypass = true;
-                    Logger.Info($"Granted passage for hub {tolerance} >= {Time.time}");
+                    //Logger.Info($"Granted passage for hub {tolerance} >= {Time.time}");
                 }
                 else if (disallowMovement && !PingTolerance.ContainsKey(hub.netId))
                 {
-                    Logger.Info($"Granting bypass for hub tolt {Mathf.Min(0.5f, (LiteNetLib4MirrorServer.Peers[hub.connectionToClient.connectionId].Ping * 1.2f) / 1000)} curt {Time.time}");
+                    //Logger.Info($"Granting bypass for hub tolt {Mathf.Min(0.5f, (LiteNetLib4MirrorServer.Peers[hub.connectionToClient.connectionId].Ping * 1.2f) / 1000)} curt {Time.time}");
                     PingTolerance[hub.netId] = Time.time + Mathf.Min(0.5f, (LiteNetLib4MirrorServer.Peers[hub.connectionToClient.connectionId].Ping * 2f) / 1000);
                 }
                 
