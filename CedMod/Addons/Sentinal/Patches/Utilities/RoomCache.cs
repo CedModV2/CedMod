@@ -48,7 +48,7 @@ namespace CedMod.Addons.Sentinal.Patches.Utilities
             if (room == null || targetRoom == null || room == targetRoom || !Rooms.TryGetValue(room.Base, out var cache))
                 return true;
 
-            if (targetRoom != room && room.Name == RoomName.HczCheckpointToEntranceZone) //these are not officially connected apparently
+            if (targetRoom != room && (room.Name == RoomName.HczCheckpointToEntranceZone || targetRoom.Name == RoomName.HczCheckpointToEntranceZone)) //these are not officially connected apparently
                 return true;
             
             if (cache.TryGetValue(targetRoom.Base, out var roomRange) && roomRange <= range)
