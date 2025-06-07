@@ -5,10 +5,15 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using AudioPooling;
 using CedMod.Addons.QuerySystem.WS;
 using CedMod.Addons.Sentinal.Patches;
+using CedMod.Addons.Sentinal.Patches.Utilities;
+using InventorySystem.Items;
+using InventorySystem.Items.Firearms.Modules;
 using LabApi.Events.Arguments.Scp106Events;
 using Newtonsoft.Json;
+using PlayerRoles;
 using PlayerRoles.FirstPersonControl.NetworkMessages;
 using UnityEngine;
 using Utils.NonAllocLINQ;
@@ -18,6 +23,7 @@ namespace CedMod.Addons.Sentinal
 {
     public class SentinalBehaviour: MonoBehaviour
     {
+        public static Dictionary<uint, (float, AudioClip clip, float maxDistance)> GunshotSource = new Dictionary<uint, (float, AudioClip clip, float maxDistance)>();
         public static Dictionary<uint, float> Stalking106 = new Dictionary<uint, float>();
         public float AuthTimer = 1;
         public Dictionary<int, Dictionary<uint, List<(int, float, float)>>> FrameCount = new Dictionary<int, Dictionary<uint, List<(int, float, float)>>>();
@@ -32,7 +38,17 @@ namespace CedMod.Addons.Sentinal
 
         public void Start()
         {
+            AudioModule.OnSoundPlayed += OnSoundPlayed;
             LabApi.Events.Handlers.Scp106Events.ChangedStalkMode += StalkChanged;
+            LabApi.Events.Handlers.ServerEvents.MapGenerated += RoomCache.MapGenerated;
+        }
+
+        private void OnSoundPlayed(ItemIdentifier arg1, PlayerRoleBase arg2, PooledAudioSource arg3)
+        {
+            if (arg2.TryGetOwner(out var owner))
+            {
+                GunshotSource[owner.netId] = (Time.time + 0.5f, arg3.Source.clip, arg3.Source.maxDistance);
+            }
         }
 
         private void StalkChanged(Scp106ChangedStalkModeEventArgs ev)
@@ -42,7 +58,9 @@ namespace CedMod.Addons.Sentinal
 
         public void OnDestroy()
         {
+            AudioModule.OnSoundPlayed -= OnSoundPlayed;
             LabApi.Events.Handlers.Scp106Events.ChangedStalkMode -= StalkChanged;
+            LabApi.Events.Handlers.ServerEvents.MapGenerated -= RoomCache.MapGenerated;
         }
 
         public void FixedUpdate()
@@ -121,6 +139,18 @@ namespace CedMod.Addons.Sentinal
                     VoicePacketPacket.Radio.Remove(rem);
                 }
                 toRemoveUints.Clear();
+                
+                foreach (var rad in VoicePacketPacket.Voice)
+                {
+                    if (rad.Value < Time.time)
+                        toRemoveUints.Add(rad.Key);
+                }
+
+                foreach (var rem in toRemoveUints)
+                {
+                    VoicePacketPacket.Voice.Remove(rem);
+                }
+                toRemoveUints.Clear(); 
                 
                 VoicePacketPacket.Tracker.Clear();
                 AuthTimer = 1;

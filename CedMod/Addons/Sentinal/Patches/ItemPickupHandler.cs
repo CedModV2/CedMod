@@ -24,6 +24,7 @@ namespace CedMod.Addons.Sentinal.Patches
     {
         public static Dictionary<DoorVariant, float> DoorMovetimes = new Dictionary<DoorVariant, float>();
         public static Dictionary<DoorVariant, Action> DoorActors = new Dictionary<DoorVariant, Action>();
+        public static Dictionary<Collider, DoorVariant> DoorColliders = new Dictionary<Collider, DoorVariant>();
         
         
         static RaycastHit[] raycastHits = new RaycastHit[50];
@@ -31,6 +32,16 @@ namespace CedMod.Addons.Sentinal.Patches
         
         public void DoorCreated(DoorVariant obj)
         {
+            foreach (var coll in obj.AllColliders)
+            {
+                DoorColliders[coll] = obj;
+            }
+            
+            foreach (var coll in obj.IgnoredColliders)
+            {
+                DoorColliders[coll] = obj;
+            }
+            
             var func = new Action(() =>
             {
                 DoorMovetimes[obj] = Time.time;
@@ -41,6 +52,16 @@ namespace CedMod.Addons.Sentinal.Patches
         
         public void DoorRemoved(DoorVariant obj)
         {
+            foreach (var coll in obj.AllColliders)
+            {
+                DoorColliders.Remove(coll);
+            }
+            
+            foreach (var coll in obj.IgnoredColliders)
+            {
+                DoorColliders.Remove(coll);
+            }
+            
             if (DoorActors.ContainsKey(obj))
                 obj.OnStateChanged -= DoorActors[obj];
             DoorMovetimes.Remove(obj);
@@ -289,7 +310,7 @@ namespace CedMod.Addons.Sentinal.Patches
             yield return new Vector3(bounds.max.x, bounds.max.y, bounds.max.z);
         }
         
-        class HitDistanceComparer : IComparer<RaycastHit>
+        public class HitDistanceComparer : IComparer<RaycastHit>
         {
             public int Compare(RaycastHit a, RaycastHit b)
             {

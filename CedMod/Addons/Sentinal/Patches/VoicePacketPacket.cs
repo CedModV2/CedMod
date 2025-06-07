@@ -42,6 +42,7 @@ namespace CedMod.Addons.Sentinal.Patches
         public static Dictionary<uint, OpusDecoder> OpusDecoders = new Dictionary<uint, OpusDecoder>();
         public static Dictionary<uint, float[]> Floats = new Dictionary<uint, float[]>();
         public static Dictionary<uint, float> Radio = new Dictionary<uint, float>();
+        public static Dictionary<uint, float> Voice = new Dictionary<uint, float>();
 
         public static bool Prefix(NetworkConnection conn, VoiceMessage msg)
         {
@@ -99,6 +100,7 @@ namespace CedMod.Addons.Sentinal.Patches
                 Logger.Error(e.ToString());
             }
 
+            Voice[conn.identity.netId] = Time.time + 1.5f;
             if (msg.Channel == VoiceChatChannel.Radio || msg.Channel == VoiceChatChannel.Intercom)
             {
                 Radio[conn.identity.netId] = Time.time + 1.5f;

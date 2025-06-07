@@ -124,7 +124,7 @@ namespace CedMod.Addons.AdminSitSystem.Commands
                 if (!AlphaWarheadController.Detonated)
                     plr.Position = sitPlr.Position;
                 else
-                    plr.Position = new Vector3(132.714f, 995.456f, -38.340f);
+                    plr.Position = new Vector3(10.590f, 300.960f, -1.859f);
                 plr.Health = sitPlr.Health;
                 plr.ClearInventory();
                 foreach (var item in sitPlr.Items)

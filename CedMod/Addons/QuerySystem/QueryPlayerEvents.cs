@@ -497,15 +497,12 @@ namespace CedMod.Addons.QuerySystem
         public override void OnPlayerDying(PlayerDyingEventArgs ev)
         {
             //some actual autism to prevent doing stuff for a cancelled event as onplayerdeath does not preserve the original class
-            if (ev.Player == null || ev.Attacker == null || !ev.IsAllowed)
+            if (ev.Player == null || !ev.IsAllowed)
                 return;
             
-            if (ev.Player == null || ev.Attacker == null || !ev.IsAllowed)
-                return;
-                    
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Logger.Debug("plrdeath");
-            if (FriendlyFireAutoban.IsTeamKill(ev.Player, ev.Attacker, ev.DamageHandler))
+            if (ev.Attacker != null && FriendlyFireAutoban.IsTeamKill(ev.Player, ev.Attacker, ev.DamageHandler))
             {
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Logger.Debug("istk");
@@ -662,18 +659,18 @@ namespace CedMod.Addons.QuerySystem
                         { "UserId", ev.Player.UserId },
                         { "UserName", ev.Player.Nickname },
                         { "Class", ev.Player.Role.ToString() },
-                        { "AttackerClass", ev.Attacker.Role.ToString() },
-                        { "AttackerId", ev.Attacker.UserId },
-                        { "AttackerName", ev.Attacker.Nickname },
+                        { "AttackerClass", ev.Attacker == null ? "None" : ev.Attacker.Role.ToString() },
+                        { "AttackerId", ev.Attacker == null ? "server" : ev.Attacker.UserId },
+                        { "AttackerName", ev.Attacker == null ? "Server " : ev.Attacker.Nickname },
                         { "Weapon", ev.DamageHandler.ToString() },
                         { "Type", nameof(OnPlayerDying) },
                         { "Message", string.Format("{0} - {1} (<color={2}>{3}</color>) killed {4} - {5} (<color={6}>{7}</color>) with {8} In {9}.", 
                             new object[]
                             {
-                                ev.Attacker.Nickname,
-                                ev.Attacker.UserId,
-                                Misc.ToHex(ev.Attacker.ReferenceHub.roleManager.CurrentRole.RoleColor),
-                                ev.Attacker.Role, 
+                                ev.Attacker == null ? "Server " : ev.Attacker.Nickname,
+                                ev.Attacker == null ? "server" : ev.Attacker.UserId,
+                                ev.Attacker == null ? "white" : Misc.ToHex(ev.Attacker.ReferenceHub.roleManager.CurrentRole.RoleColor),
+                                ev.Attacker == null ? "None" : ev.Attacker.Role.ToString(),
                                 ev.Player.Nickname, 
                                 ev.Player.UserId, 
                                 Misc.ToHex(ev.Player.ReferenceHub.roleManager.CurrentRole.RoleColor),
@@ -788,6 +785,11 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnPlayerLeft(PlayerLeftEventArgs ev)
         {
+            FpcServerPositionDistributorPatch.VisibilityCache.Remove(ev.Player.ReferenceHub);
+            foreach (var target in FpcServerPositionDistributorPatch.VisibilityCache)
+            {
+                target.Value.Remove(ev.Player.ReferenceHub);
+            }
             Scp939LungePatch.LungeTime.Remove(ev.Player.ReferenceHub.netId);
             FpcSyncDataPatch.SyncDatas.Remove(ev.Player.ReferenceHub);
             BanSystem.Authenticating.Remove(ev.Player.ReferenceHub);
