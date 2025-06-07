@@ -202,7 +202,7 @@ namespace CedMod.Addons.Sentinal.Patches
                 }
                 
                 bool spoofRole = invisible;
-                PlayerValidatedVisibilityEventArgs ev = new PlayerValidatedVisibilityEventArgs(receiver, hub, !losCheckInvisible);
+                PlayerValidatedVisibilityEventArgs ev = new PlayerValidatedVisibilityEventArgs(receiver, hub, receiver.GetTeam() == Team.SCPs ? !invisible : !losCheckInvisible);
                 LabApi.Events.Handlers.PlayerEvents.OnValidatedVisibility(ev);
                 invisible = !ev.IsVisible;
                 FpcSyncData data = GetNewSyncData(receiver, hub, fpc.FpcModule, invisible);
