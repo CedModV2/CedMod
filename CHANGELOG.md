@@ -15,7 +15,7 @@ These features have been tested and adapted for users with higher than usual or 
 We continue to monitor results detection logs and making changes where necessary.
 Please note that effectiveness is dependent on how many cheaters use the detected features until we add detections for more features with <sup>3*</sup><br>
 
-<sup>2*</sup> This system will hide players from others when they cannot actually see them with a series of checks to make it effective yet unnoticeable for normal players<br>Please note that this currently does not apply to SCP's<br>
+<sup>2*</sup> This system will hide players from others when they cannot actually see them with a series of checks to make it effective yet unnoticeable for normal players<br>Please note that this currently does not apply to SCP's<br>Please also note that actions that make sound can also reveal players to others despite not having a LineOfSight<br>
 
 <sup>3*</sup> Sentinal is the WIP completely CedMod-server-side simulation system which is capable of reconstructing the entire round out side of SL.<br>
 In the future it will be used to detect more sophisticated cheat features, eg aimbot, pSilent, etc. while completely hiding the detection code.
