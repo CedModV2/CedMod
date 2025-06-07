@@ -137,7 +137,7 @@ namespace CedMod.Addons.Sentinal.Patches
                         rayNeeded = false;
                         losCheckInvisible = false;
                     }
-                    else if (hub.roleManager.CurrentRole is IFpcRole role && role.FpcModule.CharacterModelInstance is AnimatedCharacterModel animatedCharacterModel && animatedCharacterModel.FootstepPlayable && Vector3.Distance(receiver.transform.position, hub.transform.position) <= animatedCharacterModel.FootstepLoudnessDistance)
+                    else if (hub.roleManager.CurrentRole is IFpcRole role && role.FpcModule.CharacterModelInstance is AnimatedCharacterModel animatedCharacterModel && animatedCharacterModel.FootstepPlayable && Vector3.Distance(receiver.transform.position, hub.transform.position) <= GetFootstepDistance(receiver, animatedCharacterModel))
                     {
                         rayNeeded = false;
                         losCheckInvisible = false;
@@ -283,7 +283,26 @@ namespace CedMod.Addons.Sentinal.Patches
             
             return false;
         }
-        
+
+        private static float GetFootstepDistance(ReferenceHub receiver, AnimatedCharacterModel animatedCharacterModel)
+        {
+            if (animatedCharacterModel.Role.Team == Team.SCPs)
+                return animatedCharacterModel.FootstepLoudnessDistance;
+
+            switch (animatedCharacterModel.FpcModule.SyncMovementState)
+            {
+                case PlayerMovementState.Sneaking:
+                case PlayerMovementState.Crouching:
+                    return 0;
+                case PlayerMovementState.Walking:
+                    return 8;
+                case PlayerMovementState.Sprinting:
+                    return Vector3.Angle(receiver.transform.forward, animatedCharacterModel.transform.position) >= 65 ? 10 : 16;
+            }
+            
+            return animatedCharacterModel.FootstepLoudnessDistance;
+        }
+
         public static FpcSyncData GetNewSyncData(ReferenceHub receiver, ReferenceHub target, FirstPersonMovementModule fpmm, bool isInvisible)
         {
             FpcSyncData prevSyncData = GetPrevSyncData(receiver, target);
