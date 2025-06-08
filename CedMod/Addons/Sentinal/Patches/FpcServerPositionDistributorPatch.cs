@@ -6,6 +6,7 @@ using AudioPooling;
 using CedMod.Addons.Sentinal.Patches.Utilities;
 using CentralAuth;
 using CommandSystem.Commands.RemoteAdmin;
+using CustomPlayerEffects;
 using DrawableLine;
 using HarmonyLib;
 using Hints;
@@ -49,7 +50,7 @@ namespace CedMod.Addons.Sentinal.Patches
     public static class FpcServerPositionDistributorPatch
     {
         public static Dictionary<ReferenceHub, Dictionary<ReferenceHub, (float, bool)>> VisibilityCache = new Dictionary<ReferenceHub, Dictionary<ReferenceHub, (float, bool)>>();
-        public static Dictionary<ReferenceHub, FpcSyncData> SyncDatas = new Dictionary<ReferenceHub, FpcSyncData>();
+        public static Dictionary<ReferenceHub, RelativePosition> SyncDatas = new Dictionary<ReferenceHub, RelativePosition>();
         public static FpcSyncData InvisibleSync = new FpcSyncData();
         
         public static event Func<ReferenceHub, ReferenceHub, RoleTypeId, RoleTypeId> RoleSync; 
@@ -85,12 +86,20 @@ namespace CedMod.Addons.Sentinal.Patches
                     continue;
 
                 bool invisible = hasVisCtrl && !visCtrl.ValidateVisibility(hub);
+                bool spoofRole = true;
                 if (!invisible && receiver.roleManager.CurrentRole.RoleTypeId == RoleTypeId.Scp106 && receiver.roleManager.CurrentRole is Scp106Role scp106Role && scp106Role.SubroutineModule.TryGetSubroutine(out Scp106StalkVisibilityController stalkVisibilityController))
                 {
                     if (hub.roleManager.CurrentRole is FpcStandardRoleBase fpcStandardRoleBase && !stalkVisibilityController.GetVisibilityForPlayer(hub, fpcStandardRoleBase))
-                        invisible = false;
+                    {
+                        invisible = true;
+                        spoofRole = false;
+                    }
                 }
 
+                if (hub.playerEffectsController.TryGetEffect(out Scp1344 scp1344) && scp1344.IsEnabled)
+                    spoofRole = false;
+
+                bool doChecking = true;
                 //if the player is a spectator we will perform checksfrom the POV of the spectator to prevent cloud ESP features from live-sharing data from spectator. 
                 ReferenceHub toCheckPlayer = receiver;
                 if (receiver.roleManager.CurrentRole is SpectatorRole spectatorRole)
@@ -98,11 +107,19 @@ namespace CedMod.Addons.Sentinal.Patches
                 
                 if (toCheckPlayer == null)
                     toCheckPlayer = receiver;
+
+                if (invisible)
+                    doChecking = false;
+
+                if (receiver.GetTeam() == Team.SCPs || receiver.GetRoleId() == RoleTypeId.Overwatch)
+                    doChecking = false;
+
+                if (toCheckPlayer.playerEffectsController.TryGetEffect(out scp1344) && scp1344.IsEnabled)
+                    doChecking = false;
                 
                 bool losCheckInvisible = false;
-                bool doChecking = !receiver.inventory.UserInventory.Items.Any(s => s.Value is Scp1344Item scp1344Item && scp1344Item.IsWorn);
                 
-                if (!invisible && receiver.GetTeam() != Team.SCPs && receiver.GetRoleId() != RoleTypeId.Overwatch && doChecking)
+                if (doChecking)
                 {
                     bool rayNeeded = false;
                     bool cacheUpdate = false;
@@ -126,13 +143,8 @@ namespace CedMod.Addons.Sentinal.Patches
                             losCheckInvisible = visibility.Item2;
                         }
                     }
-
-                    if (!losCheckInvisible && toCheckPlayer.GetRoleId() == RoleTypeId.Spectator)
-                    {
-                        rayNeeded = false;
-                        losCheckInvisible = true;
-                    }
-                    else if (Vector3.Distance(receiver.transform.position, hub.transform.position) <= 1) //raycasts become very heavy if too close
+                    
+                    if (Vector3.Distance(receiver.transform.position, hub.transform.position) <= 1) //raycasts become very heavy if too close
                     {
                         rayNeeded = false;
                         losCheckInvisible = false;
@@ -192,17 +204,10 @@ namespace CedMod.Addons.Sentinal.Patches
                     if (!VisibilityCache[toCheckPlayer].ContainsKey(hub) || cacheUpdate || losCheckInvisible != wasInvis)
                         VisibilityCache[toCheckPlayer][hub] = (Time.time + (losCheckInvisible ? 0.1f : 0.5f), losCheckInvisible);
                 }
-                else if (receiver.GetTeam() != Team.SCPs && receiver.GetRoleId() != RoleTypeId.Overwatch)
-                {
-                    if (VisibilityCache.TryGetValue(toCheckPlayer, out Dictionary<ReferenceHub, (float, bool)> visibilityCache) && visibilityCache.TryGetValue(hub, out var visibility))
-                    {
-                        if (Time.time > visibility.Item1 && !visibility.Item2)
-                            losCheckInvisible = true;
-                    }
-                }
                 
-                bool spoofRole = invisible;
-                PlayerValidatedVisibilityEventArgs ev = new PlayerValidatedVisibilityEventArgs(receiver, hub, receiver.GetTeam() == Team.SCPs || !doChecking || invisible ? !invisible : !losCheckInvisible);
+                if (spoofRole)
+                    spoofRole = invisible;
+                PlayerValidatedVisibilityEventArgs ev = new PlayerValidatedVisibilityEventArgs(receiver, hub, doChecking ? !losCheckInvisible : !invisible);
                 LabApi.Events.Handlers.PlayerEvents.OnValidatedVisibility(ev);
                 invisible = !ev.IsVisible;
                 FpcSyncData data = GetNewSyncData(receiver, hub, fpc.FpcModule, invisible);
@@ -307,10 +312,13 @@ namespace CedMod.Addons.Sentinal.Patches
         {
             FpcSyncData prevSyncData = GetPrevSyncData(receiver, target);
             bool hasSync = SyncDatas.TryGetValue(target, out var sync);
-            FpcSyncData newSyncData = isInvisible ? InvisibleSync : hasSync ? sync : new FpcSyncData(prevSyncData, fpmm.SyncMovementState, fpmm.IsGrounded, new RelativePosition(target.transform.position), fpmm.MouseLook);
+            if (!hasSync)
+                sync = new RelativePosition(target.transform.position);
+            
+            FpcSyncData newSyncData = isInvisible ? InvisibleSync : new FpcSyncData(prevSyncData, fpmm.SyncMovementState, fpmm.IsGrounded, sync, fpmm.MouseLook);
             FpcServerPositionDistributor.PreviouslySent[receiver.netId][target.netId] = newSyncData;
-            if (!hasSync && !isInvisible)
-                SyncDatas[target] = newSyncData;
+            if (!hasSync)
+                SyncDatas[target] = sync;
             
             return newSyncData;
         }
