@@ -186,7 +186,7 @@ namespace CedMod.Addons.Sentinal.Patches
                             losCheckInvisible = true;
                         }
 
-                        if (VoicePacketPacket.Voice.TryGetValue(hub.netId, out var val) && val >= Time.time && (RoomCache.InRange(toCheckPlayer, hub, 0) || Vector3.Distance(toCheckPlayer.GetPosition(), hub.GetPosition()) <= 22)) //allow vc
+                        if (VoicePacketPacket.Voice.TryGetValue(hub.netId, out var val) && val >= Time.time && Vector3.Distance(toCheckPlayer.GetPosition(), hub.GetPosition()) <= 22) //allow vc
                         {
                             rayNeeded = false;
                             losCheckInvisible = false;
