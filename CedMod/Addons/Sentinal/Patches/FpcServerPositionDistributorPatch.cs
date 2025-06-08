@@ -28,7 +28,9 @@ using PlayerRoles.FirstPersonControl.Thirdperson.Subcontrollers;
 using PlayerRoles.PlayableScps;
 using PlayerRoles.PlayableScps.Scp049;
 using PlayerRoles.PlayableScps.Scp079;
+using PlayerRoles.PlayableScps.Scp096;
 using PlayerRoles.PlayableScps.Scp106;
+using PlayerRoles.PlayableScps.Scp939;
 using PlayerRoles.Spectating;
 using PlayerRoles.Subroutines;
 using PlayerRoles.Visibility;
@@ -115,6 +117,15 @@ namespace CedMod.Addons.Sentinal.Patches
                     doChecking = false;
 
                 if (toCheckPlayer.playerEffectsController.TryGetEffect(out scp1344) && scp1344.IsEnabled)
+                    doChecking = false;
+
+				if (hub.roleManager.CurrentRole is Scp096Role scp096 && (scp096.StateController.RageState != Scp096RageState.Docile || Vector3.Distance(toCheckPlayer.transform.position, hub.transform.position) <= 4))
+                    doChecking = false;
+                
+                if (hub.roleManager.CurrentRole is Scp106Role scp106 && Vector3.Distance(toCheckPlayer.transform.position, hub.transform.position) <= 4)
+                    doChecking = false;
+                
+                if (hub.roleManager.CurrentRole is Scp939Role scp939 && Vector3.Distance(toCheckPlayer.transform.position, hub.transform.position) <= 4)
                     doChecking = false;
                 
                 bool losCheckInvisible = false;
