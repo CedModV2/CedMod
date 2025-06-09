@@ -91,7 +91,7 @@ namespace CedMod.Addons.Sentinal.Patches
                 if (WebSocketSystem.HelloMessage == null || !WebSocketSystem.HelloMessage.SentinalPositions)
                     return true;
                 
-                SentinalBehaviour.DirtyPositions.Enqueue((hub, hub.transform.eulerAngles, hub.transform.position, SentinalBehaviour.UFrames));
+                SentinalBehaviour.DirtyPositions.Enqueue((hub,  __instance._bitMouseLook ? new Vector2(__instance._rotH, __instance._rotV) : Vector2.zero, __instance._bitPosition ? __instance._position.Position : Vector3.zero, SentinalBehaviour.UFrames));
             }
             catch (Exception e)
             {

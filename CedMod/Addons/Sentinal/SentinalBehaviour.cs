@@ -28,7 +28,7 @@ namespace CedMod.Addons.Sentinal
         public float AuthTimer = 1;
         public Dictionary<int, Dictionary<uint, List<(int, float, float)>>> FrameCount = new Dictionary<int, Dictionary<uint, List<(int, float, float)>>>();
         Dictionary<uint, Dictionary<int, List<(int, float, float)>>> UserFrames = new Dictionary<uint, Dictionary<int, List<(int, float, float)>>>();
-        public static ConcurrentQueue<(ReferenceHub hub, Vector3 eulerAngles, Vector3 position, ulong UFrames)> DirtyPositions = new ConcurrentQueue<(ReferenceHub hub, Vector3 eulerAngles, Vector3 position, ulong UFrames)>();
+        public static ConcurrentQueue<(ReferenceHub hub, Vector2 eulerAngles, Vector3 position, ulong UFrames)> DirtyPositions = new ConcurrentQueue<(ReferenceHub hub, Vector2 eulerAngles, Vector3 position, ulong UFrames)>();
         public static int Frames = 0;
         public static ulong UFrames = 0;
         public static string RoundGuid = Guid.NewGuid().ToString();
@@ -47,7 +47,7 @@ namespace CedMod.Addons.Sentinal
         {
             if (arg2.TryGetOwner(out var owner))
             {
-                GunshotSource[owner.netId] = (Time.time + 0.5f, arg3.Source.clip, arg3.Source.maxDistance);
+                GunshotSource[owner.netId] = (Time.time + 1.5f, arg3.Source.clip, arg3.Source.maxDistance);
             }
         }
 
@@ -149,6 +149,18 @@ namespace CedMod.Addons.Sentinal
                 foreach (var rem in toRemoveUints)
                 {
                     VoicePacketPacket.Voice.Remove(rem);
+                }
+                toRemoveUints.Clear(); 
+                
+                foreach (var rad in FpcServerPositionDistributorPatch.LastAudioSent)
+                {
+                    if (rad.Value < Time.time)
+                        toRemoveUints.Add(rad.Key);
+                }
+
+                foreach (var rem in toRemoveUints)
+                {
+                    FpcServerPositionDistributorPatch.LastAudioSent.Remove(rem);
                 }
                 toRemoveUints.Clear(); 
                 

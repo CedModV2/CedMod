@@ -54,6 +54,7 @@ namespace CedMod.Addons.Sentinal.Patches
         public static Dictionary<ReferenceHub, Dictionary<ReferenceHub, (float, bool)>> VisibilityCache = new Dictionary<ReferenceHub, Dictionary<ReferenceHub, (float, bool)>>();
         public static Dictionary<ReferenceHub, RelativePosition> SyncDatas = new Dictionary<ReferenceHub, RelativePosition>();
         public static FpcSyncData InvisibleSync = new FpcSyncData();
+        public static Dictionary<uint, float> LastAudioSent = new Dictionary<uint, float>();
         
         public static event Func<ReferenceHub, ReferenceHub, RoleTypeId, RoleTypeId> RoleSync; 
         public static bool Prefix(ReferenceHub receiver, NetworkWriter writer)
@@ -171,6 +172,10 @@ namespace CedMod.Addons.Sentinal.Patches
                         {
                             Timing.CallDelayed(0f, () =>
                             {
+                                if (LastAudioSent.TryGetValue(receiver.netId + hub.netId, out var cooldown) && cooldown >= Time.time)
+                                    return;
+                                    
+                                LastAudioSent[receiver.netId + hub.netId] = Time.time + 0.2f;
                                 module.SendRpc(receiver, writer =>
                                 {
                                     module.ServerSend(writer, index, module.RandomPitch, MixerChannel.Weapons, time.maxDistance, hub.GetPosition(), true);
