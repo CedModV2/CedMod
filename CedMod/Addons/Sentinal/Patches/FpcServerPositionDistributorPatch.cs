@@ -14,6 +14,7 @@ using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Firearms.Modules;
 using InventorySystem.Items.MicroHID.Modules;
 using InventorySystem.Items.Usables;
+using InventorySystem.Items.Usables.Scp1344;
 using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Features.Wrappers;
 using MapGeneration;
@@ -51,6 +52,7 @@ namespace CedMod.Addons.Sentinal.Patches
     [HarmonyPatch(typeof(FpcServerPositionDistributor), nameof(FpcServerPositionDistributor.WriteAll))]
     public static class FpcServerPositionDistributorPatch
     {
+        public static Dictionary<ReferenceHub, Dictionary<ReferenceHub, float>> VisiblePlayers = new Dictionary<ReferenceHub, Dictionary<ReferenceHub, float>>();
         public static Dictionary<ReferenceHub, Dictionary<ReferenceHub, (float, bool)>> VisibilityCache = new Dictionary<ReferenceHub, Dictionary<ReferenceHub, (float, bool)>>();
         public static Dictionary<ReferenceHub, RelativePosition> SyncDatas = new Dictionary<ReferenceHub, RelativePosition>();
         public static FpcSyncData InvisibleSync = new FpcSyncData();
@@ -80,6 +82,47 @@ namespace CedMod.Addons.Sentinal.Patches
                 visCtrl = null;
             }
             
+            //if the player is a spectator we will perform checksfrom the POV of the spectator to prevent cloud ESP features from live-sharing data from spectator. 
+            ReferenceHub toCheckPlayer = receiver;
+            if (receiver.roleManager.CurrentRole is SpectatorRole spectatorRole)
+                toCheckPlayer = ReferenceHub.AllHubs.FirstOrDefault(s => s.netId == spectatorRole.SyncedSpectatedNetId);
+            
+            if (toCheckPlayer == null)
+                toCheckPlayer = receiver;
+            
+            if (toCheckPlayer.playerEffectsController.TryGetEffect(out Scp1344 scp1344) && scp1344.IsEnabled)
+            {
+                foreach (var xray in scp1344._xrayProviders)
+                {
+                    if (xray is Scp1344HumanXrayProvider humanXrayProvider)
+                    {
+                        foreach (var orb in humanXrayProvider._orbInstances)
+                        {
+                            FacilityZone ownZone = orb.Target.GetLastKnownZone();
+                            float maxDistance = ownZone == FacilityZone.Surface ? Scp1344HumanXrayProvider.SurfaceVisionDistance : Scp1344HumanXrayProvider.VisionDistance;
+                            if (Vector3.Distance(toCheckPlayer.GetPosition(), orb.Target.GetPosition()) > maxDistance + Scp1344HumanXrayProvider.VisionTranslucentDistance)
+                                continue;
+                            
+                            double cycleRaw = NetworkTime.time * Scp1344HumanXrayProvider.OrbUpdateCycleFrequency;
+                            long cycleIndex = (long) cycleRaw;
+                            float cycleElapsed = (float) (cycleRaw - cycleIndex) / Scp1344HumanXrayProvider.OrbUpdateCycleFrequency;
+                            
+                            if (orb._prevCycleIndex != cycleIndex || cycleElapsed < Scp1344HumanXrayProvider.OrbTrackingDuration)
+                            {
+                                float alphaMultiplier = Mathf.InverseLerp(Scp1344HumanXrayProvider.OrbStartFade + Scp1344HumanXrayProvider.OrbFadeDuration, Scp1344HumanXrayProvider.OrbStartFade, cycleElapsed);
+                                if (alphaMultiplier > 0)
+                                {
+                                    if (!VisiblePlayers.ContainsKey(toCheckPlayer))
+                                        VisiblePlayers.TryAdd(toCheckPlayer, new Dictionary<ReferenceHub, float>());
+
+                                    VisiblePlayers[toCheckPlayer][orb.Target] = Time.time + 0.1f;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
             foreach (ReferenceHub hub in ReferenceHub.AllHubs)
             {
                 if (hub.netId == receiver.netId)
@@ -99,27 +142,16 @@ namespace CedMod.Addons.Sentinal.Patches
                     }
                 }
 
-                if (hub.playerEffectsController.TryGetEffect(out Scp1344 scp1344) && scp1344.IsEnabled)
-                    spoofRole = false;
-
                 bool doChecking = true;
-                //if the player is a spectator we will perform checksfrom the POV of the spectator to prevent cloud ESP features from live-sharing data from spectator. 
-                ReferenceHub toCheckPlayer = receiver;
-                if (receiver.roleManager.CurrentRole is SpectatorRole spectatorRole)
-                    toCheckPlayer = ReferenceHub.AllHubs.FirstOrDefault(s => s.netId == spectatorRole.SyncedSpectatedNetId);
+                if (hub.playerEffectsController.TryGetEffect(out scp1344) && scp1344.IsEnabled)
+                    spoofRole = false;
                 
-                if (toCheckPlayer == null)
-                    toCheckPlayer = receiver;
-
                 if (invisible)
                     doChecking = false;
 
                 if (receiver.GetTeam() == Team.SCPs || receiver.GetRoleId() == RoleTypeId.Overwatch)
                     doChecking = false;
-
-                if (toCheckPlayer.playerEffectsController.TryGetEffect(out scp1344) && scp1344.IsEnabled)
-                    doChecking = false;
-
+                
 				if (hub.roleManager.CurrentRole is Scp096Role scp096 && (scp096.StateController.RageState != Scp096RageState.Docile || Vector3.Distance(toCheckPlayer.transform.position, hub.transform.position) <= 4))
                     doChecking = false;
                 
@@ -223,6 +255,12 @@ namespace CedMod.Addons.Sentinal.Patches
                 
                 if (spoofRole)
                     spoofRole = invisible;
+                
+                if (losCheckInvisible && VisiblePlayers.TryGetValue(toCheckPlayer, out var visiblePlayers) && visiblePlayers.TryGetValue(hub, out var visiblePlayer) && visiblePlayer > Time.time)
+                {
+                    losCheckInvisible = false;
+                }
+                
                 PlayerValidatedVisibilityEventArgs ev = new PlayerValidatedVisibilityEventArgs(receiver, hub, doChecking ? !losCheckInvisible : !invisible);
                 LabApi.Events.Handlers.PlayerEvents.OnValidatedVisibility(ev);
                 invisible = !ev.IsVisible;

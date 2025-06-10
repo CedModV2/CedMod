@@ -15,6 +15,7 @@ namespace CedMod.Handlers
 
         public override void OnServerRoundRestarted()
         {
+            FpcServerPositionDistributorPatch.VisiblePlayers.Clear();
             SentinalBehaviour.GunshotSource.Clear();
             SentinalBehaviour.Stalking106.Clear();
             Scp939LungePatch.LungeTime.Clear();
