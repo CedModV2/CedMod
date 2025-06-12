@@ -84,11 +84,11 @@ namespace CedMod.Addons.Sentinal.Patches
             
             //if the player is a spectator we will perform checksfrom the POV of the spectator to prevent cloud ESP features from live-sharing data from spectator. 
             ReferenceHub toCheckPlayer = receiver;
-            if (receiver.roleManager.CurrentRole is SpectatorRole spectatorRole)
-                toCheckPlayer = ReferenceHub.AllHubs.FirstOrDefault(s => s.netId == spectatorRole.SyncedSpectatedNetId);
+            //if (receiver.roleManager.CurrentRole is SpectatorRole spectatorRole)
+            //    toCheckPlayer = ReferenceHub.AllHubs.FirstOrDefault(s => s.netId == spectatorRole.SyncedSpectatedNetId);
             
-            if (toCheckPlayer == null)
-                toCheckPlayer = receiver;
+            //if (toCheckPlayer == null)
+            //    toCheckPlayer = receiver;
             
             if (toCheckPlayer.playerEffectsController.TryGetEffect(out Scp1344 scp1344) && scp1344.IsEnabled)
             {
@@ -149,7 +149,7 @@ namespace CedMod.Addons.Sentinal.Patches
                 if (invisible)
                     doChecking = false;
 
-                if (receiver.GetTeam() == Team.SCPs || receiver.GetRoleId() == RoleTypeId.Overwatch)
+                if (receiver.GetTeam() == Team.SCPs || receiver.GetRoleId() == RoleTypeId.Overwatch || receiver.GetRoleId() == RoleTypeId.Spectator)
                     doChecking = false;
                 
 				if (hub.roleManager.CurrentRole is Scp096Role scp096 && (scp096.StateController.RageState != Scp096RageState.Docile || Vector3.Distance(toCheckPlayer.transform.position, hub.transform.position) <= 4))
