@@ -20,22 +20,18 @@ namespace CedMod.Addons.Sentinal.Patches
             if (CedModMain.Singleton == null || CedModMain.Singleton.Config == null || !CedModMain.Singleton.Config.CedMod.PrimitiveTransparancyDetection || !CedModMain.Singleton.Config.CedMod.DisableFakeSyncing)
                 return true;
             
-            Logger.Info("patch col");
             if (!__instance.NetworkPrimitiveFlags.HasFlag(PrimitiveFlags.Visible))
             {
-                Logger.Info($"Setting to glass {Glass}");
                 __instance.gameObject.layer = Glass;
                 return true;
             }
             
             if (value.a < 1 && __instance.gameObject.layer != Glass)
             {
-                Logger.Info($"Setting to glass {Glass}");
                 __instance.gameObject.layer = Glass;
             }
             else if (value.a >= 1 && __instance.gameObject.layer != Default)
             {
-                Logger.Info($"Setting to default {Default}");
                 __instance.gameObject.layer = Default;
             }
             return true;
@@ -53,22 +49,18 @@ namespace CedMod.Addons.Sentinal.Patches
             if (CedModMain.Singleton == null || CedModMain.Singleton.Config == null || !CedModMain.Singleton.Config.CedMod.PrimitiveTransparancyDetection || !CedModMain.Singleton.Config.CedMod.DisableFakeSyncing)
                 return true;
             
-            Logger.Info("patch type");
             if (!value.HasFlag(PrimitiveFlags.Visible))
             {
-                Logger.Info($"Setting to glass {Glass}");
                 __instance.gameObject.layer = Glass;
                 return true;
             }
             
             if (__instance.NetworkMaterialColor.a < 1 && __instance.gameObject.layer != Glass)
             {
-                Logger.Info($"Setting to glass {Glass}");
                 __instance.gameObject.layer = Glass;
             }
             else if (__instance.NetworkMaterialColor.a >= 1 && __instance.gameObject.layer != Default)
             {
-                Logger.Info($"Setting to default {Default}");
                 __instance.gameObject.layer = Default;
             }
             return true;
