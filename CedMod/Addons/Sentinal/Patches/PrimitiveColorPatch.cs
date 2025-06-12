@@ -17,7 +17,7 @@ namespace CedMod.Addons.Sentinal.Patches
         
         public static bool Prefix(PrimitiveObjectToy __instance, Color value)
         {
-            if (!CedModMain.Singleton.Config.CedMod.PrimitiveTransparancyDetection)
+            if (CedModMain.Singleton == null || CedModMain.Singleton.Config == null || !CedModMain.Singleton.Config.CedMod.PrimitiveTransparancyDetection || !CedModMain.Singleton.Config.CedMod.DisableFakeSyncing)
                 return true;
             
             Logger.Info("patch col");
@@ -50,7 +50,7 @@ namespace CedMod.Addons.Sentinal.Patches
         
         public static bool Prefix(PrimitiveObjectToy __instance, PrimitiveFlags value)
         {
-            if (CedModMain.Singleton == null || CedModMain.Singleton.Config == null || !CedModMain.Singleton.Config.CedMod.PrimitiveTransparancyDetection)
+            if (CedModMain.Singleton == null || CedModMain.Singleton.Config == null || !CedModMain.Singleton.Config.CedMod.PrimitiveTransparancyDetection || !CedModMain.Singleton.Config.CedMod.DisableFakeSyncing)
                 return true;
             
             Logger.Info("patch type");
