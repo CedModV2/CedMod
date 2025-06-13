@@ -12,12 +12,12 @@ namespace CedMod.Addons.Sentinal.Patches
     [HarmonyPatch(typeof(PrimitiveObjectToy), "NetworkMaterialColor", MethodType.Setter)]
     public static class PrimitiveColorPatch
     {
-        public static int Glass = LayerMask.NameToLayer("Glass");
+        public static int Glass = LayerMask.NameToLayer("Fence");
         public static int Default = LayerMask.NameToLayer("Default");
         
         public static bool Prefix(PrimitiveObjectToy __instance, Color value)
         {
-            if (CedModMain.Singleton == null || CedModMain.Singleton.Config == null || !CedModMain.Singleton.Config.CedMod.PrimitiveTransparancyDetection || !CedModMain.Singleton.Config.CedMod.DisableFakeSyncing)
+            if (CedModMain.Singleton == null || CedModMain.Singleton.Config == null || !CedModMain.Singleton.Config.CedMod.PrimitiveTransparancyDetection || CedModMain.Singleton.Config.CedMod.DisableFakeSyncing)
                 return true;
             
             if (!__instance.NetworkPrimitiveFlags.HasFlag(PrimitiveFlags.Visible))
@@ -41,12 +41,12 @@ namespace CedMod.Addons.Sentinal.Patches
     [HarmonyPatch(typeof(PrimitiveObjectToy), "NetworkPrimitiveFlags", MethodType.Setter)]
     public static class PrimitiveFlagsPatch
     {
-        public static int Glass = LayerMask.NameToLayer("Glass");
+        public static int Glass = LayerMask.NameToLayer("Fence");
         public static int Default = LayerMask.NameToLayer("Default");
         
         public static bool Prefix(PrimitiveObjectToy __instance, PrimitiveFlags value)
         {
-            if (CedModMain.Singleton == null || CedModMain.Singleton.Config == null || !CedModMain.Singleton.Config.CedMod.PrimitiveTransparancyDetection || !CedModMain.Singleton.Config.CedMod.DisableFakeSyncing)
+            if (CedModMain.Singleton == null || CedModMain.Singleton.Config == null || !CedModMain.Singleton.Config.CedMod.PrimitiveTransparancyDetection || CedModMain.Singleton.Config.CedMod.DisableFakeSyncing)
                 return true;
             
             if (!value.HasFlag(PrimitiveFlags.Visible))
