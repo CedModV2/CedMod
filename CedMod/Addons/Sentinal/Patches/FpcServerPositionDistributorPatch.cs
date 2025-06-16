@@ -28,10 +28,9 @@ using PlayerRoles.FirstPersonControl.Thirdperson;
 using PlayerRoles.FirstPersonControl.Thirdperson.Subcontrollers;
 using PlayerRoles.PlayableScps;
 using PlayerRoles.PlayableScps.Scp049;
-using PlayerRoles.PlayableScps.Scp079;
 using PlayerRoles.PlayableScps.Scp096;
 using PlayerRoles.PlayableScps.Scp106;
-using PlayerRoles.PlayableScps.Scp939;
+using PlayerRoles.PlayableScps.Scp173;
 using PlayerRoles.Spectating;
 using PlayerRoles.Subroutines;
 using PlayerRoles.Visibility;
@@ -39,13 +38,18 @@ using PlayerRoles.Voice;
 using RelativePositioning;
 using UnityEngine;
 using Utils.NonAllocLINQ;
+using VoiceChat;
 using Logger = LabApi.Features.Console.Logger;
 using MicroHIDItem = InventorySystem.Items.MicroHID.MicroHIDItem;
 using RadioItem = InventorySystem.Items.Radio.RadioItem;
 using Random = UnityEngine.Random;
+using Scp079Role = PlayerRoles.PlayableScps.Scp079.Scp079Role;
+using Scp096Role = PlayerRoles.PlayableScps.Scp096.Scp096Role;
+using Scp106Role = PlayerRoles.PlayableScps.Scp106.Scp106Role;
 using Scp1344Item = InventorySystem.Items.Usables.Scp1344.Scp1344Item;
 using Scp1576Item = InventorySystem.Items.Usables.Scp1576.Scp1576Item;
 using Scp1853Item = InventorySystem.Items.Usables.Scp1853Item;
+using Scp939Role = PlayerRoles.PlayableScps.Scp939.Scp939Role;
 
 namespace CedMod.Addons.Sentinal.Patches
 {
@@ -165,6 +169,7 @@ namespace CedMod.Addons.Sentinal.Patches
                 
                 if (doChecking)
                 {
+                    bool doNext = true;
                     bool rayNeeded = false;
                     bool cacheUpdate = false;
                     bool wasInvis = false;
@@ -188,17 +193,41 @@ namespace CedMod.Addons.Sentinal.Patches
                         }
                     }
                     
-                    if (Vector3.Distance(receiver.transform.position, hub.transform.position) <= 1) //raycasts become very heavy if too close
+                    if (doNext && Vector3.Distance(receiver.transform.position, hub.transform.position) <= 1) //raycasts become very heavy if too close
                     {
                         rayNeeded = false;
                         losCheckInvisible = false;
+                        doNext = false;
                     }
-                    else if (hub.roleManager.CurrentRole is IFpcRole role && role.FpcModule.CharacterModelInstance is AnimatedCharacterModel animatedCharacterModel && animatedCharacterModel.FootstepPlayable && Vector3.Distance(receiver.transform.position, hub.transform.position) <= GetFootstepDistance(receiver, animatedCharacterModel))
+                    
+                    if (doNext && hub.roleManager.CurrentRole is IFpcRole role)
                     {
-                        rayNeeded = false;
-                        losCheckInvisible = false;
+                        if (role.FpcModule.CharacterModelInstance is AnimatedCharacterModel animatedCharacterModel && animatedCharacterModel.FootstepPlayable && Vector3.Distance(receiver.transform.position, hub.transform.position) <= GetFootstepDistance(receiver, animatedCharacterModel))
+                        {
+                            rayNeeded = false;
+                            losCheckInvisible = false;
+                            doNext = false;
+                        }
+                        
+                        if (role.FpcModule.CharacterModelInstance is Scp173CharacterModel scp173Character && scp173Character._currentVolume > 0)
+                        {
+                            foreach (var source in scp173Character._footstepSources)
+                            {
+                                var curve = source.GetCustomCurve(AudioSourceCurveType.CustomRolloff);
+                                var dist = Vector3.Distance(receiver.GetPosition(), hub.GetPosition());
+                                var val = curve.Evaluate(dist / source.maxDistance);
+                                if (val > 0.05f)
+                                {
+                                    rayNeeded = false;
+                                    losCheckInvisible = false;
+                                    doNext = false;
+                                    break;
+                                }
+                            }
+                        }
                     }
-                    else if (hub.inventory.CurInstance is Firearm firearm1 && firearm1.TryGetModule(out AudioModule module) && SentinalBehaviour.GunshotSource.TryGetValue(hub.netId, out var time) && time.Item1 >= Time.time && Vector3.Distance(hub.GetPosition(), receiver.GetPosition()) <= time.maxDistance)
+                    
+                    if (doNext && hub.inventory.CurInstance is Firearm firearm1 && firearm1.TryGetModule(out AudioModule module) && SentinalBehaviour.GunshotSource.TryGetValue(hub.netId, out var time) && time.Item1 >= Time.time && Vector3.Distance(hub.GetPosition(), receiver.GetPosition()) <= time.maxDistance)
                     {
                         if (wasInvis &&  module._clipToIndex.TryGetValue(time.Item2, out var index))
                         {
@@ -214,15 +243,20 @@ namespace CedMod.Addons.Sentinal.Patches
                                 });
                             });
                         }
+                        
                         rayNeeded = false;
                         losCheckInvisible = false;
+                        doNext = false;
                     }
-                    else if (hub.inventory.CurInstance is MicroHIDItem hidItem && hidItem.CycleController.Phase != MicroHidPhase.Standby)
+                    
+                    if (doNext && hub.inventory.CurInstance is MicroHIDItem hidItem && hidItem.CycleController.Phase != MicroHidPhase.Standby)
                     {
                         rayNeeded = false;
                         losCheckInvisible = false;
+                        doNext = false;
                     }
-                    else
+                    
+                    if (doNext)
                     {
                         int roomRange = 2;
                         if (toCheckPlayer.inventory.CurInstance is Firearm firearm && firearm.TryGetModule(out IAdsModule adsModule) && adsModule.AdsAmount == 1)
@@ -234,7 +268,9 @@ namespace CedMod.Addons.Sentinal.Patches
                             losCheckInvisible = true;
                         }
 
-                        if (VoicePacketPacket.Voice.TryGetValue(hub.netId, out var val) && val >= Time.time && Vector3.Distance(toCheckPlayer.GetPosition(), hub.GetPosition()) <= 22) //allow vc
+                        if (VoicePacketPacket.Voice.TryGetValue(hub.netId, out var val) && val >= Time.time && 
+                            receiver.roleManager.CurrentRole is FpcStandardRoleBase roleBase && hub.roleManager.CurrentRole is FpcStandardRoleBase hubRoleBase && 
+                            roleBase.VoiceModule.ValidateReceive(hub, hubRoleBase.VoiceModule.CurrentChannel) != VoiceChatChannel.None && Vector3.Distance(toCheckPlayer.GetPosition(), hub.GetPosition()) <= 22)
                         {
                             rayNeeded = false;
                             losCheckInvisible = false;
@@ -468,7 +504,8 @@ namespace CedMod.Addons.Sentinal.Patches
             
             if (receiver.authManager.InstanceMode == ClientInstanceMode.ReadyClient && receiver.GetVelocity().magnitude > 0f)
             {
-                var receiverPos = receiver.GetPosition() + receiver.GetVelocity() * Mathf.Min(0.75f, + 0.25f + (receiver.authManager.InstanceMode == ClientInstanceMode.ReadyClient ? LiteNetLib4MirrorServer.Peers[receiver.connectionToClient.connectionId].Ping * 2f / 1000f : 0));
+                var amplifier = 0.10f + Mathf.Min(0.75f, +0.25f + (receiver.authManager.InstanceMode == ClientInstanceMode.ReadyClient ? LiteNetLib4MirrorServer.Peers[receiver.connectionToClient.connectionId].Ping * 2f / 1000f : 0));
+                var receiverPos = receiver.GetPosition() + receiver.GetVelocity() * amplifier;
                 if (!Physics.Linecast(receiver.PlayerCameraReference.position, receiverPos, VisionInformation.VisionLayerMask, QueryTriggerInteraction.Ignore) && !Physics.Linecast(receiverPos, hub.PlayerCameraReference.position, VisionInformation.VisionLayerMask, QueryTriggerInteraction.Ignore))
                     return true;
             }
