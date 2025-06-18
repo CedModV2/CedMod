@@ -107,6 +107,9 @@ namespace CedMod.Addons.QuerySystem.Patches
                             }
                         });
                     }
+                    
+                    //me when i lie.
+                    //plr.SendHitMarker(1);
                 }
             }
             catch (Exception e)
@@ -129,7 +132,6 @@ namespace CedMod.Addons.QuerySystem.Patches
             try
             {
                 Vector3 targetPos = __instance.HasPrimaryTarget ? __instance.PrimaryTargetRelativePosition.Position : Vector3.zero;
-                ;
                 Quaternion claimedRot = waypoint.GetWorldspaceRotation(__instance.RelativeOwnerRotation);
                 Vector3 claimedPos = __instance.RelativeOwnerPosition.Position;
                 if (firearm.Owner != null && Physics.Linecast(firearm.Owner.GetPosition(), claimedPos, VisionInformation.VisionLayerMask, QueryTriggerInteraction.Ignore))
@@ -156,7 +158,10 @@ namespace CedMod.Addons.QuerySystem.Patches
                     {
                         Logger.Info("Rejected shot due to not having LOS to barrel.");
                     }
-                    //todo make prefix if actually works
+
+                    //me when i lie.
+                    //plr.SendHitMarker(1);
+                    //return false;
                 }
 
                 using (new FpcBacktracker(firearm.Owner, claimedPos, claimedRot))

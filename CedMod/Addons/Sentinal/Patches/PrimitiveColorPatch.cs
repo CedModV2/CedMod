@@ -12,7 +12,7 @@ namespace CedMod.Addons.Sentinal.Patches
     [HarmonyPatch(typeof(PrimitiveObjectToy), "NetworkMaterialColor", MethodType.Setter)]
     public static class PrimitiveColorPatch
     {
-        public static int Glass = LayerMask.NameToLayer("Fence");
+        public static int Glass = LayerMask.NameToLayer("CCTV");
         public static int Default = LayerMask.NameToLayer("Default");
         
         public static bool Prefix(PrimitiveObjectToy __instance, Color value)
@@ -41,7 +41,7 @@ namespace CedMod.Addons.Sentinal.Patches
     [HarmonyPatch(typeof(PrimitiveObjectToy), "NetworkPrimitiveFlags", MethodType.Setter)]
     public static class PrimitiveFlagsPatch
     {
-        public static int Glass = LayerMask.NameToLayer("Fence");
+        public static int Glass = LayerMask.NameToLayer("CCTV");
         public static int Default = LayerMask.NameToLayer("Default");
         
         public static bool Prefix(PrimitiveObjectToy __instance, PrimitiveFlags value)
