@@ -103,6 +103,8 @@ namespace CedMod.Addons.QuerySystem.Patches
                                 { "LocalCamPos", plr.Room != null ? plr.Room.Transform.InverseTransformPoint(plr.ReferenceHub.PlayerCameraReference.position).ToString() : "" },
                                 { "ClaimedPos", plr.Room != null ? plr.Room.Transform.InverseTransformPoint(claimedPos).ToString() : "" },
                                 { "TargetPos", Vector3.zero.ToString() },
+                                { "Room", plr.Room != null ? plr.Room.Base.name : "" },
+                                { "RoomRotation", plr.Room != null ? plr.Room.Rotation.ToString() : "" },
                                 { "Ping", (LiteNetLib4MirrorServer.Peers[plr.ReferenceHub.connectionToClient.connectionId].Ping * 2).ToString() },
                             }
                         });
@@ -149,6 +151,8 @@ namespace CedMod.Addons.QuerySystem.Patches
                                 { "LocalCamPos", plr.Room != null ? plr.Room.Transform.InverseTransformPoint(plr.ReferenceHub.PlayerCameraReference.position).ToString() : "" },
                                 { "ClaimedPos", plr.Room != null ? plr.Room.Transform.InverseTransformPoint(claimedPos).ToString() : "" },
                                 { "TargetPos", plr.Room != null ? plr.Room.Transform.InverseTransformPoint(targetPos).ToString() : "" },
+                                { "Room", plr.Room != null ? plr.Room.Base.name : "" },
+                                { "RoomRotation", plr.Room != null ? plr.Room.Rotation.ToString() : "" },
                                 { "Ping", (LiteNetLib4MirrorServer.Peers[plr.ReferenceHub.connectionToClient.connectionId].Ping * 2).ToString() },
                             }
                         });
