@@ -72,7 +72,7 @@ namespace CedMod.Addons.Sentinal.Patches
     [HarmonyPatch(typeof(Scp106MovementModule), nameof(Scp106MovementModule.GetSlowdownFromCollider))]
     public static class Scp106MovementModulePatch
     {
-        public static bool Prefix(Collider col, out bool isPassable, ref int __result)
+        public static bool Prefix(Collider col, out bool isPassable, ref float __result)
         {
             if (col.GetComponent<PrimitiveObjectToy>() != null)
             {
