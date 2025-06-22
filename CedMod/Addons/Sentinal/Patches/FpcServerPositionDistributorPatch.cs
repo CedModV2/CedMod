@@ -156,7 +156,7 @@ namespace CedMod.Addons.Sentinal.Patches
                 if (receiver.GetTeam() == Team.SCPs || receiver.GetRoleId() == RoleTypeId.Overwatch || receiver.GetRoleId() == RoleTypeId.Spectator)
                     doChecking = false;
                 
-				if (hub.roleManager.CurrentRole is Scp096Role scp096 && (scp096.StateController.RageState != Scp096RageState.Docile || Vector3.Distance(toCheckPlayer.transform.position, hub.transform.position) <= 4))
+				if (hub.roleManager.CurrentRole is Scp096Role scp096 && (scp096.StateController.RageState != Scp096RageState.Docile || Vector3.Distance(toCheckPlayer.transform.position, hub.transform.position) <= 20))
                     doChecking = false;
                 
                 if (hub.roleManager.CurrentRole is Scp106Role scp106 && Vector3.Distance(toCheckPlayer.transform.position, hub.transform.position) <= 4)
@@ -383,6 +383,9 @@ namespace CedMod.Addons.Sentinal.Patches
         {
             if (animatedCharacterModel.Role.Team == Team.SCPs)
                 return animatedCharacterModel.FootstepLoudnessDistance;
+
+            if (animatedCharacterModel.Role.Team == Team.ChaosInsurgency)
+                return animatedCharacterModel.FootstepLoudnessDistance - 3;
 
             switch (animatedCharacterModel.FpcModule.SyncMovementState)
             {
