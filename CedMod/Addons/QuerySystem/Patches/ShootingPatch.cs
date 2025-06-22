@@ -172,7 +172,7 @@ namespace CedMod.Addons.QuerySystem.Patches
                 {
                     if (__instance.HasPrimaryTarget)
                     {
-                        var ping = __instance.PrimaryTargetHub.authManager.InstanceMode == ClientInstanceMode.ReadyClient ? (LiteNetLib4MirrorServer.Peers[firearm.Owner.connectionToClient.connectionId].Ping * 2 / (float)1000) + 0.15f : 0.4f;
+                        var ping = __instance.PrimaryTargetHub.authManager.InstanceMode == ClientInstanceMode.ReadyClient ? (LiteNetLib4MirrorServer.Peers[firearm.Owner.connectionToClient.connectionId].Ping * 2 / (float)1000) * 2 + 0.15f : 0.4f;
                         using (new FpcBacktracker(__instance.PrimaryTargetHub, targetPos, Math.Min(0.4f, ping)))
                         {
 #if !EXILED
