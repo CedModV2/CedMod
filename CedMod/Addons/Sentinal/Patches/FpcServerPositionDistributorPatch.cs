@@ -165,6 +165,9 @@ namespace CedMod.Addons.Sentinal.Patches
                 if (hub.roleManager.CurrentRole is Scp939Role scp939 && Vector3.Distance(toCheckPlayer.transform.position, hub.transform.position) <= 4)
                     doChecking = false;
                 
+                if (hub.roleManager.CurrentRole is Scp173Role scp173 && Vector3.Distance(toCheckPlayer.transform.position, hub.transform.position) <= 22)
+                    doChecking = false;
+                
                 bool losCheckInvisible = false;
                 
                 if (doChecking)
@@ -207,23 +210,6 @@ namespace CedMod.Addons.Sentinal.Patches
                             rayNeeded = false;
                             losCheckInvisible = false;
                             doNext = false;
-                        }
-                        
-                        if (role.FpcModule.CharacterModelInstance is Scp173CharacterModel scp173Character && scp173Character._currentVolume > 0)
-                        {
-                            foreach (var source in scp173Character._footstepSources)
-                            {
-                                var curve = source.GetCustomCurve(AudioSourceCurveType.CustomRolloff);
-                                var dist = Vector3.Distance(receiver.GetPosition(), hub.GetPosition());
-                                var val = curve.Evaluate(dist / source.maxDistance);
-                                if (val > 0.05f)
-                                {
-                                    rayNeeded = false;
-                                    losCheckInvisible = false;
-                                    doNext = false;
-                                    break;
-                                }
-                            }
                         }
                     }
                     
