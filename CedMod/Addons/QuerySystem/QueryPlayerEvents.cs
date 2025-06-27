@@ -700,7 +700,7 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnPlayerDroppedAmmo(PlayerDroppedAmmoEventArgs ev)
         {
-            if (ev.AmmoPickup.Base == null)
+            if (ev.AmmoPickup == null ||ev.AmmoPickup.Base == null || ev.Player == null)
                 return;
             
             WebSocketSystem.Enqueue(new QueryCommand()
@@ -729,7 +729,7 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnPlayerDroppedItem(PlayerDroppedItemEventArgs ev)
         {
-            if (ev.Pickup.Base == null)
+            if (ev.Pickup == null || ev.Pickup.Base == null || ev.Player == null)
                 return;
             
             WebSocketSystem.Enqueue(new QueryCommand()
