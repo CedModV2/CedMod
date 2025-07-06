@@ -64,7 +64,7 @@ namespace CedMod.Addons.Sentinal
             if (obj is Firearm firearm && firearm.TryGetModule(out RecoilPatternModule recoil))
             {
                 recoil._counter = new SubsequentShotsCounter(firearm);
-                recoil._counter.OnShotRecorded += recoil.OnShot;
+                //recoil._counter.OnShotRecorded += recoil.OnShot;
             }
         }
 
