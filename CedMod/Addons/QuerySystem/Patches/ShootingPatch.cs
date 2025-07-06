@@ -244,6 +244,9 @@ namespace CedMod.Addons.QuerySystem.Patches
                     RecoilSettings intendedRecoil = new RecoilSettings();
                     if (__instance.Owner.inventory.CurInstance is Firearm firearm && firearm.TryGetModule(out RecoilPatternModule recoil))
                     {
+                        if (recoil._counter == null)
+                            return;
+                        
                         int shots = recoil._counter.SubsequentShots;
                         float adsAmount = firearm.TryGetModule(out IAdsModule ads) ? ads.AdsAmount : 0;
                         
