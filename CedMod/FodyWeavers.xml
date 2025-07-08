@@ -2,16 +2,10 @@
 <Weavers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FodyWeavers.xsd">
     <Costura>
         <IncludeAssemblies>
-            System.Reactive
-            System.Threading.Channels
-            Newtonsoft.Json
-            System.ValueTuple
-            System.Data
-            System.Threading.Tasks.Extensions
-            NVorbis
-            SCPSLAudioApi
-            0Harmony
-            System.Memory
+          0Harmony
+          Newtonsoft.Json
+          NVorbis
+          SCPSLAudioApi
         </IncludeAssemblies>
     </Costura>
 </Weavers>
