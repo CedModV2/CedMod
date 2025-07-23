@@ -16,6 +16,7 @@ using CedMod.Addons.Sentinal.Patches;
 using CedMod.Addons.StaffInfo;
 using CedMod.ApiModals;
 using CedMod.Components;
+using CedMod.Patches;
 using Exiled.Loader;
 using Exiled.Permissions.Extensions;
 using LabApi.Features.Console;
@@ -813,6 +814,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 var delay = !ServerConsole.ServerName.Contains("CedModVerification");
 
                                 Verification.ServerId = Convert.ToInt32(jsonData["ServerId"]);
+                                ReloadServerNamePatch.IncludeString = true;
                                 ServerConsole.ReloadServerName();
                                 ServerConsole.Update = true;
 
