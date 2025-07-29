@@ -36,7 +36,7 @@ namespace CedMod.Addons.QuerySystem
                     AmountErrored = 0;
                     ServerConsole.ReloadServerName();
                     ServerConsole.Update = true;
-                    await ConfirmId(true, true);
+                    await ConfirmId(true);
                 }
                 else
                 {
@@ -45,6 +45,10 @@ namespace CedMod.Addons.QuerySystem
                         AmountErrored++;
                         Logger.Error($"Failed to obtain CedMod verification token: {responseString}");
                     }
+                    else
+                    {
+                        return;
+                    }
 
                     await Task.Delay(1000, CedModMain.CancellationToken);
                     await ObtainId();
@@ -52,53 +56,41 @@ namespace CedMod.Addons.QuerySystem
             }
         }
 
-        public static async Task<string> ConfirmId(bool loop = true, bool exitOnSuccess = true)
+        public static async Task<string> ConfirmId(bool firstStart = false)
         {
-            bool first = true;
-            while (!Shutdown._quitting)
+            ReloadServerNamePatch.IncludeString = true;
+            ServerConsole.ReloadServerName();
+            ServerConsole.Update = true;
+            if (firstStart)
+                await ServerPreferences.WaitForSecond(60000, CedModMain.CancellationToken, (o) => !Shutdown._quitting && CedModMain.Singleton.CacheHandler != null);
+            
+            using (HttpClient client = new HttpClient())
             {
-                bool wasHidden = ReloadServerNamePatch.IncludeString;
-                ReloadServerNamePatch.IncludeString = true;
-                ServerConsole.ReloadServerName();
-                ServerConsole.Update = true;
-                if (loop)
-                    await ServerPreferences.WaitForSecond(first || wasHidden ? 45000 : 15000, CedModMain.CancellationToken, (o) => !Shutdown._quitting && CedModMain.Singleton.CacheHandler != null);
-                first = false;
-                using (HttpClient client = new HttpClient())
+                client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
+                await VerificationChallenge.AwaitVerification();
+                if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                    Logger.Debug($"verifying Id.");
+                var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Verification/ConfirmId/{QuerySystem.QuerySystemKey}?ip={ServerConsole.Ip}&port={(ServerConsole.PortOverride == 0 ? ServerStatic.ServerPort : ServerConsole.PortOverride)}&queryId={ServerId}");
+                var responseString = await response.Content.ReadAsStringAsync();
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
-                    await VerificationChallenge.AwaitVerification();
-                    if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                        Logger.Debug($"verifying Id.");
-                    var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/Verification/ConfirmId/{QuerySystem.QuerySystemKey}?ip={ServerConsole.Ip}&port={(ServerConsole.PortOverride == 0 ? ServerStatic.ServerPort : ServerConsole.PortOverride)}&queryId={ServerId}");
-                    var responseString = await response.Content.ReadAsStringAsync();
-                    if (response.StatusCode == HttpStatusCode.OK)
+                    ServerId = int.Parse(responseString);
+                    AmountErrored = 0;
+                    return "";
+                }
+                else
+                {
+                    if (AmountErrored <= 3)
                     {
-                        ServerId = int.Parse(responseString);
-                        AmountErrored = 0;
-
-                        ReloadServerNamePatch.IncludeString = false;
-                        ServerConsole.ReloadServerName();
-                        ServerConsole.Update = true;
-                        
-                        if (!loop || exitOnSuccess)
-                            return "";
+                        AmountErrored++;
+                        Logger.Error($"Failed to verify CedMod verification token: {responseString}");
                     }
-                    else
+                    else if (AmountErrored >= 10)
                     {
-                        if (AmountErrored <= 3)
-                        {
-                            AmountErrored++;
-                            Logger.Error($"Failed to verify CedMod verification token: {responseString}");
-                        }
-                        else if (AmountErrored >= 10)
-                        {
-                            responseString = "";
-                        }
-
-                        if (!loop)
-                            return responseString;
+                        responseString = "";
                     }
+                    
+                    return responseString;
                 }
             }
 

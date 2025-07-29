@@ -804,6 +804,21 @@ namespace CedMod.Addons.QuerySystem.WS
                                 }
                             });
                             break;
+                        case "HideVerificationString":
+                            try
+                            {
+                                if (!CustomNetworkManager.IsVerified || IsCheckingToken)
+                                    return;
+                                
+                                ReloadServerNamePatch.IncludeString = false;
+                                ServerConsole.ReloadServerName();
+                                ServerConsole.Update = true;
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.Info(e.ToString());
+                            }
+                            break;
                         case "VerificationCheck":
                             try
                             {
@@ -825,7 +840,6 @@ namespace CedMod.Addons.QuerySystem.WS
                                         {
                                             await ServerPreferences.WaitForSecond(90000, CedModMain.CancellationToken, (o) => !Shutdown._quitting && CedModMain.Singleton.CacheHandler != null);
                                             await HandleVerification();
-                                            IsCheckingToken = false;
                                         }
                                         catch (Exception e)
                                         {
@@ -845,7 +859,6 @@ namespace CedMod.Addons.QuerySystem.WS
                                 else
                                 {
                                     await HandleVerification();
-                                    IsCheckingToken = false;
                                 }
                             }
                             catch (Exception e)
@@ -861,9 +874,9 @@ namespace CedMod.Addons.QuerySystem.WS
                                     Identity = "",
                                     Recipient = "PANEL",
                                 });
-                                IsCheckingToken = false;
                             }
-
+                            
+                            IsCheckingToken = false;
                             break;
                         case "reloadsrvprefs":
                             await ServerPreferences.ResolvePreferences(false);
@@ -903,7 +916,7 @@ namespace CedMod.Addons.QuerySystem.WS
 
         private static async Task HandleVerification()
         {
-            string result = await Verification.ConfirmId(false);
+            string result = await Verification.ConfirmId();
             if (result != string.Empty)
                 Logger.Error($"Panel requested verification check however check failed, {result}");
             SendQueue.Enqueue(new QueryCommand()
