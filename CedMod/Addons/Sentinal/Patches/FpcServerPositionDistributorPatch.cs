@@ -62,7 +62,7 @@ namespace CedMod.Addons.Sentinal.Patches
         public static FpcSyncData InvisibleSync = new FpcSyncData();
         public static Dictionary<uint, float> LastAudioSent = new Dictionary<uint, float>();
         
-        public static event Func<ReferenceHub, ReferenceHub, RoleTypeId, RoleTypeId> RoleSync; 
+        public static event Func<ReferenceHub, ReferenceHub, bool, bool> EspCheck; 
         public static bool Prefix(ReferenceHub receiver, NetworkWriter writer)
         {
             SyncDatas.Clear();
@@ -275,82 +275,42 @@ namespace CedMod.Addons.Sentinal.Patches
                         VisibilityCache[toCheckPlayer][hub] = (Time.time + (losCheckInvisible ? 0.1f : 0.5f), losCheckInvisible);
                 }
                 
-                if (spoofRole)
-                    spoofRole = invisible;
-                
                 if (losCheckInvisible && VisiblePlayers.TryGetValue(toCheckPlayer, out var visiblePlayers) && visiblePlayers.TryGetValue(hub, out var visiblePlayer) && visiblePlayer > Time.time)
                 {
                     losCheckInvisible = false;
                 }
-                
+
+                if (doChecking && EspCheck != null)
+                    losCheckInvisible = EspCheck(receiver, hub, losCheckInvisible);
+                    
                 PlayerValidatedVisibilityEventArgs ev = new PlayerValidatedVisibilityEventArgs(receiver, hub, doChecking ? !losCheckInvisible : !invisible);
                 LabApi.Events.Handlers.PlayerEvents.OnValidatedVisibility(ev);
                 invisible = !ev.IsVisible;
-                FpcSyncData data = GetNewSyncData(receiver, hub, fpc.FpcModule, invisible);
+                RoleTypeId toSend = FpcServerPositionDistributor.GetVisibleRole(receiver, hub);
+
+                if (!spoofRole && hub.IsAlive())
+                {
+                    if (hub.roleManager.CurrentRole is IObfuscatedRole i)
+                        toSend = i.GetRoleForUser(receiver);
+                    else 
+                        toSend = hub.roleManager.CurrentRole.RoleTypeId;
+                }
                 
+                RoleTypeId? eventResult = FpcServerPositionDistributor._roleSyncEvent?.Invoke(hub, receiver, toSend);
+                if (eventResult.HasValue)
+                    toSend = eventResult.Value;
+                
+                if (!hub.roleManager.PreviouslySentRole.TryGetValue(receiver.netId, out RoleTypeId prev) || prev != toSend)
+                {
+                    FpcServerPositionDistributor.SendRole(receiver, hub, toSend);
+                }
+                
+                FpcSyncData data = GetNewSyncData(receiver, hub, fpc.FpcModule, invisible);
                 if (!invisible)
                 {
                     FpcServerPositionDistributor._bufferPlayerIDs[count] = hub.PlayerId;
                     FpcServerPositionDistributor._bufferSyncData[count] = data;
                     count++;
-
-                    RoleTypeId toSend = hub.roleManager.CurrentRole.RoleTypeId;
-                    if (hub.roleManager.CurrentRole is IObfuscatedRole ior)
-                        toSend = ior.GetRoleForUser(receiver);
-                    
-                    if (hub.roleManager.CurrentRole is Scp079Role scp079Role)
-                    {
-                        if (Vector3.Distance(scp079Role.CameraPosition, receiver.transform.position) <= 30)
-                            toSend = hub.roleManager.CurrentRole.RoleTypeId;
-                    }
-
-                    var send = RoleSync?.Invoke(hub, receiver, toSend);
-                    if (send != null)
-                        toSend = send.Value;
-
-                    if (!hub.roleManager.PreviouslySentRole.TryGetValue(receiver.netId, out RoleTypeId prev) || prev != toSend)
-                        SendRole(receiver, hub, toSend);
-                }
-                else
-                { 
-                    var toSend = hub.roleManager.CurrentRole.Team == Team.SCPs ? hub.roleManager.CurrentRole.RoleTypeId : RoleTypeId.Spectator;
-                    if ((PermissionsHandler.IsPermitted(receiver.serverRoles.Permissions, PlayerPermissions.GameplayData) && !QuerySystem.QuerySystem.IsDev) || receiver.roleManager.CurrentRole.Team == Team.SCPs)
-                        toSend = hub.roleManager.CurrentRole.RoleTypeId;
-                    
-                    if (hub.roleManager.CurrentRole is Scp079Role scp079Role)
-                    {
-                        if (Vector3.Distance(scp079Role.CameraPosition, receiver.transform.position) <= 30)
-                            toSend = hub.roleManager.CurrentRole.RoleTypeId;
-                    }
-
-                    if (Intercom._singleton != null && Intercom.State == IntercomState.InUse)
-                    {
-                        if (Intercom._singleton._curSpeaker != null && (Intercom._singleton._curSpeaker == hub || Intercom._singleton._adminOverrides.Contains(hub)))
-                            toSend = hub.roleManager.CurrentRole.RoleTypeId;
-                    }
-                    
-                    if (hub.inventory.CurInstance != null && hub.inventory.CurInstance is Scp1576Item scp1576Item && scp1576Item.IsUsing)
-                        toSend = hub.roleManager.CurrentRole.RoleTypeId;
-                    
-                    if (VoicePacketPacket.Radio.TryGetValue(hub.netId, out var val) && val >= Time.time)
-                        toSend = hub.roleManager.CurrentRole.RoleTypeId;
-                    
-                    if (hub.roleManager.CurrentRole is IObfuscatedRole ior)
-                        toSend = ior.GetRoleForUser(receiver);
-                    
-                    var send = RoleSync?.Invoke(hub, receiver, toSend);
-                    if (send != null)
-                        toSend = send.Value;
-                    
-                    if (!spoofRole)
-                        toSend = hub.roleManager.CurrentRole.RoleTypeId;
-                    
-                    if (!hub.roleManager.PreviouslySentRole.TryGetValue(receiver.netId, out RoleTypeId prev) || prev != toSend)
-                    {
-                        FpcServerPositionDistributor._bufferPlayerIDs[count] = hub.PlayerId;
-                        FpcServerPositionDistributor._bufferSyncData[count] = InvisibleSync; 
-                        SendRole(receiver, hub, toSend);
-                    }
                 }
             }
 
@@ -412,31 +372,6 @@ namespace CedMod.Addons.Sentinal.Patches
             }
             FpcSyncData fpcSyncData;
             return !dictionary.TryGetValue(target.netId, out fpcSyncData) ? InvisibleSync : fpcSyncData;
-        }
-        
-        public static void SendRole(ReferenceHub receiver, ReferenceHub hub, RoleTypeId toSend)
-        { 
-            if (receiver == hub)
-                toSend = hub.roleManager.CurrentRole.RoleTypeId;
-            
-            NetworkConnection conn = receiver.connectionToClient;
-            bool funny = false;
-            if ((toSend == RoleTypeId.Spectator) && Player.Count >= 6 && Random.Range(0, 500) >= 250)
-            {
-                //Logger.Info($"Logging random OW to plr {receiver.PlayerId}");
-                funny = true;
-            }
-            
-            conn.Send(new RoleSyncInfo(hub, funny ? RoleTypeId.Overwatch : toSend, receiver));
-            hub.roleManager.PreviouslySentRole[receiver.netId] = toSend;
-                
-            if (toSend == hub.roleManager.CurrentRole.RoleTypeId && hub.roleManager.CurrentRole is ISubroutinedRole subroutinedRole)
-            {
-                foreach (var routine in subroutinedRole.SubroutineModule.AllSubroutines)
-                {
-                    routine.ServerSendRpc(receiver);
-                }
-            }
         }
         
         public static Vector3[] CastPositions = new []
