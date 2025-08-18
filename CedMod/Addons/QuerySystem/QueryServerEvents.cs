@@ -11,6 +11,7 @@ using LabApi.Features.Console;
 using LabApi.Features.Wrappers;
 using CedMod.Addons.Sentinal;
 using CedMod.Addons.Sentinal.Patches;
+using LabApi.Events.Arguments.PlayerEvents;
 using MapGeneration;
 using MEC;
 using Newtonsoft.Json;
@@ -41,6 +42,48 @@ namespace CedMod.Addons.QuerySystem
                     { "Seed", SeedSynchronizer.Seed.ToString() }
                 }
             });
+        }
+
+        public override void OnPlayerPreAuthenticating(PlayerPreAuthenticatingEventArgs ev)
+        {
+            if (ev.CanJoin)
+                return;
+
+            if (QuerySystem.ReservedSlotUserids.Contains(ev.UserId))
+                ev.CanJoin = true;
+            
+            base.OnPlayerPreAuthenticating(ev);
+        }
+
+        public override void OnServerCommandExecuted(CommandExecutedEventArgs ev)
+        {
+            try
+            {
+                WebSocketSystem.Enqueue(new QueryCommand()
+                {
+                    Recipient = "ALL",
+                    Data = new Dictionary<string, string>()
+                    {
+                        {"Type", "OnAdminCommand"},
+                        {"UserId", ev.Sender?.SenderId},
+                        {"UserName", ev.Sender?.Nickname},
+                        {"Command", ev.CommandName},
+                        {
+                            "Message", string.Concat(new string[]
+                            {
+                                $"{ev.Sender?.Nickname} ({ev.Sender?.SenderId})",
+                                " used command: ",
+                                ev.CommandName
+                            })
+                        }
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e.ToString());
+            }
+            base.OnServerCommandExecuted(ev);
         }
 
         public IEnumerator<float> SyncStart(bool wait = true)
@@ -221,7 +264,7 @@ namespace CedMod.Addons.QuerySystem
                 Timing.CallDelayed(2, () =>
                 {
                     LevelerStore.InitialPlayerRoles.Clear();
-                    foreach (var plr in Player.List)
+                    foreach (var plr in Player.ReadyList)
                     {
                         if (plr.ReferenceHub == null || plr.GameObject == null)
                             continue;

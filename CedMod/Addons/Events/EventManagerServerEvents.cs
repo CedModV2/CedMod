@@ -2,19 +2,22 @@
 using System.IO;
 using System.Linq;
 using CedMod.Addons.Events.Interfaces;
-using CedMod.Addons.Events.Patches;
 using CedMod.Addons.QuerySystem;
+using LabApi.Events.Arguments.PlayerEvents;
 #if EXILED
 using Exiled.API.Features;
 #endif
 using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Events.CustomHandlers;
 using LabApi.Features.Console;
+using VoiceChat;
 
 namespace CedMod.Addons.Events
 {
     public class EventManagerServerEvents: CustomEventsHandler
     {
+        private static int NextSeed = -1;
+        
         public override void OnServerRoundEnding(RoundEndingEventArgs ev)
         {
             if (EventManager.CurrentEvent != null && EventManager.CurrentEvent is IEndConditionBehaviour endConditionBehaviour)
@@ -22,7 +25,30 @@ namespace CedMod.Addons.Events
                 ev.IsAllowed = endConditionBehaviour.CanRoundEnd(false);
             }
         }
-        
+
+        public override void OnPlayerPlacingBulletHole(PlayerPlacingBulletHoleEventArgs ev)
+        {
+            if (CedModMain.Singleton.Config.CedMod.PreventBulletHolesWhenMuted &&
+                VoiceChatMutes.GetFlags(ev.Player.ReferenceHub).HasFlag(VcMuteFlags.LocalRegular))
+                ev.IsAllowed = false;
+
+            if (EventManager.CurrentEvent != null &&
+                EventManager.CurrentEvent is IBulletHoleBehaviour dissallowBulletHoles &&
+                !dissallowBulletHoles.CanPlaceBulletHole(ev))
+                ev.IsAllowed = false;
+                
+            base.OnPlayerPlacingBulletHole(ev);
+        }
+
+        public override void OnServerMapGenerating(MapGeneratingEventArgs ev)
+        {
+            if (NextSeed <= -1)
+                return;
+
+            ev.Seed = NextSeed;
+            base.OnServerMapGenerating(ev);
+        }
+
         public override void OnServerRoundEnded(RoundEndedEventArgs ev)
         {
             if (EventManager.CurrentEvent != null)
@@ -83,14 +109,14 @@ namespace CedMod.Addons.Events
             }
             HintManager.HintProcessed.Clear();
             
-            SeedGenerationPatch.NextSeed = -1;
+            NextSeed = -1;
 
             if (EventManager.EventQueue.Count >= 1)
             {
                 var next = EventManager.EventQueue.FirstOrDefault();
                 if (next is IMapgenBehaviour mapgenBehaviour)
                 {
-                    SeedGenerationPatch.NextSeed = mapgenBehaviour.Seed;
+                    NextSeed = mapgenBehaviour.Seed;
                 }
             }
         }

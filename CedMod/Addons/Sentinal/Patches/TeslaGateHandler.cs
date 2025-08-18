@@ -10,10 +10,8 @@ using MEC;
 using Mirror;
 using Mirror.LiteNetLib4Mirror;
 using Newtonsoft.Json;
-using PlayerStatsSystem;
 using UnityEngine;
 using Utils.NonAllocLINQ;
-using Logger = LabApi.Features.Console.Logger;
 
 namespace CedMod.Addons.Sentinal.Patches
 {
