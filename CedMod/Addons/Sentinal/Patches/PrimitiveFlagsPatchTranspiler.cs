@@ -23,7 +23,7 @@ namespace CedMod.Addons.Sentinal.Patches
                 // PrimitiveColorPatchTranspiler.SetColor(this, value);
                 new CodeInstruction(OpCodes.Ldarg_0),
                 new CodeInstruction(OpCodes.Ldarg_1),
-                CodeInstruction.Call(typeof(PrimitiveColorPatchTranspiler), nameof(SetPrimitiveFlags), new []{ typeof(PrimitiveObjectToy), typeof(PrimitiveFlags) }), 
+                CodeInstruction.Call(typeof(PrimitiveFlagsPatchTranspiler), nameof(SetPrimitiveFlags), new []{ typeof(PrimitiveObjectToy), typeof(PrimitiveFlags) }), 
             });
             
             for (int z = 0; z < newInstructions.Count; z++)

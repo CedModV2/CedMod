@@ -172,7 +172,6 @@
     <Compile Include="Patches\NpcInstanceModePatch.cs" />
     <Compile Include="Patches\OBanCommandPatch.cs" />
     <Compile Include="Patches\RaPlayerAuthPatch.cs" />
-    <Compile Include="Patches\RaPlayerPatch.cs" />
     <Compile Include="Patches\RAProcessPlayerPatch.cs" />
     <Compile Include="Patches\ReloadServerNamePatch.cs" />
     <Compile Include="Patches\UnMuteCommandPatch.cs" />
