@@ -545,7 +545,7 @@ namespace CedMod.Addons.QuerySystem
 
                 if (CedModMain.Singleton.Config.QuerySystem.Debug)
                     Logger.Debug("resolving on scene players");
-                foreach (var bystanders in Player.List)
+                foreach (var bystanders in Player.ReadyList)
                 {
                     if (bystanders.Role == RoleTypeId.Spectator || ev.Attacker.Role == RoleTypeId.Overwatch || ev.Attacker.Role == RoleTypeId.None)
                         continue;
@@ -1417,7 +1417,7 @@ namespace CedMod.Addons.QuerySystem
                 {
                     if ((int)entry.DisarmedPlayer == (int)ev.Player.NetworkId)
                     {
-                        var disarmer = Player.List.FirstOrDefault(s => s.NetworkId == entry.Disarmer);
+                        var disarmer = Player.ReadyList.FirstOrDefault(s => s.NetworkId == entry.Disarmer);
                         if (disarmer != null)
                         {
                             WebSocketSystem.Enqueue(new QueryCommand()

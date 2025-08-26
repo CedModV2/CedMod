@@ -1,10 +1,11 @@
 ﻿using InventorySystem.Items.Firearms.Modules;
+using LabApi.Events.Arguments.PlayerEvents;
 using UnityEngine;
 
 namespace CedMod.Addons.Events.Interfaces
 {
     public interface IBulletHoleBehaviour
     {
-        bool CanPlaceBulletHole(ImpactEffectsModule reg, Vector3 ray, RaycastHit hit);
+        bool CanPlaceBulletHole(PlayerPlacingBulletHoleEventArgs ev);
     }
 }

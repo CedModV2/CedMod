@@ -88,10 +88,8 @@
     <Compile Include="Addons\Events\Interfaces\IEvent.cs" />
     <Compile Include="Addons\Events\Interfaces\IFriendlyFireAutoBanBehaviour.cs" />
     <Compile Include="Addons\Events\Interfaces\IMapgenBehaviour.cs" />
-    <Compile Include="Addons\Events\Patches\BulletHolePatch.cs" />
     <Compile Include="Addons\Events\EventManagerPlayerEvents.cs" />
     <Compile Include="Addons\Events\EventManagerServerEvents.cs" />
-    <Compile Include="Addons\Events\Patches\SeedGenerationPatch.cs" />
     <Compile Include="Addons\Events\ScriptedEventIntergration.cs" />
     <Compile Include="Addons\QuerySystem\Commands\ImportRaCommand.cs" />
     <Compile Include="Addons\QuerySystem\Commands\CmSyncCommand.cs" />
@@ -100,7 +98,6 @@
     <Compile Include="Addons\QuerySystem\Config.cs" />
     <Compile Include="Addons\QuerySystem\Extensions.cs" />
     <Compile Include="Addons\QuerySystem\LevelerStore.cs" />
-    <Compile Include="Addons\QuerySystem\Patches\CommandProcessorPatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\ExiledPermissionsPatchPlayer.cs" />
     <Compile Include="Addons\QuerySystem\Patches\ExiledPermissionsPatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\PreAuthModel.cs" />
@@ -118,10 +115,12 @@
     <Compile Include="Addons\QuerySystem\Verification.cs" />
     <Compile Include="Addons\QuerySystem\WS\PermissionProvider.cs" />
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
+    <Compile Include="Addons\Sentinal\ItemPickupHandler.cs" />
     <Compile Include="Addons\Sentinal\Patches\FpcServerPositionDistributorPatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\FpcSyncDataPatch.cs" />
-    <Compile Include="Addons\Sentinal\Patches\ItemPickupHandler.cs" />
-    <Compile Include="Addons\Sentinal\Patches\PrimitiveColorPatch.cs" />
+    <Compile Include="Addons\Sentinal\Patches\PrimitiveColorPatchTranspiler.cs" />
+    <Compile Include="Addons\Sentinal\Patches\PrimitiveFlagsPatchTranspiler.cs" />
+    <Compile Include="Addons\Sentinal\Patches\Scp106MovementModulePatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\Scp939LungePatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\TeslaGateHandler.cs" />
     <Compile Include="Addons\Sentinal\Patches\Utilities\RoomCache.cs" />
@@ -173,8 +172,6 @@
     <Compile Include="Patches\NpcInstanceModePatch.cs" />
     <Compile Include="Patches\OBanCommandPatch.cs" />
     <Compile Include="Patches\RaPlayerAuthPatch.cs" />
-    <Compile Include="Patches\RaPlayerListPatch.cs" />
-    <Compile Include="Patches\RaPlayerPatch.cs" />
     <Compile Include="Patches\RAProcessPlayerPatch.cs" />
     <Compile Include="Patches\ReloadServerNamePatch.cs" />
     <Compile Include="Patches\UnMuteCommandPatch.cs" />
@@ -439,9 +436,6 @@
     <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
       <HintPath>..\packages\System.Memory.4.5.3\lib\netstandard2.0\System.Memory.dll</HintPath>
       <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>..\References\System.Net.Http.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http, Version=4.1.1.3, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <HintPath>..\packages\System.Net.Http.4.3.4\lib\net46\System.Net.Http.dll</HintPath>
