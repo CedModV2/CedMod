@@ -276,15 +276,16 @@ namespace CedMod.Addons.Sentinal.Patches
                         toSend = hub.roleManager.CurrentRole.RoleTypeId;
                 }
                 
-                RoleTypeId? eventResult = FpcServerPositionDistributor._roleSyncEvent?.Invoke(hub, receiver, toSend);
+                NetworkWriterPooled networkWriterPooled = NetworkWriterPool.Get();
+                RoleTypeId? eventResult = FpcServerPositionDistributor._roleSyncEvent?.Invoke(hub, receiver, toSend, (NetworkWriter)networkWriterPooled);
                 if (eventResult.HasValue)
                     toSend = eventResult.Value;
                 
                 if (!hub.roleManager.PreviouslySentRole.TryGetValue(receiver.netId, out RoleTypeId prev) || prev != toSend)
                 {
-                    FpcServerPositionDistributor.SendRole(receiver, hub, toSend);
+                    FpcServerPositionDistributor.SendRole(receiver, hub, toSend, networkWriterPooled);
                 }
-                
+                NetworkWriterPool.Return(networkWriterPooled);
                 FpcSyncData data = GetNewSyncData(receiver, hub, fpc.FpcModule, invisible);
                 if (!invisible)
                 {
