@@ -409,7 +409,7 @@ namespace CedMod.Addons.Sentinal.Patches
             
             if (receiver.authManager.InstanceMode == ClientInstanceMode.ReadyClient && receiver.GetVelocity().magnitude > 0f)
             {
-                var amplifier = 0.10f + Mathf.Min(0.75f, +0.25f + (receiver.authManager.InstanceMode == ClientInstanceMode.ReadyClient ? LiteNetLib4MirrorServer.Peers[receiver.connectionToClient.connectionId].Ping * 2f / 1000f : 0));
+                var amplifier = 0.75f + Mathf.Min(0.75f, + 0.25f + (receiver.authManager.InstanceMode == ClientInstanceMode.ReadyClient ? LiteNetLib4MirrorServer.Peers[receiver.connectionToClient.connectionId].Ping * 2f / 1000f : 0));
                 var receiverPos = receiver.GetPosition() + receiver.GetVelocity() * amplifier;
                 if (!Physics.Linecast(receiver.PlayerCameraReference.position, receiverPos, VisionInformation.VisionLayerMask, QueryTriggerInteraction.Ignore) && !Physics.Linecast(receiverPos, hub.PlayerCameraReference.position, VisionInformation.VisionLayerMask, QueryTriggerInteraction.Ignore))
                     return true;
