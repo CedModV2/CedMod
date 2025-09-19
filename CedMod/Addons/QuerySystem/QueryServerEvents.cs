@@ -13,6 +13,7 @@ using LabApi.Features.Wrappers;
 using CedMod.Addons.Sentinal;
 using CedMod.Addons.Sentinal.Patches;
 using LabApi.Events.Arguments.PlayerEvents;
+using LabApi.Features.Enums;
 using MapGeneration;
 using MEC;
 using Newtonsoft.Json;
@@ -74,6 +75,9 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnServerCommandExecuted(CommandExecutedEventArgs ev)
         {
+            if (ev.CommandType == CommandType.Client)
+                return;
+            
             try
             {
                 WebSocketSystem.Enqueue(new QueryCommand()
@@ -84,13 +88,15 @@ namespace CedMod.Addons.QuerySystem
                         {"Type", "OnAdminCommand"},
                         {"UserId", ev.Sender?.SenderId},
                         {"UserName", ev.Sender?.Nickname},
-                        {"Command", ev.CommandName},
+                        {"Command", ev.CommandName + " " + string.Join(" ", ev.Arguments)},
                         {
                             "Message", string.Concat(new string[]
                             {
                                 $"{ev.Sender?.Nickname} ({ev.Sender?.SenderId})",
                                 " used command: ",
-                                ev.CommandName
+                                ev.CommandName,
+                                " ",
+                                string.Join(" ", ev.Arguments)
                             })
                         }
                     }
