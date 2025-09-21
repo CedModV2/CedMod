@@ -2,7 +2,7 @@
 
 namespace CedMod.Addons.QuerySystem.Patches
 {
-    [HarmonyPatch(typeof(WhiteList), nameof(WhiteList.IsOnWhitelist))]
+    [HarmonyPatch(typeof(WhiteList), nameof(WhiteList.IsWhitelisted))]
     public static class WhitelistPatch
     {
         public static bool Prefix(ref bool __result, string userId)
