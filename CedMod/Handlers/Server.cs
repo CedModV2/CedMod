@@ -139,7 +139,7 @@ namespace CedMod.Handlers
             var reports = RemoteAdminModificationHandler.ReportsList.Where(s => s.Status == (inProgress ? HandleStatus.InProgress : HandleStatus.NoResponse)).ToList();
             if (reports.Count == 0)
             {
-                ev.InfoBuilder.AppendLine("<color=green>There are currently no Unhandled Reports</color>");
+                ev.InfoBuilder.AppendLine($"<color=green>There are currently no {(inProgress ? "InProgress" : "Unhandled")} Reports</color>");
                 int count = 16;
                 while (count >= 1)
                 {
@@ -202,12 +202,20 @@ namespace CedMod.Handlers
                 if (index + 1 == reports.Count)
                     canForward = false;
                 
-                if (reports.Count > targetIndex)
+                if (reports.Count > targetIndex && targetIndex >= 0)
                 {
-                    if ((ev.IsSensitiveInfo && canForward) || (!ev.IsSensitiveInfo && canBackward))
-                        report = reports[targetIndex];
+                    try
+                    {
+                        if ((!ev.IsSensitiveInfo && canForward) || (ev.IsSensitiveInfo && canBackward))
+                            report = reports[targetIndex];
+                    }
+                    catch (Exception e)
+                    {
+                        report = reports.FirstOrDefault();
+                        Logger.Error(e.ToString());
+                    }
                 }
-
+                
                 index = reports.IndexOf(report);
                 if (index == 0)
                     canBackward = false;
@@ -257,6 +265,24 @@ namespace CedMod.Handlers
                     ev.InfoBuilder.AppendLine($"Reported: <color=red>(Not Ingame)</color> - {report.ReportedId} <color=green><link=CP_USERID>\uF0C5</link></color>");
                     ev.SetClipboardText(report.ReportedId, report.ReportedId, 0);
                 }
+
+                if (inProgress && report.AssignedHandler != null)
+                {
+                    var plr = CedModPlayer.Get(report.AssignedHandler.SteamId + "@steam");
+                    if (plr == null)
+                        plr = CedModPlayer.Get(report.AssignedHandler.DiscordId + "@discord");
+                    if (plr == null)
+                        plr = CedModPlayer.Get(report.AssignedHandler.AdditionalId);
+
+                    if (plr == null)
+                    {
+                        ev.InfoBuilder.AppendLine($"Handler: <color=red>(Not Ingame)</color> - {report.AssignedHandler.UserName}");
+                    }
+                    else
+                    {
+                        ev.InfoBuilder.AppendLine($"Handler: {plr.Nickname}");
+                    }
+                }
                 
                 ev.InfoBuilder.AppendLine($"Reason: {report.Reason}");
                 ev.InfoBuilder.AppendLine($"Ingame Report: {!report.IsDiscordReport}");
@@ -271,7 +297,12 @@ namespace CedMod.Handlers
             }
             
             ev.InfoBuilder.AppendLine($"The text below serve as an indicator to what the buttons below the text do.");
-            ev.InfoBuilder.AppendLine($"<color={(canForward ? "blue" : "red")}>Next Report</color>            <color={(canBackward ? "blue" : "red")}>Previous Report</color>            <color=blue>Claim Report</color>              <color=blue>Ignore Report</color>");
+            
+            if (!inProgress)
+                ev.InfoBuilder.AppendLine($"<color={(canForward ? "blue" : "red")}>Next Report</color>            <color={(canBackward ? "blue" : "red")}>Previous Report</color>            <color=blue>Claim Report</color>              <color=blue>Ignore Report</color>");
+            else
+                ev.InfoBuilder.AppendLine($"<color={(canForward ? "blue" : "red")}>Next Report</color>            <color={(canBackward ? "blue" : "red")}>Previous Report</color>          <color=blue>Complete Report</color>         <color=blue>Ignore Report</color>");
+            
             ev.InfoBuilder.Append("</color>");
             base.OnPlayerRequestedCustomRaInfo(ev);
         }
