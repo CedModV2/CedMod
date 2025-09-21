@@ -5,7 +5,7 @@ namespace CedMod.Addons.QuerySystem.Patches
     [HarmonyPatch(typeof(WhiteList), nameof(WhiteList.IsOnWhitelist))]
     public static class WhitelistPatch
     {
-        public static bool Prefix(string userId, bool __result)
+        public static bool Prefix(ref bool __result, string userId)
         {
             if (QuerySystem.UseWhitelist && QuerySystem.Whitelist.Contains(userId))
             {
