@@ -104,6 +104,7 @@
     <Compile Include="Addons\QuerySystem\Patches\RefreshExiledPermissions.cs" />
     <Compile Include="Addons\QuerySystem\Patches\RefreshPermissionsHandlerPatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\ShootingPatch.cs" />
+    <Compile Include="Addons\QuerySystem\Patches\WhitelistPatch.cs" />
     <Compile Include="Addons\QuerySystem\QueryMapEvents.cs" />
     <Compile Include="Addons\QuerySystem\Patches\ReservedSlotsPatch.cs" />
     <Compile Include="Addons\QuerySystem\QueryPlayerEvents.cs" />
