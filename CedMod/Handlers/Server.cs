@@ -104,18 +104,18 @@ namespace CedMod.Handlers
         {
             if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(ev.Player) && RemoteAdminModificationHandler.IngameUserPreferencesMap[ev.Player].ShowWatchListUsersInRemoteAdmin)
             {
-                if (RemoteAdminModificationHandler.GroupWatchlist.Any(s => s.UserIds.Contains(ev.Player.UserId)))
+                if (RemoteAdminModificationHandler.GroupWatchlist.Any(s => s.UserIds.Contains(ev.Target.UserId)))
                 {
-                    if (RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(ev.Player.UserId)) >= 2)
+                    if (RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(ev.Target.UserId)) >= 2)
                     {
-                        ev.Prefix += $"<size=15><color=#00FFF6>[WMG{RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(ev.Player.UserId))}]</color></size> ";
+                        ev.Prefix += $"<size=15><color=#00FFF6>[WMG{RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(ev.Target.UserId))}]</color></size> ";
                     }
                     else
                     {
-                        ev.Prefix += $"<size=15><color=#00FFF6>[WG{RemoteAdminModificationHandler.GroupWatchlist.FirstOrDefault(s => s.UserIds.Contains(ev.Player.UserId)).Id}]</color></size> ";
+                        ev.Prefix += $"<size=15><color=#00FFF6>[WG{RemoteAdminModificationHandler.GroupWatchlist.FirstOrDefault(s => s.UserIds.Contains(ev.Target.UserId)).Id}]</color></size> ";
                     }
                 }
-                else if (RemoteAdminModificationHandler.Watchlist.Any(s => s.Userid == ev.Player.UserId))
+                else if (RemoteAdminModificationHandler.Watchlist.Any(s => s.Userid == ev.Target.UserId))
                 {
                     ev.Prefix += $"<size=15><color=#00FFF6>[WL]</color></size> ";
                 }
