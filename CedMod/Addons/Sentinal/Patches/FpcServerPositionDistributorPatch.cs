@@ -481,10 +481,10 @@ namespace CedMod.Addons.Sentinal.Patches
                     if (!Physics.Linecast(receiver.PlayerCameraReference.position, receiverPos, out var hit, VisionInformation.VisionLayerMask, QueryTriggerInteraction.Ignore) && !Physics.Linecast(receiverPos, hub.PlayerCameraReference.position, out hit2, VisionInformation.VisionLayerMask, QueryTriggerInteraction.Ignore))
                         return true;
                     
-                    if (ItemPickupHandler.DoorColliders.TryGetValue(hit.collider, out var door) && (door.IsMoving || door.NetworkTargetState))
+                    if (hit.collider != null && ItemPickupHandler.DoorColliders.TryGetValue(hit.collider, out var door) && door != null && (door.IsMoving || door.NetworkTargetState))
                         return true;
                     
-                    if (hit2.collider != null && ItemPickupHandler.DoorColliders.TryGetValue(hit2.collider, out door) && (door.IsMoving || door.NetworkTargetState))
+                    if (hit2.collider != null && ItemPickupHandler.DoorColliders.TryGetValue(hit2.collider, out door) && door != null && (door.IsMoving || door.NetworkTargetState))
                         return true;
                 }
             }
