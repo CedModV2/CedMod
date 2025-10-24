@@ -78,7 +78,7 @@ namespace CedMod
         }
 #else
         public override string Description { get; } = "Moderation system and admin tools";
-        public override Version RequiredApiVersion { get; } = new Version(0, 0,0);
+        public override Version RequiredApiVersion { get; } = new Version(1, 1,4);
         public override LoadPriority Priority { get; } = LoadPriority.High;
 
         public override void Enable()
