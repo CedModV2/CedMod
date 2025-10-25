@@ -122,6 +122,7 @@
     <Compile Include="Addons\Sentinal\Patches\PrimitiveColorPatchTranspiler.cs" />
     <Compile Include="Addons\Sentinal\Patches\PrimitiveFlagsPatchTranspiler.cs" />
     <Compile Include="Addons\Sentinal\Patches\Scp106MovementModulePatch.cs" />
+    <Compile Include="Addons\Sentinal\Patches\Scp3114\Scp3114AbilityCooldownPatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\Scp3114\ServerProcessStartCmdPatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\Scp939LungePatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\TeslaGateHandler.cs" />
@@ -195,6 +196,9 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>..\References\Assembly-CSharp-Publicized.dll</HintPath>
     </Reference>
+    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExMod.Exiled.9.10.0\lib\net48\Assembly-CSharp-Publicized.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
@@ -213,8 +217,8 @@
     <Reference Include="CloudflareSolverRe, Version=1.0.6.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\CloudflareSolverRe.dll</HintPath>
     </Reference>
-    <Reference Include="CommandSystem.Core">
-      <HintPath>..\References\CommandSystem.Core.dll</HintPath>
+    <Reference Include="CommandSystem.Core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExMod.Exiled.9.10.0\lib\net48\CommandSystem.Core.dll</HintPath>
     </Reference>
     <Reference Include="Costura, Version=5.8.0.0, Culture=neutral, PublicKeyToken=9919ef960d84173d">
       <HintPath>..\packages\Costura.Fody.5.8.0-alpha0098\lib\netstandard1.0\Costura.dll</HintPath>
@@ -226,32 +230,32 @@
     <Reference Include="dnlib, Version=3.3.2.0, Culture=neutral, PublicKeyToken=50e96378b6e77999">
       <HintPath>..\References\dnlib.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.API, Version=9.6.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\ExMod.Exiled.9.6.0-beta4\lib\net48\Exiled.API.dll</HintPath>
+    <Reference Include="Exiled.API, Version=9.10.0.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\ExMod.Exiled.9.10.0\lib\net48\Exiled.API.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.CreditTags, Version=9.6.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\ExMod.Exiled.9.6.0-beta4\lib\net48\Exiled.CreditTags.dll</HintPath>
+    <Reference Include="Exiled.CreditTags, Version=9.10.0.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\ExMod.Exiled.9.10.0\lib\net48\Exiled.CreditTags.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.CustomItems, Version=9.6.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\ExMod.Exiled.9.6.0-beta4\lib\net48\Exiled.CustomItems.dll</HintPath>
+    <Reference Include="Exiled.CustomItems, Version=9.10.0.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\ExMod.Exiled.9.10.0\lib\net48\Exiled.CustomItems.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.CustomRoles, Version=9.6.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\ExMod.Exiled.9.6.0-beta4\lib\net48\Exiled.CustomRoles.dll</HintPath>
+    <Reference Include="Exiled.CustomRoles, Version=9.10.0.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\ExMod.Exiled.9.10.0\lib\net48\Exiled.CustomRoles.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.Events, Version=9.6.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\ExMod.Exiled.9.6.0-beta4\lib\net48\Exiled.Events.dll</HintPath>
+    <Reference Include="Exiled.Events, Version=9.10.0.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\ExMod.Exiled.9.10.0\lib\net48\Exiled.Events.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.Loader, Version=9.6.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\ExMod.Exiled.9.6.0-beta4\lib\net48\Exiled.Loader.dll</HintPath>
+    <Reference Include="Exiled.Loader, Version=9.10.0.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\ExMod.Exiled.9.10.0\lib\net48\Exiled.Loader.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.Permissions, Version=9.6.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\ExMod.Exiled.9.6.0-beta4\lib\net48\Exiled.Permissions.dll</HintPath>
+    <Reference Include="Exiled.Permissions, Version=9.10.0.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\ExMod.Exiled.9.10.0\lib\net48\Exiled.Permissions.dll</HintPath>
     </Reference>
     <Reference Include="Facepunch.Steamworks.Win64, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\Facepunch.Steamworks.Win64.dll</HintPath>
     </Reference>
-    <Reference Include="LabApi">
-      <HintPath>..\References\LabApi.dll</HintPath>
+    <Reference Include="LabApi, Version=1.1.4.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\ExMod.Exiled.9.10.0\lib\net48\LabApi.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Win32.Primitives, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <HintPath>..\packages\Microsoft.Win32.Primitives.4.3.0\lib\net46\Microsoft.Win32.Primitives.dll</HintPath>
@@ -302,8 +306,8 @@
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NorthwoodLib">
-      <HintPath>..\References\NorthwoodLib.dll</HintPath>
+    <Reference Include="NorthwoodLib, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExMod.Exiled.9.10.0\lib\net48\NorthwoodLib.dll</HintPath>
     </Reference>
     <Reference Include="Novell.Directory.Ldap, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
       <HintPath>..\References\Novell.Directory.Ldap.dll</HintPath>
@@ -760,8 +764,8 @@
       <HintPath>..\References\UnityEngine.XRModule.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
-    <Reference Include="YamlDotNet">
-      <HintPath>..\References\YamlDotNet.dll</HintPath>
+    <Reference Include="YamlDotNet, Version=11.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExMod.Exiled.9.10.0\lib\net48\YamlDotNet.dll</HintPath>
     </Reference>
     <Reference Include="zxing.unity, Version=0.16.4.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\References\zxing.unity.dll</HintPath>
