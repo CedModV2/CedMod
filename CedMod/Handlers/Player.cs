@@ -64,7 +64,7 @@ namespace CedMod.Handlers
                 Recipient = "PANEL",
                 Data = new Dictionary<string, string>()
                 {
-                    { "SentinalType", "SCP3114UsingGuns" }, 
+                    { "SentinalType", "SCP3114UsingItems" }, 
                     { "UserId", ev.Player.ReferenceHub.authManager.UserId },
                     { "Firearm", ev.UsableItem.Type.ToString()},
                 }
@@ -84,7 +84,7 @@ namespace CedMod.Handlers
                 Recipient = "PANEL",
                 Data = new Dictionary<string, string>()
                 {
-                    { "SentinalType", "SCP3114UsingGuns" }, 
+                    { "SentinalType", "SCP3114UsingEffectItems" }, 
                     { "UserId", ev.Player.ReferenceHub.authManager.UserId },
                     { "Firearm", ev.UsableItem.Type.ToString()},
                 }
