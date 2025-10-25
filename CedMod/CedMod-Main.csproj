@@ -122,6 +122,7 @@
     <Compile Include="Addons\Sentinal\Patches\FpcSyncDataPatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\ItemPickupHandler.cs" />
     <Compile Include="Addons\Sentinal\Patches\PrimitiveColorPatch.cs" />
+    <Compile Include="Addons\Sentinal\Patches\Scp3114\ServerProcessStartCmdPatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\Scp939LungePatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\TeslaGateHandler.cs" />
     <Compile Include="Addons\Sentinal\Patches\Utilities\RoomCache.cs" />
