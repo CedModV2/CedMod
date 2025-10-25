@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using CedMod.Addons.QuerySystem.WS;
 using CedMod.Addons.Sentinal.Patches;
 using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.CustomHandlers;
 using MEC;
+using PlayerRoles;
 
 namespace CedMod.Handlers
 {
@@ -50,6 +52,46 @@ namespace CedMod.Handlers
             if (ev.Player == null || ev.Attacker == null)
                 return;
             FriendlyFireAutoban.HandleKill(ev.Player, ev.Attacker, ev.DamageHandler);
+        }
+        
+        public override void OnPlayerUsingItem(PlayerUsingItemEventArgs ev)
+        {
+            if (ev.Player.Role != RoleTypeId.Scp3114 || ev.Player.DisarmedBy == null)
+                return;
+            
+            WebSocketSystem.Enqueue(new QueryCommand()
+            {
+                Recipient = "PANEL",
+                Data = new Dictionary<string, string>()
+                {
+                    { "SentinalType", "SCP3114UsingGuns" }, 
+                    { "UserId", ev.Player.ReferenceHub.authManager.UserId },
+                    { "Firewarm", ev.UsableItem.Type.ToString()},
+                }
+            });
+
+            ev.IsAllowed = false;
+            base.OnPlayerUsingItem(ev);
+        }
+
+        public override void OnPlayerItemUsageEffectsApplying(PlayerItemUsageEffectsApplyingEventArgs ev)
+        {
+            if (ev.Player.Role != RoleTypeId.Scp3114 || ev.Player.DisarmedBy == null)
+                return;
+            
+            WebSocketSystem.Enqueue(new QueryCommand()
+            {
+                Recipient = "PANEL",
+                Data = new Dictionary<string, string>()
+                {
+                    { "SentinalType", "SCP3114UsingGuns" }, 
+                    { "UserId", ev.Player.ReferenceHub.authManager.UserId },
+                    { "Firewarm", ev.UsableItem.Type.ToString()},
+                }
+            });
+            
+            ev.IsAllowed = false;
+            base.OnPlayerItemUsageEffectsApplying(ev);
         }
     }
 }

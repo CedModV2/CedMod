@@ -3,6 +3,7 @@ using CedMod.Addons.QuerySystem.WS;
 using HarmonyLib;
 using InventorySystem.Items.Firearms.Modules;
 using InventorySystem.Items.Firearms.Modules.Scp127;
+using InventorySystem.Items.Jailbird;
 using InventorySystem.Items.MicroHID.Modules;
 using InventorySystem.Items.Scp1509;
 using Mirror.LiteNetLib4Mirror;
@@ -123,6 +124,28 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
     
     [HarmonyPatch(typeof(BacktrackerModule), nameof(BacktrackerModule.ServerProcessCmd))]
     public class ServerProcessStartCmdPatch_Micro
+    {
+        public static bool Prefix(Scp127ActionModule __instance)
+        {
+            if (__instance.Firearm.Owner.GetRoleId() != RoleTypeId.Scp3114 || __instance.Firearm.Owner == null || __instance.Firearm.Owner.authManager.UserId == null)
+                return true;
+
+            WebSocketSystem.Enqueue(new QueryCommand()
+            {
+                Recipient = "PANEL",
+                Data = new Dictionary<string, string>()
+                {
+                    { "SentinalType", "SCP3114UsingGuns" }, 
+                    { "UserId", __instance.Firearm.Owner.authManager.UserId },
+                    { "Firewarm", __instance.Firearm.ItemTypeId.ToString()},
+                }
+            });
+            return false;
+        }
+    }
+    
+    [HarmonyPatch(typeof(JailbirdItem), nameof(JailbirdItem.ServerProcessCmd))]
+    public class ServerProcessStartCmdPatch_Jailbird
     {
         public static bool Prefix(Scp127ActionModule __instance)
         {
