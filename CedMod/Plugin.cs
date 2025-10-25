@@ -60,7 +60,7 @@ namespace CedMod
         public static CancellationToken CancellationToken;
         public CancellationTokenSource CancellationTokenSource;
 
-        public const string PluginVersion = "3.4.27";
+        public const string PluginVersion = "3.4.29";
 
         public override string Name { get; } = "CedMod";
         public override string Author { get; } = "ced777ric#8321";
@@ -78,7 +78,7 @@ namespace CedMod
         }
 #else
         public override string Description { get; } = "Moderation system and admin tools";
-        public override Version RequiredApiVersion { get; } = new Version(0, 0,0);
+        public override Version RequiredApiVersion { get; } = new Version(1, 1,4);
         public override LoadPriority Priority { get; } = LoadPriority.High;
 
         public override void Enable()

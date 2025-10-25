@@ -14,7 +14,10 @@ using Logger = LabApi.Features.Console.Logger;
 
 namespace CedMod.Patches
 {
-	[HarmonyPatch(typeof(BanCommand), nameof(BanCommand.Execute))]
+	/// <summary>
+	/// Replace by <see cref="BanPatch"/>
+	/// </summary>
+	//[HarmonyPatch(typeof(BanCommand), nameof(BanCommand.Execute))]
     public static class BanCommandPatch
     {
 	    public static string Command { get; } = "ban";

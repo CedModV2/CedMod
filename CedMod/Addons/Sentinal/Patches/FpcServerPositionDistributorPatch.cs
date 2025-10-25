@@ -1,19 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using AudioPooling;
 using CedMod.Addons.Sentinal.Patches.Utilities;
 using CentralAuth;
-using CommandSystem.Commands.RemoteAdmin;
 using CustomPlayerEffects;
-using DrawableLine;
 using HarmonyLib;
-using Hints;
+using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Firearms.Modules;
 using InventorySystem.Items.MicroHID.Modules;
-using InventorySystem.Items.Usables;
 using InventorySystem.Items.Usables.Scp1344;
 using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Features.Wrappers;
@@ -25,30 +21,18 @@ using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PlayerRoles.FirstPersonControl.NetworkMessages;
 using PlayerRoles.FirstPersonControl.Thirdperson;
-using PlayerRoles.FirstPersonControl.Thirdperson.Subcontrollers;
 using PlayerRoles.PlayableScps;
-using PlayerRoles.PlayableScps.Scp049;
 using PlayerRoles.PlayableScps.Scp096;
 using PlayerRoles.PlayableScps.Scp106;
 using PlayerRoles.PlayableScps.Scp173;
-using PlayerRoles.Spectating;
-using PlayerRoles.Subroutines;
 using PlayerRoles.Visibility;
-using PlayerRoles.Voice;
 using RelativePositioning;
 using UnityEngine;
-using Utils.NonAllocLINQ;
 using VoiceChat;
 using Logger = LabApi.Features.Console.Logger;
 using MicroHIDItem = InventorySystem.Items.MicroHID.MicroHIDItem;
-using RadioItem = InventorySystem.Items.Radio.RadioItem;
-using Random = UnityEngine.Random;
-using Scp079Role = PlayerRoles.PlayableScps.Scp079.Scp079Role;
 using Scp096Role = PlayerRoles.PlayableScps.Scp096.Scp096Role;
 using Scp106Role = PlayerRoles.PlayableScps.Scp106.Scp106Role;
-using Scp1344Item = InventorySystem.Items.Usables.Scp1344.Scp1344Item;
-using Scp1576Item = InventorySystem.Items.Usables.Scp1576.Scp1576Item;
-using Scp1853Item = InventorySystem.Items.Usables.Scp1853Item;
 using Scp939Role = PlayerRoles.PlayableScps.Scp939.Scp939Role;
 
 namespace CedMod.Addons.Sentinal.Patches
@@ -57,7 +41,7 @@ namespace CedMod.Addons.Sentinal.Patches
     public static class FpcServerPositionDistributorPatch
     {
         public static Dictionary<ReferenceHub, Dictionary<ReferenceHub, float>> VisiblePlayers = new Dictionary<ReferenceHub, Dictionary<ReferenceHub, float>>();
-        public static Dictionary<ReferenceHub, Dictionary<ReferenceHub, (float, bool)>> VisibilityCache = new Dictionary<ReferenceHub, Dictionary<ReferenceHub, (float, bool)>>();
+        public static Dictionary<ReferenceHub, Dictionary<ReferenceHub, (float, bool, bool)>> VisibilityCache = new Dictionary<ReferenceHub, Dictionary<ReferenceHub, (float, bool, bool)>>();
         public static Dictionary<ReferenceHub, RelativePosition> SyncDatas = new Dictionary<ReferenceHub, RelativePosition>();
         public static FpcSyncData InvisibleSync = new FpcSyncData();
         public static Dictionary<uint, float> LastAudioSent = new Dictionary<uint, float>();
@@ -146,8 +130,12 @@ namespace CedMod.Addons.Sentinal.Patches
                     }
                 }
 
+                bool nearPositioning = false;
                 bool doChecking = true;
-                if (hub.playerEffectsController.TryGetEffect(out scp1344) && scp1344.IsEnabled)
+                //if (hub.playerEffectsController.TryGetEffect(out scp1344) && scp1344.IsEnabled)
+                //    spoofRole = false;
+
+                if (VisiblePlayers.ContainsKey(toCheckPlayer) && VisiblePlayers[toCheckPlayer].TryGetValue(hub, out var visiblePlayerOrb) && visiblePlayerOrb > Time.time && spoofRole)
                     spoofRole = false;
                 
                 if (invisible)
@@ -155,18 +143,26 @@ namespace CedMod.Addons.Sentinal.Patches
 
                 if (receiver.GetTeam() == Team.SCPs || receiver.GetRoleId() == RoleTypeId.Overwatch || receiver.GetRoleId() == RoleTypeId.Spectator)
                     doChecking = false;
-                
-				if (hub.roleManager.CurrentRole is Scp096Role scp096 && (scp096.StateController.RageState != Scp096RageState.Docile || Vector3.Distance(toCheckPlayer.transform.position, hub.transform.position) <= 20))
+
+                if (hub.roleManager.CurrentRole is Scp096Role scp096 && (scp096.StateController.RageState != Scp096RageState.Docile || Vector3.Distance(toCheckPlayer.transform.position, hub.transform.position) <= 40))
+                {
                     doChecking = false;
-                
+                }
+
                 if (hub.roleManager.CurrentRole is Scp106Role scp106 && Vector3.Distance(toCheckPlayer.transform.position, hub.transform.position) <= 4)
+                {
                     doChecking = false;
-                
+                }
+
                 if (hub.roleManager.CurrentRole is Scp939Role scp939 && Vector3.Distance(toCheckPlayer.transform.position, hub.transform.position) <= 4)
+                {
                     doChecking = false;
-                
+                }
+
                 if (hub.roleManager.CurrentRole is Scp173Role scp173 && Vector3.Distance(toCheckPlayer.transform.position, hub.transform.position) <= 22)
+                {
                     doChecking = false;
+                }
                 
                 bool losCheckInvisible = false;
                 
@@ -176,7 +172,7 @@ namespace CedMod.Addons.Sentinal.Patches
                     bool rayNeeded = false;
                     bool cacheUpdate = false;
                     bool wasInvis = false;
-                    if (VisibilityCache.TryGetValue(toCheckPlayer, out Dictionary<ReferenceHub, (float, bool)> visibilityCache) && visibilityCache.TryGetValue(hub, out var visibility))
+                    if (VisibilityCache.TryGetValue(toCheckPlayer, out Dictionary<ReferenceHub, (float, bool, bool)> visibilityCache) && visibilityCache.TryGetValue(hub, out var visibility))
                     {
                         if (visibility.Item2)
                             wasInvis = true;
@@ -184,6 +180,7 @@ namespace CedMod.Addons.Sentinal.Patches
                         {
                             rayNeeded = false;
                             losCheckInvisible = visibility.Item2;
+                            nearPositioning = visibility.Item3;
                         }
                         else if (Time.time > visibility.Item1)
                         {
@@ -193,6 +190,7 @@ namespace CedMod.Addons.Sentinal.Patches
                         else
                         {
                             losCheckInvisible = visibility.Item2;
+                            nearPositioning = visibility.Item3;
                         }
                     }
                     
@@ -264,15 +262,15 @@ namespace CedMod.Addons.Sentinal.Patches
 
                         if (rayNeeded)
                         {
-                            losCheckInvisible = !PerformVisbilityRaycast(toCheckPlayer, hub) && !PerformVisbilityRaycast(hub, toCheckPlayer);
+                            losCheckInvisible = !PerformVisbilityRaycast(toCheckPlayer, hub, false) && !PerformVisbilityRaycast(hub, toCheckPlayer, true);
                         }
                     }
                     
                     if (!VisibilityCache.ContainsKey(toCheckPlayer))
-                        VisibilityCache[toCheckPlayer] = new Dictionary<ReferenceHub, (float, bool)>();
+                        VisibilityCache[toCheckPlayer] = new Dictionary<ReferenceHub, (float, bool, bool)>();
                     
                     if (!VisibilityCache[toCheckPlayer].ContainsKey(hub) || cacheUpdate || losCheckInvisible != wasInvis)
-                        VisibilityCache[toCheckPlayer][hub] = (Time.time + (losCheckInvisible ? 0.1f : 0.5f), losCheckInvisible);
+                        VisibilityCache[toCheckPlayer][hub] = (Time.time + (losCheckInvisible ? 0.1f : 0.5f), losCheckInvisible, nearPositioning);
                 }
                 
                 if (losCheckInvisible && VisiblePlayers.TryGetValue(toCheckPlayer, out var visiblePlayers) && visiblePlayers.TryGetValue(hub, out var visiblePlayer) && visiblePlayer > Time.time)
@@ -296,16 +294,17 @@ namespace CedMod.Addons.Sentinal.Patches
                         toSend = hub.roleManager.CurrentRole.RoleTypeId;
                 }
                 
-                RoleTypeId? eventResult = FpcServerPositionDistributor._roleSyncEvent?.Invoke(hub, receiver, toSend);
+                NetworkWriterPooled networkWriterPooled = NetworkWriterPool.Get();
+                RoleTypeId? eventResult = FpcServerPositionDistributor._roleSyncEvent?.Invoke(hub, receiver, toSend, (NetworkWriter)networkWriterPooled);
                 if (eventResult.HasValue)
                     toSend = eventResult.Value;
                 
                 if (!hub.roleManager.PreviouslySentRole.TryGetValue(receiver.netId, out RoleTypeId prev) || prev != toSend)
                 {
-                    FpcServerPositionDistributor.SendRole(receiver, hub, toSend);
+                    FpcServerPositionDistributor.SendRole(receiver, hub, toSend, networkWriterPooled);
                 }
-                
-                FpcSyncData data = GetNewSyncData(receiver, hub, fpc.FpcModule, invisible);
+                NetworkWriterPool.Return(networkWriterPooled);
+                FpcSyncData data = GetNewSyncData(receiver, hub, fpc.FpcModule, invisible, nearPositioning);
                 if (!invisible)
                 {
                     FpcServerPositionDistributor._bufferPlayerIDs[count] = hub.PlayerId;
@@ -347,20 +346,58 @@ namespace CedMod.Addons.Sentinal.Patches
             return animatedCharacterModel.FootstepLoudnessDistance;
         }
 
-        public static FpcSyncData GetNewSyncData(ReferenceHub receiver, ReferenceHub target, FirstPersonMovementModule fpmm, bool isInvisible)
+        public static FpcSyncData GetNewSyncData(ReferenceHub receiver, ReferenceHub target, FirstPersonMovementModule fpmm, bool isInvisible, bool nearPositioning)
         {
+            //nearPositioning = true;
+            bool nearestValid = false;
             FpcSyncData prevSyncData = GetPrevSyncData(receiver, target);
             bool hasSync = SyncDatas.TryGetValue(target, out var sync);
-            if (!hasSync)
-                sync = new RelativePosition(target.transform.position);
+
+            RoomIdentifier hubRoom = null;
+            target.TryGetCurrentRoom(out hubRoom);
+            if (hubRoom == null)
+                target.TryGetLastKnownRoom(out hubRoom);
             
-            FpcSyncData newSyncData = isInvisible ? InvisibleSync : new FpcSyncData(prevSyncData, fpmm.SyncMovementState, fpmm.IsGrounded, sync, fpmm.MouseLook);
+            //this doesnt do anything for now, logic needs rewriting to get nearpositioning to work without noticing
+            if (nearPositioning && hubRoom != null && RoomCache.TryGetNearestWaypoint(hubRoom, receiver.GetPosition(), target.GetPosition(), out var nearestWaypoint))
+            {
+                Vector3 targetPosition = target.transform.position;
+                nearestValid = true;
+                hasSync = false;
+                
+                var velocity = target.GetVelocity();
+                float speed = velocity.magnitude;
+                
+                //le rotate for footstep simulation
+                float orbitRadius = Mathf.Clamp(speed * 0.2f, 0.1f, 0.75f);
+                float spinSpeed = Mathf.Clamp(speed * 2f, 1f, 6f);
+                float angle = Time.time * spinSpeed;
+                
+                Vector3 offset = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * orbitRadius;
+                
+                targetPosition = new Vector3(nearestWaypoint.x + offset.x, nearestWaypoint.y * -2, nearestWaypoint.z + offset.z);
+
+                sync = new RelativePosition(targetPosition);
+            }
+
+            if (!hasSync && !nearestValid)
+                sync = new RelativePosition(target.transform.position);
+
+            FpcSyncData newSyncData = InvisibleSync;
+            if (!isInvisible && !nearPositioning)
+                newSyncData = new FpcSyncData(prevSyncData, fpmm.SyncMovementState, fpmm.IsGrounded, sync, fpmm.MouseLook);
+            
+            if (nearPositioning)
+                newSyncData = new FpcSyncData(prevSyncData, fpmm.SyncMovementState, fpmm.IsGrounded, sync, fpmm.MouseLook);
+            
+
             FpcServerPositionDistributor.PreviouslySent[receiver.netId][target.netId] = newSyncData;
             if (!hasSync)
                 SyncDatas[target] = sync;
-            
+
             return newSyncData;
         }
+
         
         public static FpcSyncData GetPrevSyncData(ReferenceHub receiver, ReferenceHub target)
         {
@@ -391,7 +428,7 @@ namespace CedMod.Addons.Sentinal.Patches
         
         private static List<Vector3> _castPositions = new List<Vector3>();
         
-        private static bool PerformVisbilityRaycast(ReferenceHub receiver, ReferenceHub hub)
+        private static bool PerformVisbilityRaycast(ReferenceHub receiver, ReferenceHub hub, bool reverse)
         {
             _castPositions.Clear();
             Vector3 camPos = receiver.PlayerCameraReference.position;
@@ -422,16 +459,52 @@ namespace CedMod.Addons.Sentinal.Patches
                 if (!Physics.Linecast(camPos, relative, out var hit, VisionInformation.VisionLayerMask, QueryTriggerInteraction.Ignore))
                     return true;
                 
-                if (ItemPickupHandler.DoorColliders.TryGetValue(hit.collider, out var door) && door.IsMoving)
+                if (ItemPickupHandler.DoorColliders.TryGetValue(hit.collider, out var door) && (door.IsMoving || door.NetworkTargetState))
                     return true;
             }
             
-            if (receiver.authManager.InstanceMode == ClientInstanceMode.ReadyClient && receiver.GetVelocity().magnitude > 0f)
+            if ((receiver.authManager.InstanceMode == ClientInstanceMode.ReadyClient || receiver.authManager.InstanceMode == ClientInstanceMode.Dummy) && receiver.GetVelocity().magnitude > 0f)
             {
-                var amplifier = 0.10f + Mathf.Min(0.75f, +0.25f + (receiver.authManager.InstanceMode == ClientInstanceMode.ReadyClient ? LiteNetLib4MirrorServer.Peers[receiver.connectionToClient.connectionId].Ping * 2f / 1000f : 0));
-                var receiverPos = receiver.GetPosition() + receiver.GetVelocity() * amplifier;
-                if (!Physics.Linecast(receiver.PlayerCameraReference.position, receiverPos, VisionInformation.VisionLayerMask, QueryTriggerInteraction.Ignore) && !Physics.Linecast(receiverPos, hub.PlayerCameraReference.position, VisionInformation.VisionLayerMask, QueryTriggerInteraction.Ignore))
-                    return true;
+                float chances = 0;
+                int max = 3;
+                float ping = (receiver.authManager.InstanceMode == ClientInstanceMode.ReadyClient ? LiteNetLib4MirrorServer.Peers[receiver.connectionToClient.connectionId].Ping * 2f / 1000f : 0);
+                if (ping >= 70)
+                    max = 5;
+                
+                while (chances <= max)
+                {
+                    chances++;
+                    var chanceAmplfier = 0.25f * chances;
+                    var amplifier = chanceAmplfier + Mathf.Min(0.75f, + 0.25f + (receiver.authManager.InstanceMode == ClientInstanceMode.ReadyClient ? LiteNetLib4MirrorServer.Peers[receiver.connectionToClient.connectionId].Ping * 2f / 1000f : 0));
+                    var receiverPos = receiver.GetPosition() + receiver.GetVelocity() * amplifier;
+                    RaycastHit hit2 = default;;
+                    if (!Physics.Linecast(receiver.PlayerCameraReference.position, receiverPos, out var hit, VisionInformation.VisionLayerMask, QueryTriggerInteraction.Ignore) && !Physics.Linecast(receiverPos, hub.PlayerCameraReference.position, out hit2, VisionInformation.VisionLayerMask, QueryTriggerInteraction.Ignore))
+                        return true;
+                    
+                    if (hit.collider != null && ItemPickupHandler.DoorColliders.TryGetValue(hit.collider, out var door) && door != null && (door.IsMoving || door.NetworkTargetState))
+                        return true;
+                    
+                    if (hit2.collider != null && ItemPickupHandler.DoorColliders.TryGetValue(hit2.collider, out door) && door != null && (door.IsMoving || door.NetworkTargetState))
+                        return true;
+                }
+            }
+
+            RoomIdentifier hubRoom = null;
+            hub.TryGetCurrentRoom(out hubRoom);
+            if (hubRoom == null)
+                hub.TryGetLastKnownRoom(out hubRoom);
+            
+            //fallback show when around doors
+            if (reverse && hubRoom != null && DoorVariant.DoorsByRoom.TryGetValue(hubRoom, out var doorVariants))
+            {
+                foreach (var door in doorVariants)
+                {
+                    if (!door.NetworkTargetState && !door.IsMoving && (ItemPickupHandler.DoorMovetimes.TryGetValue(door, out var time) && time + 0.2f >= Time.time))
+                        continue;
+
+                    if (Vector3.Distance(door.transform.position, hub.GetPosition()) <= 1f)
+                        return true;
+                }
             }
 
             return false;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.WebSockets;
 using System.Threading;
@@ -11,6 +12,8 @@ using LabApi.Features.Console;
 using LabApi.Features.Wrappers;
 using CedMod.Addons.Sentinal;
 using CedMod.Addons.Sentinal.Patches;
+using LabApi.Events.Arguments.PlayerEvents;
+using LabApi.Features.Enums;
 using MapGeneration;
 using MEC;
 using Newtonsoft.Json;
@@ -41,6 +44,69 @@ namespace CedMod.Addons.QuerySystem
                     { "Seed", SeedSynchronizer.Seed.ToString() }
                 }
             });
+        }
+
+        public override void OnPlayerPreAuthenticating(PlayerPreAuthenticatingEventArgs ev)
+        {
+            if (QuerySystem.ReservedSlotUserids.Contains(ev.UserId))
+                ev.CanJoin = true;
+            
+            Task.Run(async () =>
+            {
+                Dictionary<string, string> authToken = new Dictionary<string, string>()
+                {
+                    { "Type", "Preauth" },
+                    { "Token", $"{ev.UserId};{ev.Flags};{ev.Region};{ev.Expiration}" },
+                    { "Signature", Convert.ToBase64String(ev.Signature) },
+                };
+                            
+                Dictionary<string, string> info = (Dictionary<string, string>) await API.APIRequest($"Auth/{ev.UserId}&{ev.IpAddress}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&server={Uri.EscapeDataString(WebSocketSystem.HelloMessage == null ? "Unknown" : WebSocketSystem.HelloMessage.Identity)}&r=1", JsonConvert.SerializeObject(authToken), false, "POST");
+                lock (BanSystem.CachedStates)
+                {
+                    if (BanSystem.CachedStates.ContainsKey(ev.UserId))
+                        BanSystem.CachedStates.Remove(ev.UserId);
+                    BanSystem.CachedStates.Add(ev.UserId, info);
+                }
+							
+            });
+            
+            base.OnPlayerPreAuthenticating(ev);
+        }
+
+        public override void OnServerCommandExecuted(CommandExecutedEventArgs ev)
+        {
+            if (ev.CommandType == CommandType.Client)
+                return;
+            
+            try
+            {
+                WebSocketSystem.Enqueue(new QueryCommand()
+                {
+                    Recipient = "ALL",
+                    Data = new Dictionary<string, string>()
+                    {
+                        {"Type", "OnAdminCommand"},
+                        {"UserId", ev.Sender?.SenderId},
+                        {"UserName", ev.Sender?.Nickname},
+                        {"Command", ev.CommandName + " " + string.Join(" ", ev.Arguments)},
+                        {
+                            "Message", string.Concat(new string[]
+                            {
+                                $"{ev.Sender?.Nickname} ({ev.Sender?.SenderId})",
+                                " used command: ",
+                                ev.CommandName,
+                                " ",
+                                string.Join(" ", ev.Arguments)
+                            })
+                        }
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e.ToString());
+            }
+            base.OnServerCommandExecuted(ev);
         }
 
         public IEnumerator<float> SyncStart(bool wait = true)
@@ -221,7 +287,7 @@ namespace CedMod.Addons.QuerySystem
                 Timing.CallDelayed(2, () =>
                 {
                     LevelerStore.InitialPlayerRoles.Clear();
-                    foreach (var plr in Player.List)
+                    foreach (var plr in Player.ReadyList)
                     {
                         if (plr.ReferenceHub == null || plr.GameObject == null)
                             continue;

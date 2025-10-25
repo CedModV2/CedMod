@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using CedMod.Components;
+using CedMod.Handlers;
 using CommandSystem;
 using CommandSystem.Commands.RemoteAdmin;
 using HarmonyLib;
+using LabApi.Events.Arguments.PlayerEvents;
 using MEC;
+using NorthwoodLib.Pools;
 using RemoteAdmin;
 
 namespace CedMod.Patches
@@ -69,7 +73,11 @@ namespace CedMod.Patches
 
                 var resp = RemoteAdminModificationHandler.UpdateReport(report.Id.ToString(), sender.SenderId, HandleStatus.Ignored, "Ignored using ingame RemoteAdmin");
                 yield return Timing.WaitUntilTrue(() => resp.IsCompleted);
-                Timing.RunCoroutine(RaPlayerPatch.HandleReportType1(sender, player, source = new string[] { "0", "-1" }, $"<color=green>Report {report.Id} Ignored</color>"));
+                Server.ReportAdditionalText = $"<color=green>Report {report.Id} Ignored</color>";
+                var pool = StringBuilderPool.Shared.Rent();
+                CedModMain.Singleton.ServerEvents.OnPlayerRequestedCustomRaInfo(new PlayerRequestedCustomRaInfoEventArgs(sender, new ArraySegment<string>(source), false, pool));
+                Server.ReportAdditionalText = string.Empty;
+                sender.RaReply($"$1 {StringBuilderPool.Shared.ToStringReturn(pool)}", true, false, string.Empty);
             }
             
             if (source[0].StartsWith("-2") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.BanningUpToDay))
@@ -90,7 +98,11 @@ namespace CedMod.Patches
                 }
                 var resp = RemoteAdminModificationHandler.UpdateReport(report.Id.ToString(), sender.SenderId, HandleStatus.Ignored, "Ignored using ingame RemoteAdmin");
                 yield return Timing.WaitUntilTrue(() => resp.IsCompleted);
-                Timing.RunCoroutine(RaPlayerPatch.HandleReportType2(sender, player, source = new string[] { "0", "-2" }, $"<color=green>Report {report.Id} Ignored</color>"));
+                Server.ReportAdditionalText = $"<color=green>Report {report.Id} Ignored</color>";
+                var pool = StringBuilderPool.Shared.Rent();
+                CedModMain.Singleton.ServerEvents.OnPlayerRequestedCustomRaInfo(new PlayerRequestedCustomRaInfoEventArgs(sender, new ArraySegment<string>(source), false, pool));
+                Server.ReportAdditionalText = string.Empty;
+                sender.RaReply($"$1 {StringBuilderPool.Shared.ToStringReturn(pool)}", true, false, string.Empty);
             }
         }
     }

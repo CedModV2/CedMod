@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using CedMod.Components;
+using CedMod.Handlers;
 using HarmonyLib;
+using LabApi.Events.Arguments.PlayerEvents;
 using MEC;
+using NorthwoodLib.Pools;
 using RemoteAdmin;
 using RemoteAdmin.Communication;
 using Utils;
@@ -46,7 +49,11 @@ namespace CedMod.Patches
 
                 var resp = RemoteAdminModificationHandler.UpdateReport(report.Id.ToString(), sender.SenderId, HandleStatus.InProgress, "");
                 yield return Timing.WaitUntilTrue(() => resp.IsCompleted);
-                Timing.RunCoroutine(RaPlayerPatch.HandleReportType1(sender, player, source = new string[] { "0", "-1" }, $"<color=green>Report {report.Id} Now inprogress, please use the Inprogress tab to complete</color>"));
+                Server.ReportAdditionalText = $"<color=green>Report {report.Id} Now inprogress, please use the Inprogress tab to complete</color>";
+                var pool = StringBuilderPool.Shared.Rent();
+                CedModMain.Singleton.ServerEvents.OnPlayerRequestedCustomRaInfo(new PlayerRequestedCustomRaInfoEventArgs(sender, new ArraySegment<string>(source), false, pool));
+                Server.ReportAdditionalText = string.Empty;
+                sender.RaReply($"$1 {StringBuilderPool.Shared.ToStringReturn(pool)}", true, false, string.Empty);
                 yield break;
             }
             
@@ -68,7 +75,11 @@ namespace CedMod.Patches
                 }
                 var resp = RemoteAdminModificationHandler.UpdateReport(report.Id.ToString(), sender.SenderId, HandleStatus.Handled, "Handled using ingame RemoteAdmin");
                 yield return Timing.WaitUntilTrue(() => resp.IsCompleted);
-                Timing.RunCoroutine(RaPlayerPatch.HandleReportType2(sender, player, source = new string[] { "0", "-2" }, $"<color=green>Report {report.Id} Completed</color>"));
+                Server.ReportAdditionalText = $"<color=green>Report {report.Id} Completed</color>";
+                var pool = StringBuilderPool.Shared.Rent();
+                CedModMain.Singleton.ServerEvents.OnPlayerRequestedCustomRaInfo(new PlayerRequestedCustomRaInfoEventArgs(sender, new ArraySegment<string>(source), false, pool));
+                Server.ReportAdditionalText = string.Empty;
+                sender.RaReply($"$1 {StringBuilderPool.Shared.ToStringReturn(pool)}", true, false, string.Empty);
                 yield break;
             }
             

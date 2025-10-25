@@ -88,10 +88,8 @@
     <Compile Include="Addons\Events\Interfaces\IEvent.cs" />
     <Compile Include="Addons\Events\Interfaces\IFriendlyFireAutoBanBehaviour.cs" />
     <Compile Include="Addons\Events\Interfaces\IMapgenBehaviour.cs" />
-    <Compile Include="Addons\Events\Patches\BulletHolePatch.cs" />
     <Compile Include="Addons\Events\EventManagerPlayerEvents.cs" />
     <Compile Include="Addons\Events\EventManagerServerEvents.cs" />
-    <Compile Include="Addons\Events\Patches\SeedGenerationPatch.cs" />
     <Compile Include="Addons\Events\ScriptedEventIntergration.cs" />
     <Compile Include="Addons\QuerySystem\Commands\ImportRaCommand.cs" />
     <Compile Include="Addons\QuerySystem\Commands\CmSyncCommand.cs" />
@@ -100,13 +98,13 @@
     <Compile Include="Addons\QuerySystem\Config.cs" />
     <Compile Include="Addons\QuerySystem\Extensions.cs" />
     <Compile Include="Addons\QuerySystem\LevelerStore.cs" />
-    <Compile Include="Addons\QuerySystem\Patches\CommandProcessorPatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\ExiledPermissionsPatchPlayer.cs" />
     <Compile Include="Addons\QuerySystem\Patches\ExiledPermissionsPatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\PreAuthModel.cs" />
     <Compile Include="Addons\QuerySystem\Patches\RefreshExiledPermissions.cs" />
     <Compile Include="Addons\QuerySystem\Patches\RefreshPermissionsHandlerPatch.cs" />
     <Compile Include="Addons\QuerySystem\Patches\ShootingPatch.cs" />
+    <Compile Include="Addons\QuerySystem\Patches\WhitelistPatch.cs" />
     <Compile Include="Addons\QuerySystem\QueryMapEvents.cs" />
     <Compile Include="Addons\QuerySystem\Patches\ReservedSlotsPatch.cs" />
     <Compile Include="Addons\QuerySystem\QueryPlayerEvents.cs" />
@@ -118,8 +116,12 @@
     <Compile Include="Addons\QuerySystem\Verification.cs" />
     <Compile Include="Addons\QuerySystem\WS\PermissionProvider.cs" />
     <Compile Include="Addons\QuerySystem\WS\WebSocketSystem.cs" />
+    <Compile Include="Addons\Sentinal\ItemPickupHandler.cs" />
     <Compile Include="Addons\Sentinal\Patches\FpcServerPositionDistributorPatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\FpcSyncDataPatch.cs" />
+    <Compile Include="Addons\Sentinal\Patches\PrimitiveColorPatchTranspiler.cs" />
+    <Compile Include="Addons\Sentinal\Patches\PrimitiveFlagsPatchTranspiler.cs" />
+    <Compile Include="Addons\Sentinal\Patches\Scp106MovementModulePatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\ItemPickupHandler.cs" />
     <Compile Include="Addons\Sentinal\Patches\PrimitiveColorPatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\Scp3114\ServerProcessStartCmdPatch.cs" />
@@ -174,8 +176,6 @@
     <Compile Include="Patches\NpcInstanceModePatch.cs" />
     <Compile Include="Patches\OBanCommandPatch.cs" />
     <Compile Include="Patches\RaPlayerAuthPatch.cs" />
-    <Compile Include="Patches\RaPlayerListPatch.cs" />
-    <Compile Include="Patches\RaPlayerPatch.cs" />
     <Compile Include="Patches\RAProcessPlayerPatch.cs" />
     <Compile Include="Patches\ReloadServerNamePatch.cs" />
     <Compile Include="Patches\UnMuteCommandPatch.cs" />

@@ -1,22 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using CedMod.Addons.QuerySystem.WS;
-using CustomPlayerEffects;
 using HarmonyLib;
 using InventorySystem.Searching;
-using Mirror;
 using Mirror.LiteNetLib4Mirror;
-using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PlayerRoles.FirstPersonControl.NetworkMessages;
 using PlayerRoles.PlayableScps.Scp049;
 using PlayerRoles.PlayableScps.Scp049.Zombies;
 using PlayerRoles.PlayableScps.Scp106;
-using PlayerRoles.PlayableScps.Scp939;
-using PlayerRoles.Visibility;
 using UnityEngine;
-using Logger = LabApi.Features.Console.Logger;
 using Scp049Role = PlayerRoles.PlayableScps.Scp049.Scp049Role;
 using Scp106Role = PlayerRoles.PlayableScps.Scp106.Scp106Role;
 

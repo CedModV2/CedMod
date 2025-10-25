@@ -84,7 +84,7 @@ namespace CedMod.Addons.StaffInfo
             if (CedModMain.Singleton.Config.QuerySystem.Debug)
                 Logger.Debug("Starting staffinfo", CedModMain.Singleton.Config.QuerySystem.Debug);
             
-            foreach (var staff in Player.List)
+            foreach (var staff in Player.ReadyList)
             {
                 if (!staff.RemoteAdminAccess)
                     continue;
@@ -110,7 +110,7 @@ namespace CedMod.Addons.StaffInfo
                 
                 var prefs = RemoteAdminModificationHandler.IngameUserPreferencesMap[staff];
 
-                foreach (var player in Player.List)
+                foreach (var player in Player.ReadyList)
                 {
                     if (CedModMain.Singleton.Config.QuerySystem.Debug)
                         Logger.Debug($"Staffinfo for {staff.Nickname} getting {player.Nickname}", CedModMain.Singleton.Config.QuerySystem.Debug);
@@ -144,7 +144,7 @@ namespace CedMod.Addons.StaffInfo
                 if (prefs.StreamerMode)
                     continue;
 
-                var currentlySpectating = Player.List.FirstOrDefault(s => s.ReferenceHub.IsSpectatedBy(staff.ReferenceHub));
+                var currentlySpectating = Player.ReadyList.FirstOrDefault(s => s.ReferenceHub.IsSpectatedBy(staff.ReferenceHub));
                 
                 switch (staff.Role)
                 {

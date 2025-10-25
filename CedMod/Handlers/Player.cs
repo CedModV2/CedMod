@@ -23,7 +23,7 @@ namespace CedMod.Handlers
         
         public IEnumerator<float> Name(LabApi.Features.Wrappers.Player player)
         {
-            foreach (var pp in LabApi.Features.Wrappers.Player.List)
+            foreach (var pp in LabApi.Features.Wrappers.Player.ReadyList)
             {
                 if (pp.UserId == player.UserId) 
                     yield break;
