@@ -27,7 +27,7 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
                 {
                     { "SentinalType", "SCP3114UsingGuns" }, 
                     { "UserId", __instance.Firearm.Owner.authManager.UserId },
-                    { "Firewarm", __instance.Firearm.ItemTypeId.ToString()},
+                    { "Firearm", __instance.Firearm.ItemTypeId.ToString()},
                 }
             });
             return false;
@@ -49,7 +49,7 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
                 {
                     { "SentinalType", "SCP3114UsingGuns" }, 
                     { "UserId", __instance.Firearm.Owner.authManager.UserId },
-                    { "Firewarm", __instance.Firearm.ItemTypeId.ToString()},
+                    { "Firearm", __instance.Firearm.ItemTypeId.ToString()},
                 }
             });
             return false;
@@ -71,7 +71,7 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
                 {
                     { "SentinalType", "SCP3114UsingGuns" }, 
                     { "UserId", __instance.Firearm.Owner.authManager.UserId },
-                    { "Firewarm", __instance.Firearm.ItemTypeId.ToString()},
+                    { "Firearm", __instance.Firearm.ItemTypeId.ToString()},
                 }
             });
             return false;
@@ -93,7 +93,7 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
                 {
                     { "SentinalType", "SCP3114UsingGuns" }, 
                     { "UserId", __instance.Firearm.Owner.authManager.UserId },
-                    { "Firewarm", __instance.Firearm.ItemTypeId.ToString()},
+                    { "Firearm", __instance.Firearm.ItemTypeId.ToString()},
                 }
             });
             return false;
@@ -115,7 +115,7 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
                 {
                     { "SentinalType", "SCP3114UsingGuns" }, 
                     { "UserId", __instance.Firearm.Owner.authManager.UserId },
-                    { "Firewarm", __instance.Firearm.ItemTypeId.ToString()},
+                    { "Firearm", __instance.Firearm.ItemTypeId.ToString()},
                 }
             });
             return false;
@@ -137,7 +137,7 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
                 {
                     { "SentinalType", "SCP3114UsingGuns" }, 
                     { "UserId", __instance.Firearm.Owner.authManager.UserId },
-                    { "Firewarm", __instance.Firearm.ItemTypeId.ToString()},
+                    { "Firearm", __instance.Firearm.ItemTypeId.ToString()},
                 }
             });
             return false;
@@ -159,7 +159,7 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
                 {
                     { "SentinalType", "SCP3114UsingGuns" }, 
                     { "UserId", __instance.Firearm.Owner.authManager.UserId },
-                    { "Firewarm", __instance.Firearm.ItemTypeId.ToString()},
+                    { "Firearm", __instance.Firearm.ItemTypeId.ToString()},
                 }
             });
             return false;
@@ -181,7 +181,7 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
                 {
                     { "SentinalType", "SCP3114UsingGuns" }, 
                     { "UserId", __instance.Firearm.Owner.authManager.UserId },
-                    { "Firewarm", __instance.Firearm.ItemTypeId.ToString()},
+                    { "Firearm", __instance.Firearm.ItemTypeId.ToString()},
                 }
             });
             return false;

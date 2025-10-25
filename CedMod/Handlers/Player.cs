@@ -66,7 +66,7 @@ namespace CedMod.Handlers
                 {
                     { "SentinalType", "SCP3114UsingGuns" }, 
                     { "UserId", ev.Player.ReferenceHub.authManager.UserId },
-                    { "Firewarm", ev.UsableItem.Type.ToString()},
+                    { "Firearm", ev.UsableItem.Type.ToString()},
                 }
             });
 
@@ -86,7 +86,7 @@ namespace CedMod.Handlers
                 {
                     { "SentinalType", "SCP3114UsingGuns" }, 
                     { "UserId", ev.Player.ReferenceHub.authManager.UserId },
-                    { "Firewarm", ev.UsableItem.Type.ToString()},
+                    { "Firearm", ev.UsableItem.Type.ToString()},
                 }
             });
             
