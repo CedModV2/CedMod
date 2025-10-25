@@ -9,6 +9,7 @@ using InventorySystem.Items.Scp1509;
 using Mirror.LiteNetLib4Mirror;
 using Newtonsoft.Json;
 using PlayerRoles;
+using PlayerRoles.PlayableScps.Scp3114;
 
 namespace CedMod.Addons.Sentinal.Patches.Scp3114
 {
@@ -19,6 +20,9 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
         {
             if (__instance.Firearm.Owner.GetRoleId() != RoleTypeId.Scp3114 || __instance.Firearm.Owner == null || __instance.Firearm.Owner.authManager.UserId == null)
                 return true;
+            
+            if (__instance.Firearm.Owner.roleManager.CurrentRole is Scp3114Role role && !role.Disguised)
+                return true; //let owners use force-equip when shooting
 
             WebSocketSystem.Enqueue(new QueryCommand()
             {
@@ -41,6 +45,9 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
         {
             if (__instance.Firearm.Owner.GetRoleId() != RoleTypeId.Scp3114 || __instance.Firearm.Owner == null || __instance.Firearm.Owner.authManager.UserId == null)
                 return true;
+            
+            if (__instance.Firearm.Owner.roleManager.CurrentRole is Scp3114Role role && !role.Disguised)
+                return true; //let owners use force-equip when shooting
 
             WebSocketSystem.Enqueue(new QueryCommand()
             {
@@ -63,6 +70,9 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
         {
             if (__instance.Firearm.Owner.GetRoleId() != RoleTypeId.Scp3114 || __instance.Firearm.Owner == null || __instance.Firearm.Owner.authManager.UserId == null)
                 return true;
+            
+            if (__instance.Firearm.Owner.roleManager.CurrentRole is Scp3114Role role && !role.Disguised)
+                return true; //let owners use force-equip when shooting
 
             WebSocketSystem.Enqueue(new QueryCommand()
             {
@@ -85,6 +95,9 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
         {
             if (__instance.Firearm.Owner.GetRoleId() != RoleTypeId.Scp3114 || __instance.Firearm.Owner == null || __instance.Firearm.Owner.authManager.UserId == null)
                 return true;
+            
+            if (__instance.Firearm.Owner.roleManager.CurrentRole is Scp3114Role role && !role.Disguised)
+                return true; //let owners use force-equip when shooting
 
             WebSocketSystem.Enqueue(new QueryCommand()
             {
@@ -107,6 +120,9 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
         {
             if (__instance.Firearm.Owner.GetRoleId() != RoleTypeId.Scp3114 || __instance.Firearm.Owner == null || __instance.Firearm.Owner.authManager.UserId == null)
                 return true;
+            
+            if (__instance.Firearm.Owner.roleManager.CurrentRole is Scp3114Role role && !role.Disguised)
+                return true; //let owners use force-equip when shooting
 
             WebSocketSystem.Enqueue(new QueryCommand()
             {
@@ -129,6 +145,9 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
         {
             if (__instance.Firearm.Owner.GetRoleId() != RoleTypeId.Scp3114 || __instance.Firearm.Owner == null || __instance.Firearm.Owner.authManager.UserId == null)
                 return true;
+            
+            if (__instance.Firearm.Owner.roleManager.CurrentRole is Scp3114Role role && !role.Disguised)
+                return true; //let owners use force-equip when shooting
 
             WebSocketSystem.Enqueue(new QueryCommand()
             {
@@ -151,6 +170,9 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
         {
             if (__instance.Firearm.Owner.GetRoleId() != RoleTypeId.Scp3114 || __instance.Firearm.Owner == null || __instance.Firearm.Owner.authManager.UserId == null)
                 return true;
+            
+            if (__instance.Firearm.Owner.roleManager.CurrentRole is Scp3114Role role && !role.Disguised)
+                return true; //let owners use force-equip when shooting
 
             WebSocketSystem.Enqueue(new QueryCommand()
             {
@@ -173,6 +195,9 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
         {
             if (__instance.Firearm.Owner.GetRoleId() != RoleTypeId.Scp3114 || __instance.Firearm.Owner == null || __instance.Firearm.Owner.authManager.UserId == null)
                 return true;
+
+            if (__instance.Firearm.Owner.roleManager.CurrentRole is Scp3114Role role && !role.Disguised)
+                return true; //let owners use force-equip when shooting
 
             WebSocketSystem.Enqueue(new QueryCommand()
             {

@@ -6,6 +6,7 @@ using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.CustomHandlers;
 using MEC;
 using PlayerRoles;
+using PlayerRoles.PlayableScps.Scp3114;
 
 namespace CedMod.Handlers
 {
@@ -59,6 +60,9 @@ namespace CedMod.Handlers
             if (ev.Player.Role != RoleTypeId.Scp3114 || ev.Player.DisarmedBy == null)
                 return;
             
+            if (ev.Player.RoleBase is Scp3114Role role && !role.Disguised)
+                return; //let owners use force-equip when shooting
+            
             WebSocketSystem.Enqueue(new QueryCommand()
             {
                 Recipient = "PANEL",
@@ -78,6 +82,9 @@ namespace CedMod.Handlers
         {
             if (ev.Player.Role != RoleTypeId.Scp3114 || ev.Player.DisarmedBy == null)
                 return;
+            
+            if (ev.Player.RoleBase is Scp3114Role role && !role.Disguised)
+                return; //let owners use force-equip when shooting
             
             WebSocketSystem.Enqueue(new QueryCommand()
             {
