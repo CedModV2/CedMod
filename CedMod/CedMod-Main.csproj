@@ -122,8 +122,6 @@
     <Compile Include="Addons\Sentinal\Patches\PrimitiveColorPatchTranspiler.cs" />
     <Compile Include="Addons\Sentinal\Patches\PrimitiveFlagsPatchTranspiler.cs" />
     <Compile Include="Addons\Sentinal\Patches\Scp106MovementModulePatch.cs" />
-    <Compile Include="Addons\Sentinal\Patches\ItemPickupHandler.cs" />
-    <Compile Include="Addons\Sentinal\Patches\PrimitiveColorPatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\Scp3114\ServerProcessStartCmdPatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\Scp939LungePatch.cs" />
     <Compile Include="Addons\Sentinal\Patches\TeslaGateHandler.cs" />
