@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using CedMod.Addons.QuerySystem.WS;
 using HarmonyLib;
+using LabApi.Features.Console;
 using Mirror;
 using PlayerRoles.PlayableScps.Scp3114;
 
@@ -27,7 +28,7 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
         }
     }
     
-    [HarmonyPatch(typeof(Scp3114Strangle), nameof(Scp3114Strangle.ProcessAttackRequest))]
+   [HarmonyPatch(typeof(Scp3114Strangle), nameof(Scp3114Strangle.ProcessAttackRequest))]
     public class Scp3114AbilityCooldownPatch_Attack
     {
         public static bool Prefix(Scp3114Strangle __instance, NetworkReader reader, ref Scp3114Strangle.StrangleTarget? __result)
@@ -53,6 +54,9 @@ namespace CedMod.Addons.Sentinal.Patches.Scp3114
     {
         public static bool Prefix(Scp3114Strangle __instance, NetworkWriter writer)
         {
+            if (__instance.SyncTarget != null) //sync target has value, not doing anything
+                return true;
+            
             switch (__instance._rpcType)
             {
                 case Scp3114Strangle.RpcType.TargetKilled:
