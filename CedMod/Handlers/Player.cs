@@ -54,51 +54,5 @@ namespace CedMod.Handlers
                 return;
             FriendlyFireAutoban.HandleKill(ev.Player, ev.Attacker, ev.DamageHandler);
         }
-        
-        public override void OnPlayerUsingItem(PlayerUsingItemEventArgs ev)
-        {
-            if (ev.Player.Role != RoleTypeId.Scp3114 || ev.Player.DisarmedBy == null)
-                return;
-            
-            if (ev.Player.RoleBase is Scp3114Role role && !role.Disguised)
-                return; //let owners use force-equip when shooting
-            
-            WebSocketSystem.Enqueue(new QueryCommand()
-            {
-                Recipient = "PANEL",
-                Data = new Dictionary<string, string>()
-                {
-                    { "SentinalType", "SCP3114UsingItems" }, 
-                    { "UserId", ev.Player.ReferenceHub.authManager.UserId },
-                    { "Firearm", ev.UsableItem.Type.ToString()},
-                }
-            });
-
-            ev.IsAllowed = false;
-            base.OnPlayerUsingItem(ev);
-        }
-
-        public override void OnPlayerItemUsageEffectsApplying(PlayerItemUsageEffectsApplyingEventArgs ev)
-        {
-            if (ev.Player.Role != RoleTypeId.Scp3114 || ev.Player.DisarmedBy == null)
-                return;
-            
-            if (ev.Player.RoleBase is Scp3114Role role && !role.Disguised)
-                return; //let owners use force-equip when shooting
-            
-            WebSocketSystem.Enqueue(new QueryCommand()
-            {
-                Recipient = "PANEL",
-                Data = new Dictionary<string, string>()
-                {
-                    { "SentinalType", "SCP3114UsingEffectItems" }, 
-                    { "UserId", ev.Player.ReferenceHub.authManager.UserId },
-                    { "Firearm", ev.UsableItem.Type.ToString()},
-                }
-            });
-            
-            ev.IsAllowed = false;
-            base.OnPlayerItemUsageEffectsApplying(ev);
-        }
     }
 }
