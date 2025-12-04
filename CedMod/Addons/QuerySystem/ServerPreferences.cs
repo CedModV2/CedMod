@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CedMod.ApiModals;
 using LabApi.Features.Console;
+using LabApi.Features.Wrappers;
 using Newtonsoft.Json;
 
 namespace CedMod.Addons.QuerySystem
@@ -33,7 +34,7 @@ namespace CedMod.Addons.QuerySystem
                         var data = JsonConvert.DeserializeObject<ServerPreferenceModel>(
                             await response.Content.ReadAsStringAsync());
                         Prefs = data;
-                        File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs.json"), JsonConvert.SerializeObject(Prefs));
+                        File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json"), JsonConvert.SerializeObject(Prefs));
                     }
                     else
                     {
@@ -43,8 +44,8 @@ namespace CedMod.Addons.QuerySystem
                             VerificationChallenge.ChallengeStarted = false;
                         }
                         Logger.Error($"Failed to resolve server preferences, using file: {response.StatusCode} {await response.Content.ReadAsStringAsync()}");
-                        if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs.json"))) ;
-                        Prefs = JsonConvert.DeserializeObject<ServerPreferenceModel>(File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs.json")));
+                        if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json"))) ;
+                        Prefs = JsonConvert.DeserializeObject<ServerPreferenceModel>(File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json")));
                         if (loop)
                         {
                             await Task.Delay(1000, CedModMain.CancellationToken);
