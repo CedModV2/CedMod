@@ -32,9 +32,12 @@ namespace CedMod.Addons.QuerySystem.Patches
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> codeInstructions, ILGenerator generator)
         {
             List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(codeInstructions);
-
-            int offset = 9;
-            int index = newInstructions.FindIndex(x => x.opcode == OpCodes.Ldsfld && x.operand is FieldInfo { Name: "UseChallenge" }) + offset;
+            
+            int index = newInstructions.FindIndex(ci =>
+                ci.opcode == OpCodes.Call &&
+                ci.operand is MethodInfo mi &&
+                mi.Name == "get_DelayConnections"
+            );
             
             Label ret = generator.DefineLabel();
             
@@ -86,6 +89,9 @@ namespace CedMod.Addons.QuerySystem.Patches
                 Rejected++;
                 return false;
             }
+            
+            if (!CustomLiteNetLib4MirrorTransport.UseChallenge || preauthdata.ChallengeID != 0 || preauthdata.Signature.Length != 0)
+                return true;
 
             if (PlayerAuthenticationManager.OnlineMode && !ECDSA.VerifyBytes($"{preauthdata.UserID};{preauthdata.Flags};{preauthdata.Region};{preauthdata.Expiration}", preauthdata.Signature, ServerConsole.PublicKey))
             {
