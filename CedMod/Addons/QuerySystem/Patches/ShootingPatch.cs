@@ -30,6 +30,8 @@ namespace CedMod.Addons.QuerySystem.Patches
     [HarmonyPatch(typeof(HitscanHitregModuleBase), nameof(HitscanHitregModuleBase.ServerAppendPrescan))]
     public static class DoubleActionShootPatch
     {
+        public static Dictionary<Firearm, SubsequentShotsCounter> Counters = new Dictionary<Firearm, SubsequentShotsCounter>();
+        
         public static void Postfix(HitscanHitregModuleBase __instance, Ray targetRay, HitscanResult toAppend)
         {
             try
@@ -57,10 +59,10 @@ namespace CedMod.Addons.QuerySystem.Patches
                     RecoilSettings intendedRecoil = new RecoilSettings();
                     if (__instance.Owner.inventory.CurInstance is Firearm firearm && firearm.TryGetModule(out RecoilPatternModule recoil))
                     {
-                        if (recoil._counter == null)
-                            return;
+                        if (!Counters.TryGetValue(__instance.Firearm, out SubsequentShotsCounter value))
+                            Counters[__instance.Firearm] = value = new SubsequentShotsCounter(__instance.Firearm);
                         
-                        int shots = recoil._counter.SubsequentShots;
+                        int shots = value.SubsequentShots;
                         float adsAmount = firearm.TryGetModule(out IAdsModule ads) ? ads.AdsAmount : 0;
                         
                         float hipScale = firearm.AttachmentsValue(AttachmentParam.OverallRecoilMultiplier);

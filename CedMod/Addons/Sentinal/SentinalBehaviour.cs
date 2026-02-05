@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AdminToys;
 using AudioPooling;
+using CedMod.Addons.QuerySystem.Patches;
 using CedMod.Addons.QuerySystem.WS;
 using CedMod.Addons.Sentinal.Patches;
 using CedMod.Addons.Sentinal.Patches.Utilities;
@@ -14,7 +15,9 @@ using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Firearms.Modules;
 using InventorySystem.Items.Firearms.Modules.Misc;
+using InventorySystem.Items.Firearms.ShotEvents;
 using LabApi.Events.Arguments.Scp106Events;
+using LabApi.Features.Wrappers;
 using Newtonsoft.Json;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl.NetworkMessages;
@@ -44,27 +47,36 @@ namespace CedMod.Addons.Sentinal
             AudioModule.OnSoundPlayed += OnSoundPlayed;
             LabApi.Events.Handlers.Scp106Events.ChangedStalkMode += StalkChanged;
             LabApi.Events.Handlers.ServerEvents.MapGenerated += RoomCache.MapGenerated;
-            ItemBase.OnItemAdded += ItemCreated;
             ItemBase.OnItemRemoved += ItemRemoved;
+            ShotEventManager.OnShot += OnShot;
         }
+
+        private void OnShot(ShotEvent shotEvent)
+        {
+            try
+            {
+                var item = Item.Get(shotEvent.ItemId.SerialNumber);
+                if (item == null || item.Base is not Firearm firearm)
+                    return;
+
+                if (DoubleActionShootPatch.Counters.TryGetValue(firearm, out SubsequentShotsCounter value))
+                    DoubleActionShootPatch.Counters[firearm] = value = new SubsequentShotsCounter(firearm);
+
+                if (value != null)
+                    value.OnShot(shotEvent);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e.ToString());
+            }
+        }
+
 
         private void ItemRemoved(ItemBase obj)
         {
             if (obj is Firearm firearm && firearm.TryGetModule(out RecoilPatternModule recoil))
             {
-                if (recoil._counter != null)
-                    recoil._counter.OnShotRecorded -= recoil.OnShot;
-                recoil._counter?.Destruct();
-                recoil._counter = null;
-            }
-        }
-
-        private void ItemCreated(ItemBase obj)
-        {
-            if (obj is Firearm firearm && firearm.TryGetModule(out RecoilPatternModule recoil))
-            {
-                recoil._counter = new SubsequentShotsCounter(firearm);
-                //recoil._counter.OnShotRecorded += recoil.OnShot;
+                DoubleActionShootPatch.Counters.Remove(firearm);
             }
         }
 
@@ -86,8 +98,8 @@ namespace CedMod.Addons.Sentinal
             AudioModule.OnSoundPlayed -= OnSoundPlayed;
             LabApi.Events.Handlers.Scp106Events.ChangedStalkMode -= StalkChanged;
             LabApi.Events.Handlers.ServerEvents.MapGenerated -= RoomCache.MapGenerated;
-            ItemBase.OnItemAdded -= ItemCreated;
             ItemBase.OnItemRemoved -= ItemRemoved;
+            ShotEventManager.OnShot -= OnShot;
         }
 
         public void FixedUpdate()
