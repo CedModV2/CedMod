@@ -69,6 +69,9 @@ namespace CedMod.Addons.QuerySystem.Patches
             
             var reader = new NetDataReader(request.Data.RawData);
             reader._position = 34;
+            if (request.RemoteEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
+                reader._position += 12;
+            
             var preauthdata = PreAuthModel.ReadPreAuth(reader);
             if (preauthdata == null)
             {
