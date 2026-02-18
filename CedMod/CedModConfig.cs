@@ -95,5 +95,8 @@ namespace CedMod
 
         [Description("Toggles transparant primitives to the 'Glass' layer to allow anti ESP to work with primitives that are transparant, note that this will also affect 173 and 096")]
         public bool PrimitiveTransparancyDetection { get; set; } = true;
+
+        [Description("Whether or not the jail command should be registered, disable if you'd rather another plugin made the jail system.")]
+        public bool ShouldRegisterJailCommand { get; set; } = true;
     }
 }
