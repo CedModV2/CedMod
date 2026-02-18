@@ -27,7 +27,6 @@ using RadioItem = InventorySystem.Items.Radio.RadioItem;
 
 namespace CedMod.Addons.AdminSitSystem.Commands
 {
-    [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class JailParentCommand : ParentCommand
     {
         public override string Command => "jail";

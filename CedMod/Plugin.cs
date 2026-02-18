@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CedMod.Addons.AdminSitSystem;
+using CedMod.Addons.AdminSitSystem.Commands;
 using CedMod.Addons.Audio;
 using CedMod.Addons.Events;
 using CedMod.Addons.Events.Interfaces;
@@ -19,6 +20,7 @@ using CedMod.Addons.Sentinal.Patches;
 using CedMod.Addons.StaffInfo;
 using CedMod.Components;
 using CentralAuth;
+using CommandSystem;
 using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.Loader;
@@ -32,6 +34,7 @@ using LabApi.Loader.Features.Paths;
 using LabApi.Loader.Features.Plugins;
 using LabApi.Loader.Features.Plugins.Enums;
 using MEC;
+using RemoteAdmin;
 using Logger = LabApi.Features.Console.Logger;
 using Object = UnityEngine.Object;
 using Player = CedMod.Handlers.Player;
@@ -298,6 +301,9 @@ namespace CedMod
             Shutdown.OnQuit += OnQuit;
             CacheHandler = new Thread(CedMod.CacheHandler.Loop);
             CacheHandler.Start();
+            
+            if(Config.CedMod.ShouldRegisterJailCommand)
+                CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new JailParentCommand());
 
             if (!Directory.Exists(Path.Combine(PluginConfigFolder, "CedModEvents")))
             {
