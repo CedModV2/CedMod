@@ -44,8 +44,8 @@ namespace CedMod.Addons.QuerySystem
                             VerificationChallenge.ChallengeStarted = false;
                         }
                         Logger.Error($"Failed to resolve server preferences, using file: {response.StatusCode} {await response.Content.ReadAsStringAsync()}");
-                        if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json"))) ;
-                        Prefs = JsonConvert.DeserializeObject<ServerPreferenceModel>(File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json")));
+                        if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json")))
+                            Prefs = JsonConvert.DeserializeObject<ServerPreferenceModel>(File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json")));
                         if (loop)
                         {
                             await Task.Delay(1000, CedModMain.CancellationToken);
@@ -57,8 +57,12 @@ namespace CedMod.Addons.QuerySystem
             }
             catch (Exception e)
             {
-                if (e is TaskCanceledException)
+                if (e is TaskCanceledException && CedModMain.CancellationToken.IsCancellationRequested)
                     return;
+                
+                if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json")))
+                    Prefs = JsonConvert.DeserializeObject<ServerPreferenceModel>(File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json")));
+                
                 Logger.Error($"Failed to resolve server preferences, using file: {e}");
                 if (loop)
                 {
