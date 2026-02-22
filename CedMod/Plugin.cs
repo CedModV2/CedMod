@@ -301,9 +301,14 @@ namespace CedMod
             Shutdown.OnQuit += OnQuit;
             CacheHandler = new Thread(CedMod.CacheHandler.Loop);
             CacheHandler.Start();
-            
-            if(Config.CedMod.ShouldRegisterJailCommand)
+
+            if (Config.CedMod.ShouldRegisterJailCommand)
+            {
+                if (CommandProcessor.RemoteAdminCommandHandler.TryGetCommand("jail", out var jailCmd))
+                    CommandProcessor.RemoteAdminCommandHandler.UnregisterCommand(jailCmd);
+                
                 CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(new JailParentCommand());
+            }
 
             if (!Directory.Exists(Path.Combine(PluginConfigFolder, "CedModEvents")))
             {
