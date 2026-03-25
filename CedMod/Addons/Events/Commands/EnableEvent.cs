@@ -54,7 +54,7 @@ namespace CedMod.Addons.Events.Commands
                 Broadcast.Singleton.RpcAddElement($"EventManager: {@event.EventName} is being enabled.\nRound will restart in 3 seconds", 5, Broadcast.BroadcastFlags.Normal);
                 Timing.CallDelayed(3, () =>
                 {
-                    Round.Restart(false, false);
+                    LabApi.Features.Wrappers.Round.Restart(false, false);
                 });
             }
             else

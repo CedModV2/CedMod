@@ -65,7 +65,7 @@ namespace CedMod.Addons.Events.Commands
                 Broadcast.Singleton.RpcAddElement($"EventManager: {EventManager.CurrentEvent.EventName} is being now disabled, round will restart in 3 seconds", 10, Broadcast.BroadcastFlags.Normal);
                 Timing.CallDelayed(3, () =>
                 {
-                    Round.Restart(false, false);
+                    LabApi.Features.Wrappers.Round.Restart(false, false);
                 });
             }
             ThreadDispatcher.SendHeartbeatMessage(true);
