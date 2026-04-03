@@ -785,6 +785,12 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnPlayerLeft(PlayerLeftEventArgs ev)
         {
+            if (CommandHandler.Synced.ContainsKey(ev.Player.UserId))
+            {
+                ServerStatic.PermissionsHandler.Members.Remove(ev.Player.UserId);
+                CommandHandler.Synced.Remove(ev.Player.UserId);
+            }
+            
             FpcServerPositionDistributorPatch.VisibilityCache.Remove(ev.Player.ReferenceHub);
             foreach (var target in FpcServerPositionDistributorPatch.VisibilityCache)
             {

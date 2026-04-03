@@ -1206,7 +1206,7 @@ namespace CedMod.Addons.QuerySystem.WS
 
                             if (CedModPlayer.Get(member.Key) != null)
                             {
-                                if (Enumerable.All(permsSlRequest.MembersList, s => s.UserId != member.Key))
+                                if (Enumerable.All(permsSlRequest.MembersList, s => s.UserId != member.Key) && !CommandHandler.Synced.ContainsKey(member.Key))
                                 {
                                     Logger.Info(member.Key + " 3");
                                     CedModPlayer.Get(member.Key).ReferenceHub.serverRoles.SetGroup(null, false);
