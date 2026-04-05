@@ -30,7 +30,7 @@ namespace CedMod.Patches
         public static IEnumerator<float> RaPlayerCoRoutine(RaPlayerAuth __instance, CommandSender sender, string data)
         {
             string[] source = data.Split(' ');
-            if (source[0].StartsWith("-1") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.BanningUpToDay))
+            if (source[0].StartsWith("-1") && sender.CheckPermission(new [] { PlayerPermissions.KickingAndShortTermBanning, PlayerPermissions.BanningUpToDay, PlayerPermissions.LongTermBanning }))
             {
                 var player = CedModPlayer.Get(sender.SenderId);
                 var open = RemoteAdminModificationHandler.ReportsList.Where(s => s.Status == HandleStatus.NoResponse).ToList();
@@ -57,7 +57,7 @@ namespace CedMod.Patches
                 yield break;
             }
             
-            if (source[0].StartsWith("-2") && CommandProcessor.CheckPermissions(sender, PlayerPermissions.BanningUpToDay))
+            if (source[0].StartsWith("-2") && sender.CheckPermission(new [] { PlayerPermissions.KickingAndShortTermBanning, PlayerPermissions.BanningUpToDay, PlayerPermissions.LongTermBanning }))
             {
                 var player = CedModPlayer.Get(sender.SenderId);
                 var open = RemoteAdminModificationHandler.ReportsList.Where(s => s.Status == HandleStatus.InProgress).ToList();
