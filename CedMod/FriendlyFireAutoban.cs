@@ -136,6 +136,7 @@ namespace CedMod
                 case Team.FoundationForces when player.Role.GetTeam() == Team.ClassD && player.ReferenceHub.inventory.IsDisarmed() && CedModMain.Singleton.Config.CedMod.AutobanDisarmedClassDTk:
                 case Team.ChaosInsurgency when player.Role.GetTeam() == Team.Scientists && player.ReferenceHub.inventory.IsDisarmed() && CedModMain.Singleton.Config.CedMod.AutobanDisarmedScientistDTk:
                 case Team.ClassD when player.Role.GetTeam() == Team.Scientists && player.ReferenceHub.inventory.IsDisarmed() && CedModMain.Singleton.Config.CedMod.AutobanDisarmedScientistDTk:
+                case Team.Scientists when player.Role.GetTeam() == Team.ClassD && player.ReferenceHub.inventory.IsDisarmed() && CedModMain.Singleton.Config.CedMod.AutobanDisarmedClassDTk:
                 case Team.ClassD when player.Role.GetTeam() == Team.ClassD && CedModMain.Singleton.Config.CedMod.AutobanClassDvsClassD:
                     result = true;
                     break;
