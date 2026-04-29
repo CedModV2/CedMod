@@ -971,6 +971,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 QuerySystem.Whitelist = whitelist;
                                 QuerySystem.UseWhitelist = true;
                                 ServerConsole.WhiteListEnabled = true;
+                                WhiteList.WhitelistEnabled = true;
                                 if (Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
                                 {
                                     File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json"), data);
@@ -984,6 +985,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                 QuerySystem.Whitelist = new List<string>();
                                 QuerySystem.UseWhitelist = false;
                                 ServerConsole.WhiteListEnabled = false;
+                                WhiteList.WhitelistEnabled = false;
                                 if (Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
                                 {
                                     if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "whitelistCache.json")))
@@ -1003,6 +1005,7 @@ namespace CedMod.Addons.QuerySystem.WS
                                         QuerySystem.Whitelist = whitelist;
                                         QuerySystem.UseWhitelist = true;
                                         ServerConsole.WhiteListEnabled = true;
+                                        WhiteList.WhitelistEnabled = true;
                                         Logger.Info("Loaded whitelist from file");
                                         CheckWhitelist();
                                     }
