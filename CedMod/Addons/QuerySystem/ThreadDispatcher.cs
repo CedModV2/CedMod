@@ -35,8 +35,11 @@ namespace CedMod.Addons.QuerySystem
         public static ConcurrentQueue<Action> ThreadDispatchQueue = new ConcurrentQueue<Action>();
         public void Update()
         {
-            if (QuerySystem.UseWhitelist && !ServerConsole.WhiteListEnabled)
+            if (QuerySystem.UseWhitelist)
+            {
                 ServerConsole.WhiteListEnabled = true;
+                WhiteList.WhitelistEnabled = true;
+            }
             
             if (ThreadDispatchQueue.TryDequeue(out Action action))
             {
