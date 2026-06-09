@@ -98,5 +98,11 @@ namespace CedMod
 
         [Description("Whether or not the jail command should be registered, disable if you'd rather another plugin made the jail system.")]
         public bool ShouldRegisterJailCommand { get; set; } = true;
+        
+        [Description("Whether or not RequestData should have fields added by CedMod such as Active Flags and Warn/BanLog count for those who have cedmod.requestdata permission")]
+        public bool ShouldAddFieldsToRequestData { get; set; } = true;
+        
+        [Description("Whether or not CedMod should add prefixes such as [WL] (Watchlist)/[WG] & [WMG] (Group Watchlist) to players in RA Player List")]
+        public bool ShouldAddWatchlistPrefixesToRaPlayerList { get; set; } = true;
     }
 }
