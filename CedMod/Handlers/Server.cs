@@ -102,6 +102,8 @@ namespace CedMod.Handlers
         
         public override void OnPlayerRaPlayerListAddingPlayer(PlayerRaPlayerListAddingPlayerEventArgs ev)
         {
+            if (!CedModMain.Singleton.Config.CedMod.DisableWatchlistPrefixesInRaPlayerList) return;
+            
             if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(ev.Player) && RemoteAdminModificationHandler.IngameUserPreferencesMap[ev.Player].ShowWatchListUsersInRemoteAdmin)
             {
                 if (RemoteAdminModificationHandler.GroupWatchlist.Any(s => s.UserIds.Contains(ev.Target.UserId)))
@@ -120,7 +122,6 @@ namespace CedMod.Handlers
                     ev.Prefix += $"<size=15><color=#00FFF6>[WL]</color></size> ";
                 }
             }
-            base.OnPlayerRaPlayerListAddingPlayer(ev);
         }
 
         public override void OnPlayerRequestedCustomRaInfo(PlayerRequestedCustomRaInfoEventArgs ev)
@@ -309,11 +310,12 @@ namespace CedMod.Handlers
 
         public override void OnPlayerRequestedRaPlayerInfo(PlayerRequestedRaPlayerInfoEventArgs ev)
         {
+            if (!CedModMain.Singleton.Config.CedMod.DisableCedmodAddingFieldsInRequestData) return;
+            
             if (ev.Player.HasPermissions("cedmod.requestdata"))
             {
                 Timing.RunCoroutine(RequestData(ev, ev.InfoBuilder.ToString()));
             }
-            base.OnPlayerRequestedRaPlayerInfo(ev);
         }
 
         private IEnumerator<float> RequestData(PlayerRequestedRaPlayerInfoEventArgs ev, string data)
