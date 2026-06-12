@@ -753,8 +753,6 @@ namespace CedMod.Addons.QuerySystem.WS
                             break;
                         case "ApplyRA":
                             //Logger.Info($"Panel requested AutoSlPerms reload: {jsonData["reason"]}");
-                            new Thread(ApplyRa).Start(true);
-                            //Logger.Info($"Panel requested AutoSlPerms reload: {jsonData["reason"]}");
                             new Thread(() =>
                             {
                                 try

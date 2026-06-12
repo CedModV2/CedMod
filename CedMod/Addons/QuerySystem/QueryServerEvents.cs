@@ -221,26 +221,26 @@ namespace CedMod.Addons.QuerySystem
                     {
                         Logger.Error(e.ToString());
                     }
-
-                    new Thread((o =>
-                    {
-                        try
-                        {
-                            if (!_first)
-                            {
-                                WebSocketSystem.ApplyRa(false);
-                                _first = true;
-                            }
-
-                            WebSocketSystem.ApplyRa(true);
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                            Logger.Error(e.ToString());
-                        }
-                    })).Start(true);
                 });
+                
+                new Thread((o =>
+                {
+                    try
+                    {
+                        if (!_first)
+                        {
+                            WebSocketSystem.ApplyRa(false);
+                            _first = true;
+                        }
+
+                        WebSocketSystem.ApplyRa(true);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        Logger.Error(e.ToString());
+                    }
+                })).Start(true);
             }
         }
 
