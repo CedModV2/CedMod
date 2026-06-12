@@ -102,28 +102,26 @@ namespace CedMod.Handlers
         
         public override void OnPlayerRaPlayerListAddingPlayer(PlayerRaPlayerListAddingPlayerEventArgs ev)
         {
-            if (!CedModMain.Singleton.Config.CedMod.DisableWatchlistPrefixesInRaPlayerList)
+            if (!CedModMain.Singleton.Config.CedMod.DisableWatchlistPrefixesInRaPlayerList) return;
+            
+            if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(ev.Player) && RemoteAdminModificationHandler.IngameUserPreferencesMap[ev.Player].ShowWatchListUsersInRemoteAdmin)
             {
-                if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(ev.Player) && RemoteAdminModificationHandler.IngameUserPreferencesMap[ev.Player].ShowWatchListUsersInRemoteAdmin)
+                if (RemoteAdminModificationHandler.GroupWatchlist.Any(s => s.UserIds.Contains(ev.Target.UserId)))
                 {
-                    if (RemoteAdminModificationHandler.GroupWatchlist.Any(s => s.UserIds.Contains(ev.Target.UserId)))
+                    if (RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(ev.Target.UserId)) >= 2)
                     {
-                        if (RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(ev.Target.UserId)) >= 2)
-                        {
-                            ev.Prefix += $"<size=15><color=#00FFF6>[WMG{RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(ev.Target.UserId))}]</color></size> ";
-                        }
-                        else
-                        {
-                            ev.Prefix += $"<size=15><color=#00FFF6>[WG{RemoteAdminModificationHandler.GroupWatchlist.FirstOrDefault(s => s.UserIds.Contains(ev.Target.UserId)).Id}]</color></size> ";
-                        }
+                        ev.Prefix += $"<size=15><color=#00FFF6>[WMG{RemoteAdminModificationHandler.GroupWatchlist.Count(s => s.UserIds.Contains(ev.Target.UserId))}]</color></size> ";
                     }
-                    else if (RemoteAdminModificationHandler.Watchlist.Any(s => s.Userid == ev.Target.UserId))
+                    else
                     {
-                        ev.Prefix += $"<size=15><color=#00FFF6>[WL]</color></size> ";
+                        ev.Prefix += $"<size=15><color=#00FFF6>[WG{RemoteAdminModificationHandler.GroupWatchlist.FirstOrDefault(s => s.UserIds.Contains(ev.Target.UserId)).Id}]</color></size> ";
                     }
                 }
+                else if (RemoteAdminModificationHandler.Watchlist.Any(s => s.Userid == ev.Target.UserId))
+                {
+                    ev.Prefix += $"<size=15><color=#00FFF6>[WL]</color></size> ";
+                }
             }
-            base.OnPlayerRaPlayerListAddingPlayer(ev);
         }
 
         public override void OnPlayerRequestedCustomRaInfo(PlayerRequestedCustomRaInfoEventArgs ev)
@@ -312,14 +310,12 @@ namespace CedMod.Handlers
 
         public override void OnPlayerRequestedRaPlayerInfo(PlayerRequestedRaPlayerInfoEventArgs ev)
         {
-            if (!CedModMain.Singleton.Config.CedMod.DisableCedmodAddingFieldsInRequestData)
+            if (!CedModMain.Singleton.Config.CedMod.DisableCedmodAddingFieldsInRequestData) return;
+            
+            if (ev.Player.HasPermissions("cedmod.requestdata"))
             {
-                if (ev.Player.HasPermissions("cedmod.requestdata"))
-                {
-                    Timing.RunCoroutine(RequestData(ev, ev.InfoBuilder.ToString()));
-                }
+                Timing.RunCoroutine(RequestData(ev, ev.InfoBuilder.ToString()));
             }
-            base.OnPlayerRequestedRaPlayerInfo(ev);
         }
 
         private IEnumerator<float> RequestData(PlayerRequestedRaPlayerInfoEventArgs ev, string data)
