@@ -102,7 +102,7 @@ namespace CedMod.Handlers
         
         public override void OnPlayerRaPlayerListAddingPlayer(PlayerRaPlayerListAddingPlayerEventArgs ev)
         {
-            if (CedModMain.Singleton.Config.CedMod.ShouldAddWatchlistPrefixesToRaPlayerList)
+            if (!CedModMain.Singleton.Config.CedMod.DisableWatchlistPrefixesInRaPlayerList)
             {
                 if (RemoteAdminModificationHandler.IngameUserPreferencesMap.ContainsKey(ev.Player) && RemoteAdminModificationHandler.IngameUserPreferencesMap[ev.Player].ShowWatchListUsersInRemoteAdmin)
                 {
@@ -312,7 +312,7 @@ namespace CedMod.Handlers
 
         public override void OnPlayerRequestedRaPlayerInfo(PlayerRequestedRaPlayerInfoEventArgs ev)
         {
-            if (CedModMain.Singleton.Config.CedMod.ShouldAddFieldsToRequestData)
+            if (!CedModMain.Singleton.Config.CedMod.DisableCedmodAddingFieldsInRequestData)
             {
                 if (ev.Player.HasPermissions("cedmod.requestdata"))
                 {
