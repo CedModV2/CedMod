@@ -950,12 +950,12 @@ namespace CedMod.Addons.QuerySystem.WS
                     using (HttpClient client = new HttpClient())
                     {
                         client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
+                        if (!request)
+                            throw new Exception("Request is false");
                         VerificationChallenge.AwaitVerification().Wait();
 
                         try
                         {
-                            if (!request)
-                                throw new Exception("Request is false");
                             var responseWhitelist = client.SendAsync(new HttpRequestMessage()
                             {
                                 Method = HttpMethod.Options,
@@ -1012,8 +1012,7 @@ namespace CedMod.Addons.QuerySystem.WS
                         }
                         catch (Exception e)
                         {
-                            if (request)
-                                Logger.Error($"Failed to check for whitelist {e}");
+                            Logger.Error($"Failed to check for whitelist {e}");
 
                             if (Directory.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod")))
                             {
@@ -1027,9 +1026,6 @@ namespace CedMod.Addons.QuerySystem.WS
                                 }
                             }
                         }
-
-                        if (!request)
-                            throw new Exception("Request is false");
                         
                         if (CedModMain.Singleton.Config.QuerySystem.Debug)
                             Logger.Debug("Attempting to send permission request");
@@ -1094,13 +1090,22 @@ namespace CedMod.Addons.QuerySystem.WS
                         UseRa = false;
                         if (request)
                             Logger.Error($"Failed to fetch RA from panel, using cache...\n{e}");
+                        
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Logger.Debug("Cache file exists, reading...");
+                        
                         permsSlRequest = JsonConvert.DeserializeObject<AutoSlPermsSlRequest>(File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "autoSlPermCache.json")));
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Logger.Debug($"Read cache file, has {permsSlRequest.PermissionEntries.Count} permissions with {permsSlRequest.MembersList.Count} members");
                     }
                     else
                     {
                         UseRa = true;
                         if (request && File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", "autoSlPermCache.json")))
                             Logger.Error($"Failed to fetch RA from panel, using RA...\n{e}");
+                        
+                        if (CedModMain.Singleton.Config.QuerySystem.Debug)
+                            Logger.Debug($"SCache file not found, using RA.");
                         return;
                     }
                 }
