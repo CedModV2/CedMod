@@ -785,6 +785,9 @@ namespace CedMod.Addons.QuerySystem
 
         public override void OnPlayerLeft(PlayerLeftEventArgs ev)
         {
+            if (ev.Player.UserId == null)
+                return;
+            
             if (CommandHandler.Synced.ContainsKey(ev.Player.UserId))
             {
                 ServerStatic.PermissionsHandler.Members.Remove(ev.Player.UserId);
