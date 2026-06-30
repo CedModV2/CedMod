@@ -68,8 +68,16 @@ namespace CedMod
                     { "Signature", player.ReferenceHub.authManager.AuthenticationResponse.SignedAuthToken.signature },
                 };
                 
+                if (info != null && CedModMain.Singleton.Config.CedMod.ShowDebug)
+                    Logger.Debug($"Api prefetch has result for {player.UserId} = {JsonConvert.SerializeObject(info)}");
+                else if (info == null && CedModMain.Singleton.Config.CedMod.ShowDebug)
+                    Logger.Debug($"Sending Api request for {player.UserId}");
+                
                 if (req)
                     info = (Dictionary<string, string>) await API.APIRequest($"Auth/{player.UserId}&{player.IpAddress}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&server={Uri.EscapeDataString(WebSocketSystem.HelloMessage == null ? "Unknown" : WebSocketSystem.HelloMessage.Identity)}&r=1", JsonConvert.SerializeObject(authToken), false, "POST");
+                
+                if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                    Logger.Debug($"Api request for {player.UserId} response = {(info == null ? "ERROR" : JsonConvert.SerializeObject(info))}");
 
                 if (player.ReferenceHub.authManager.AuthenticationResponse.AuthToken != null && player.IpAddress != player.ReferenceHub.authManager.AuthenticationResponse.AuthToken.RequestIp && info != null && info.ContainsKey("success") && info["success"] == "true" && info["vpn"] == "false" && info["isbanned"] == "false")
                 {
