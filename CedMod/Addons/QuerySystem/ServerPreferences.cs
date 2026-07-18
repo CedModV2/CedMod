@@ -20,62 +20,52 @@ namespace CedMod.Addons.QuerySystem
             if (string.IsNullOrEmpty(QuerySystem.QuerySystemKey) || CedModMain.CancellationToken.IsCancellationRequested)
                 return;
 
-            try
+            while (loop)
             {
-                using (HttpClient client = new HttpClient())
+                try
                 {
-                    client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
-                    await VerificationChallenge.AwaitVerification();
-                    if (CedModMain.Singleton.Config.CedMod.ShowDebug)
-                        Logger.Debug($"Getting Prefs.");
-                    var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/ServerPreference/GetServerPreference/{QuerySystem.QuerySystemKey}");
-                    if (response.IsSuccessStatusCode)
+                    using (HttpClient client = new HttpClient())
                     {
-                        var data = JsonConvert.DeserializeObject<ServerPreferenceModel>(
-                            await response.Content.ReadAsStringAsync());
-                        Prefs = data;
-                        File.WriteAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json"), JsonConvert.SerializeObject(Prefs));
+                        client.DefaultRequestHeaders.Add("X-ServerIp", ServerConsole.Ip);
+                        await VerificationChallenge.AwaitVerification();
+                        if (CedModMain.Singleton.Config.CedMod.ShowDebug)
+                            Logger.Debug($"Getting Prefs.");
+                        var response = await client.GetAsync($"http{(QuerySystem.UseSSL ? "s" : "")}://" + QuerySystem.CurrentMaster + $"/ServerPreference/GetServerPreference/{QuerySystem.QuerySystemKey}");
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var data = JsonConvert.DeserializeObject<ServerPreferenceModel>(await response.Content.ReadAsStringAsync());
+                            Prefs = data;
+                            await File.WriteAllTextAsync(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json"), JsonConvert.SerializeObject(Prefs));
+                        }
+                        else
+                        {
+                            if (response.StatusCode == HttpStatusCode.PreconditionRequired)
+                            {
+                                VerificationChallenge.CompletedChallenge = false;
+                                VerificationChallenge.ChallengeStarted = false;
+                            }
+                            Logger.Error($"Failed to resolve server preferences, using file: {response.StatusCode} {await response.Content.ReadAsStringAsync()}");
+                            if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json")))
+                                Prefs = JsonConvert.DeserializeObject<ServerPreferenceModel>(File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json")));
+                            await Task.Delay(1000);
+                            continue;
+                        }
                     }
-                    else
-                    {
-                        if (response.StatusCode == HttpStatusCode.PreconditionRequired)
-                        {
-                            VerificationChallenge.CompletedChallenge = false;
-                            VerificationChallenge.ChallengeStarted = false;
-                        }
-                        Logger.Error($"Failed to resolve server preferences, using file: {response.StatusCode} {await response.Content.ReadAsStringAsync()}");
-                        if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json")))
-                            Prefs = JsonConvert.DeserializeObject<ServerPreferenceModel>(File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json")));
-                        if (loop)
-                        {
-                            await Task.Delay(1000, CedModMain.CancellationToken);
-                            await ResolvePreferences();
-                        }
+                }
+                catch (Exception e)
+                {
+                    if (e is TaskCanceledException && CedModMain.CancellationToken.IsCancellationRequested)
                         return;
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                if (e is TaskCanceledException && CedModMain.CancellationToken.IsCancellationRequested)
-                    return;
                 
-                if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json")))
-                    Prefs = JsonConvert.DeserializeObject<ServerPreferenceModel>(File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json")));
+                    if (File.Exists(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json")))
+                        Prefs = JsonConvert.DeserializeObject<ServerPreferenceModel>(File.ReadAllText(Path.Combine(CedModMain.PluginConfigFolder, "CedMod", $"ServerPrefs-{Server.Port}.json")));
                 
-                Logger.Error($"Failed to resolve server preferences, using file: {e}");
-                if (loop)
-                {
+                    Logger.Error($"Failed to resolve server preferences, using file: {e}");
                     await Task.Delay(1000, CedModMain.CancellationToken);
-                    await ResolvePreferences();
+                    continue;
                 }
-                return;
-            }
 
-            if (loop)
-            {
                 await WaitForSecond(60, CedModMain.CancellationToken, (o) => !Shutdown._quitting && CedModMain.Singleton.CacheHandler != null);
-                await ResolvePreferences();
             }
         }
         
