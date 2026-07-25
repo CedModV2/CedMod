@@ -22,6 +22,10 @@ namespace CedMod.Handlers
         {
             VoicePacketPacket.Floats.Remove(ev.Player.ReferenceHub.netId);
             VoicePacketPacket.OpusDecoders.Remove(ev.Player.ReferenceHub.netId);
+            lock (BanSystem.CachedStates)
+            {
+                BanSystem.CachedStates.Remove(ev.Player.UserId);
+            }
         }
         
         public IEnumerator<float> Name(LabApi.Features.Wrappers.Player player)

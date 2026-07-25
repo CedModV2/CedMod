@@ -53,21 +53,22 @@ namespace CedMod.Addons.QuerySystem
             
             Task.Run(async () =>
             {
-                Dictionary<string, string> authToken = new Dictionary<string, string>()
+                try
                 {
-                    { "Type", "Preauth" },
-                    { "Token", $"{ev.UserId};{ev.Flags};{ev.Region};{ev.Expiration}" },
-                    { "Signature", Convert.ToBase64String(ev.Signature) },
-                };
-                            
-                Dictionary<string, string> info = (Dictionary<string, string>) await API.APIRequest($"Auth/{ev.UserId}&{ev.IpAddress}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&server={Uri.EscapeDataString(WebSocketSystem.HelloMessage == null ? "Unknown" : WebSocketSystem.HelloMessage.Identity)}&r=1", JsonConvert.SerializeObject(authToken), false, "POST");
-                lock (BanSystem.CachedStates)
-                {
-                    if (BanSystem.CachedStates.ContainsKey(ev.UserId))
-                        BanSystem.CachedStates.Remove(ev.UserId);
-                    BanSystem.CachedStates.Add(ev.UserId, info);
+                    Dictionary<string, string> authToken = new Dictionary<string, string>() { { "Type", "Preauth" }, { "Token", $"{ev.UserId};{ev.Flags};{ev.Region};{ev.Expiration}" }, { "Signature", Convert.ToBase64String(ev.Signature) }, };
+
+                    Dictionary<string, string> info = (Dictionary<string, string>)await API.APIRequest($"Auth/{ev.UserId}&{ev.IpAddress}?banLists={string.Join(",", ServerPreferences.Prefs.BanListReadBans.Select(s => s.Id))}&banListMutes={string.Join(",", ServerPreferences.Prefs.BanListReadMutes.Select(s => s.Id))}&server={Uri.EscapeDataString(WebSocketSystem.HelloMessage == null ? "Unknown" : WebSocketSystem.HelloMessage.Identity)}&r=1", JsonConvert.SerializeObject(authToken), false, "POST");
+                    lock (BanSystem.CachedStates)
+                    {
+                        if (BanSystem.CachedStates.ContainsKey(ev.UserId))
+                            BanSystem.CachedStates.Remove(ev.UserId);
+                        BanSystem.CachedStates.Add(ev.UserId, info);
+                    }
                 }
-							
+                catch (Exception e)
+                {
+                    Logger.Error(e);
+                }
             });
             
             base.OnPlayerPreAuthenticating(ev);

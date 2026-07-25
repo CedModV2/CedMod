@@ -54,7 +54,10 @@ namespace CedMod
                 lock (CachedStates)
                 {
                     if (CachedStates.ContainsKey(player.UserId))
+                    {
                         info = CachedStates[player.UserId];
+                        CachedStates.Remove(player.UserId);
+                    }
                     else
                         req = true;
                 }
