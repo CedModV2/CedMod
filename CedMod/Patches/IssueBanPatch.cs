@@ -12,6 +12,11 @@ namespace CedMod.Patches
         {
             try
             {
+                if (banType == BanHandler.BanType.IP || banType == BanHandler.BanType.NULL)
+                {
+                    return false;
+                }
+                
                 Logger.Info($"MainGame ban IssueBanpatch: banning user. {ban.Id} {banType} {ban.OriginalName}");
                 new Thread(() =>
                 {
