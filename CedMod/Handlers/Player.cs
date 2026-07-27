@@ -41,7 +41,7 @@ namespace CedMod.Handlers
                 {
                     if (ev.Issuer != null)
                         ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => ev.Issuer.ReferenceHub.queryProcessor.SendToClient("Issuing ban, please wait", true, true, "BAN#Issuing ban, please wait"));
-                    await API.Ban(ev.Player, ev.Duration, ev.Issuer.LogName, ev.Reason, false);
+                    await API.Ban(ev.Player, ev.Duration, ev.Issuer == null ? "Unknown issuer" : ev.Issuer.LogName, ev.Reason, false);
                     if (ev.Issuer != null)
                         ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => ev.Issuer.ReferenceHub.queryProcessor.SendToClient("Ban issued", true, true, "BAN#Ban issued."));
                 }
