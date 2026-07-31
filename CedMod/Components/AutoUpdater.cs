@@ -37,7 +37,7 @@ namespace CedMod.Components
                 if (TimePassedWarning >= 2)
                 {
                     TimePassedWarning = 0;
-                    Logger.Error($"CedMod requires additional Setup, the plugin will not function and some features will not work if the plugin is not setup.\nPlease follow the setup guide on https://cedmod.nl/Servers/Setup");
+                    Logger.Error($"CedMod requires additional Setup, the plugin will not function and some features will not work if the plugin is not setup.\nPlease follow the setup guide on https://cedmod.nl/Servers/Create");
                 }
                 return;
             }
