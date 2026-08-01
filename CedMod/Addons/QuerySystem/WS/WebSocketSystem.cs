@@ -651,6 +651,20 @@ namespace CedMod.Addons.QuerySystem.WS
                                 }
                             }
 
+                            if (CustomLiteNetLib4MirrorTransport.UserIds.Any(s => s.Value.UserId == jsonData["steamid"]))
+                            {
+                                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() => Timing.RunCoroutine(API.WaitForKick(jsonData["steamid"], jsonData["reason"] + "\n" + CedModMain.Singleton.Config.CedMod.AdditionalBanMessage)));
+                                SendQueue.Enqueue(new QueryCommand()
+                                {
+                                    Recipient = cmd.Recipient,
+                                    Data = new Dictionary<string, string>()
+                                    {
+                                        { "Message", "User kicked" }
+                                    }
+                                });
+                                return;
+                            }
+
                             SendQueue.Enqueue(new QueryCommand()
                             {
                                 Recipient = cmd.Recipient,

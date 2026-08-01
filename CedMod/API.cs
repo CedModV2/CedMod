@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -216,18 +217,25 @@ namespace CedMod
                         { "Message", "BANISSUED" },
                         { "UserId", UserId }                    
                     }                                                  
-                });                                                    
-                Player player = CedModPlayer.Get(UserId);
-                if (player != null)
+                });           
+                
+                ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>
                 {
+                    Player player = CedModPlayer.Get(UserId);
+                    if (player != null)
+                        Timing.RunCoroutine(StrikeBad(player, result.ContainsKey("preformattedmessage") ? result["preformattedmessage"] : $"Failed to execute api request {JsonConvert.SerializeObject(result)}"));
+                    else
+                    {
+                        if (CustomLiteNetLib4MirrorTransport.UserIds.Any(s => s.Value.UserId == UserId))
+                            Timing.RunCoroutine(WaitForKick(UserId, result.ContainsKey("preformattedmessage") ? result["preformattedmessage"] : $"Failed to execute api request {JsonConvert.SerializeObject(result)}"));
+                    }
+                    
                     if (player != null)
                     {
-                        ThreadDispatcher.ThreadDispatchQueue.Enqueue(() =>  Timing.RunCoroutine(StrikeBad(player, result.ContainsKey("preformattedmessage") ? result["preformattedmessage"] : $"Failed to execute api request {JsonConvert.SerializeObject(result)}")));
+                        if (bc)
+                            Broadcast.Singleton.RpcAddElement(ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", player.Nickname), (ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), Broadcast.BroadcastFlags.Normal);
                     }
-
-                    if (bc)
-                        Broadcast.Singleton.RpcAddElement(ConfigFile.ServerConfig.GetString("broadcast_ban_text", "%nick% has been banned from this server.").Replace("%nick%", player.Nickname), (ushort) ConfigFile.ServerConfig.GetInt("broadcast_ban_duration", 5), Broadcast.BroadcastFlags.Normal);
-                }
+                });
             }
             else
             {
@@ -240,6 +248,23 @@ namespace CedMod
                     }
                 }
             }
+        }
+
+        public static IEnumerator<float> WaitForKick(string userid, string reason)
+        {
+            Stopwatch watch = Stopwatch.StartNew();
+            Player plr = null;
+            while (watch.Elapsed.Seconds <= 30)
+            {
+                plr = Player.Get(userid);
+                if (plr != null)
+                    break;
+
+                yield return Timing.WaitForSeconds(0.1f);
+            }
+
+            if (plr != null)
+                Timing.RunCoroutine(StrikeBad(plr, reason));
         }
 
         public static IEnumerator<float> StrikeBad(Player player, string reason)
