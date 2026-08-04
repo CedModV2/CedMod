@@ -19,6 +19,7 @@ using CedMod.Addons.Sentinal;
 using CedMod.Addons.Sentinal.Patches;
 using CedMod.Addons.StaffInfo;
 using CedMod.Components;
+using CedMod.Error;
 using CentralAuth;
 using CommandSystem;
 using Exiled.API.Enums;
@@ -111,10 +112,12 @@ namespace CedMod
         
         void LoadPlugin()
         {
+            ErrorCollector.Setup();
+            
 #if !EXILED
             if (Config == null)
             {
-                Timing.CallPeriodically(100000, 1, () => Logger.Error("Failed to load CedMod, your CedMod config file is invalid. Please make sure the config.yml file is valid, the config.yml file is located in the CedMod folder inside the folder you installed the dll into, if the file does not contain valid yml, delete it, or resolve issues, and restart."));
+                ErrorCollector.Add("Failed to load CedMod, your CedMod config file is invalid. Please make sure the config.yml file is valid, the config.yml file is located in the CedMod folder inside the folder you installed the dll into, if the file does not contain valid yml, delete it, or resolve issues, and restart.");
                 return;
             }
             
@@ -122,7 +125,7 @@ namespace CedMod
             bool loaded = (bool)loadProperty.GetValue(null);
             if (loaded)
             {
-                Timing.CallPeriodically(100000, 1, () => Logger.Error("It would appear that the LabApi tried loading CedMod twice, please ensure that you do not have CedMod installed twice"));
+                ErrorCollector.Add("It would appear that the LabApi tried loading CedMod twice, please ensure that you do not have CedMod installed twice");
                 return;
             }
             loadProperty.SetValue(null, true);
@@ -134,7 +137,7 @@ namespace CedMod
             bool loaded = (bool)loadProperty.GetValue(null);
             if (loaded)
             {
-                Timing.CallPeriodically(100000, 1, () => Logger.Error("It would appear that EXILED tried loading CedMod twice, please ensure that you do not have CedMod or EXILED installed twice"));
+                ErrorCollector.Add("It would appear that EXILED tried loading CedMod twice, please ensure that you do not have CedMod or EXILED installed twice");
                 return;
             }
             loadProperty.SetValue(null, true);
@@ -555,6 +558,8 @@ namespace CedMod
 #endif
         public void Disabled()
         {
+            ErrorCollector.Destroy();
+            
             var loadProperty = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(s => s.GetName().Name == "CedModV3").GetType("CedMod.API").GetProperty("HasLoaded");
             loadProperty.SetValue(null, false);
             PlayerAuthenticationManager.OnInstanceModeChanged -= HandleInstanceModeChange;

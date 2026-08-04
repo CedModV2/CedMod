@@ -158,6 +158,9 @@
     <Compile Include="Commands\WarnCommand.cs" />
     <Compile Include="Components\AutoUpdater.cs" />
     <Compile Include="Components\RemoteAdminModificationHandler.cs" />
+    <Compile Include="Error\ContinuousError.cs" />
+    <Compile Include="Error\ErrorCollector.cs" />
+    <Compile Include="Error\PluginLibrary.cs" />
     <Compile Include="FriendlyFireAutoban.cs" />
     <Compile Include="Handlers\Player.cs" />
     <Compile Include="Config.cs" />
