@@ -20,25 +20,20 @@ namespace CedMod.Components
     public class AutoUpdater: MonoBehaviour
     {
         public static CedModVersion Pending = new CedModVersion();
+        
         public float TimePassed;
         public float TimePassedCheck;
-        
-        public float TimePassedWarning;
         public float TimePassedUpdateNotify;
+        
         public bool Installing = false;
         public Byte[] FileToWriteDelayed;
+        
         public bool ForceLog { get; set; }
 
         public void Update()
         {
             if (QuerySystem.QuerySystemKey == "")
             {
-                TimePassedWarning += Time.unscaledDeltaTime;
-                if (TimePassedWarning >= 2)
-                {
-                    TimePassedWarning = 0;
-                    Logger.Error($"CedMod requires additional Setup, the plugin will not function and some features will not work if the plugin is not setup.\nPlease follow the setup guide on https://cedmod.nl/Servers/Create");
-                }
                 return;
             }
             
