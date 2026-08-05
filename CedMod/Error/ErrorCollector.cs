@@ -13,6 +13,7 @@ namespace CedMod.Error
     {
         private static GameObject _obj;
         private static readonly List<string> Errors = new();
+        private static bool _checkedLibraryOnce = false;
 
         private static PluginLibrary? _currentLibrary;
 
@@ -78,10 +79,12 @@ namespace CedMod.Error
         {
             var allErrors = new List<string>(Errors);
 
-            if (_currentLibrary != TargetLibrary)
+            if (_currentLibrary != TargetLibrary && (!CedModMain.Singleton.Config.CedMod.SuppressIncorrectLibraryVersion || !_checkedLibraryOnce))
             {
+                _checkedLibraryOnce = true;
+                
                 allErrors.Add(
-                    $"Wrong CedMod version was installed! You installed CedMod for {TargetLibrary} but should have installed CedMod for {_currentLibrary}. Make sure you followed the installation instructions in the README (https://github.com/CedModV2/CedMod), or on the panel, for the plugin library you are using.");
+                    $"Wrong CedMod version was installed!\nYou installed CedMod for {TargetLibrary} but should have installed CedMod for {_currentLibrary}.\nLibrary specific integrations for {_currentLibrary} will not function (Such as integration with permission systems).\nMake sure you followed the installation instructions in the README (https://github.com/CedModV2/CedMod), or on the panel, for the plugin library you are using.");
             }
 
             if (string.IsNullOrWhiteSpace(QuerySystem.QuerySystemKey))

@@ -104,5 +104,8 @@ namespace CedMod
         
         [Description("Whether or not CedMod should add prefixes such as [WL] (Watchlist)/[WG] & [WMG] (Group Watchlist) to players in RA Player List")]
         public bool DisableWatchlistPrefixesInRaPlayerList { get; set; } = false;
+
+        [Description("Suppresses the incorrect library warning when the LabAPI version of cedmod is used while exiled is installed.")]
+        public bool SuppressIncorrectLibraryVersion { get; set; } = false;
     }
 }
